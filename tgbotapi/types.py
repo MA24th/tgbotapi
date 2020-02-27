@@ -98,7 +98,7 @@ class Animation(JsonDeserializable):
         :param file_name: [STRING] Optional. Original animation filename as defined by sender.
         :param mime_type: [STRING] Optional. MIME type of the file as defined by sender.
         :param file_size: [INTEGER] Optional. File size.
-        :return JSON_OBJECT:
+        :return JSON-object:
     """
 
     def __init__(self, file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size):
@@ -133,3 +133,31 @@ class Animation(JsonDeserializable):
         if 'file_size' in obj:
             file_size = obj.get('file_size')
         return cls(file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size)
+
+
+class PhotoSize(JsonDeserializable):
+    """ This object represents one size of a photo or a file / sticker thumbnail 
+        :param file_id: [STRING] Identifier for this file, which can be used to download or reuse the file.
+        :param file_unique_id: [STRING] Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file..
+        :param width: [INTEGER] Photo width.
+        :param height: [INTEGER] Phot height.
+        :param file_size: [INTEGER] Optional. File size.
+        :return JSON-object:
+    """
+
+    def __init__(self, file_id, file_unique_id, width, height, file_size=None):
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.width = width
+        self.height = height
+        self.file_size = file_size
+
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        width = obj['width']
+        height = obj['height']
+        file_size = obj.get('file_size')
+        return cls(file_id, file_unique_id, width, height, file_size)
