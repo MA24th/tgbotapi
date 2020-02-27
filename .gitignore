@@ -1,0 +1,13 @@
+# Folders
+.cache
+.idea
+.vscode
+.pytest_cache
+data
+tgbotapi.egg-info
+__pycache__
+build
+dist
+
+# Files
+*.pyc
