@@ -2729,3 +2729,29 @@ class OrderInfo(JsonDeserializable):
         self.phone_number = phone_number
         self.email = email
         self.shipping_address = shipping_address
+
+
+class ShippingOption(JsonSerializable):
+    """ This object represents one shipping option """
+
+    def __init__(self, id, title):
+        self.id = id
+        self.title = title
+        self.prices = []
+
+    def add_price(self, *args):
+        """
+        Add LabeledPrice to ShippingOption
+        :param args: LabeledPrices
+        """
+        for price in args:
+            self.prices.append(price)
+        return self
+
+    def to_json(self):
+        price_list = []
+        for p in self.prices:
+            price_list.append(p.to_dic())
+        json_dict = json.dumps(
+            {'id': self.id, 'title': self.title, 'prices': price_list})
+        return json_dict
