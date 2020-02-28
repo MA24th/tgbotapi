@@ -3164,7 +3164,7 @@ class PassportElementErrorUnspecified(JsonDeserializable):
         self.element_hash = element_hash
         self.message = message
 
-        
+
 class Game(JsonDeserializable):
     """ This object represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers """
     @classmethod
@@ -3203,3 +3203,23 @@ class Game(JsonDeserializable):
         self.text = text
         self.text_entities = text_entities
         self.animation = animation
+
+class CallbackGame:
+    """ A placeholder, currently holds no information. Use BotFather to set up your game. """
+    pass
+
+
+class GameHighScore(JsonDeserializable):
+    """ This object represents one row of the high scores table for a game """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        position = obj['position']
+        user = User.de_json(obj['user'])
+        score = obj['score']
+        return cls(position, user, score)
+
+    def __init__(self, position, user, score):
+        self.position = position
+        self.user = user
+        self.score = score
