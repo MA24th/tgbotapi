@@ -1656,6 +1656,95 @@ class InputMediaDocument(InputMedia):
 """
 
 
+class Sticker(JsonDeserializable):
+    """ This object represents a sticker """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        width = obj['width']
+        height = obj['height']
+        is_animated = obj['is_animated']
+        thumb = None
+        if 'thumb' in obj:
+            thumb = PhotoSize.de_json(obj['thumb'])
+        emoji = None
+        if 'emoji' in obj:
+            emoji = obj.get('emoji')
+        set_name = None
+        if 'set_name' in obj:
+            set_name = obj.get('set_name')
+        mask_position = None
+        if 'mask_position' in obj:
+            mask_position = MaskPosition.de_json(obj['mask_position'])
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj.get('file_size')
+        return cls(file_id, file_unique_id, width, height, thumb, emoji, set_name, mask_position, file_size, is_animated)
+
+    def __init__(self, file_id, file_unique_id, width, height, thumb, emoji, set_name, mask_position, file_size, is_animated):
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.width = width
+        self.height = height
+        self.thumb = thumb
+        self.emoji = emoji
+        self.set_name = set_name
+        self.mask_position = mask_position
+        self.file_size = file_size
+        self.is_animated = is_animated
+
+
+class StickerSet(JsonDeserializable):
+    """ This object represents a sticker set """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        name = obj['name']
+        title = obj['title']
+        contains_masks = obj['contains_masks']
+        stickers = StickerSet.parse_stickers(obj['stickers'])
+        return cls(name, title, contains_masks, stickers)
+
+    def __init__(self, name, title, contains_masks, stickers):
+        self.stickers = stickers
+        self.contains_masks = contains_masks
+        self.title = title
+        self.name = name
+
+    @classmethod
+    def parse_stickers(cls, objs):
+        stickers = []
+        for sticker in objs:
+            stickers.append(Sticker.de_json(sticker))
+        return stickers
+
+
+class MaskPosition(JsonDeserializable, JsonSerializable):
+    """ This object describes the position on faces where a mask should be placed by default """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        point = obj['point']
+        x_shift = obj['x_shift']
+        y_shift = obj['y_shift']
+        scale = obj['scale']
+        return cls(point, x_shift, y_shift, scale)
+
+    def __init__(self, point, x_shift, y_shift, scale):
+        self.point = point
+        self.x_shift = x_shift
+        self.y_shift = y_shift
+        self.scale = scale
+
+    def to_json(self):
+        return json.dumps(self.to_dic())
+
+    def to_dic(self):
+        return {'point': self.point, 'x_shift': self.x_shift, 'y_shift': self.y_shift, 'scale': self.scale}
+
+
 class InlineQuery(JsonDeserializable):
     """
     This object represents an incoming inline query,
@@ -3203,6 +3292,7 @@ class Game(JsonDeserializable):
         self.text = text
         self.text_entities = text_entities
         self.animation = animation
+
 
 class CallbackGame:
     """ A placeholder, currently holds no information. Use BotFather to set up your game. """
