@@ -2703,3 +2703,29 @@ class ShippingAddress(JsonDeserializable):
         self.street_line1 = street_line1
         self.street_line2 = street_line2
         self.post_code = post_code
+
+
+class OrderInfo(JsonDeserializable):
+    """ This object represents information about an order """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        name = None
+        if 'name' in obj:
+            name = obj.get('name')
+        phone_number = None
+        if 'phone_number' in obj:
+            phone_number = obj.get('phone_number')
+        email = None
+        if 'email' in obj:
+            email = obj.get('email')
+        shipping_address = None
+        if 'shipping_address' in obj:
+            shipping_address = ShippingAddress.de_json(obj['shipping_address'])
+        return cls(name, phone_number, email, shipping_address)
+
+    def __init__(self, name, phone_number, email, shipping_address):
+        self.name = name
+        self.phone_number = phone_number
+        self.email = email
+        self.shipping_address = shipping_address
