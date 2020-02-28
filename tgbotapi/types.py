@@ -1655,6 +1655,7 @@ class InputMediaDocument(InputMedia):
     Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
 """
 
+
 class InlineQuery(JsonDeserializable):
     """
     This object represents an incoming inline query,
@@ -2831,3 +2832,36 @@ class PreCheckoutQuery(JsonDeserializable):
         self.invoice_payload = invoice_payload
         self.shipping_option_id = shipping_option_id
         self.order_info = order_info
+
+
+class PassportData(JsonDeserializable):
+    """ Contains information about Telegram Passport data shared with the bot by the user """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        data = obj['EncryptedPassportElement']
+        credentials = obj['EncryptedCredentials']
+        return cls(data, credentials)
+
+    def __init__(self, data, credentials):
+        self.data = data
+        self.credentials = credentials
+
+
+class PassportFile(JsonDeserializable):
+    """This object represents a file uploaded to Telegram Passport,
+    Currently all Telegram Passport files are in JPEG format when decrypted and don't exceed 10MB."""
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        file_size = obj['file_size']
+        file_date = obj['file_date']
+        return cls(file_id, file_unique_id, file_size, file_date)
+
+    def __init__(self, file_id, file_unique_id, file_size, file_date):
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.file_size = file_size
+        self.file_date = file_date
