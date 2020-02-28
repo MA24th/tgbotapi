@@ -918,3 +918,75 @@ class PollOption(JsonDeserializable):
     def __init__(self, text, voter_count):
         self.text = text
         self.voter_count = voter_count
+
+
+class PollAnswer(JsonDeserializable):
+    """ This object represents an answer of a user in a non-anonymous poll """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        poll_id = obj['poll_id']
+        user = User.de_json(obj['user'])
+        option_ids = None
+        if 'option_ids' in obj:
+            option_ids = obj['option_ids']
+        return cls(poll_id, user, option_ids)
+
+    def __init__(self, poll_id, user, option_ids):
+        self.poll_id = poll_id
+        self.user = user
+        self.option_ids = option_ids
+
+
+class Poll(JsonDeserializable):
+    """ This object contains information about a poll """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        poll_id = obj['id']
+        question = obj['question']
+        options = Poll.parse_options(obj['options'])
+        is_closed = obj['is_closed']
+        is_anonymous = obj['is_anonymous']
+        poll_type = obj['type']
+        allows_multiple_answers = obj['allows_multiple_answers']
+        correct_option_id = None
+        if 'correct_option_id' in obj:
+            correct_option_id = obj['correct_option_id']
+        return cls(poll_id, question, options, is_closed, is_anonymous, poll_type, allows_multiple_answers, correct_option_id)
+
+    def __init__(self, poll_id, question, options, is_closed, is_anonymous, poll_type, allows_multiple_answers, correct_option_id=None):
+        self.poll_id = poll_id
+        self.question = question
+        self.options = options
+        self.is_closed = is_closed
+        self.is_anonymous = is_anonymous
+        self.poll_type = poll_type
+        self.allows_multiple_answers = allows_multiple_answers
+        self.correct_option_id = correct_option_id
+
+    @classmethod
+    def parse_options(cls, options):
+        op = []
+        for option in options:
+            op.append(PollOption.de_json(option))
+        return op
+
+
+class UserProfilePhotos(JsonDeserializable):
+    """ This object represents one size of a photo or a file / sticker thumbnail """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        total_count = obj['total_count']
+        photos = UserProfilePhotos.prase_photos(obj['photos'])
+        return cls(total_count, photos)
+
+    def __init__(self, total_count, photos):
+        self.total_count = total_count
+        self.photos = photos
+
+    @classmethod
+    def prase_photos(cls, objs):
+        photos = [[PhotoSize.de_json(y) for y in x] for x in objs]
+        return photos
