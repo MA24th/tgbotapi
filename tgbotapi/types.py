@@ -2865,3 +2865,62 @@ class PassportFile(JsonDeserializable):
         self.file_unique_id = file_unique_id
         self.file_size = file_size
         self.file_date = file_date
+
+
+class EncryptedPassportElement(JsonDeserializable):
+    """ Contains information about documents or other Telegram Passport elements shared with the bot by the user """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        type = obj['type']
+        data = None
+        if 'data' in obj:
+            data = obj['data']
+        phone_number = None
+        if 'phone_number' in obj:
+            phone_number = obj['phone_number']
+        files = None
+        if 'files' in obj:
+            files = EncryptedPassportElement.parse_files(obj['files'])
+        front_side = None
+        if 'front_side' in obj:
+            front_side = PassportFile.de_json(obj['front_side'])
+        reverse_side = None
+        if 'reverse_side' in obj:
+            reverse_side = PassportFile.de_json(obj['reverse_side'])
+        selfie = None
+        if 'selfie' in obj:
+            selfie = PassportFile.de_json(obj['selfie'])
+        translation = None
+        if 'translation' in obj:
+            translation = EncryptedPassportElement.parse_translation(
+                obj['translation'])
+        hash = obj.get('hash')
+        return cls(type, data, phone_number, files, front_side, reverse_side, selfie, translation, hash)
+
+    def __init__(self, type, data, phone_number, files, front_side, reverse_side, selfie, translation, hash):
+        self.type = type
+        self.data = data
+        self.phone_number = phone_number
+        self.files = files
+        self.front_side = front_side
+        self.reverse_side = reverse_side
+        self.selfie = selfie
+        self.translation = translation
+        self.hash = hash
+
+    @classmethod
+    def parse_files(cls, objs):
+        files = []
+        for x in objs:
+            file = PassportFile.de_json(x)
+            files.append(file)
+        return files
+
+    @classmethod
+    def parse_translation(cls, objs):
+        translations = []
+        for x in objs:
+            translation = PassportFile.de_json(x)
+            translations.append(translation)
+        return translations
