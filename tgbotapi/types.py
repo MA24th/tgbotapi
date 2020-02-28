@@ -2582,3 +2582,24 @@ class InputLocationMessageContent(Dictionaryable):
         if self.live_period:
             json_dic['live_period'] = self.live_period
         return json_dic
+
+
+class InputVenueMessageContent(Dictionaryable):
+    """ Represents the content of a venue message to be sent as the result of an inline query """
+
+    def __init__(self, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.title = title
+        self.address = address
+        self.foursquare_id = foursquare_id
+        self.foursquare_type = foursquare_type
+
+    def to_dic(self):
+        json_dic = {'latitude': self.latitude, 'longitude': self.longitude, 'title': self.title,
+                    'address': self.address}
+        if self.foursquare_id:
+            json_dic['foursquare_id'] = self.foursquare_id
+        if self.foursquare_type:
+            json_dic['foursquare_type'] = self.foursquare_type
+        return json_dic
