@@ -1246,3 +1246,95 @@ class InlineKeyboardButton(JsonSerializable):
             json_dic['login_url'] = self.login_url
         return json_dic
 
+
+class LoginUrl(JsonSerializable):
+    """ 
+    This object represents a parameter of the inline keyboard button used to automatically authorize a user,
+    Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram.
+    """
+
+    def __init__(self, url, forward_text=None, bot_username=None, request_write_access=None):
+        self.url = url
+        self.forward_text = forward_text
+        self.bot_username = bot_username
+        self.request_write_access = request_write_access
+
+    def to_json(self):
+        return json.dumps(self.to_dic())
+
+    def to_dic(self):
+        json_dic = {'url': self.url}
+        if self.forward_text:
+            json_dic['forward_text'] = self.forward_text
+        if self.bot_username:
+            json_dic['bot_username'] = self.bot_username
+        if self.request_write_access:
+            json_dic['request_write_access'] = self.request_write_access
+        return json_dic
+
+
+class CallbackQuery(JsonDeserializable):
+    """ This object represents an incoming callback query from a callback button in an inline keyboard,
+        If the button that originated the query was attached to a message sent by the bot, 
+        the field message will be present,
+        If the button was attached to a message sent via the bot (in inline mode), 
+        the field inline_message_id will be present,
+        Exactly one of the fields data or game_short_name will be present. 
+        :param id: [STRING] Unique identifier for this query.
+        :param from: [User] Sender.
+        :param message: [Message] Optional. Message with the callback button that originated the query,
+            Note: that message content and message date will not be available if the message is too old.
+        :param inline_message_id: [STRING] Optional. Identifier of the message sent via the bot in inline mode, that originated the query.
+        :param chat_instance: [STRING] Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent.
+        :param data: [STRING] Optional. Data associated with the callback button. Be aware that a bad client can send arbitrary data in this field.
+        :param game_short_name: [STRING] Optional. Short name of a Game to be returned, serves as the unique identifier for the game.
+        :return JSON_OBJECT:
+    """
+
+    def __init__(self, id, from_user, data, chat_instance, message=None, inline_message_id=None, game_short_name=None):
+        self.game_short_name = game_short_name
+        self.chat_instance = chat_instance
+        self.id = id
+        self.from_user = from_user
+        self.message = message
+        self.data = data
+        self.inline_message_id = inline_message_id
+
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        id = obj['id']
+        from_user = User.de_json(obj['from'])
+        message = None
+        if 'message' in obj:
+            message = Message.de_json(obj['message'])
+        inline_message_id = None
+        if 'inline_message_id' in obj:
+            inline_message_id = obj.get('inline_message_id')
+        chat_instance = obj['chat_instance']
+        data = None
+        if 'data' in obj:
+            data = obj.get('data')
+        game_short_name = None
+        if 'game_short_name' in obj:
+            game_short_name = obj.get('game_short_name')
+        return cls(id, from_user, data, chat_instance, message, inline_message_id, game_short_name)
+
+
+class ForceReply(JsonSerializable):
+    """
+    Upon receiving a message with this object, 
+    Telegram clients will display a reply interface to the user,
+    (act as if the user has selected the bot‘s message and tapped ’Reply'),
+    This can be extremely useful if you want to create user-friendly step-by-step,
+    interfaces without having to sacrifice privacy mode.
+    """
+
+    def __init__(self, selective=None):
+        self.selective = selective
+
+    def to_json(self):
+        json_dict = {'force_reply': True}
+        if self.selective:
+            json_dict['selective'] = True
+        return json.dumps(json_dict)
