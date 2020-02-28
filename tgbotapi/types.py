@@ -2568,3 +2568,17 @@ class InputTextMessageContent(Dictionaryable):
             json_dic['disable_web_page_preview'] = self.disable_web_page_preview
         return json_dic
 
+
+class InputLocationMessageContent(Dictionaryable):
+    """ Represents the content of a location message to be sent as the result of an inline query """
+
+    def __init__(self, latitude, longitude, live_period=None):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.live_period = live_period
+
+    def to_dic(self):
+        json_dic = {'latitude': self.latitude, 'longitude': self.longitude}
+        if self.live_period:
+            json_dic['live_period'] = self.live_period
+        return json_dic
