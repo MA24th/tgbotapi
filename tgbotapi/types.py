@@ -87,6 +87,159 @@ class JsonSerializable(object):
         raise NotImplementedError
 
 
+class Update(JsonDeserializable):
+    """ 
+    This object represents an incoming update,
+    At most one of the optional parameters can be present in any given update.
+    """
+
+    def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
+                 chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer):
+        self.update_id = update_id
+        self.message = message
+        self.edited_message = edited_message
+        self.channel_post = channel_post
+        self.edited_channel_post = edited_channel_post
+        self.inline_query = inline_query
+        self.chosen_inline_result = chosen_inline_result
+        self.callback_query = callback_query
+        self.shipping_query = shipping_query
+        self.pre_checkout_query = pre_checkout_query
+        self.poll = poll
+        self.poll_anwser = poll_answer
+
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        update_id = obj['update_id']
+        message = None
+        if 'message' in obj:
+            message = Message.de_json(obj['message'])
+        edited_message = None
+        if 'edited_message' in obj:
+            edited_message = Message.de_json(obj['edited_message'])
+        channel_post = None
+        if 'channel_post' in obj:
+            channel_post = Message.de_json(obj['channel_post'])
+        edited_channel_post = None
+        if 'edited_channel_post' in obj:
+            edited_channel_post = Message.de_json(obj['edited_channel_post'])
+        inline_query = None
+        if 'inline_query' in obj:
+            inline_query = InlineQuery.de_json(obj['inline_query'])
+        chosen_inline_result = None
+        if 'chosen_inline_result' in obj:
+            chosen_inline_result = ChosenInlineResult.de_json(
+                obj['chosen_inline_result'])
+        callback_query = None
+        if 'callback_query' in obj:
+            callback_query = CallbackQuery.de_json(obj['callback_query'])
+        shipping_query = None
+        if 'shipping_query' in obj:
+            shipping_query = ShippingQuery.de_json(obj['shipping_query'])
+        pre_checkout_query = None
+        if 'pre_checkout_query' in obj:
+            pre_checkout_query = PreCheckoutQuery.de_json(
+                obj['pre_checkout_query'])
+        poll = None
+        if 'poll' in obj:
+            poll = Poll.de_json(obj['poll'])
+        poll_answer = None
+        if 'poll_answer' in obj:
+            poll_answer = PollAnswer.de_json(obj['poll_answer'])
+        return cls(update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
+                   chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer)
+
+
+class WebhookInfo(JsonDeserializable):
+    """ Contains information about the current status of a webhook """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        url = obj['url']
+        has_custom_certificate = obj['has_custom_certificate']
+        pending_update_count = obj['pending_update_count']
+        last_error_date = None
+        if 'last_error_message' in obj:
+            last_error_date = obj['last_error_date']
+        last_error_message = None
+        if 'last_error_message' in obj:
+            last_error_message = obj['last_error_message']
+        max_connections = None
+        if 'max_connections' in obj:
+            max_connections = obj['max_connections']
+        allowed_updates = None
+        if 'allowed_updates' in obj:
+            allowed_updates = obj['allowed_updates']
+        return cls(url, has_custom_certificate, pending_update_count, last_error_date, last_error_message,
+                   max_connections, allowed_updates)
+
+    def __init__(self, url, has_custom_certificate, pending_update_count, last_error_date, last_error_message,
+                 max_connections, allowed_updates):
+        self.url = url
+        self.has_custom_certificate = has_custom_certificate
+        self.pending_update_count = pending_update_count
+        self.last_error_date = last_error_date
+        self.last_error_message = last_error_message
+        self.max_connections = max_connections
+        self.allowed_updates = allowed_updates
+
+
+class User(JsonDeserializable):
+    """ This object represents a Telegram user or bot """
+
+    def __init__(self, id, is_bot, first_name, last_name=None, username=None, language_code=None, can_join_groups=None, can_read_all_group_messages=None, supports_inline_queries=None):
+        """
+        :param id: [Integer] Unique identifier for this user or bot.
+        :param is_bot: [Boolean] True, if this user is a bot.
+        :param first_name: [String] User‘s or bot’s first name.
+        :param last_name: [String] Optional. User‘s or bot’s last name.
+        :param username: [String] Optional. User‘s or bot’s username.
+        :param language_code: [String] Optional. IETF language tag of the user's language.
+        :param can_join_groups: [Boolean] Optional. True, if the bot can be invited to groups. Returned only in getMe.
+        :param can_read_all_group_messages: [Boolean] Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.
+        :param supports_inline_queries: [Boolean] Optional. True, if the bot supports inline queries. Returned only in getMe.
+        """
+
+        self.id = id
+        self.is_bot = is_bot
+        self.first_name = first_name
+        self.username = username
+        self.last_name = last_name
+        self.language_code = language_code
+        self.can_join_groups = can_join_groups
+        self.can_read_all_group_messages = can_read_all_group_messages
+        self.supports_inline_queries = supports_inline_queries
+
+    @classmethod
+    def de_json(cls, json_string):
+        """ :return JSON-object """
+        obj = cls.check_json(json_string)
+        id = obj['id']
+        is_bot = obj['is_bot']
+        first_name = obj['first_name']
+        last_name = None
+        if 'last_name' in obj:
+            last_name = obj.get('last_name')
+        username = None
+        if 'username' in obj:
+            username = obj.get('username')
+        language_code = None
+        if 'language_code' in obj:
+            language_code = obj.get('language_code')
+        can_join_groups = None
+        if 'can_join_groups' in obj:
+            can_join_groups = obj.get('can_join_groups')
+        can_read_all_group_messages = None
+        if 'can_read_all_group_messages' in obj:
+            can_read_all_group_messages = obj.get(
+                'can_read_all_group_messages')
+        supports_inline_queries = None
+        if 'supports_inline_queries' in obj:
+            supports_inline_queries = obj.get('supports_inline_queries')
+        return cls(id, is_bot, first_name, last_name, username, language_code, can_join_groups, can_read_all_group_messages, supports_inline_queries)
+
+
 class Animation(JsonDeserializable):
     """ This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) """
 
@@ -164,58 +317,3 @@ class PhotoSize(JsonDeserializable):
         height = obj['height']
         file_size = obj.get('file_size')
         return cls(file_id, file_unique_id, width, height, file_size)
-
-
-class User(JsonDeserializable):
-    """ This object represents a Telegram user or bot """
-
-    def __init__(self, id, is_bot, first_name, last_name=None, username=None, language_code=None, can_join_groups=None, can_read_all_group_messages=None, supports_inline_queries=None):
-        """
-        :param id: [Integer] Unique identifier for this user or bot.
-        :param is_bot: [Boolean] True, if this user is a bot.
-        :param first_name: [String] User‘s or bot’s first name.
-        :param last_name: [String] Optional. User‘s or bot’s last name.
-        :param username: [String] Optional. User‘s or bot’s username.
-        :param language_code: [String] Optional. IETF language tag of the user's language.
-        :param can_join_groups: [Boolean] Optional. True, if the bot can be invited to groups. Returned only in getMe.
-        :param can_read_all_group_messages: [Boolean] Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.
-        :param supports_inline_queries: [Boolean] Optional. True, if the bot supports inline queries. Returned only in getMe.
-        """
-
-        self.id = id
-        self.is_bot = is_bot
-        self.first_name = first_name
-        self.username = username
-        self.last_name = last_name
-        self.language_code = language_code
-        self.can_join_groups = can_join_groups
-        self.can_read_all_group_messages = can_read_all_group_messages
-        self.supports_inline_queries = supports_inline_queries
-
-    @classmethod
-    def de_json(cls, json_string):
-        """ :return JSON-object """
-        obj = cls.check_json(json_string)
-        id = obj['id']
-        is_bot = obj['is_bot']
-        first_name = obj['first_name']
-        last_name = None
-        if 'last_name' in obj:
-            last_name = obj.get('last_name')
-        username = None
-        if 'username' in obj:
-            username = obj.get('username')
-        language_code = None
-        if 'language_code' in obj:
-            language_code = obj.get('language_code')
-        can_join_groups = None
-        if 'can_join_groups' in obj:
-            can_join_groups = obj.get('can_join_groups')
-        can_read_all_group_messages = None
-        if 'can_read_all_group_messages' in obj:
-            can_read_all_group_messages = obj.get(
-                'can_read_all_group_messages')
-        supports_inline_queries = None
-        if 'supports_inline_queries' in obj:
-            supports_inline_queries = obj.get('supports_inline_queries')
-        return cls(id, is_bot, first_name, last_name, username, language_code, can_join_groups, can_read_all_group_messages, supports_inline_queries)
