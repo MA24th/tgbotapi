@@ -2785,3 +2785,21 @@ class SuccessfulPayment(JsonDeserializable):
         self.order_info = order_info
         self.telegram_payment_charge_id = telegram_payment_charge_id
         self.provider_payment_charge_id = provider_payment_charge_id
+
+
+class ShippingQuery(JsonDeserializable):
+    """ This object contains information about an incoming shipping query """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        id = obj['id']
+        from_user = User.de_json(obj['from'])
+        invoice_payload = obj['invoice_payload']
+        shipping_address = ShippingAddress.de_json(obj['shipping_address'])
+        return cls(id, from_user, invoice_payload, shipping_address)
+
+    def __init__(self, id, from_user, invoice_payload, shipping_address):
+        self.id = id
+        self.from_user = from_user
+        self.invoice_payload = invoice_payload
+        self.shipping_address = shipping_address
