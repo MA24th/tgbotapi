@@ -1,5 +1,6 @@
 import json
 import six
+from .utilities import is_string
 
 """ Telegram Available methods
     All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 
@@ -990,3 +991,103 @@ class UserProfilePhotos(JsonDeserializable):
     def prase_photos(cls, objs):
         photos = [[PhotoSize.de_json(y) for y in x] for x in objs]
         return photos
+
+
+class File(JsonDeserializable):
+    """ 
+    This object represents a file ready to be downloaded,
+    The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>,
+    It is guaranteed that the link will be valid for at least 1 hour,
+    When the link expires, a new one can be requested by calling getFile,
+    Maximum file size to download is 20 MB.
+    """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj.get('file_size')
+        file_path = None
+        if 'file_path' in obj:
+            file_path = obj.get('file_path')
+        return cls(file_id, file_unique_id, file_size, file_path)
+
+    def __init__(self, file_id, file_unique_id, file_size, file_path):
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.file_size = file_size
+        self.file_path = file_path
+
+
+class ReplyKeyboardMarkup(JsonSerializable):
+    """ This object represents a custom keyboard with reply options (see Introduction to bots for details and examples) """
+
+    def __init__(self, resize_keyboard=None, one_time_keyboard=None, selective=None, row_width=3):
+        self.resize_keyboard = resize_keyboard
+        self.one_time_keyboard = one_time_keyboard
+        self.selective = selective
+        self.row_width = row_width
+
+        self.keyboard = []
+
+    def add(self, *args):
+        """
+        This function adds strings to the keyboard, while not exceeding row_width.
+        E.g. ReplyKeyboardMarkup#add("A", "B", "C") yields the json result {keyboard: [["A"], ["B"], ["C"]]}
+        when row_width is set to 1.
+        When row_width is set to 2, the following is the result of this function: {keyboard: [["A", "B"], ["C"]]}
+        See https://core.telegram.org/bots/api#replykeyboardmarkup
+        :param args: KeyboardButton to append to the keyboard
+        """
+        i = 1
+        row = []
+        for button in args:
+            if is_string(button):
+                row.append({'text': button})
+            elif isinstance(button, bytes):
+                row.append({'text': button.decode('utf-8')})
+            else:
+                row.append(button.to_dic())
+            if i % self.row_width == 0:
+                self.keyboard.append(row)
+                row = []
+            i += 1
+        if len(row) > 0:
+            self.keyboard.append(row)
+
+    def row(self, *args):
+        """
+        Adds a list of KeyboardButton to the keyboard. This function does not consider row_width.
+        ReplyKeyboardMarkup#row("A")#row("B", "C")#to_json() outputs '{keyboard: [["A"], ["B", "C"]]}'
+        See https://core.telegram.org/bots/api#replykeyboardmarkup
+        :param args: strings
+        :return: self, to allow function chaining.
+        """
+        btn_array = []
+        for button in args:
+            if is_string(button):
+                btn_array.append({'text': button})
+            else:
+                btn_array.append(button.to_dic())
+        self.keyboard.append(btn_array)
+        return self
+
+    def to_json(self):
+        """
+        Converts this object to its json representation following the Telegram API guidelines described here:
+        https://core.telegram.org/bots/api#replykeyboardmarkup
+        :return:
+        """
+        json_dict = {'keyboard': self.keyboard}
+        if self.one_time_keyboard:
+            json_dict['one_time_keyboard'] = True
+
+        if self.resize_keyboard:
+            json_dict['resize_keyboard'] = True
+
+        if self.selective:
+            json_dict['selective'] = True
+
+        return json.dumps(json_dict)
