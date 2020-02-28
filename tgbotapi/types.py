@@ -2941,3 +2941,225 @@ class EncryptedCredentials(JsonDeserializable):
         self.data = data
         self.hash = hash
         self.secret = secret
+
+
+class PassportElementError(JsonDeserializable):
+    """ This object represents an error in the Telegram Passport element 
+    which was submitted that should be resolved by the user. 
+    It should be one of:
+        PassportElementErrorDataField
+        PassportElementErrorFrontSide
+        PassportElementErrorReverseSide
+        PassportElementErrorSelfie
+        PassportElementErrorFile
+        PassportElementErrorFiles
+        PassportElementErrorTranslationFile
+        PassportElementErrorTranslationFiles
+        PassportElementErrorUnspecified
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = None
+        if 'source' in obj:
+            source = obj['source']
+
+        if source == 'data':
+            return PassportElementErrorDataField.de_json(json_string)
+        elif source == 'front_side':
+            return PassportElementErrorFrontSide.de_json(json_string)
+        elif source == 'reverse_side':
+            return PassportElementErrorReverseSide.de_json(json_string)
+        elif source == 'selfie':
+            return PassportElementErrorSelfie.de_json(json_string)
+        elif source == 'file_hashe':
+            return PassportElementErrorFile.de_json(json_string)
+        elif source == 'file_hashes':
+            return PassportElementErrorFiles.de_json(json_string)
+        elif source == 'translation_files':
+            return PassportElementErrorTranslationFile.de_json(json_string)
+        elif source == 'translation_files':
+            return PassportElementErrorTranslationFiles.de_json(json_string)
+        elif source == 'unspecified':
+            return PassportElementErrorUnspecified.de_json(json_string)
+
+
+class PassportElementErrorDataField(JsonDeserializable):
+    """ Represents an issue in one of the data fields that was provided by the user. 
+    The error is considered resolved when the field's value changes """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be data
+        type = obj['type']
+        field_name = obj['field_name']
+        data_hash = obj['data_hash']
+        message = obj['message']
+        return cls(source, type, field_name, data_hash, message)
+
+    def __init__(self, source, type, field_name, data_hash, message):
+        self.source = source
+        self.type = type
+        self.field_name = field_name
+        self.data_hash = data_hash
+        self.message = message
+
+
+class PassportElementErrorFrontSide(JsonDeserializable):
+    """ Represents an issue with the front side of a document,
+    The error is considered resolved when the file with the front side of the document changes.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be front_side
+        type = obj['type']
+        file_hash = obj['file_hash']
+        message = obj['message']
+        return cls(source, type, file_hash, message)
+
+    def __init__(self, source, type, file_hash, message):
+        self.source = source
+        self.type = type
+        self.file_hash = file_hash
+        self.message = message
+
+
+class PassportElementErrorFile(JsonDeserializable):
+    """ Represents an issue with a document scan. 
+    The error is considered resolved when the file with the document scan changes.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be file
+        type = obj['type']
+        file_hash = obj['file_hash']
+        message = obj['message']
+        return cls(source, type, file_hash, message)
+
+    def __init__(self, source, type, file_hash, message):
+        self.source = source
+        self.type = type
+        self.file_hash = file_hash
+        self.message = message
+
+
+class PassportElementErrorFiles(JsonDeserializable):
+    """ Represents an issue with a list of scans. 
+    The error is considered resolved when the list of files containing the scans changes.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be files
+        type = obj['type']
+        file_hashes = obj['file_hashes']
+        message = obj['message']
+        return cls(source, type, file_hashes, message)
+
+    def __init__(self, source, type, file_hashes, message):
+        self.source = source
+        self.type = type
+        self.file_hashes = file_hashes
+        self.message = message
+
+
+class PassportElementErrorReverseSide(JsonDeserializable):
+    """ Represents an issue with the reverse side of a document,
+    The error is considered resolved when the file with reverse side of the document changes.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be reverse_side
+        type = obj['type']
+        file_hash = obj['file_hash']
+        message = obj['message']
+        return cls(source, type, file_hash, message)
+
+    def __init__(self, source, type, file_hash, message):
+        self.source = source
+        self.type = type
+        self.file_hash = file_hash
+        self.message = message
+
+
+class PassportElementErrorSelfie(JsonDeserializable):
+    """ Represents an issue with the selfie with a document. 
+    The error is considered resolved when the file with the selfie changes.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be selfie
+        type = obj['type']
+        file_hash = obj['file_hash']
+        message = obj['message']
+        return cls(source, type, file_hash, message)
+
+    def __init__(self, source, type, file_hash, message):
+        self.source = source
+        self.type = type
+        self.file_hash = file_hash
+        self.message = message
+
+
+class PassportElementErrorTranslationFile(JsonDeserializable):
+    """ Represents an issue with one of the files that constitute the translation of a document,
+    The error is considered resolved when the file changes.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be translation_file
+        type = obj['type']
+        file_hash = obj['file_hash']
+        message = obj['message']
+        return cls(source, type, file_hash, message)
+
+    def __init__(self, source, type, file_hash, message):
+        self.source = source
+        self.type = type
+        self.file_hash = file_hash
+        self.message = message
+
+
+class PassportElementErrorTranslationFiles(JsonDeserializable):
+    """ Represents an issue with the translated version of a document. 
+    The error is considered resolved when a file with the document translation change.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be translation_files
+        type = obj['type']
+        file_hash = obj['file_hash']
+        message = obj['message']
+        return cls(source, type, file_hash, message)
+
+    def __init__(self, source, type, file_hash, message):
+        self.source = source
+        self.type = type
+        self.file_hash = file_hash
+        self.message = message
+
+
+class PassportElementErrorUnspecified(JsonDeserializable):
+    """ Represents an issue in an unspecified place. 
+    The error is considered resolved when new data is added.
+    """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        source = obj['source']  # Error source, must be unspecified
+        type = obj['type']
+        element_hash = obj['element_hash']
+        message = obj['message']
+        return cls(source, type, element_hash, message)
+
+    def __init__(self, source, type, element_hash, message):
+        self.source = source
+        self.type = type
+        self.element_hash = element_hash
+        self.message = message
