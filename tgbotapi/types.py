@@ -866,3 +866,55 @@ class Contact(JsonDeserializable):
         self.last_name = last_name
         self.user_id = user_id
         self.vcard = vcard
+
+
+class Location(JsonDeserializable):
+    """ This object represents a point on the map """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        longitude = obj['longitude']
+        latitude = obj['latitude']
+        return cls(longitude, latitude)
+
+    def __init__(self, longitude, latitude):
+        self.longitude = longitude
+        self.latitude = latitude
+
+
+class Venue(JsonDeserializable):
+    """ This object represents a venue """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        location = Location.de_json(obj['location'])
+        title = obj['title']
+        address = obj['address']
+        foursquare_id = None
+        if 'foursquare_id' in obj:
+            foursquare_id = obj.get('foursquare_id')
+        foursquare_type = None
+        if 'foursquare_type' in obj:
+            foursquare_type = obj.get('foursquare_type')
+        return cls(location, title, address, foursquare_id, foursquare_type)
+
+    def __init__(self, location, title, address, foursquare_id=None, foursquare_type=None):
+        self.location = location
+        self.title = title
+        self.address = address
+        self.foursquare_id = foursquare_id
+        self.foursquare_type = foursquare_type
+
+
+class PollOption(JsonDeserializable):
+    """ This object contains information about one answer option in a poll """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        text = obj['text']
+        voter_count = obj['voter_count']
+        return cls(text, voter_count)
+
+    def __init__(self, text, voter_count):
+        self.text = text
+        self.voter_count = voter_count
