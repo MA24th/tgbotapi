@@ -2603,3 +2603,19 @@ class InputVenueMessageContent(Dictionaryable):
         if self.foursquare_type:
             json_dic['foursquare_type'] = self.foursquare_type
         return json_dic
+
+
+class InputContactMessageContent(Dictionaryable):
+    """ Represents a result of an inline query that was chosen by the user and sent to their chat partner """
+
+    def __init__(self, phone_number, first_name, last_name=None):
+        self.phone_number = phone_number
+        self.first_name = first_name
+        self.last_name = last_name
+
+    def to_dic(self):
+        json_dic = {'phone_number': self.phone_number,
+                    'first_name': self.first_name}
+        if self.last_name:
+            json_dic['last_name'] = self.last_name
+        return json_dic
