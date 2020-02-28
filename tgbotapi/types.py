@@ -2924,3 +2924,20 @@ class EncryptedPassportElement(JsonDeserializable):
             translation = PassportFile.de_json(x)
             translations.append(translation)
         return translations
+
+
+class EncryptedCredentials(JsonDeserializable):
+    """Contains data required for decrypting and authenticating EncryptedPassportElement. 
+    See the Telegram Passport Documentation for a complete description of the data decryption and authentication processes."""
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        data = obj['data']
+        hash = obj['hash']
+        secret = obj['secret']
+        return cls(data, hash, secret)
+
+    def __init__(self, data, hash, secret):
+        self.data = data
+        self.hash = hash
+        self.secret = secret
