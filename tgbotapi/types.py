@@ -240,6 +240,370 @@ class User(JsonDeserializable):
         return cls(id, is_bot, first_name, last_name, username, language_code, can_join_groups, can_read_all_group_messages, supports_inline_queries)
 
 
+class Chat(JsonDeserializable):
+    """ This object represents a chat """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        id = obj['id']
+        type = obj['type']
+        title = None
+        if 'title' in obj:
+            title = obj.get('title')
+        username = None
+        if 'username' in obj:
+            username = obj.get('username')
+        first_name = None
+        if 'first_name' in obj:
+            first_name = obj.get('first_name')
+        last_name = None
+        if 'last_name' in obj:
+            last_name = obj.get('last_name')
+        photo = None
+        if 'photo' in obj:
+            photo = ChatPhoto.de_json(obj['photo'])
+        description = None
+        if 'description' in obj:
+            description = obj.get('description')
+        invite_link = None
+        if 'invite_link' in obj:
+            invite_link = obj.get('invite_link')
+        pinned_message = None
+        if 'pinned_message' in obj:
+            pinned_message = Message.de_json(obj['pinned_message'])
+        sticker_set_name = obj.get('sticker_set_name')
+        permissions = None
+        if 'permissions' in obj:
+            permissions = ChatPermissions.de_json(obj['permissions'])
+        slow_mode_delay = None
+        if 'slow_mode_delay' in obj:
+            slow_mode_delay = obj.get('slow_mode_delay')
+        sticker_set_name = None
+        if 'sticker_set_name' in obj:
+            sticker_set_name = obj.get('sticker_set_name')
+        can_set_sticker_set = None
+        if 'can_set_sticker_set' in obj:
+            can_set_sticker_set = obj.get('can_set_sticker_set')
+        return cls(id, type, title, username, first_name, last_name, photo, description, invite_link, pinned_message,
+                   permissions, slow_mode_delay, sticker_set_name, can_set_sticker_set)
+
+    def __init__(self, id, type, title=None, username=None, first_name=None, last_name=None,
+                 photo=None, description=None, invite_link=None, pinned_message=None, permissions=None,
+                 slow_mode_delay=None, sticker_set_name=None, can_set_sticker_set=None):
+        self.id = id
+        self.type = type
+        self.title = title
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+        self.photo = photo
+        self.description = description
+        self.invite_link = invite_link
+        self.pinned_message = pinned_message
+        self.permissions = permissions
+        self.slow_mode_delay = slow_mode_delay
+        self.sticker_set_name = sticker_set_name
+        self.can_set_sticker_set = can_set_sticker_set
+
+
+class Message(JsonDeserializable):
+    """This object represents a message"""
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        message_id = obj['message_id']
+        from_user = None
+        if 'from' in obj:
+            from_user = User.de_json(obj['from'])
+        date = obj['date']
+        chat = Chat.de_json(obj['chat'])
+        content_type = None
+        opts = {}
+        if 'forward_from' in obj:
+            opts['forward_from'] = User.de_json(obj['forward_from'])
+        if 'forward_from_chat' in obj:
+            opts['forward_from_chat'] = Chat.de_json(obj['forward_from_chat'])
+        if 'forward_from_message_id' in obj:
+            opts['forward_from_message_id'] = obj.get(
+                'forward_from_message_id')
+        if 'forward_sender_name' in obj:
+            opts['forward_sender_name'] = obj.get('forward_sender_name')
+        if 'forward_signature' in obj:
+            opts['forward_signature'] = obj.get('forward_signature')
+        if 'forward_date' in obj:
+            opts['forward_date'] = obj.get('forward_date')
+        if 'reply_to_message' in obj:
+            opts['reply_to_message'] = Message.de_json(obj['reply_to_message'])
+        if 'edit_date' in obj:
+            opts['edit_date'] = obj.get('edit_date')
+        if 'media_group_id' in obj:
+            opts['media_group_id'] = obj.get('media_group_id')
+        if 'author_signature' in obj:
+            opts['author_signature'] = obj.get('author_signature')
+        if 'text' in obj:
+            opts['text'] = obj['text']
+            content_type = 'text'
+        if 'entities' in obj:
+            opts['entities'] = Message.parse_entities(obj['entities'])
+        if 'caption_entities' in obj:
+            opts['caption_entities'] = Message.parse_entities(
+                obj['caption_entities'])
+        if 'audio' in obj:
+            opts['audio'] = Audio.de_json(obj['audio'])
+            content_type = 'audio'
+        if 'document' in obj:
+            opts['document'] = Document.de_json(obj['document'])
+            content_type = 'document'
+        if 'animation' in obj:
+            opts['animation'] = Animation.de_json(obj['animation'])
+            content_type = 'animation'
+        if 'game' in obj:
+            opts['game'] = Game.de_json(obj['game'])
+            content_type = 'game'
+        if 'photo' in obj:
+            opts['photo'] = Message.parse_photo(obj['photo'])
+            content_type = 'photo'
+        if 'sticker' in obj:
+            opts['sticker'] = Sticker.de_json(obj['sticker'])
+            content_type = 'sticker'
+        if 'video' in obj:
+            opts['video'] = Video.de_json(obj['video'])
+            content_type = 'video'
+        if 'voice' in obj:
+            opts['voice'] = Audio.de_json(obj['voice'])
+            content_type = 'voice'
+        if 'video_note' in obj:
+            opts['video_note'] = VideoNote.de_json(obj['video_note'])
+            content_type = 'video_note'
+        if 'caption' in obj:
+            opts['caption'] = obj['caption']
+        if 'contact' in obj:
+            opts['contact'] = Contact.de_json(json.dumps(obj['contact']))
+            content_type = 'contact'
+        if 'location' in obj:
+            opts['location'] = Location.de_json(obj['location'])
+            content_type = 'location'
+        if 'venue' in obj:
+            opts['venue'] = Venue.de_json(obj['venue'])
+            content_type = 'venue'
+        if 'poll' in obj:
+            opts['poll'] = Poll.de_json(obj['poll'])
+            content_type = 'poll'
+        if 'new_chat_members' in obj:
+            opts['new_chat_members'] = Message.parse_chat_members(
+                obj['new_chat_members'])
+            content_type = 'new_chat_members'
+        if 'left_chat_member' in obj:
+            opts['left_chat_member'] = User.de_json(obj['left_chat_member'])
+            content_type = 'left_chat_member'
+        if 'new_chat_title' in obj:
+            opts['new_chat_title'] = obj['new_chat_title']
+            content_type = 'new_chat_title'
+        if 'new_chat_photo' in obj:
+            opts['new_chat_photo'] = Message.parse_photo(obj['new_chat_photo'])
+            content_type = 'new_chat_photo'
+        if 'delete_chat_photo' in obj:
+            opts['delete_chat_photo'] = obj['delete_chat_photo']
+            content_type = 'delete_chat_photo'
+        if 'group_chat_created' in obj:
+            opts['group_chat_created'] = obj['group_chat_created']
+            content_type = 'group_chat_created'
+        if 'supergroup_chat_created' in obj:
+            opts['supergroup_chat_created'] = obj['supergroup_chat_created']
+            content_type = 'supergroup_chat_created'
+        if 'channel_chat_created' in obj:
+            opts['channel_chat_created'] = obj['channel_chat_created']
+            content_type = 'channel_chat_created'
+        if 'migrate_to_chat_id' in obj:
+            opts['migrate_to_chat_id'] = obj['migrate_to_chat_id']
+            content_type = 'migrate_to_chat_id'
+        if 'migrate_from_chat_id' in obj:
+            opts['migrate_from_chat_id'] = obj['migrate_from_chat_id']
+            content_type = 'migrate_from_chat_id'
+        if 'pinned_message' in obj:
+            opts['pinned_message'] = Message.de_json(obj['pinned_message'])
+            content_type = 'pinned_message'
+        if 'invoice' in obj:
+            opts['invoice'] = Invoice.de_json(obj['invoice'])
+            content_type = 'invoice'
+        if 'successful_payment' in obj:
+            opts['successful_payment'] = SuccessfulPayment.de_json(
+                obj['successful_payment'])
+            content_type = 'successful_payment'
+        if 'connected_website' in obj:
+            opts['connected_website'] = obj['connected_website']
+            content_type = 'connected_website'
+        if 'passport_data' in obj:
+            opts['passport_data'] = obj['passport_data']
+            content_type = 'passport_data'
+        if 'reply_markup' in obj:
+            opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
+            content_type = 'reply_markup'
+        return cls(message_id, from_user, date, chat, content_type, opts, json_string)
+
+    @classmethod
+    def parse_photo(cls, photo_size_array):
+        ret = []
+        for ps in photo_size_array:
+            ret.append(PhotoSize.de_json(ps))
+        return ret
+
+    @classmethod
+    def parse_entities(cls, message_entity_array):
+        ret = []
+        for en in message_entity_array:
+            ret.append(MessageEntity.de_json(en))
+        return ret
+
+    @classmethod
+    def parse_chat_members(cls, new_chat_members):
+        ret = []
+        for cm in new_chat_members:
+            ret.append(ChatMember.de_json(cm))
+        return ret
+
+    def __init__(self, message_id, from_user, date, chat, content_type, options, json_string):
+        self.content_type = content_type
+        self.message_id = message_id
+        self.from_user = from_user
+        self.date = date
+        self.chat = chat
+        self.forward_from_chat = None
+        self.forward_from_message_id = None
+        self.forward_from = None
+        self.forward_date = None
+        self.reply_to_message = None
+        self.edit_date = None
+        self.media_group_id = None
+        self.author_signature = None
+        self.text = None
+        self.entities = None
+        self.caption_entities = None
+        self.audio = None
+        self.document = None
+        self.photo = None
+        self.sticker = None
+        self.video = None
+        self.video_note = None
+        self.voice = None
+        self.caption = None
+        self.contact = None
+        self.location = None
+        self.venue = None
+        self.animation = None
+        self.new_chat_members = None
+        self.left_chat_member = None
+        self.new_chat_title = None
+        self.new_chat_photo = None
+        self.delete_chat_photo = None
+        self.group_chat_created = None
+        self.supergroup_chat_created = None
+        self.channel_chat_created = None
+        self.migrate_to_chat_id = None
+        self.migrate_from_chat_id = None
+        self.pinned_message = None
+        self.invoice = None
+        self.successful_payment = None
+        self.connected_website = None
+        self.reply_markup = None
+        for key in options:
+            setattr(self, key, options[key])
+        self.json = json_string
+
+    def __html_text(self, text, entities):
+        """
+        Author: @sviat9440
+        Message: "*Test* parse _formatting_, [url](https://example.com), [text_mention](tg://user?id=123456) and mention @username"
+
+        Example:
+            message.html_text
+            >> "<b>Test</b> parse <i>formatting</i>, <a href=\"https://example.com\">url</a>, <a href=\"tg://user?id=123456\">text_mention</a> and mention @username"
+
+        Cusom subs:
+            You can customize the substitutes. By default, there is no substitute for the entities: hashtag, bot_command, email. You can add or modify substitute an existing entity.
+        Example:
+            message.custom_subs = {"bold": "<strong class=\"example\">{text}</strong>", "italic": "<i class=\"example\">{text}</i>", "mention": "<a href={url}>{text}</a>"}
+            message.html_text
+            >> "<strong class=\"example\">Test</strong> parse <i class=\"example\">formatting</i>, <a href=\"https://example.com\">url</a> and <a href=\"tg://user?id=123456\">text_mention</a> and mention <a href=\"https://t.me/username\">@username</a>"
+        """
+        self.custom_subs = ''
+        if not entities:
+            return text
+        _subs = {
+            "bold": "<b>{text}</b>",
+            "italic": "<i>{text}</i>",
+            "pre": "<pre>{text}</pre>",
+            "code": "<code>{text}</code>",
+            "url": "<a href=\"{url}\">{text}</a>",
+            "text_link": "<a href=\"{url}\">{text}</a>"
+        }
+        if hasattr(self, "custom_subs"):
+            for type in self.custom_subs:
+                _subs[type] = self.custom_subs[type]
+        utf16_text = text.encode("utf-16-le")
+        html_text = ""
+
+        def func(text, type=None, url=None, user=None):
+            text = text.decode("utf-16-le")
+            if type == "text_mention":
+                type = "url"
+                url = "tg://user?id={0}".format(user.id)
+            elif type == "mention":
+                url = "https://t.me/{0}".format(text[1:])
+            text = text.replace("&", "&amp;").replace(
+                "<", "&lt;").replace(">", "&gt;")
+            if not type or not _subs.get(type):
+                return text
+            subs = _subs.get(type)
+            return subs.format(text=text, url=url)
+
+        offset = 0
+        for entity in entities:
+            if entity.offset > offset:
+                html_text += func(utf16_text[offset * 2: entity.offset * 2])
+                offset = entity.offset
+            html_text += func(utf16_text[offset * 2: (offset + entity.length)
+                                         * 2], entity.type, entity.url, entity.user)
+            offset += entity.length
+        if offset * 2 < len(utf16_text):
+            html_text += func(utf16_text[offset * 2:])
+        return html_text
+
+    @property
+    def html_text(self):
+        return self.__html_text(self.text, self.entities)
+
+    @property
+    def html_caption(self):
+        return self.__html_text(self.caption, self.caption_entities)
+
+
+class MessageEntity(JsonDeserializable):
+    """ This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        type = obj['type']
+        offset = obj['offset']
+        length = obj['length']
+        url = obj.get('url')
+        user = None
+        if 'user' in obj:
+            user = User.de_json(obj['user'])
+        language = None
+        if 'language' in obj:
+            language = obj['language']
+        return cls(type, offset, length, url, user, language)
+
+    def __init__(self, type, offset, length, url=None, user=None, language=None):
+        self.type = type
+        self.offset = offset
+        self.length = length
+        self.url = url
+        self.user = user
+        self.language = language
+
+
 class Animation(JsonDeserializable):
     """ This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) """
 
