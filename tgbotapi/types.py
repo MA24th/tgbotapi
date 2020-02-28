@@ -2619,3 +2619,31 @@ class InputContactMessageContent(Dictionaryable):
         if self.last_name:
             json_dic['last_name'] = self.last_name
         return json_dic
+
+
+class ChosenInlineResult(JsonDeserializable):
+    """ Represents a result of an inline query that was chosen by the user and sent to their chat partner """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        result_id = obj['result_id']
+        from_user = User.de_json(obj['from'])
+        query = obj['query']
+        location = None
+        if 'location' in obj:
+            location = Location.de_json(obj['location'])
+        inline_message_id = obj.get('inline_message_id')
+        return cls(result_id, from_user, query, location, inline_message_id)
+
+    def __init__(self, result_id, from_user, query, location=None, inline_message_id=None):
+        """
+        :param result_id: string The unique identifier for the result that was chosen.
+        :param from_user: User The user that chose the result.
+        :param query: String The query that was used to obtain the result.
+        :return: ChosenInlineResult Object.
+        """
+        self.result_id = result_id
+        self.from_user = from_user
+        self.query = query
+        self.location = location
+        self.inline_message_id = inline_message_id
