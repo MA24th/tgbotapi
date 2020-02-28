@@ -2647,3 +2647,17 @@ class ChosenInlineResult(JsonDeserializable):
         self.query = query
         self.location = location
         self.inline_message_id = inline_message_id
+
+
+class LabeledPrice(JsonSerializable):
+    """ This object represents a portion of the price for goods or services """
+
+    def __init__(self, label, amount):
+        self.label = label
+        self.amount = amount
+
+    def to_json(self):
+        return json.dumps(self.to_dic())
+
+    def to_dic(self):
+        return {'label': self.label, 'amount': self.amount}
