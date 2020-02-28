@@ -2661,3 +2661,23 @@ class LabeledPrice(JsonSerializable):
 
     def to_dic(self):
         return {'label': self.label, 'amount': self.amount}
+
+
+class Invoice(JsonDeserializable):
+    """ This object contains basic information about an invoice """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        title = obj['title']
+        description = obj['description']
+        start_parameter = obj['start_parameter']
+        currency = obj['currency']
+        total_amount = obj['total_amount']
+        return cls(title, description, start_parameter, currency, total_amount)
+
+    def __init__(self, title, description, start_parameter, currency, total_amount):
+        self.title = title
+        self.description = description
+        self.start_parameter = start_parameter
+        self.currency = currency
+        self.total_amount = total_amount
