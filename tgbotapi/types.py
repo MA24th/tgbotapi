@@ -1338,3 +1338,149 @@ class ForceReply(JsonSerializable):
         if self.selective:
             json_dict['selective'] = True
         return json.dumps(json_dict)
+
+
+class ChatPhoto(JsonDeserializable):
+    """ This object represents a chat photo """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        small_file_id = obj['small_file_id']
+        small_file_unique_id = obj['small_file_unique_id']
+        big_file_id = obj['big_file_id']
+        big_file_unique_id = obj['big_file_unique_id']
+        return cls(small_file_id, small_file_unique_id, big_file_id, big_file_unique_id)
+
+    def __init__(self, small_file_id, small_file_unique_id, big_file_id, big_file_unique_id):
+        self.small_file_id = small_file_id
+        self.small_file_unique_id = small_file_unique_id
+        self.big_file_id = big_file_id
+        self.big_file_unique_id = big_file_unique_id
+
+
+class ChatMember(JsonDeserializable):
+    """ This object contains information about one member of a chat """
+    @classmethod
+    def de_json(cls, json_type):
+        obj = cls.check_json(json_type)
+        user = User.de_json(obj['user'])
+        status = obj['status']
+        custom_title = None
+        if 'custom_title' in obj:
+            custom_title = obj.get('custom_title')
+        until_date = None
+        if 'until_date' in obj:
+            until_date = obj.get('until_date')
+        can_be_edited = None
+        if 'can_be_edited' in obj:
+            can_be_edited = obj.get('can_be_edited')
+        can_post_messages = None
+        if 'can_post_messages' in obj:
+            can_post_messages = obj.get('can_post_messages')
+        can_edit_messages = None
+        if 'can_edit_messages' in obj:
+            can_edit_messages = obj.get('can_edit_messages')
+        can_delete_messages = None
+        if 'can_delete_messages' in obj:
+            can_delete_messages = obj.get('can_delete_messages')
+        can_restrict_members = None
+        if 'can_restrict_members' in obj:
+            can_restrict_members = obj.get('can_restrict_members')
+        can_promote_members = None
+        if 'can_promote_members' in obj:
+            can_promote_members = obj.get('can_promote_members')
+        can_change_info = None
+        if 'can_change_info' in obj:
+            can_change_info = obj.get('can_change_info')
+        can_invite_users = None
+        if 'can_invite_users' in obj:
+            can_invite_users = obj.get('can_invite_users')
+        can_pin_messages = None
+        if 'can_pin_messages' in obj:
+            can_pin_messages = obj.get('can_pin_messages')
+        is_member = None
+        if 'is_member' in obj:
+            is_member = obj.get('is_member')
+        can_send_messages = None
+        if 'can_send_messages' in obj:
+            can_send_messages = obj.get('can_send_messages')
+        can_send_media_messages = None
+        if 'can_send_media_messages' in obj:
+            can_send_media_messages = obj.get('can_send_media_messages')
+        can_send_polls = None
+        if 'can_send_polls' in obj:
+            can_send_polls = obj.get('can_send_polls')
+        can_send_other_messages = None
+        if 'can_send_other_messages' in obj:
+            can_send_other_messages = obj.get('can_send_other_messages')
+        can_add_web_page_previews = None
+        if 'can_add_web_page_previews' in obj:
+            can_add_web_page_previews = obj.get('can_add_web_page_previews')
+        return cls(user, status, custom_title, until_date, can_be_edited, can_change_info, can_post_messages, can_edit_messages,
+                   can_delete_messages, can_invite_users, can_restrict_members, is_member, can_pin_messages, can_promote_members,
+                   can_send_messages, can_send_media_messages, can_send_other_messages, can_add_web_page_previews, can_send_polls)
+
+    def __init__(self, user, status, custom_title, until_date, can_be_edited, can_change_info, can_post_messages, can_edit_messages,
+                 can_delete_messages, can_invite_users, can_restrict_members, is_member, can_pin_messages, can_promote_members,
+                 can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages, can_add_web_page_previews):
+        self.user = user
+        self.status = status
+        self.custom_title = custom_title
+        self.until_date = until_date
+        self.can_be_edited = can_be_edited
+        self.can_change_info = can_change_info
+        self.can_post_messages = can_post_messages
+        self.can_edit_messages = can_edit_messages
+        self.can_delete_messages = can_delete_messages
+        self.can_invite_users = can_invite_users
+        self.can_restrict_members = can_restrict_members
+        self.can_pin_messages = can_pin_messages
+        self.is_member = is_member
+        self.can_promote_members = can_promote_members
+        self.can_send_messages = can_send_messages
+        self.can_send_media_messages = can_send_media_messages
+        self.can_send_polls = can_send_polls
+        self.can_send_other_messages = can_send_other_messages
+        self.can_add_web_page_previews = can_add_web_page_previews
+
+
+class ChatPermissions(JsonDeserializable):
+    """ Describes actions that a non-administrator user is allowed to take in a chat """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        can_send_messages = None
+        if 'can_send_messages' in obj:
+            can_send_messages = obj['can_send_messages']
+        can_send_media_messages = None
+        if 'can_send_media_messages' in obj:
+            can_send_media_messages = obj['can_send_media_messages']
+        can_send_polls = None
+        if 'can_send_polls' in obj:
+            can_send_polls = obj['can_send_polls']
+        can_send_other_messages = None
+        if 'can_send_other_messages' in obj:
+            can_send_other_messages = obj.get('can_send_other_messages')
+        can_add_web_page_previews = None
+        if 'can_add_web_page_previews' in obj:
+            can_add_web_page_previews = obj.get('can_add_web_page_previews')
+        can_change_info = None
+        if 'can_change_info' in obj:
+            can_change_info = obj.get('can_change_info')
+        can_invite_users = None
+        if 'can_invite_users' in obj:
+            can_invite_users = obj.get('can_invite_users')
+        can_pin_messages = None
+        if 'can_pin_messages' in obj:
+            can_pin_messages = obj.get('can_pin_messages')
+        return cls(can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages, can_add_web_page_previews, can_change_info, can_invite_users, can_pin_messages)
+
+    def __init__(self, can_send_messages=None, can_send_media_messages=None, can_send_polls=None, can_send_other_messages=None, can_add_web_page_previews=None, can_change_info=None, can_invite_users=None, can_pin_messages=None):
+        self.can_send_messages = can_send_messages
+        self.can_send_media_messages = can_send_media_messages
+        self.can_send_polls = can_send_polls
+        self.can_send_other_messages = can_send_other_messages
+        self.can_add_web_page_previews = can_add_web_page_previews
+        self.can_change_info = can_change_info
+        self.can_invite_users = can_invite_users
+        self.can_pin_messages = can_pin_messages
