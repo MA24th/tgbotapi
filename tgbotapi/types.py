@@ -1484,3 +1484,21 @@ class ChatPermissions(JsonDeserializable):
         self.can_change_info = can_change_info
         self.can_invite_users = can_invite_users
         self.can_pin_messages = can_pin_messages
+
+
+class ResponseParameters(JsonDeserializable):
+    """ Contains information about why a request was unsuccessful """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        migrate_to_chat_id = None
+        if 'migrate_to_chat_id' in obj:
+            migrate_to_chat_id = obj['migrate_to_chat_id']
+        retry_after = None
+        if 'retry_after' in obj:
+            retry_after = obj['retry_after']
+        return cls(migrate_to_chat_id, retry_after)
+
+    def __init__(self, migrate_to_chat_id, retry_after):
+        self.migrate_to_chat_id = migrate_to_chat_id
+        self.retry_after = retry_after
