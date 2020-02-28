@@ -2803,3 +2803,31 @@ class ShippingQuery(JsonDeserializable):
         self.from_user = from_user
         self.invoice_payload = invoice_payload
         self.shipping_address = shipping_address
+
+
+class PreCheckoutQuery(JsonDeserializable):
+    """ This object contains information about an incoming pre-checkout query """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        id = obj['id']
+        from_user = User.de_json(obj['from'])
+        currency = obj['currency']
+        total_amount = obj['total_amount']
+        invoice_payload = obj['invoice_payload']
+        shipping_option_id = None
+        if 'shipping_option_id' in obj:
+            shipping_option_id = obj.get('shipping_option_id')
+        order_info = None
+        if 'order_info' in obj:
+            order_info = OrderInfo.de_json(obj['order_info'])
+        return cls(id, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info)
+
+    def __init__(self, id, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info):
+        self.id = id
+        self.from_user = from_user
+        self.currency = currency
+        self.total_amount = total_amount
+        self.invoice_payload = invoice_payload
+        self.shipping_option_id = shipping_option_id
+        self.order_info = order_info
