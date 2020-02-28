@@ -2681,3 +2681,25 @@ class Invoice(JsonDeserializable):
         self.start_parameter = start_parameter
         self.currency = currency
         self.total_amount = total_amount
+
+
+class ShippingAddress(JsonDeserializable):
+    """ This object represents a shipping address """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        country_code = obj['country_code']
+        state = obj['state']
+        city = obj['city']
+        street_line1 = obj['street_line1']
+        street_line2 = obj['street_line2']
+        post_code = obj['post_code']
+        return cls(country_code, state, city, street_line1, street_line2, post_code)
+
+    def __init__(self, country_code, state, city, street_line1, street_line2, post_code):
+        self.country_code = country_code
+        self.state = state
+        self.city = city
+        self.street_line1 = street_line1
+        self.street_line2 = street_line2
+        self.post_code = post_code
