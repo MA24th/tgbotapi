@@ -1502,3 +1502,149 @@ class ResponseParameters(JsonDeserializable):
     def __init__(self, migrate_to_chat_id, retry_after):
         self.migrate_to_chat_id = migrate_to_chat_id
         self.retry_after = retry_after
+
+
+class InputMedia(JsonSerializable):
+    """ 
+    This object represents the content of a media message to be sent,
+    It should be one of:
+
+        InputMediaAnimation
+        InputMediaDocument
+        InputMediaAudio
+        InputMediaPhoto
+        InputMediaVideo
+    """
+
+    def __init__(self, type, media, caption=None, parse_mode=None):
+        self.type = type
+        self.media = media
+        self.caption = caption
+        self.parse_mode = parse_mode
+
+        if is_string(self.media):
+            self._media_name = ''
+            self._media_dic = self.media
+        else:
+            self._media_name = generate_random_token()
+            self._media_dic = 'attach://{0}'.format(self._media_name)
+
+    def to_json(self):
+        return json.dumps(self.to_dic())
+
+    def to_dic(self):
+        ret = {'type': self.type, 'media': self._media_dic}
+        if self.caption:
+            ret['caption'] = self.caption
+        if self.parse_mode:
+            ret['parse_mode'] = self.parse_mode
+        return ret
+
+    def _convert_input_media(self):
+        if is_string(self.media):
+            return self.to_json(), None
+
+        return self.to_json(), {self._media_name: self.media}
+
+
+class InputMediaPhoto(InputMedia):
+    """ Represents a photo to be sent """
+
+    def __init__(self, media, caption=None, parse_mode=None):
+        super(InputMediaPhoto, self).__init__(type="photo",
+                                              media=media, caption=caption, parse_mode=parse_mode)
+
+    def to_dic(self):
+        ret = super(InputMediaPhoto, self).to_dic()
+        return ret
+
+
+class InputMediaVideo(InputMedia):
+    """ Represents a video to be sent """
+
+    def __init__(self, media, thumb=None, caption=None, parse_mode=None, width=None, height=None, duration=None,
+                 supports_streaming=None):
+        super(InputMediaVideo, self).__init__(type="video",
+                                              media=media, caption=caption, parse_mode=parse_mode)
+        self.thumb = thumb
+        self.width = width
+        self.height = height
+        self.duration = duration
+        self.supports_streaming = supports_streaming
+
+    def to_dic(self):
+        ret = super(InputMediaVideo, self).to_dic()
+        if self.thumb:
+            ret['thumb'] = self.thumb
+        if self.width:
+            ret['width'] = self.width
+        if self.height:
+            ret['height'] = self.height
+        if self.duration:
+            ret['duration'] = self.duration
+        if self.supports_streaming:
+            ret['supports_streaming'] = self.supports_streaming
+        return ret
+
+
+class InputMediaAnimation(InputMedia):
+    """ Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent """
+
+    def __init__(self, media, thumb=None, caption=None, parse_mode=None, width=None, height=None, duration=None):
+        super(InputMediaAnimation, self).__init__(type="animation",
+                                                  media=media, caption=caption, parse_mode=parse_mode)
+        self.thumb = thumb
+        self.width = width
+        self.height = height
+        self.duration = duration
+
+    def to_dic(self):
+        ret = super(InputMediaAnimation, self).to_dic()
+        if self.thumb:
+            ret['thumb'] = self.thumb
+        if self.width:
+            ret['width'] = self.width
+        if self.height:
+            ret['height'] = self.height
+        if self.duration:
+            ret['duration'] = self.duration
+        return ret
+
+
+class InputMediaAudio(InputMedia):
+    """ Represents an audio file to be treated as music to be sent """
+
+    def __init__(self, media, thumb=None, caption=None, parse_mode=None, duration=None, performer=None, title=None):
+        super(InputMediaAudio, self).__init__(type="audio",
+                                              media=media, caption=caption, parse_mode=parse_mode)
+        self.thumb = thumb
+        self.duration = duration
+        self.performer = performer
+        self.title = title
+
+    def to_dic(self):
+        ret = super(InputMediaAudio, self).to_dic()
+        if self.thumb:
+            ret['thumb'] = self.thumb
+        if self.duration:
+            ret['duration'] = self.duration
+        if self.performer:
+            ret['performer'] = self.performer
+        if self.title:
+            ret['title'] = self.title
+        return ret
+
+
+class InputMediaDocument(InputMedia):
+    """ Represents a general file to be sent """
+
+    def __init__(self, media, thumb=None, caption=None, parse_mode=None):
+        super(InputMediaDocument, self).__init__(type="document",
+                                                 media=media, caption=caption, parse_mode=parse_mode)
+        self.thumb = thumb
+
+    def to_dic(self):
+        ret = super(InputMediaDocument, self).to_dic()
+        if self.thumb:
+            ret['thumb'] = self.thumb
+        return ret
