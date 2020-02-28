@@ -2755,3 +2755,33 @@ class ShippingOption(JsonSerializable):
         json_dict = json.dumps(
             {'id': self.id, 'title': self.title, 'prices': price_list})
         return json_dict
+
+
+class SuccessfulPayment(JsonDeserializable):
+    """ This object contains basic information about a successful payment """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        currency = obj['currency']
+        total_amount = obj['total_amount']
+        invoice_payload = obj['invoice_payload']
+        shipping_option_id = None
+        if 'shipping_option_id' in obj:
+            shipping_option_id = obj.get('shipping_option_id')
+        order_info = None
+        if 'order_info' in obj:
+            order_info = OrderInfo.de_json(obj['order_info'])
+        telegram_payment_charge_id = obj['telegram_payment_charge_id']
+        provider_payment_charge_id = obj['provider_payment_charge_id']
+        return cls(currency, total_amount, invoice_payload, shipping_option_id, order_info,
+                   telegram_payment_charge_id, provider_payment_charge_id)
+
+    def __init__(self, currency, total_amount, invoice_payload, shipping_option_id, order_info,
+                 telegram_payment_charge_id, provider_payment_charge_id):
+        self.currency = currency
+        self.total_amount = total_amount
+        self.invoice_payload = invoice_payload
+        self.shipping_option_id = shipping_option_id
+        self.order_info = order_info
+        self.telegram_payment_charge_id = telegram_payment_charge_id
+        self.provider_payment_charge_id = provider_payment_charge_id
