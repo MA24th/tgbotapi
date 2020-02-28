@@ -790,3 +790,79 @@ class Animation(JsonDeserializable):
         if 'file_size' in obj:
             file_size = obj.get('file_size')
         return cls(file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size)
+
+
+class Voice(JsonDeserializable):
+    """ This object represents a voice note """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        duration = obj['duration']
+        mime_type = None
+        if 'mime_type' in obj:
+            mime_type = obj.get('mime_type')
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj.get('file_size')
+        return cls(file_id, file_unique_id, duration, mime_type, file_size)
+
+    def __init__(self, file_id, file_unique_id, duration, mime_type=None, file_size=None):
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.duration = duration
+        self.mime_type = mime_type
+        self.file_size = file_size
+
+
+class VideoNote(JsonDeserializable):
+    """ This object represents a video message """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        length = obj['length']
+        duration = obj['duration']
+        thumb = None
+        if 'thumb' in obj:
+            thumb = PhotoSize.de_json(obj['thumb'])
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj.get('file_size')
+        return cls(file_id, file_unique_id, length, duration, thumb, file_size)
+
+    def __init__(self, file_id, file_unique_id, length, duration, thumb=None, file_size=None):
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.length = length
+        self.duration = duration
+        self.thumb = thumb
+        self.file_size = file_size
+
+
+class Contact(JsonDeserializable):
+    """ This object represents a phone contact """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        phone_number = obj['phone_number']
+        first_name = obj['first_name']
+        last_name = None
+        if 'last_name' in obj:
+            last_name = obj.get('last_name')
+        user_id = None
+        if 'user_id' in obj:
+            user_id = obj.get('user_id')
+        vcard = None
+        if 'vcard' in obj:
+            vcard = obj.get('vcard')
+        return cls(phone_number, first_name, last_name, user_id, vcard)
+
+    def __init__(self, phone_number, first_name, last_name=None, user_id=None, vcard=None):
+        self.phone_number = phone_number
+        self.first_name = first_name
+        self.last_name = last_name
+        self.user_id = user_id
+        self.vcard = vcard
