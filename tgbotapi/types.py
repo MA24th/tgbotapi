@@ -1091,3 +1091,44 @@ class ReplyKeyboardMarkup(JsonSerializable):
             json_dict['selective'] = True
 
         return json.dumps(json_dict)
+
+
+class KeyboardButton(Dictionaryable, JsonSerializable):
+    """ 
+    This object represents one button of the reply keyboard,
+    For simple text buttons String can be used instead of this object to specify text of the button,
+    Optional fields request_contact, request_location, and request_poll are mutually exclusive.
+    """
+
+    def __init__(self, text, request_contact=None, request_location=None, request_poll=None):
+        self.text = text
+        self.request_contact = request_contact
+        self.request_location = request_location
+        self.request_poll = request_poll
+
+    def to_json(self):
+        return json.dumps(self.to_dic())
+
+    def to_dic(self):
+        json_dic = {'text': self.text}
+        if self.request_contact:
+            json_dic['request_contact'] = self.request_contact
+        if self.request_location:
+            json_dic['request_location'] = self.request_location
+        if self.request_poll:
+            json_dic['request_poll'] = keyboardButtonPollType(
+                self.request_poll)
+        return json_dic
+
+
+class KeyboardButtonPollType(JsonDeserializable):
+    """ This object represents type of a poll, 
+    which is allowed to be created and sent when the corresponding button is pressed """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        poll_type = obj['type']
+        return cls(poll_type)
+
+    def __init__(self, poll_type):
+        self.poll_type = poll_type
