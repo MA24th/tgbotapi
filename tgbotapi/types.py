@@ -2548,3 +2548,23 @@ class InputMessageContent():
 
    """
     pass
+
+
+class InputTextMessageContent(Dictionaryable):
+    """
+        Represents the content of a text message to be sent as the result of an inline query.
+    """
+
+    def __init__(self, message_text, parse_mode=None, disable_web_page_preview=None):
+        self.message_text = message_text
+        self.parse_mode = parse_mode
+        self.disable_web_page_preview = disable_web_page_preview
+
+    def to_dic(self):
+        json_dic = {'message_text': self.message_text}
+        if self.parse_mode:
+            json_dic['parse_mode'] = self.parse_mode
+        if self.disable_web_page_preview:
+            json_dic['disable_web_page_preview'] = self.disable_web_page_preview
+        return json_dic
+
