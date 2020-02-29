@@ -51,6 +51,26 @@ def test_Update():
     assert obj.poll_anwser == None
 
 
+def test_WebhookInfo():
+    dic = {
+        'url': 'weburl',
+        'has_custom_certificate': None,
+        'pending_update_count': 1,
+        'last_error_date': 155555,
+        'last_error_message': 'abc',
+        'max_connections': 44,
+        'allowed_updates': 'au'
+    }
+    obj = types.WebhookInfo.de_json(dic)
+    assert obj.url == 'weburl'
+    assert obj.has_custom_certificate == None
+    assert obj.pending_update_count == 1
+    assert obj.last_error_date == 155555
+    assert obj.last_error_message == 'abc'
+    assert obj.max_connections == 44
+    assert obj.allowed_updates == 'au'
+
+
 def test_User():
     dic = {
         "id": 952435061,
