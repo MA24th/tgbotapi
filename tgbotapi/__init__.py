@@ -1,7 +1,7 @@
 import threading
 import pickle
 import os
-from .utilities import ThreadPool, logger, WorkerThread, OrEvent, extract_command
+from .utilities import ThreadPool, logger, WorkerThread, OrEvent, extract_command, async_dec
 from . import methods, types
 import time
 import six
@@ -1790,3 +1790,268 @@ class TBot:
                 if self._test_message_handler(message_handler, message):
                     self._exec_task(message_handler['function'], message)
                     break
+
+
+class AsyncTBot(TBot):
+    def __init__(self, *args, **kwargs):
+        TBot.__init__(self, *args, **kwargs)
+
+    @async_dec()
+    def enable_save_next_step_handlers(self, delay=120, filename="./.handler-saves/step.save"):
+        return TBot.enable_save_next_step_handlers(self, delay, filename)
+
+    @async_dec()
+    def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
+        return TBot.enable_save_reply_handlers(self, delay, filename)
+
+    @async_dec()
+    def disable_save_next_step_handlers(self):
+        return TBot.disable_save_next_step_handlers(self)
+
+    @async_dec()
+    def disable_save_reply_handlers(self):
+        return TBot.enable_save_reply_handlers(self)
+
+    @async_dec()
+    def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
+        return TBot.load_next_step_handlers(self, filename, del_file_after_loading)
+
+    @async_dec()
+    def load_reply_handlers(self, filename="./.handler-saves/reply.save", del_file_after_loading=True):
+        return TBot.load_reply_handlers(self, filename, del_file_after_loading)
+
+    @async_dec()
+    def get_me(self):
+        return TBot.get_me(self)
+
+    @async_dec()
+    def get_file(self, *args):
+        return TBot.get_file(self, *args)
+
+    @async_dec()
+    def download_file(self, *args):
+        return TBot.download_file(self, *args)
+
+    @async_dec()
+    def get_user_profile_photos(self, *args, **kwargs):
+        return TBot.get_user_profile_photos(self, *args, **kwargs)
+
+    @async_dec()
+    def get_chat(self, *args):
+        return TBot.get_chat(self, *args)
+
+    @async_dec()
+    def leave_chat(self, *args):
+        return TBot.leave_chat(self, *args)
+
+    @async_dec()
+    def get_chat_administrators(self, *args):
+        return TBot.get_chat_administrators(self, *args)
+
+    @async_dec()
+    def get_chat_members_count(self, *args):
+        return TBot.get_chat_members_count(self, *args)
+
+    @async_dec()
+    def set_chat_sticker_set(self, *args):
+        return TBot.set_chat_sticker_set(self, *args)
+
+    @async_dec()
+    def delete_chat_sticker_set(self, *args):
+        return TBot.delete_chat_sticker_set(self, *args)
+
+    @async_dec()
+    def get_chat_member(self, *args):
+        return TBot.get_chat_member(self, *args)
+
+    @async_dec()
+    def send_message(self, *args, **kwargs):
+        return TBot.send_message(self, *args, **kwargs)
+
+    @async_dec()
+    def forward_message(self, *args, **kwargs):
+        return TBot.forward_message(self, *args, **kwargs)
+
+    @async_dec()
+    def delete_message(self, *args):
+        return TBot.delete_message(self, *args)
+
+    @async_dec()
+    def send_photo(self, *args, **kwargs):
+        return TBot.send_photo(self, *args, **kwargs)
+
+    @async_dec()
+    def send_audio(self, *args, **kwargs):
+        return TBot.send_audio(self, *args, **kwargs)
+
+    @async_dec()
+    def send_voice(self, *args, **kwargs):
+        return TBot.send_voice(self, *args, **kwargs)
+
+    @async_dec()
+    def send_document(self, *args, **kwargs):
+        return TBot.send_document(self, *args, **kwargs)
+
+    @async_dec()
+    def send_sticker(self, *args, **kwargs):
+        return TBot.send_sticker(self, *args, **kwargs)
+
+    @async_dec()
+    def send_video(self, *args, **kwargs):
+        return TBot.send_video(self, *args, **kwargs)
+
+    @async_dec()
+    def send_video_note(self, *args, **kwargs):
+        return TBot.send_video_note(self, *args, **kwargs)
+
+    @async_dec()
+    def send_media_group(self, *args, **kwargs):
+        return TBot.send_media_group(self, *args, **kwargs)
+
+    @async_dec()
+    def send_location(self, *args, **kwargs):
+        return TBot.send_location(self, *args, **kwargs)
+
+    @async_dec()
+    def edit_message_live_location(self, *args, **kwargs):
+        return TBot.edit_message_live_location(self, *args, **kwargs)
+
+    @async_dec()
+    def stop_message_live_location(self, *args, **kwargs):
+        return TBot.stop_message_live_location(self, *args, **kwargs)
+
+    @async_dec()
+    def send_venue(self, *args, **kwargs):
+        return TBot.send_venue(self, *args, **kwargs)
+
+    @async_dec()
+    def send_contact(self, *args, **kwargs):
+        return TBot.send_contact(self, *args, **kwargs)
+
+    @async_dec()
+    def send_chat_action(self, *args, **kwargs):
+        return TBot.send_chat_action(self, *args, **kwargs)
+
+    @async_dec()
+    def kick_chat_member(self, *args, **kwargs):
+        return TBot.kick_chat_member(self, *args, **kwargs)
+
+    @async_dec()
+    def unban_chat_member(self, *args):
+        return TBot.unban_chat_member(self, *args)
+
+    @async_dec()
+    def restrict_chat_member(self, *args, **kwargs):
+        return TBot.restrict_chat_member(self, *args, **kwargs)
+
+    @async_dec()
+    def promote_chat_member(self, *args, **kwargs):
+        return TBot.promote_chat_member(self, *args, **kwargs)
+
+    @async_dec()
+    def export_chat_invite_link(self, *args):
+        return TBot.export_chat_invite_link(self, *args)
+
+    @async_dec()
+    def set_chat_photo(self, *args):
+        return TBot.set_chat_photo(self, *args)
+
+    @async_dec()
+    def delete_chat_photo(self, *args):
+        return TBot.delete_chat_photo(self, *args)
+
+    @async_dec()
+    def set_chat_title(self, *args):
+        return TBot.set_chat_title(self, *args)
+
+    @async_dec()
+    def set_chat_description(self, *args):
+        return TBot.set_chat_description(self, *args)
+
+    @async_dec()
+    def pin_chat_message(self, *args, **kwargs):
+        return TBot.pin_chat_message(self, *args, **kwargs)
+
+    @async_dec()
+    def unpin_chat_message(self, *args):
+        return TBot.unpin_chat_message(self, *args)
+
+    @async_dec()
+    def edit_message_text(self, *args, **kwargs):
+        return TBot.edit_message_text(self, *args, **kwargs)
+
+    @async_dec()
+    def edit_message_media(self, *args, **kwargs):
+        return TBot.edit_message_media(self, *args, **kwargs)
+
+    @async_dec()
+    def edit_message_reply_markup(self, *args, **kwargs):
+        return TBot.edit_message_reply_markup(self, *args, **kwargs)
+
+    @async_dec()
+    def send_game(self, *args, **kwargs):
+        return TBot.send_game(self, *args, **kwargs)
+
+    @async_dec()
+    def set_game_score(self, *args, **kwargs):
+        return TBot.set_game_score(self, *args, **kwargs)
+
+    @async_dec()
+    def get_game_high_scores(self, *args, **kwargs):
+        return TBot.get_game_high_scores(self, *args, **kwargs)
+
+    @async_dec()
+    def send_invoice(self, *args, **kwargs):
+        return TBot.send_invoice(self, *args, **kwargs)
+
+    @async_dec()
+    def answer_shipping_query(self, *args, **kwargs):
+        return TBot.answer_shipping_query(self, *args, **kwargs)
+
+    @async_dec()
+    def answer_pre_checkout_query(self, *args, **kwargs):
+        return TBot.answer_pre_checkout_query(self, *args, **kwargs)
+
+    @async_dec()
+    def edit_message_caption(self, *args, **kwargs):
+        return TBot.edit_message_caption(self, *args, **kwargs)
+
+    @async_dec()
+    def answer_inline_query(self, *args, **kwargs):
+        return TBot.answer_inline_query(self, *args, **kwargs)
+
+    @async_dec()
+    def answer_callback_query(self, *args, **kwargs):
+        return TBot.answer_callback_query(self, *args, **kwargs)
+
+    @async_dec()
+    def get_sticker_set(self, *args, **kwargs):
+        return TBot.get_sticker_set(self, *args, **kwargs)
+
+    @async_dec()
+    def upload_sticker_file(self, *args, **kwargs):
+        return TBot.upload_sticker_file(self, *args, **kwargs)
+
+    @async_dec()
+    def create_new_sticker_set(self, *args, **kwargs):
+        return TBot.create_new_sticker_set(self, *args, **kwargs)
+
+    @async_dec()
+    def add_sticker_to_set(self, *args, **kwargs):
+        return TBot.add_sticker_to_set(self, *args, **kwargs)
+
+    @async_dec()
+    def set_sticker_position_in_set(self, *args, **kwargs):
+        return TBot.set_sticker_position_in_set(self, *args, **kwargs)
+
+    @async_dec()
+    def delete_sticker_from_set(self, *args, **kwargs):
+        return TBot.delete_sticker_from_set(self, *args, **kwargs)
+
+    @async_dec()
+    def send_poll(self, *args, **kwargs):
+        return TBot.send_poll(self, *args, **kwargs)
+
+    @async_dec()
+    def stop_poll(self, *args, **kwargs):
+        return TBot.stop_poll(self, *args, **kwargs)
