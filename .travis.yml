@@ -3,4 +3,4 @@ python:
     - "3.7"
 script:
     - python3 setup.py install
-    - cd tests && py.test
+    - cd tests && py.test -vvv
