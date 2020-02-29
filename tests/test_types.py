@@ -811,6 +811,58 @@ def test_ChatPermissions():
     assert obj.can_pin_messages == False
 
 
+def test_ResponseParameters():
+    dic = {
+        'migrate_to_chat_id': 2342,
+        'retry_after': 3232
+    }
+    obj = types.ResponseParameters.de_json(dic)
+    assert obj.migrate_to_chat_id == 2342
+    assert obj.retry_after == 3232
+
+
+def test_InputMedia():
+    dic = r'{"type": "any", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
+    obj = types.InputMedia(type='any', media='any',
+                           caption='any', parse_mode='Markdown').to_json()
+    assert obj == dic
+
+
+def test_InputMediaAnimation():
+    dic = r'{"type": "animation", "media": "any", "caption": "any", "parse_mode": "Markdown", "width": 40, "height": 40, "duration": 5}'
+    obj = types.InputMediaAnimation(media='any', thumb=None, caption='any',
+                                    parse_mode='Markdown', width=40, height=40, duration=5).to_json()
+    assert obj == dic
+
+
+def test_InputMediaDocument():
+    dic = r'{"type": "document", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any"}'
+    obj = types.InputMediaDocument(
+        media='any', thumb='any', caption='any', parse_mode='Markdown').to_json()
+    assert obj == dic
+
+
+def test_InputMediaAudio():
+    dic = r'{"type": "audio", "media": "any", "caption": "any", "parse_mode": "Markdown", "duration": 6, "title": "any"}'
+    obj = types.InputMediaAudio(media='any', thumb=None, caption='any',
+                                parse_mode='Markdown', duration=6, performer=None, title='any').to_json()
+    assert obj == dic
+
+
+def test_InputMediaPhoto():
+    dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
+    obj = types.InputMediaPhoto(
+        media='any', caption='any', parse_mode='Markdown').to_json()
+    assert obj == dic
+
+
+def test_InputMediaVideo():
+    dic = r'{"type": "video", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any", "width": 40, "height": 40, "duration": 4}'
+    obj = types.InputMediaVideo(media='any', thumb='any', caption='any', parse_mode='Markdown',
+                                width=40, height=40, duration=4, supports_streaming=None).to_json()
+    assert obj == dic
+
+
 def test_ChosenInlineResult():
     dic = {
         'result_id': 123456,
@@ -1200,48 +1252,6 @@ def test_InlineQueryResultVoice():
     dic = r'{"type": "voice", "id": 24, "voice_url": "vurl", "title": "any"}'
     obj = types.InlineQueryResultVoice(
         id=24, voice_url='vurl', title='any').to_json()
-    assert obj == dic
-
-
-def test_InputMedia():
-    dic = r'{"type": "any", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
-    obj = types.InputMedia(type='any', media='any',
-                           caption='any', parse_mode='Markdown').to_json()
-    assert obj == dic
-
-
-def test_InputMediaAnimation():
-    dic = r'{"type": "animation", "media": "any", "caption": "any", "parse_mode": "Markdown", "width": 40, "height": 40, "duration": 5}'
-    obj = types.InputMediaAnimation(media='any', thumb=None, caption='any',
-                                    parse_mode='Markdown', width=40, height=40, duration=5).to_json()
-    assert obj == dic
-
-
-def test_InputMediaAudio():
-    dic = r'{"type": "audio", "media": "any", "caption": "any", "parse_mode": "Markdown", "duration": 6, "title": "any"}'
-    obj = types.InputMediaAudio(media='any', thumb=None, caption='any',
-                                parse_mode='Markdown', duration=6, performer=None, title='any').to_json()
-    assert obj == dic
-
-
-def test_InputMediaDocument():
-    dic = r'{"type": "document", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any"}'
-    obj = types.InputMediaDocument(
-        media='any', thumb='any', caption='any', parse_mode='Markdown').to_json()
-    assert obj == dic
-
-
-def test_InputMediaPhoto():
-    dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
-    obj = types.InputMediaPhoto(
-        media='any', caption='any', parse_mode='Markdown').to_json()
-    assert obj == dic
-
-
-def test_InputMediaVideo():
-    dic = r'{"type": "video", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any", "width": 40, "height": 40, "duration": 4}'
-    obj = types.InputMediaVideo(media='any', thumb='any', caption='any', parse_mode='Markdown',
-                                width=40, height=40, duration=4, supports_streaming=None).to_json()
     assert obj == dic
 
 
