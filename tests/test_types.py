@@ -137,3 +137,84 @@ def test_Animation():
     assert obj.file_name == 'filename'
     assert obj.mime_type == 'type'
     assert obj.file_size == 64
+
+
+def test_Venue():
+    dic = {
+        'location': {
+            'latitude': 44,
+            'longitude': 29
+        },
+        'title': 'venue',
+        'address': 'any',
+        'foursquare_id': 22,
+        'foursquare_type': 'any',
+
+    }
+    obj = types.Venue.de_json(dic)
+    assert obj.location.latitude == 44
+    assert obj.location.longitude == 29
+    assert obj.title == 'venue'
+    assert obj.address == 'any'
+    assert obj.foursquare_id == 22
+    assert obj.foursquare_type == 'any'
+
+
+def test_Video():
+    dic = {
+        'file_id': 1,
+        'file_unique_id': 2,
+        'width': 40,
+        'height': 40,
+        'duration': 3,
+        'thumb': {
+            'file_id': 33,
+            'file_unique_id': 37,
+            'width': 40,
+            'height': 40,
+            'file_size': 32
+        },
+        'mime_type': 'mime',
+        'file_size': 42
+    }
+    obj = types.Video.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 2
+    assert obj.width == 40
+    assert obj.height == 40
+    assert obj.duration == 3
+    assert obj.thumb.file_id == 33
+    assert obj.thumb.file_unique_id == 37
+    assert obj.thumb.width == 40
+    assert obj.thumb.height == 40
+    assert obj.thumb.file_size == 32
+    assert obj.mime_type == 'mime'
+    assert obj.file_size == 42
+
+
+def test_VideoNote():
+    dic = {
+        'file_id': 1,
+        'file_unique_id': 2,
+        'length': 34,
+        'duration': 3,
+        'thumb': {
+            'file_id': 33,
+            'file_unique_id': 37,
+            'width': 40,
+            'height': 40,
+            'file_size': 32
+        },
+        'file_size': 42
+    }
+    obj = types.VideoNote.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 2
+    assert obj.length == 34
+    assert obj.duration == 3
+    assert obj.thumb.file_id == 33
+    assert obj.thumb.file_unique_id == 37
+    assert obj.thumb.width == 40
+    assert obj.thumb.height == 40
+    assert obj.thumb.file_size == 32
+    assert obj.file_size == 42
