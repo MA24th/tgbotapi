@@ -95,238 +95,6 @@ def test_User():
     assert user.supports_inline_queries == True
 
 
-def test_UserProfilePhotos():
-    dic = {
-        "total_count": 1,
-        "photos": [
-            [
-                {
-                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC",
-                    "file_unique_id": "CEh0u682xwI",
-                    "file_size": 6150,  "width": 160, "height": 160
-                },
-                {
-                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATOiTNi_YoJMghVAAIC",
-                    "file_unique_id": "CEh0u682xwI",
-                    "file_size": 13363, "width": 320, "height": 320
-                },
-                {
-                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAAQW4DyFv0-lhglVAAIC",
-                    "file_unique_id": "CEh0u682xwI",
-                    "file_size": 28347, "width": 640, "height": 640
-                },
-                {
-                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAAT50RvJCg0GQApVAAIC",
-                    "file_unique_id": "CEh0u682xwI",
-                    "file_size": 33953, "width": 800, "height": 800
-                }]]}
-    obj = types.UserProfilePhotos.de_json(dic)
-    assert obj.total_count == 1
-    assert obj.photos[0][0].file_id == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC'
-    assert obj.photos[0][1].file_unique_id == 'CEh0u682xwI'
-    assert obj.photos[0][2].file_size == 28347
-    assert obj.photos[0][3].width == 800
-
-
-def test_Animation():
-    dic = {
-        "file_id": 1,
-        "file_unique_id": 221,
-        "width": 60,
-        "height": 60,
-        "duration": 53,
-        "thumb": {
-            "file_id": 12,
-            "file_unique_id": 22,
-            "width": 40,
-            "height": 40},
-        "file_name": "filename",
-        "mime_type": "type",
-        "file_size": 64
-    }
-    obj = types.Animation.de_json(dic)
-    assert obj.file_id == 1
-    assert obj.file_unique_id == 221
-    assert obj.width == 60
-    assert obj.height == 60
-    assert obj.duration == 53
-    assert obj.thumb.file_id == 12
-    assert obj.thumb.file_unique_id == 22
-    assert obj.thumb.width == 40
-    assert obj.thumb.height == 40
-    assert obj.file_name == 'filename'
-    assert obj.mime_type == 'type'
-    assert obj.file_size == 64
-
-
-def test_Venue():
-    dic = {
-        'location': {
-            'latitude': 44,
-            'longitude': 29
-        },
-        'title': 'venue',
-        'address': 'any',
-        'foursquare_id': 22,
-        'foursquare_type': 'any',
-
-    }
-    obj = types.Venue.de_json(dic)
-    assert obj.location.latitude == 44
-    assert obj.location.longitude == 29
-    assert obj.title == 'venue'
-    assert obj.address == 'any'
-    assert obj.foursquare_id == 22
-    assert obj.foursquare_type == 'any'
-
-
-def test_Video():
-    dic = {
-        'file_id': 1,
-        'file_unique_id': 2,
-        'width': 40,
-        'height': 40,
-        'duration': 3,
-        'thumb': {
-            'file_id': 33,
-            'file_unique_id': 37,
-            'width': 40,
-            'height': 40,
-            'file_size': 32
-        },
-        'mime_type': 'mime',
-        'file_size': 42
-    }
-    obj = types.Video.de_json(dic)
-    assert obj.file_id == 1
-    assert obj.file_unique_id == 2
-    assert obj.width == 40
-    assert obj.height == 40
-    assert obj.duration == 3
-    assert obj.thumb.file_id == 33
-    assert obj.thumb.file_unique_id == 37
-    assert obj.thumb.width == 40
-    assert obj.thumb.height == 40
-    assert obj.thumb.file_size == 32
-    assert obj.mime_type == 'mime'
-    assert obj.file_size == 42
-
-
-def test_VideoNote():
-    dic = {
-        'file_id': 1,
-        'file_unique_id': 2,
-        'length': 34,
-        'duration': 3,
-        'thumb': {
-            'file_id': 33,
-            'file_unique_id': 37,
-            'width': 40,
-            'height': 40,
-            'file_size': 32
-        },
-        'file_size': 42
-    }
-    obj = types.VideoNote.de_json(dic)
-    assert obj.file_id == 1
-    assert obj.file_unique_id == 2
-    assert obj.length == 34
-    assert obj.duration == 3
-    assert obj.thumb.file_id == 33
-    assert obj.thumb.file_unique_id == 37
-    assert obj.thumb.width == 40
-    assert obj.thumb.height == 40
-    assert obj.thumb.file_size == 32
-    assert obj.file_size == 42
-
-
-def test_Audio():
-    dic = {
-        'file_id': 1,
-        'file_unique_id': 11,
-        'duration': 32,
-        'performer': 'abc',
-        'title': 'test',
-        'mime_type': 'type',
-        'file_size': 44,
-        'thumb': {
-            'file_id': 33,
-            'file_unique_id': 22,
-            'width': 30,
-            'height': 22
-        }
-    }
-    obj = types.Audio.de_json(dic)
-    assert obj.file_id == 1
-    assert obj.file_unique_id == 11
-    assert obj.duration == 32
-    assert obj.performer == 'abc'
-    assert obj.title == 'test'
-    assert obj.mime_type == 'type'
-    assert obj.file_size == 44
-    assert obj.thumb.file_id == 33
-    assert obj.thumb.file_unique_id == 22
-    assert obj.thumb.width == 30
-    assert obj.thumb.height == 22
-
-
-def test_CallbackQuery():
-    dic = {
-        "id": 1122,
-        "from": {
-            "id": 383324787,
-            "is_bot": False,
-            "first_name": "Mustafa",
-            "last_name": "Asaad",
-            "username": "MA24th",
-            "language_code": "en"},
-        "message": {
-            "message_id": 412,
-            "from": {
-                "id": 383324787,
-                "is_bot": False,
-                "first_name": "Mustafa",
-                "last_name": "Asaad",
-                "username": "MA24th",
-                "language_code": "en"},
-            "chat": {
-                "id": -1001405936102,
-                "title": "GRID9",
-                "type": "supergroup"},
-            "date": 1581869200,
-            "text": "/start"
-        },
-        'inline_message_id': 2234,
-        'chat_instance': 'any',
-        'data': 'any',
-        'game_short_name': 'any'
-    }
-    obj = types.CallbackQuery.de_json(dic)
-    assert obj.id == 1122
-    assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
-    assert obj.from_user.first_name == 'Mustafa'
-    assert obj.from_user.last_name == 'Asaad'
-    assert obj.from_user.username == 'MA24th'
-    assert obj.from_user.language_code == 'en'
-    assert obj.message.message_id == 412
-    assert obj.message.from_user.id == 383324787
-    assert obj.message.from_user.is_bot == False
-    assert obj.message.from_user.first_name == 'Mustafa'
-    assert obj.message.from_user.last_name == 'Asaad'
-    assert obj.message.from_user.username == 'MA24th'
-    assert obj.message.from_user.language_code == 'en'
-    assert obj.message.chat.id == -1001405936102
-    assert obj.message.chat.title == 'GRID9'
-    assert obj.message.chat.type == 'supergroup'
-    assert obj.message.date == 1581869200
-    assert obj.message.text == '/start'
-    assert obj.inline_message_id == 2234
-    assert obj.chat_instance == 'any'
-    assert obj.data == 'any'
-    assert obj.game_short_name == 'any'
-
-
 def test_Chat():
     dic = {
         "id": -1001184458459,
@@ -400,6 +168,428 @@ def test_Chat():
     assert obj.slow_mode_delay == 5
     assert obj.sticker_set_name == 'channelstickers'
     assert obj.can_set_sticker_set == False
+
+
+def test_Message():
+    dic = {
+        'message_id': 23,
+        'from': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"},
+        'date': 15553332,
+        'chat': {
+            "id": -1001184458459,
+            "type": "channel",
+            "title": "GRID9",
+            "username": "grid9x",
+            "first_name": None,
+            "last_name": None,
+            "photo": {
+                'small_file_id': 111,
+                'small_file_unique_id': 222,
+                'big_file_id': 333,
+                'big_file_unique_id': 444},
+            "description": 'group description',
+            "invite_link": None,
+            "pinned_message": {
+                "message_id": 26,
+                "chat": {
+                    "id": -1001184458459,
+                    "title": "GRID9",
+                    "username": "grid9x",
+                    "type": "channel"
+                },
+                "date": 1581868153,
+                "text": "/start"},
+            "permissions": {
+                'can_send_messages': True,
+                'can_send_media_messages': True,
+                'can_send_polls': False,
+                'can_send_other_messages': True,
+                'can_add_web_page_previews': False,
+                'can_change_info': False,
+                'can_invite_users': True,
+                'can_pin_messages': True
+            },
+            "slow_mode_delay": 5,
+            "sticker_set_name": 'channelstickers',
+            "can_set_sticker_set": False
+        },
+    }
+    obj = types.Message.de_json(dic)
+    assert obj.message_id == 23
+    assert obj.from_user.id == 383324787
+    assert obj.from_user.is_bot == False
+    assert obj.from_user.first_name == 'Mustafa'
+    assert obj.from_user.last_name == 'Asaad'
+    assert obj.from_user.language_code == 'en'
+    assert obj.date == 15553332
+    assert obj.chat.id == -1001184458459
+    assert obj.chat.type == 'channel'
+    assert obj.chat.title == 'GRID9'
+    assert obj.chat.username == 'grid9x'
+    assert obj.chat.first_name == None
+    assert obj.chat.last_name == None
+    assert obj.chat.photo.small_file_id == 111
+    assert obj.chat.photo.small_file_unique_id == 222
+    assert obj.chat.photo.big_file_id == 333
+    assert obj.chat.photo.big_file_unique_id == 444
+    assert obj.chat.description == 'group description'
+    assert obj.chat.invite_link == None
+    assert obj.chat.pinned_message.message_id == 26
+    assert obj.chat.pinned_message.chat.id == -1001184458459
+    assert obj.chat.pinned_message.chat.type == 'channel'
+    assert obj.chat.pinned_message.chat.title == 'GRID9'
+    assert obj.chat.pinned_message.chat.username == 'grid9x'
+    assert obj.chat.pinned_message.date == 1581868153
+    assert obj.chat.pinned_message.text == '/start'
+    assert obj.chat.permissions.can_send_messages == True
+    assert obj.chat.permissions.can_send_media_messages == True
+    assert obj.chat.permissions.can_send_polls == False
+    assert obj.chat.permissions.can_send_other_messages == True
+    assert obj.chat.permissions.can_add_web_page_previews == False
+    assert obj.chat.permissions.can_change_info == False
+    assert obj.chat.permissions.can_invite_users == True
+    assert obj.chat.permissions.can_pin_messages == True
+    assert obj.chat.slow_mode_delay == 5
+    assert obj.chat.sticker_set_name == 'channelstickers'
+    assert obj.chat.can_set_sticker_set == False
+
+
+def test_MessageEntity():
+    dic = {
+        'type': 'any',
+        'offset': 2323,
+        'length': 44,
+        'url': 'any_url',
+        'language': 'en'
+    }
+    obj = types.MessageEntity.de_json(dic)
+    assert obj.type == 'any'
+    assert obj.offset == 2323
+    assert obj.length == 44
+    assert obj.url == 'any_url'
+    assert obj.user == None
+    assert obj.language == 'en'
+
+
+def test_PhotoSize():
+    dic = {
+        'file_id': 1111,
+        'file_unique_id': 1122,
+        'width': 40,
+        'height': 40,
+        'file_size': 32
+    }
+    obj = types.PhotoSize.de_json(dic)
+    assert obj.file_id == 1111
+    assert obj.file_unique_id == 1122
+    assert obj.width == 40
+    assert obj.height == 40
+    assert obj.file_size == 32
+
+
+def test_Audio():
+    dic = {
+        'file_id': 1,
+        'file_unique_id': 11,
+        'duration': 32,
+        'performer': 'abc',
+        'title': 'test',
+        'mime_type': 'type',
+        'file_size': 44,
+        'thumb': {
+            'file_id': 33,
+            'file_unique_id': 22,
+            'width': 30,
+            'height': 22
+        }
+    }
+    obj = types.Audio.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 11
+    assert obj.duration == 32
+    assert obj.performer == 'abc'
+    assert obj.title == 'test'
+    assert obj.mime_type == 'type'
+    assert obj.file_size == 44
+    assert obj.thumb.file_id == 33
+    assert obj.thumb.file_unique_id == 22
+    assert obj.thumb.width == 30
+    assert obj.thumb.height == 22
+
+
+def test_Document():
+    dic = {
+        'file_id': 'BQADBQADMwIAAsYifgZ_CEh0u682xwI',
+        'file_unique_id': 'CEh0u682xwI',
+        'thumb': {
+            'file_id': 'AAQFABPJLB0sAAQq17w-li3bzoIfAAIC',
+            'file_unique_id': 'CEh0u682xwI',
+            'file_size': 1822,
+            'width': 90,
+            'height': 60
+        },
+        'file_name': 'Text File',
+        'mime_type': 'sticker',
+        'file_size': 446
+    }
+    obj = types.Document.de_json(dic)
+    assert obj.file_id == 'BQADBQADMwIAAsYifgZ_CEh0u682xwI'
+    assert obj.file_unique_id == 'CEh0u682xwI'
+    assert obj.thumb.file_id == 'AAQFABPJLB0sAAQq17w-li3bzoIfAAIC'
+    assert obj.thumb.file_unique_id == 'CEh0u682xwI'
+    assert obj.thumb.file_size == 1822
+    assert obj.thumb.width == 90
+    assert obj.thumb.height == 60
+    assert obj.file_name == 'Text File'
+    assert obj.mime_type == 'sticker'
+    assert obj.file_size == 446
+
+
+def test_Video():
+    dic = {
+        'file_id': 1,
+        'file_unique_id': 2,
+        'width': 40,
+        'height': 40,
+        'duration': 3,
+        'thumb': {
+            'file_id': 33,
+            'file_unique_id': 37,
+            'width': 40,
+            'height': 40,
+            'file_size': 32
+        },
+        'mime_type': 'mime',
+        'file_size': 42
+    }
+    obj = types.Video.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 2
+    assert obj.width == 40
+    assert obj.height == 40
+    assert obj.duration == 3
+    assert obj.thumb.file_id == 33
+    assert obj.thumb.file_unique_id == 37
+    assert obj.thumb.width == 40
+    assert obj.thumb.height == 40
+    assert obj.thumb.file_size == 32
+    assert obj.mime_type == 'mime'
+    assert obj.file_size == 42
+
+
+def test_Animation():
+    dic = {
+        "file_id": 1,
+        "file_unique_id": 221,
+        "width": 60,
+        "height": 60,
+        "duration": 53,
+        "thumb": {
+            "file_id": 12,
+            "file_unique_id": 22,
+            "width": 40,
+            "height": 40},
+        "file_name": "filename",
+        "mime_type": "type",
+        "file_size": 64
+    }
+    obj = types.Animation.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 221
+    assert obj.width == 60
+    assert obj.height == 60
+    assert obj.duration == 53
+    assert obj.thumb.file_id == 12
+    assert obj.thumb.file_unique_id == 22
+    assert obj.thumb.width == 40
+    assert obj.thumb.height == 40
+    assert obj.file_name == 'filename'
+    assert obj.mime_type == 'type'
+    assert obj.file_size == 64
+
+
+def test_Voice():
+    dic = {
+        "duration": 0,
+        "mime_type": "audio/ogg",
+        "file_id": "AwcccccccDH1JaB7w_gyFjYQxVAg",
+        "file_unique_id": "CEh0u682xwI",
+        "file_size": 10481
+    }
+    obj = types.Voice.de_json(dic)
+    assert obj.duration == 0
+    assert obj.mime_type == 'audio/ogg'
+    assert obj.file_id == 'AwcccccccDH1JaB7w_gyFjYQxVAg'
+    assert obj.file_unique_id == 'CEh0u682xwI'
+    assert obj.file_size == 10481
+
+
+def test_VideoNote():
+    dic = {
+        'file_id': 1,
+        'file_unique_id': 2,
+        'length': 34,
+        'duration': 3,
+        'thumb': {
+            'file_id': 33,
+            'file_unique_id': 37,
+            'width': 40,
+            'height': 40,
+            'file_size': 32
+        },
+        'file_size': 42
+    }
+    obj = types.VideoNote.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 2
+    assert obj.length == 34
+    assert obj.duration == 3
+    assert obj.thumb.file_id == 33
+    assert obj.thumb.file_unique_id == 37
+    assert obj.thumb.width == 40
+    assert obj.thumb.height == 40
+    assert obj.thumb.file_size == 32
+    assert obj.file_size == 42
+
+
+def test_Contact():
+    json_string = {
+        'phone_number': '009647815214015',
+        'first_name': 'Mustafa',
+        'last_name': 'Asaad',
+        'user_id': 383324787,
+        'vcard': 'vcard'
+    }
+    contact = types.Contact.de_json(json_string)
+    assert contact.phone_number == '009647815214015'
+    assert contact.first_name == 'Mustafa'
+    assert contact.last_name == 'Asaad'
+    assert contact.user_id == 383324787
+    assert contact.vcard == 'vcard'
+
+
+def test_Location():
+    dic = {'longitude': 29, 'latitude': 44}
+    obj = types.Location.de_json(dic)
+    assert obj.longitude == 29
+    assert obj.latitude == 44
+
+
+def test_Venue():
+    dic = {
+        'location': {
+            'latitude': 44,
+            'longitude': 29
+        },
+        'title': 'venue',
+        'address': 'any',
+        'foursquare_id': 22,
+        'foursquare_type': 'any',
+
+    }
+    obj = types.Venue.de_json(dic)
+    assert obj.location.latitude == 44
+    assert obj.location.longitude == 29
+    assert obj.title == 'venue'
+    assert obj.address == 'any'
+    assert obj.foursquare_id == 22
+    assert obj.foursquare_type == 'any'
+
+
+def test_UserProfilePhotos():
+    dic = {
+        "total_count": 1,
+        "photos": [
+            [
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 6150,  "width": 160, "height": 160
+                },
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATOiTNi_YoJMghVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 13363, "width": 320, "height": 320
+                },
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAAQW4DyFv0-lhglVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 28347, "width": 640, "height": 640
+                },
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAAT50RvJCg0GQApVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 33953, "width": 800, "height": 800
+                }]]}
+    obj = types.UserProfilePhotos.de_json(dic)
+    assert obj.total_count == 1
+    assert obj.photos[0][0].file_id == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC'
+    assert obj.photos[0][1].file_unique_id == 'CEh0u682xwI'
+    assert obj.photos[0][2].file_size == 28347
+    assert obj.photos[0][3].width == 800
+
+
+def test_CallbackQuery():
+    dic = {
+        "id": 1122,
+        "from": {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"},
+        "message": {
+            "message_id": 412,
+            "from": {
+                "id": 383324787,
+                "is_bot": False,
+                "first_name": "Mustafa",
+                "last_name": "Asaad",
+                "username": "MA24th",
+                "language_code": "en"},
+            "chat": {
+                "id": -1001405936102,
+                "title": "GRID9",
+                "type": "supergroup"},
+            "date": 1581869200,
+            "text": "/start"
+        },
+        'inline_message_id': 2234,
+        'chat_instance': 'any',
+        'data': 'any',
+        'game_short_name': 'any'
+    }
+    obj = types.CallbackQuery.de_json(dic)
+    assert obj.id == 1122
+    assert obj.from_user.id == 383324787
+    assert obj.from_user.is_bot == False
+    assert obj.from_user.first_name == 'Mustafa'
+    assert obj.from_user.last_name == 'Asaad'
+    assert obj.from_user.username == 'MA24th'
+    assert obj.from_user.language_code == 'en'
+    assert obj.message.message_id == 412
+    assert obj.message.from_user.id == 383324787
+    assert obj.message.from_user.is_bot == False
+    assert obj.message.from_user.first_name == 'Mustafa'
+    assert obj.message.from_user.last_name == 'Asaad'
+    assert obj.message.from_user.username == 'MA24th'
+    assert obj.message.from_user.language_code == 'en'
+    assert obj.message.chat.id == -1001405936102
+    assert obj.message.chat.title == 'GRID9'
+    assert obj.message.chat.type == 'supergroup'
+    assert obj.message.date == 1581869200
+    assert obj.message.text == '/start'
+    assert obj.inline_message_id == 2234
+    assert obj.chat_instance == 'any'
+    assert obj.data == 'any'
+    assert obj.game_short_name == 'any'
 
 
 def test_ChatMember():
@@ -525,22 +715,6 @@ def test_ChosenInlineResult():
     assert obj.inline_message_id == 1233
 
 
-def test_Contact():
-    json_string = {
-        'phone_number': '009647815214015',
-        'first_name': 'Mustafa',
-        'last_name': 'Asaad',
-        'user_id': 383324787,
-        'vcard': 'vcard'
-    }
-    contact = types.Contact.de_json(json_string)
-    assert contact.phone_number == '009647815214015'
-    assert contact.first_name == 'Mustafa'
-    assert contact.last_name == 'Asaad'
-    assert contact.user_id == 383324787
-    assert contact.vcard == 'vcard'
-
-
 def test_EncryptedCredentials():
     dic = {
         'data': 'SpyZjzIwdVAAIC',
@@ -619,34 +793,6 @@ def test_EncryptedPassportElement():
     assert obj.translation[0].file_size == 32
     assert obj.translation[0].file_date == 155383
     assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
-
-
-def test_Document():
-    dic = {
-        'file_id': 'BQADBQADMwIAAsYifgZ_CEh0u682xwI',
-        'file_unique_id': 'CEh0u682xwI',
-        'thumb': {
-            'file_id': 'AAQFABPJLB0sAAQq17w-li3bzoIfAAIC',
-            'file_unique_id': 'CEh0u682xwI',
-            'file_size': 1822,
-            'width': 90,
-            'height': 60
-        },
-        'file_name': 'Text File',
-        'mime_type': 'sticker',
-        'file_size': 446
-    }
-    obj = types.Document.de_json(dic)
-    assert obj.file_id == 'BQADBQADMwIAAsYifgZ_CEh0u682xwI'
-    assert obj.file_unique_id == 'CEh0u682xwI'
-    assert obj.thumb.file_id == 'AAQFABPJLB0sAAQq17w-li3bzoIfAAIC'
-    assert obj.thumb.file_unique_id == 'CEh0u682xwI'
-    assert obj.thumb.file_size == 1822
-    assert obj.thumb.width == 90
-    assert obj.thumb.height == 60
-    assert obj.file_name == 'Text File'
-    assert obj.mime_type == 'sticker'
-    assert obj.file_size == 446
 
 
 def test_File():
@@ -1095,13 +1241,6 @@ def test_LabeledPrice():
     assert obj == dic
 
 
-def test_Location():
-    dic = {'longitude': 29, 'latitude': 44}
-    obj = types.Location.de_json(dic)
-    assert obj.longitude == 29
-    assert obj.latitude == 44
-
-
 def test_LoginUrl():
     dic = r'{"url": "any", "forward_text": "ftext", "bot_username": "gu9rdbot", "request_write_access": true}'
     obj = types.LoginUrl(url='any', forward_text='ftext',
@@ -1121,113 +1260,6 @@ def test_MaskPosition():
     assert obj.x_shift == 330
     assert obj.y_shift == 55
     assert obj.scale == 40
-
-
-def test_Message():
-    dic = {
-        'message_id': 23,
-        'from': {
-            "id": 383324787,
-            "is_bot": False,
-            "first_name": "Mustafa",
-            "last_name": "Asaad",
-            "username": "MA24th",
-            "language_code": "en"},
-        'date': 15553332,
-        'chat': {
-            "id": -1001184458459,
-            "type": "channel",
-            "title": "GRID9",
-            "username": "grid9x",
-            "first_name": None,
-            "last_name": None,
-            "photo": {
-                'small_file_id': 111,
-                'small_file_unique_id': 222,
-                'big_file_id': 333,
-                'big_file_unique_id': 444},
-            "description": 'group description',
-            "invite_link": None,
-            "pinned_message": {
-                "message_id": 26,
-                "chat": {
-                    "id": -1001184458459,
-                    "title": "GRID9",
-                    "username": "grid9x",
-                    "type": "channel"
-                },
-                "date": 1581868153,
-                "text": "/start"},
-            "permissions": {
-                'can_send_messages': True,
-                'can_send_media_messages': True,
-                'can_send_polls': False,
-                'can_send_other_messages': True,
-                'can_add_web_page_previews': False,
-                'can_change_info': False,
-                'can_invite_users': True,
-                'can_pin_messages': True
-            },
-            "slow_mode_delay": 5,
-            "sticker_set_name": 'channelstickers',
-            "can_set_sticker_set": False
-        },
-    }
-    obj = types.Message.de_json(dic)
-    assert obj.message_id == 23
-    assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
-    assert obj.from_user.first_name == 'Mustafa'
-    assert obj.from_user.last_name == 'Asaad'
-    assert obj.from_user.language_code == 'en'
-    assert obj.date == 15553332
-    assert obj.chat.id == -1001184458459
-    assert obj.chat.type == 'channel'
-    assert obj.chat.title == 'GRID9'
-    assert obj.chat.username == 'grid9x'
-    assert obj.chat.first_name == None
-    assert obj.chat.last_name == None
-    assert obj.chat.photo.small_file_id == 111
-    assert obj.chat.photo.small_file_unique_id == 222
-    assert obj.chat.photo.big_file_id == 333
-    assert obj.chat.photo.big_file_unique_id == 444
-    assert obj.chat.description == 'group description'
-    assert obj.chat.invite_link == None
-    assert obj.chat.pinned_message.message_id == 26
-    assert obj.chat.pinned_message.chat.id == -1001184458459
-    assert obj.chat.pinned_message.chat.type == 'channel'
-    assert obj.chat.pinned_message.chat.title == 'GRID9'
-    assert obj.chat.pinned_message.chat.username == 'grid9x'
-    assert obj.chat.pinned_message.date == 1581868153
-    assert obj.chat.pinned_message.text == '/start'
-    assert obj.chat.permissions.can_send_messages == True
-    assert obj.chat.permissions.can_send_media_messages == True
-    assert obj.chat.permissions.can_send_polls == False
-    assert obj.chat.permissions.can_send_other_messages == True
-    assert obj.chat.permissions.can_add_web_page_previews == False
-    assert obj.chat.permissions.can_change_info == False
-    assert obj.chat.permissions.can_invite_users == True
-    assert obj.chat.permissions.can_pin_messages == True
-    assert obj.chat.slow_mode_delay == 5
-    assert obj.chat.sticker_set_name == 'channelstickers'
-    assert obj.chat.can_set_sticker_set == False
-
-
-def test_MessageEntity():
-    dic = {
-        'type': 'any',
-        'offset': 2323,
-        'length': 44,
-        'url': 'any_url',
-        'language': 'en'
-    }
-    obj = types.MessageEntity.de_json(dic)
-    assert obj.type == 'any'
-    assert obj.offset == 2323
-    assert obj.length == 44
-    assert obj.url == 'any_url'
-    assert obj.user == None
-    assert obj.language == 'en'
 
 
 def test_OrderInfo():
@@ -1270,19 +1302,3 @@ def test_ShippingOption():
     dic = r'{"id": 23, "title": "apple", "prices": []}'
     obj = types.ShippingOption(id=23, title='apple').to_json()
     assert obj == dic
-
-
-def test_Voice():
-    dic = {
-        "duration": 0,
-        "mime_type": "audio/ogg",
-        "file_id": "AwcccccccDH1JaB7w_gyFjYQxVAg",
-        "file_unique_id": "CEh0u682xwI",
-        "file_size": 10481
-    }
-    obj = types.Voice.de_json(dic)
-    assert obj.duration == 0
-    assert obj.mime_type == 'audio/ogg'
-    assert obj.file_id == 'AwcccccccDH1JaB7w_gyFjYQxVAg'
-    assert obj.file_unique_id == 'CEh0u682xwI'
-    assert obj.file_size == 10481
