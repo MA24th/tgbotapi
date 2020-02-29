@@ -863,220 +863,62 @@ def test_InputMediaVideo():
     assert obj == dic
 
 
-def test_ChosenInlineResult():
+def test_InputFile():
+    pass
+
+
+def test_Sticker():
     dic = {
-        'result_id': 123456,
-        'from': {
-            "id": 383324787,
-            "is_bot": False,
-            "first_name": "Mustafa",
-            "last_name": "Asaad",
-            "username": "MA24th",
-            "language_code": "en"
-        },
-        'query': 'abc',
-        'location': {
-            'latitude': 44,
-            'longitude': 29
-        },
-        'inline_message_id': 1233
+        'file_id': 222,
+        'file_unique_id': 2323,
+        'width': 30,
+        'height': 20,
+        'is_animated': True,
+        'emoji': '🐣',
+        'set_name': 'st',
+        'file_size': 32
     }
-    obj = types.ChosenInlineResult.de_json(dic)
-    assert obj.result_id == 123456
-    assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
-    assert obj.from_user.first_name == 'Mustafa'
-    assert obj.from_user.last_name == 'Asaad'
-    assert obj.from_user.username == 'MA24th'
-    assert obj.from_user.language_code == 'en'
-    assert obj.query == 'abc'
-    assert obj.location.latitude == 44
-    assert obj.location.longitude == 29
-    assert obj.inline_message_id == 1233
+    obj = types.Sticker.de_json(dic)
+    assert obj.file_id == 222
+    assert obj.file_unique_id == 2323
+    assert obj.width == 30
+    assert obj.height == 20
+    assert obj.is_animated == True
+    assert obj.thumb == None
+    assert obj.emoji == '🐣'
+    assert obj.set_name == 'st'
+    assert obj.mask_position == None
+    assert obj.file_size == 32
 
 
-def test_EncryptedCredentials():
+def test_StickerSet():
     dic = {
-        'data': 'SpyZjzIwdVAAIC',
-        'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH',
-        'secret': 'secretpwd'
+        'name': 'stt',
+        'title': 'sst',
+        'contains_masks': False,
+        'stickers': [{'file_id': 222, 'file_unique_id': 2323, 'width': 30, 'height': 20, 'is_animated': True, 'emoji': '🐣', 'set_name': 'st', 'file_size': 32}]
     }
-    obj = types.EncryptedCredentials.de_json(dic)
-    assert obj.data == 'SpyZjzIwdVAAIC'
-    assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
-    assert obj.secret == 'secretpwd'
+    obj = types.StickerSet.de_json(dic)
+    assert obj.name == 'stt'
+    assert obj.title == 'sst'
+    assert obj.contains_masks == False
+    assert obj.stickers[0].file_id == 222
+    assert obj.stickers[0].file_unique_id == 2323
+    assert obj.stickers[0].width == 30
 
 
-def test_EncryptedPassportElement():
+def test_MaskPosition():
     dic = {
-        'type': 'passport',
-        'data': 'SpyZjzIwdVAAIC',
-        'phone_number': '009647815214015',
-        'files': [
-            {
-                'file_id': 1123,
-                'file_unique_id': 3211,
-                'file_size': 32,
-                'file_date': 155383
-            }
-        ],
-        'front_side': {
-            'file_id': 1123,
-            'file_unique_id': 3211,
-            'file_size': 32,
-            'file_date': 155383
-        },
-        'reverse_side': {
-            'file_id': 1123,
-            'file_unique_id': 3211,
-            'file_size': 32,
-            'file_date': 155383
-        },
-        'selfie': {
-            'file_id': 1123,
-            'file_unique_id': 3211,
-            'file_size': 32,
-            'file_date': 155383
-        },
-        'translation': [
-            {
-                'file_id': 1123,
-                'file_unique_id': 3211,
-                'file_size': 32,
-                'file_date': 155383
-            }
-        ],
-        'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
+        'point': 22,
+        'x_shift': 330,
+        'y_shift': 55,
+        'scale': 40
     }
-    obj = types.EncryptedPassportElement.de_json(dic)
-    assert obj.type == 'passport'
-    assert obj.data == 'SpyZjzIwdVAAIC'
-    assert obj.phone_number == '009647815214015'
-    assert obj.files[0].file_id == 1123
-    assert obj.files[0].file_unique_id == 3211
-    assert obj.files[0].file_size == 32
-    assert obj.files[0].file_date == 155383
-    assert obj.front_side.file_id == 1123
-    assert obj.front_side.file_unique_id == 3211
-    assert obj.front_side.file_size == 32
-    assert obj.front_side.file_date == 155383
-    assert obj.reverse_side.file_id == 1123
-    assert obj.reverse_side.file_unique_id == 3211
-    assert obj.reverse_side.file_size == 32
-    assert obj.reverse_side.file_date == 155383
-    assert obj.selfie.file_id == 1123
-    assert obj.selfie.file_unique_id == 3211
-    assert obj.selfie.file_size == 32
-    assert obj.selfie.file_date == 155383
-    assert obj.translation[0].file_id == 1123
-    assert obj.translation[0].file_unique_id == 3211
-    assert obj.translation[0].file_size == 32
-    assert obj.translation[0].file_date == 155383
-    assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
-
-
-def test_Game():
-    dic = {
-        'title': 'GameTitle',
-        'description': 'GameDescription',
-        'photo': [{
-            'file_id': 111,
-            'file_unique_id': 222,
-            'width': 40,
-            'height': 40,
-            'file_size': 32
-        }],
-        'text': 'some text',
-        'text_entities': [
-            {
-                'type': 'any',
-                'offset': 'all',
-                'length': 22,
-                'url': 'some url',
-                'user': {
-                    "id": 383324787,
-                    "is_bot": False,
-                    "first_name": "Mustafa",
-                    "last_name": "Asaad",
-                    "username": "MA24th",
-                    "language_code": "en"
-                },
-                'language': 'en'
-            },
-        ],
-        'animation': {
-            "file_id": 1,
-            "file_unique_id": 221,
-            "width": 60,
-            "height": 60,
-            "duration": 53,
-            "thumb": {
-                "file_id": 12,
-                "file_unique_id": 22,
-                "width": 40,
-                "height": 40
-            },
-            "file_name": "filename",
-            "mime_type": "type",
-            "file_size": 64
-        }
-
-    }
-    obj = types.Game.de_json(dic)
-    assert obj.title == 'GameTitle'
-    assert obj.description == 'GameDescription'
-    assert obj.photo[0].file_id == 111
-    assert obj.photo[0].file_unique_id == 222
-    assert obj.photo[0].width == 40
-    assert obj.photo[0].height == 40
-    assert obj.photo[0].file_size == 32
-    assert obj.text == 'some text'
-    assert obj.text_entities[0].type == 'any'
-    assert obj.text_entities[0].offset == 'all'
-    assert obj.text_entities[0].length == 22
-    assert obj.text_entities[0].url == 'some url'
-    assert obj.text_entities[0].user.id == 383324787
-    assert obj.text_entities[0].user.is_bot == False
-    assert obj.text_entities[0].user.first_name == 'Mustafa'
-    assert obj.text_entities[0].user.last_name == 'Asaad'
-    assert obj.text_entities[0].user.username == 'MA24th'
-    assert obj.text_entities[0].user.language_code == 'en'
-    assert obj.text_entities[0].language == 'en'
-    assert obj.animation.file_id == 1
-    assert obj.animation.file_unique_id == 221
-    assert obj.animation.width == 60
-    assert obj.animation.height == 60
-    assert obj.animation.duration == 53
-    assert obj.animation.thumb.file_id == 12
-    assert obj.animation.thumb.file_unique_id == 22
-    assert obj.animation.thumb.width == 40
-    assert obj.animation.thumb.height == 40
-    assert obj.animation.file_name == 'filename'
-    assert obj.animation.mime_type == 'type'
-    assert obj.animation.file_size == 64
-
-
-def test_GameHighScore():
-    dic = {
-        'position': 'player1',
-        'user': {
-                    "id": 383324787,
-                    "is_bot": False,
-                    "first_name": "Mustafa",
-                    "last_name": "Asaad",
-                    "username": "MA24th",
-                    "language_code": "en"
-        },
-        'score': 223
-    }
-    obj = types.GameHighScore.de_json(dic)
-    assert obj.position == 'player1'
-    assert obj.user.id == 383324787
-    assert obj.user.is_bot == False
-    assert obj.user.first_name == 'Mustafa'
-    assert obj.user.last_name == 'Asaad'
-    assert obj.user.username == 'MA24th'
-    assert obj.user.language_code == 'en'
+    obj = types.MaskPosition.de_json(dic)
+    assert obj.point == 22
+    assert obj.x_shift == 330
+    assert obj.y_shift == 55
+    assert obj.scale == 40
 
 
 def test_InlineQuery():
@@ -1306,6 +1148,43 @@ def test_InputVenueMessageContent():
     assert obj == dic
 
 
+def test_ChosenInlineResult():
+    dic = {
+        'result_id': 123456,
+        'from': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"
+        },
+        'query': 'abc',
+        'location': {
+            'latitude': 44,
+            'longitude': 29
+        },
+        'inline_message_id': 1233
+    }
+    obj = types.ChosenInlineResult.de_json(dic)
+    assert obj.result_id == 123456
+    assert obj.from_user.id == 383324787
+    assert obj.from_user.is_bot == False
+    assert obj.from_user.first_name == 'Mustafa'
+    assert obj.from_user.last_name == 'Asaad'
+    assert obj.from_user.username == 'MA24th'
+    assert obj.from_user.language_code == 'en'
+    assert obj.query == 'abc'
+    assert obj.location.latitude == 44
+    assert obj.location.longitude == 29
+    assert obj.inline_message_id == 1233
+
+def test_LabeledPrice():
+    dic = r'{"label": "apple", "amount": 2}'
+    obj = types.LabeledPrice(label='apple', amount=2).to_json()
+    assert obj == dic
+
+
 def test_Invoice():
     dic = {
         'title': 'any',
@@ -1322,24 +1201,188 @@ def test_Invoice():
     assert obj.total_amount == 20
 
 
-def test_LabeledPrice():
-    dic = r'{"label": "apple", "amount": 2}'
-    obj = types.LabeledPrice(label='apple', amount=2).to_json()
-    assert obj == dic
-
-
-def test_MaskPosition():
+def test_EncryptedCredentials():
     dic = {
-        'point': 22,
-        'x_shift': 330,
-        'y_shift': 55,
-        'scale': 40
+        'data': 'SpyZjzIwdVAAIC',
+        'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH',
+        'secret': 'secretpwd'
     }
-    obj = types.MaskPosition.de_json(dic)
-    assert obj.point == 22
-    assert obj.x_shift == 330
-    assert obj.y_shift == 55
-    assert obj.scale == 40
+    obj = types.EncryptedCredentials.de_json(dic)
+    assert obj.data == 'SpyZjzIwdVAAIC'
+    assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
+    assert obj.secret == 'secretpwd'
+
+
+def test_EncryptedPassportElement():
+    dic = {
+        'type': 'passport',
+        'data': 'SpyZjzIwdVAAIC',
+        'phone_number': '009647815214015',
+        'files': [
+            {
+                'file_id': 1123,
+                'file_unique_id': 3211,
+                'file_size': 32,
+                'file_date': 155383
+            }
+        ],
+        'front_side': {
+            'file_id': 1123,
+            'file_unique_id': 3211,
+            'file_size': 32,
+            'file_date': 155383
+        },
+        'reverse_side': {
+            'file_id': 1123,
+            'file_unique_id': 3211,
+            'file_size': 32,
+            'file_date': 155383
+        },
+        'selfie': {
+            'file_id': 1123,
+            'file_unique_id': 3211,
+            'file_size': 32,
+            'file_date': 155383
+        },
+        'translation': [
+            {
+                'file_id': 1123,
+                'file_unique_id': 3211,
+                'file_size': 32,
+                'file_date': 155383
+            }
+        ],
+        'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
+    }
+    obj = types.EncryptedPassportElement.de_json(dic)
+    assert obj.type == 'passport'
+    assert obj.data == 'SpyZjzIwdVAAIC'
+    assert obj.phone_number == '009647815214015'
+    assert obj.files[0].file_id == 1123
+    assert obj.files[0].file_unique_id == 3211
+    assert obj.files[0].file_size == 32
+    assert obj.files[0].file_date == 155383
+    assert obj.front_side.file_id == 1123
+    assert obj.front_side.file_unique_id == 3211
+    assert obj.front_side.file_size == 32
+    assert obj.front_side.file_date == 155383
+    assert obj.reverse_side.file_id == 1123
+    assert obj.reverse_side.file_unique_id == 3211
+    assert obj.reverse_side.file_size == 32
+    assert obj.reverse_side.file_date == 155383
+    assert obj.selfie.file_id == 1123
+    assert obj.selfie.file_unique_id == 3211
+    assert obj.selfie.file_size == 32
+    assert obj.selfie.file_date == 155383
+    assert obj.translation[0].file_id == 1123
+    assert obj.translation[0].file_unique_id == 3211
+    assert obj.translation[0].file_size == 32
+    assert obj.translation[0].file_date == 155383
+    assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
+
+
+def test_Game():
+    dic = {
+        'title': 'GameTitle',
+        'description': 'GameDescription',
+        'photo': [{
+            'file_id': 111,
+            'file_unique_id': 222,
+            'width': 40,
+            'height': 40,
+            'file_size': 32
+        }],
+        'text': 'some text',
+        'text_entities': [
+            {
+                'type': 'any',
+                'offset': 'all',
+                'length': 22,
+                'url': 'some url',
+                'user': {
+                    "id": 383324787,
+                    "is_bot": False,
+                    "first_name": "Mustafa",
+                    "last_name": "Asaad",
+                    "username": "MA24th",
+                    "language_code": "en"
+                },
+                'language': 'en'
+            },
+        ],
+        'animation': {
+            "file_id": 1,
+            "file_unique_id": 221,
+            "width": 60,
+            "height": 60,
+            "duration": 53,
+            "thumb": {
+                "file_id": 12,
+                "file_unique_id": 22,
+                "width": 40,
+                "height": 40
+            },
+            "file_name": "filename",
+            "mime_type": "type",
+            "file_size": 64
+        }
+
+    }
+    obj = types.Game.de_json(dic)
+    assert obj.title == 'GameTitle'
+    assert obj.description == 'GameDescription'
+    assert obj.photo[0].file_id == 111
+    assert obj.photo[0].file_unique_id == 222
+    assert obj.photo[0].width == 40
+    assert obj.photo[0].height == 40
+    assert obj.photo[0].file_size == 32
+    assert obj.text == 'some text'
+    assert obj.text_entities[0].type == 'any'
+    assert obj.text_entities[0].offset == 'all'
+    assert obj.text_entities[0].length == 22
+    assert obj.text_entities[0].url == 'some url'
+    assert obj.text_entities[0].user.id == 383324787
+    assert obj.text_entities[0].user.is_bot == False
+    assert obj.text_entities[0].user.first_name == 'Mustafa'
+    assert obj.text_entities[0].user.last_name == 'Asaad'
+    assert obj.text_entities[0].user.username == 'MA24th'
+    assert obj.text_entities[0].user.language_code == 'en'
+    assert obj.text_entities[0].language == 'en'
+    assert obj.animation.file_id == 1
+    assert obj.animation.file_unique_id == 221
+    assert obj.animation.width == 60
+    assert obj.animation.height == 60
+    assert obj.animation.duration == 53
+    assert obj.animation.thumb.file_id == 12
+    assert obj.animation.thumb.file_unique_id == 22
+    assert obj.animation.thumb.width == 40
+    assert obj.animation.thumb.height == 40
+    assert obj.animation.file_name == 'filename'
+    assert obj.animation.mime_type == 'type'
+    assert obj.animation.file_size == 64
+
+
+def test_GameHighScore():
+    dic = {
+        'position': 'player1',
+        'user': {
+                    "id": 383324787,
+                    "is_bot": False,
+                    "first_name": "Mustafa",
+                    "last_name": "Asaad",
+                    "username": "MA24th",
+                    "language_code": "en"
+        },
+        'score': 223
+    }
+    obj = types.GameHighScore.de_json(dic)
+    assert obj.position == 'player1'
+    assert obj.user.id == 383324787
+    assert obj.user.is_bot == False
+    assert obj.user.first_name == 'Mustafa'
+    assert obj.user.last_name == 'Asaad'
+    assert obj.user.username == 'MA24th'
+    assert obj.user.language_code == 'en'
 
 
 def test_OrderInfo():
