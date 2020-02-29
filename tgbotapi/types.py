@@ -1,6 +1,6 @@
 import json
 import six
-from .utilities import is_string
+from .utilities import is_string, generate_random_token
 
 """ Telegram Available methods
     All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 
