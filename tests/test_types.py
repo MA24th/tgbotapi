@@ -593,6 +593,33 @@ def test_UserProfilePhotos():
     assert obj.photos[0][3].width == 800
 
 
+def test_File():
+    dic = {
+        'file_id': 1123,
+        'file_unique_id': 3211,
+        'file_size': 23,
+        'file_path': 'filepath'
+    }
+    obj = types.File.de_json(dic)
+    assert obj.file_id == 1123
+    assert obj.file_unique_id == 3211
+    assert obj.file_size == 23
+    assert obj.file_path == 'filepath'
+
+
+def test_ReplyKeyboardMarkup():
+    dic = r'{"keyboard": []}'
+    obj = types.ReplyKeyboardMarkup().to_json()
+    assert obj == dic
+
+
+def test_KeyboardButton():
+    dic = r'{"text": "any", "request_contact": "any"}'
+    obj = types.KeyboardButton(text='any', request_contact='any',
+                               request_location=None, request_poll=None).to_json()
+    assert obj == dic
+
+
 def test_CallbackQuery():
     dic = {
         "id": 1122,
@@ -853,20 +880,6 @@ def test_EncryptedPassportElement():
     assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
 
 
-def test_File():
-    dic = {
-        'file_id': 1123,
-        'file_unique_id': 3211,
-        'file_size': 23,
-        'file_path': 'filepath'
-    }
-    obj = types.File.de_json(dic)
-    assert obj.file_id == 1123
-    assert obj.file_unique_id == 3211
-    assert obj.file_size == 23
-    assert obj.file_path == 'filepath'
-
-
 def test_ForceReply():
     dic = r'{"force_reply": true, "selective": true}'
     obj = types.ForceReply(selective='okay').to_json()
@@ -991,6 +1004,14 @@ def test_InlineKeyboardMarkup():
     Markup.add(Button(text='bt3'))
     obj = Markup.to_json()
     assert obj == r'{"inline_keyboard": [[{"text": "bt1"}], [{"text": "bt2"}], [{"text": "bt3"}]]}'
+
+
+def test_keyboardButtonPollType():
+    dic = {
+        'type': 'any'
+    }
+    obj = types.KeyboardButtonPollType.de_json(dic)
+    assert obj.poll_type == 'any'
 
 
 def test_InlineQuery():
@@ -1276,21 +1297,6 @@ def test_Invoice():
     assert obj.start_parameter == 'a'
     assert obj.currency == 'usd'
     assert obj.total_amount == 20
-
-
-def test_KeyboardButton():
-    dic = r'{"text": "any", "request_contact": "any"}'
-    obj = types.KeyboardButton(text='any', request_contact='any',
-                               request_location=None, request_poll=None).to_json()
-    assert obj == dic
-
-
-def test_keyboardButtonPollType():
-    dic = {
-        'type': 'any'
-    }
-    obj = types.KeyboardButtonPollType.de_json(dic)
-    assert obj.poll_type == 'any'
 
 
 def test_LabeledPrice():
