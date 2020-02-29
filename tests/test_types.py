@@ -1270,6 +1270,61 @@ def test_SuccessfulPayment():
     assert obj.provider_payment_charge_id == 2333
 
 
+def test_ShippingQuery():
+    dic = {
+        'id': 22,
+        'from': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"},
+        'invoice_payload': 'abc',
+        'shipping_address': {
+            'country_code': 'iq',
+            'state': 'Diyala',
+            'city': 'Khalis',
+            'street_line1': 'Kh 32006 44 st',
+            'street_line2': None,
+            'post_code': 32006}
+    }
+    obj = types.ShippingQuery.de_json(dic)
+    assert obj.id == 22
+    assert obj.from_user.id == 383324787
+    assert obj.from_user.is_bot == False
+    assert obj.from_user.first_name == 'Mustafa'
+    assert obj.from_user.last_name == 'Asaad'
+    assert obj.from_user.username == 'MA24th'
+    assert obj.from_user.language_code == 'en'
+    assert obj.invoice_payload == 'abc'
+    assert obj.shipping_address.country_code == 'iq'
+    assert obj.shipping_address.post_code == 32006
+
+
+def test_PreCheckoutQuery():
+    dic = {
+        'id': 888,
+        'from': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"},
+        'currency': 'IQD',
+        'total_amount': 25000,
+        'invoice_payload': 'abc'
+    }
+    obj = types.PreCheckoutQuery.de_json(dic)
+    assert obj.id == 888
+    assert obj.from_user.id == 383324787
+    assert obj.from_user.username == 'MA24th'
+    assert obj.currency == 'IQD'
+    assert obj.total_amount == 25000
+    assert obj.invoice_payload == 'abc'
+    assert obj.shipping_option_id == None
+    assert obj.order_info == None
 
 
 
