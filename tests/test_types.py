@@ -620,6 +620,43 @@ def test_KeyboardButton():
     assert obj == dic
 
 
+def test_keyboardButtonPollType():
+    dic = {
+        'type': 'any'
+    }
+    obj = types.KeyboardButtonPollType.de_json(dic)
+    assert obj.poll_type == 'any'
+
+
+def test_ReplyKeyboardRemove():
+    dic = r'{"remove_keyboard": true}'
+    obj = types.ReplyKeyboardRemove(selective=None).to_json()
+    assert obj == dic
+
+
+def test_InlineKeyboardMarkup():
+    Markup = types.InlineKeyboardMarkup(row_width=2)
+    Button = types.InlineKeyboardButton
+    Markup.add(Button(text='bt1'))
+    Markup.add(Button(text='bt2'))
+    Markup.add(Button(text='bt3'))
+    obj = Markup.to_json()
+    assert obj == r'{"inline_keyboard": [[{"text": "bt1"}], [{"text": "bt2"}], [{"text": "bt3"}]]}'
+
+
+def test_InlineKeyboardButton():
+    obj = types.InlineKeyboardButton(text='text', url='url', callback_data='callback_data', switch_inline_query='switch_inline_query',
+                                     switch_inline_query_current_chat='switch_inline_query_current_chat', callback_game='callback_game', pay='pay', login_url='login_url').to_json()
+    assert obj == r'{"text": "text", "url": "url", "callback_data": "callback_data", "switch_inline_query": "switch_inline_query", "switch_inline_query_current_chat": "switch_inline_query_current_chat", "callback_game": "callback_game", "pay": "pay", "login_url": "login_url"}'
+
+
+def test_LoginUrl():
+    dic = r'{"url": "any", "forward_text": "ftext", "bot_username": "gu9rdbot", "request_write_access": true}'
+    obj = types.LoginUrl(url='any', forward_text='ftext',
+                         bot_username='gu9rdbot', request_write_access=True).to_json()
+    assert obj == dic
+
+
 def test_CallbackQuery():
     dic = {
         "id": 1122,
@@ -675,6 +712,26 @@ def test_CallbackQuery():
     assert obj.chat_instance == 'any'
     assert obj.data == 'any'
     assert obj.game_short_name == 'any'
+
+
+def test_ForceReply():
+    dic = r'{"force_reply": true, "selective": true}'
+    obj = types.ForceReply(selective='okay').to_json()
+    assert obj == dic
+
+
+def test_ChatPhoto():
+    dic = {
+        'small_file_id': 111,
+        'small_file_unique_id': 222,
+        'big_file_id': 333,
+        'big_file_unique_id': 444
+    }
+    obj = types.ChatPhoto.de_json(dic)
+    assert obj.small_file_id == 111
+    assert obj.small_file_unique_id == 222
+    assert obj.big_file_id == 333
+    assert obj.big_file_unique_id == 444
 
 
 def test_ChatMember():
@@ -752,20 +809,6 @@ def test_ChatPermissions():
     assert obj.can_change_info == False
     assert obj.can_invite_users == True
     assert obj.can_pin_messages == False
-
-
-def test_ChatPhoto():
-    dic = {
-        'small_file_id': 111,
-        'small_file_unique_id': 222,
-        'big_file_id': 333,
-        'big_file_unique_id': 444
-    }
-    obj = types.ChatPhoto.de_json(dic)
-    assert obj.small_file_id == 111
-    assert obj.small_file_unique_id == 222
-    assert obj.big_file_id == 333
-    assert obj.big_file_unique_id == 444
 
 
 def test_ChosenInlineResult():
@@ -880,12 +923,6 @@ def test_EncryptedPassportElement():
     assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
 
 
-def test_ForceReply():
-    dic = r'{"force_reply": true, "selective": true}'
-    obj = types.ForceReply(selective='okay').to_json()
-    assert obj == dic
-
-
 def test_Game():
     dic = {
         'title': 'GameTitle',
@@ -988,30 +1025,6 @@ def test_GameHighScore():
     assert obj.user.last_name == 'Asaad'
     assert obj.user.username == 'MA24th'
     assert obj.user.language_code == 'en'
-
-
-def test_InlineKeyboardButton():
-    obj = types.InlineKeyboardButton(text='text', url='url', callback_data='callback_data', switch_inline_query='switch_inline_query',
-                                     switch_inline_query_current_chat='switch_inline_query_current_chat', callback_game='callback_game', pay='pay', login_url='login_url').to_json()
-    assert obj == r'{"text": "text", "url": "url", "callback_data": "callback_data", "switch_inline_query": "switch_inline_query", "switch_inline_query_current_chat": "switch_inline_query_current_chat", "callback_game": "callback_game", "pay": "pay", "login_url": "login_url"}'
-
-
-def test_InlineKeyboardMarkup():
-    Markup = types.InlineKeyboardMarkup(row_width=2)
-    Button = types.InlineKeyboardButton
-    Markup.add(Button(text='bt1'))
-    Markup.add(Button(text='bt2'))
-    Markup.add(Button(text='bt3'))
-    obj = Markup.to_json()
-    assert obj == r'{"inline_keyboard": [[{"text": "bt1"}], [{"text": "bt2"}], [{"text": "bt3"}]]}'
-
-
-def test_keyboardButtonPollType():
-    dic = {
-        'type': 'any'
-    }
-    obj = types.KeyboardButtonPollType.de_json(dic)
-    assert obj.poll_type == 'any'
 
 
 def test_InlineQuery():
@@ -1302,13 +1315,6 @@ def test_Invoice():
 def test_LabeledPrice():
     dic = r'{"label": "apple", "amount": 2}'
     obj = types.LabeledPrice(label='apple', amount=2).to_json()
-    assert obj == dic
-
-
-def test_LoginUrl():
-    dic = r'{"url": "any", "forward_text": "ftext", "bot_username": "gu9rdbot", "request_write_access": true}'
-    obj = types.LoginUrl(url='any', forward_text='ftext',
-                         bot_username='gu9rdbot', request_write_access=True).to_json()
     assert obj == dic
 
 
