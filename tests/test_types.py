@@ -1327,17 +1327,28 @@ def test_PreCheckoutQuery():
     assert obj.order_info == None
 
 
-
-def test_EncryptedCredentials():
+def test_PassportData():
     dic = {
-        'data': 'SpyZjzIwdVAAIC',
-        'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH',
-        'secret': 'secretpwd'
+        'EncryptedPassportElement': '12u8kadf',
+        'EncryptedCredentials': 'djladjf:dkjfaklj'
     }
-    obj = types.EncryptedCredentials.de_json(dic)
-    assert obj.data == 'SpyZjzIwdVAAIC'
-    assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
-    assert obj.secret == 'secretpwd'
+    obj = types.PassportData.de_json(dic)
+    assert obj.data == '12u8kadf'
+    assert obj.credentials == "djladjf:dkjfaklj"
+
+
+def test_PassportFile():
+    dic = {
+        'file_id': 44,
+        'file_unique_id': 25,
+        'file_size': 32,
+        'file_date': 155555
+    }
+    obj = types.PassportFile.de_json(dic)
+    assert obj.file_id == 44
+    assert obj.file_unique_id == 25
+    assert obj.file_size == 32
+    assert obj.file_date == 155555
 
 
 def test_EncryptedPassportElement():
@@ -1406,6 +1417,18 @@ def test_EncryptedPassportElement():
     assert obj.translation[0].file_size == 32
     assert obj.translation[0].file_date == 155383
     assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
+
+
+def test_EncryptedCredentials():
+    dic = {
+        'data': 'SpyZjzIwdVAAIC',
+        'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH',
+        'secret': 'secretpwd'
+    }
+    obj = types.EncryptedCredentials.de_json(dic)
+    assert obj.data == 'SpyZjzIwdVAAIC'
+    assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
+    assert obj.secret == 'secretpwd'
 
 
 def test_Game():
@@ -1489,6 +1512,10 @@ def test_Game():
     assert obj.animation.file_size == 64
 
 
+def test_CallbackGame():
+    pass
+
+
 def test_GameHighScore():
     dic = {
         'position': 'player1',
@@ -1510,13 +1537,3 @@ def test_GameHighScore():
     assert obj.user.last_name == 'Asaad'
     assert obj.user.username == 'MA24th'
     assert obj.user.language_code == 'en'
-
-
-def test_PassportData():
-    dic = {
-        'EncryptedPassportElement': '12u8kadf',
-        'EncryptedCredentials': 'djladjf:dkjfaklj'
-    }
-    obj = types.PassportData.de_json(dic)
-    assert obj.data == '12u8kadf'
-    assert obj.credentials == "djladjf:dkjfaklj"
