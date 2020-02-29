@@ -949,20 +949,20 @@ class Poll(JsonDeserializable):
         options = Poll.parse_options(obj['options'])
         is_closed = obj['is_closed']
         is_anonymous = obj['is_anonymous']
-        poll_type = obj['type']
+        type = obj['type']
         allows_multiple_answers = obj['allows_multiple_answers']
         correct_option_id = None
         if 'correct_option_id' in obj:
             correct_option_id = obj['correct_option_id']
-        return cls(poll_id, question, options, is_closed, is_anonymous, poll_type, allows_multiple_answers, correct_option_id)
+        return cls(poll_id, question, options, is_closed, is_anonymous, type, allows_multiple_answers, correct_option_id)
 
-    def __init__(self, poll_id, question, options, is_closed, is_anonymous, poll_type, allows_multiple_answers, correct_option_id=None):
+    def __init__(self, poll_id, question, options, is_closed, is_anonymous, type, allows_multiple_answers, correct_option_id=None):
         self.poll_id = poll_id
         self.question = question
         self.options = options
         self.is_closed = is_closed
         self.is_anonymous = is_anonymous
-        self.poll_type = poll_type
+        self.type = type
         self.allows_multiple_answers = allows_multiple_answers
         self.correct_option_id = correct_option_id
 

@@ -502,6 +502,64 @@ def test_Venue():
     assert obj.foursquare_type == 'any'
 
 
+def test_PollOption():
+    dic = {
+        'text': 'abc',
+        'voter_count': 25
+    }
+    obj = types.PollOption.de_json(dic)
+    assert obj.text == 'abc'
+    assert obj.voter_count == 25
+
+
+def test_PollAnswer():
+    dic = {
+        'poll_id': 2,
+        'user': {
+            "is_bot": False,
+            "id": 383324787,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th"
+        },
+        'option_ids': 44
+    }
+    obj = types.PollAnswer.de_json(dic)
+    assert obj.poll_id == 2
+    assert obj.user.is_bot == False
+    assert obj.user.id == 383324787
+    assert obj.user.first_name == 'Mustafa'
+    assert obj.user.last_name == 'Asaad'
+    assert obj.user.username == 'MA24th'
+    assert obj.option_ids == 44
+
+
+def test_Poll():
+    dic = {
+        'id': 444,
+        'question': 'is abc?',
+        'options': [
+            {'text': 'a', 'voter_count': 1},
+            {'text': 'b', 'voter_count': 5}
+        ],
+        'is_closed': False,
+        'is_anonymous': True,
+        'type': 'gif',
+        'allows_multiple_answers': False,
+        'correct_option_id': 1
+    }
+    obj = types.Poll.de_json(dic)
+    assert obj.poll_id == 444
+    assert obj.question == 'is abc?'
+    assert obj.options[0].text == 'a'
+    assert obj.options[1].voter_count == 5
+    assert obj.is_closed == False
+    assert obj.is_anonymous == True
+    assert obj.type == 'gif'
+    assert obj.allows_multiple_answers == False
+    assert obj.correct_option_id == 1
+
+
 def test_UserProfilePhotos():
     dic = {
         "total_count": 1,
