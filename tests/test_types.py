@@ -400,3 +400,94 @@ def test_Chat():
     assert obj.slow_mode_delay == 5
     assert obj.sticker_set_name == 'channelstickers'
     assert obj.can_set_sticker_set == False
+
+
+def test_ChatMember():
+    dic = {
+        'user': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"
+        },
+        'status': 'creator',
+        'custom_title': 'DevOps Lion',
+        'until_date': None,
+        'can_be_edited': False,
+        'can_post_messages': True,
+        'can_edit_messages': True,
+        'can_delete_messages': True,
+        'can_restrict_members': True,
+        'can_promote_members': True,
+        'can_change_info': True,
+        'can_invite_users': True,
+        'can_pin_messages': True,
+        'is_member': True,
+        'can_send_messages': True,
+        'can_send_media_messages': True,
+        'can_send_polls': True,
+        'can_send_other_messages': True,
+        'can_add_web_page_previews': True
+    }
+    obj = types.ChatMember.de_json(dic)
+    assert obj.user.id == 383324787
+    assert obj.user.is_bot == False
+    assert obj.user.first_name == 'Mustafa'
+    assert obj.user.last_name == 'Asaad'
+    assert obj.user.username == 'MA24th'
+    assert obj.user.language_code == 'en'
+    assert obj.status == 'creator'
+    assert obj.custom_title == 'DevOps Lion'
+    assert obj.until_date == None
+    assert obj.can_be_edited == False
+    assert obj.can_post_messages == True
+    assert obj.can_edit_messages == True
+    assert obj.can_delete_messages == True
+    assert obj.can_restrict_members == True
+    assert obj.can_promote_members == True
+    assert obj.can_change_info == True
+    assert obj.can_invite_users == True
+    assert obj.can_pin_messages == True
+    assert obj.is_member == True
+    assert obj.can_send_messages == True
+    assert obj.can_send_media_messages == True
+    assert obj.can_send_polls == True
+    assert obj.can_send_other_messages == True
+
+
+def test_ChatPermissions():
+    dic = {
+        'can_send_messages': True,
+        'can_send_media_messages': True,
+        'can_send_polls': False,
+        'can_send_other_messages': True,
+        'can_add_web_page_previews': False,
+        'can_change_info': False,
+        'can_invite_users': True,
+        'can_pin_messages': False
+    }
+    obj = types.ChatPermissions.de_json(dic)
+    assert obj.can_send_messages == True
+    assert obj.can_send_media_messages == True
+    assert obj.can_send_polls == False
+    assert obj.can_send_other_messages == True
+    assert obj.can_add_web_page_previews == False
+    assert obj.can_change_info == False
+    assert obj.can_invite_users == True
+    assert obj.can_pin_messages == False
+
+
+def test_ChatPhoto():
+    dic = {
+        'small_file_id': 111,
+        'small_file_unique_id': 222,
+        'big_file_id': 333,
+        'big_file_unique_id': 444
+    }
+    obj = types.ChatPhoto.de_json(dic)
+    assert obj.small_file_id == 111
+    assert obj.small_file_unique_id == 222
+    assert obj.big_file_id == 333
+    assert obj.big_file_unique_id == 444
