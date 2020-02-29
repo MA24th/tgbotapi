@@ -51,6 +51,63 @@ def test_Update():
     assert obj.poll_anwser == None
 
 
+def test_User():
+    dic = {
+        "id": 952435061,
+        "is_bot": True,
+        "first_name": "GuardBot",
+        "last_name": None,
+        "username": "@gu9rdbot",
+        "language_code": 'en',
+        "can_join_groups": True,
+        "can_read_all_group_messages": False,
+        "supports_inline_queries": True
+    }
+    user = types.User.de_json(dic)
+    assert user.id == 952435061
+    assert user.first_name == 'GuardBot'
+    assert user.last_name == None
+    assert user.is_bot == True
+    assert user.username == '@gu9rdbot'
+    assert user.language_code == 'en'
+    assert user.can_join_groups == True
+    assert user.can_read_all_group_messages == False
+    assert user.supports_inline_queries == True
+
+
+def test_UserProfilePhotos():
+    dic = {
+        "total_count": 1,
+        "photos": [
+            [
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 6150,  "width": 160, "height": 160
+                },
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATOiTNi_YoJMghVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 13363, "width": 320, "height": 320
+                },
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAAQW4DyFv0-lhglVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 28347, "width": 640, "height": 640
+                },
+                {
+                    "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAAT50RvJCg0GQApVAAIC",
+                    "file_unique_id": "CEh0u682xwI",
+                    "file_size": 33953, "width": 800, "height": 800
+                }]]}
+    obj = types.UserProfilePhotos.de_json(dic)
+    assert obj.total_count == 1
+    assert obj.photos[0][0].file_id == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC'
+    assert obj.photos[0][1].file_unique_id == 'CEh0u682xwI'
+    assert obj.photos[0][2].file_size == 28347
+    assert obj.photos[0][3].width == 800
+
+
 def test_Animation():
     dic = {
         "file_id": 1,
