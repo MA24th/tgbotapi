@@ -238,3 +238,165 @@ def test_VideoNote():
     assert obj.thumb.height == 40
     assert obj.thumb.file_size == 32
     assert obj.file_size == 42
+
+
+def test_Audio():
+    dic = {
+        'file_id': 1,
+        'file_unique_id': 11,
+        'duration': 32,
+        'performer': 'abc',
+        'title': 'test',
+        'mime_type': 'type',
+        'file_size': 44,
+        'thumb': {
+            'file_id': 33,
+            'file_unique_id': 22,
+            'width': 30,
+            'height': 22
+        }
+    }
+    obj = types.Audio.de_json(dic)
+    assert obj.file_id == 1
+    assert obj.file_unique_id == 11
+    assert obj.duration == 32
+    assert obj.performer == 'abc'
+    assert obj.title == 'test'
+    assert obj.mime_type == 'type'
+    assert obj.file_size == 44
+    assert obj.thumb.file_id == 33
+    assert obj.thumb.file_unique_id == 22
+    assert obj.thumb.width == 30
+    assert obj.thumb.height == 22
+
+
+def test_CallbackQuery():
+    dic = {
+        "id": 1122,
+        "from": {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"},
+        "message": {
+            "message_id": 412,
+            "from": {
+                "id": 383324787,
+                "is_bot": False,
+                "first_name": "Mustafa",
+                "last_name": "Asaad",
+                "username": "MA24th",
+                "language_code": "en"},
+            "chat": {
+                "id": -1001405936102,
+                "title": "GRID9",
+                "type": "supergroup"},
+            "date": 1581869200,
+            "text": "/start"
+        },
+        'inline_message_id': 2234,
+        'chat_instance': 'any',
+        'data': 'any',
+        'game_short_name': 'any'
+    }
+    obj = types.CallbackQuery.de_json(dic)
+    assert obj.id == 1122
+    assert obj.from_user.id == 383324787
+    assert obj.from_user.is_bot == False
+    assert obj.from_user.first_name == 'Mustafa'
+    assert obj.from_user.last_name == 'Asaad'
+    assert obj.from_user.username == 'MA24th'
+    assert obj.from_user.language_code == 'en'
+    assert obj.message.message_id == 412
+    assert obj.message.from_user.id == 383324787
+    assert obj.message.from_user.is_bot == False
+    assert obj.message.from_user.first_name == 'Mustafa'
+    assert obj.message.from_user.last_name == 'Asaad'
+    assert obj.message.from_user.username == 'MA24th'
+    assert obj.message.from_user.language_code == 'en'
+    assert obj.message.chat.id == -1001405936102
+    assert obj.message.chat.title == 'GRID9'
+    assert obj.message.chat.type == 'supergroup'
+    assert obj.message.date == 1581869200
+    assert obj.message.text == '/start'
+    assert obj.inline_message_id == 2234
+    assert obj.chat_instance == 'any'
+    assert obj.data == 'any'
+    assert obj.game_short_name == 'any'
+
+
+def test_Chat():
+    dic = {
+        "id": -1001184458459,
+        "type": "channel",
+        "title": "GRID9",
+        "username": "grid9x",
+        "first_name": None,
+        "last_name": None,
+        "photo": {
+            'small_file_id': 111,
+            'small_file_unique_id': 222,
+            'big_file_id': 333,
+            'big_file_unique_id': 444},
+        "description": 'group description',
+        "invite_link": None,
+        "pinned_message": {
+            "message_id": 26,
+            "chat": {"id": -1001184458459, "title": "GRID9", "username": "grid9x",
+                     "type": "channel"}, "date": 1581868153, "text": "/start"},
+        "permissions": {
+            'can_send_messages': True,
+            'can_send_media_messages': True,
+            'can_send_polls': False,
+            'can_send_other_messages': True,
+            'can_add_web_page_previews': False,
+            'can_change_info': False,
+            'can_invite_users': True,
+            'can_pin_messages': True
+        },
+        "slow_mode_delay": 5,
+        "sticker_set_name": 'channelstickers',
+        "can_set_sticker_set": False
+    }
+    obj = types.Chat.de_json(dic)
+    assert obj.id == -1001184458459
+    assert obj.type == 'channel'
+    assert obj.title == 'GRID9'
+    assert obj.first_name == None
+    assert obj.last_name == None
+    assert obj.photo.small_file_id == 111
+    assert obj.photo.small_file_unique_id == 222
+    assert obj.photo.big_file_id == 333
+    assert obj.photo.big_file_unique_id == 444
+    assert obj.description == 'group description'
+    assert obj.invite_link == None
+    assert obj.pinned_message.message_id == 26
+    assert obj.pinned_message.chat.id == -1001184458459
+    assert obj.pinned_message.chat.title == 'GRID9'
+    assert obj.pinned_message.chat.username == 'grid9x'
+    assert obj.pinned_message.chat.type == 'channel'
+    assert obj.pinned_message.chat.first_name == None
+    assert obj.pinned_message.chat.last_name == None
+    assert obj.pinned_message.chat.photo == None
+    assert obj.pinned_message.chat.description == None
+    assert obj.pinned_message.chat.invite_link == None
+    assert obj.pinned_message.chat.pinned_message == None
+    assert obj.pinned_message.chat.permissions == None
+    assert obj.pinned_message.chat.slow_mode_delay == None
+    assert obj.pinned_message.chat.sticker_set_name == None
+    assert obj.pinned_message.chat.can_set_sticker_set == None
+    assert obj.pinned_message.date == 1581868153
+    assert obj.pinned_message.text == '/start'
+    assert obj.permissions.can_send_messages == True
+    assert obj.permissions.can_send_media_messages == True
+    assert obj.permissions.can_send_polls == False
+    assert obj.permissions.can_send_other_messages == True
+    assert obj.permissions.can_add_web_page_previews == False
+    assert obj.permissions.can_change_info == False
+    assert obj.permissions.can_invite_users == True
+    assert obj.permissions.can_pin_messages == True
+    assert obj.slow_mode_delay == 5
+    assert obj.sticker_set_name == 'channelstickers'
+    assert obj.can_set_sticker_set == False
