@@ -1179,6 +1179,7 @@ def test_ChosenInlineResult():
     assert obj.location.longitude == 29
     assert obj.inline_message_id == 1233
 
+
 def test_LabeledPrice():
     dic = r'{"label": "apple", "amount": 2}'
     obj = types.LabeledPrice(label='apple', amount=2).to_json()
@@ -1199,6 +1200,56 @@ def test_Invoice():
     assert obj.start_parameter == 'a'
     assert obj.currency == 'usd'
     assert obj.total_amount == 20
+
+
+def test_ShippingAddress():
+    dic = {
+        'country_code': 'iq',
+        'state': 'Diyala',
+        'city': 'Khalis',
+        'street_line1': 'Kh 32006 44 st',
+        'street_line2': None,
+        'post_code': 32006
+    }
+    obj = types.ShippingAddress.de_json(dic)
+    assert obj.country_code == 'iq'
+    assert obj.state == 'Diyala'
+    assert obj.city == 'Khalis'
+    assert obj.street_line1 == 'Kh 32006 44 st'
+    assert obj.street_line2 == None
+    assert obj.post_code == 32006
+
+
+def test_OrderInfo():
+    dic = {
+        'name': 'namey',
+        'phone_number': '11223344',
+        'email': 'ma24th@yahoo.com',
+        'shipping_address': {
+            'country_code': 'iq',
+            'state': 'Diyala',
+            'city': 'Khalis',
+            'street_line1': 'KH 32th',
+            'street_line2': 'KH 32th',
+            'post_code': 32006
+        }
+    }
+    obj = types.OrderInfo.de_json(dic)
+    assert obj.name == 'namey'
+    assert obj.phone_number == '11223344'
+    assert obj.email == 'ma24th@yahoo.com'
+    assert obj.shipping_address.country_code == 'iq'
+    assert obj.shipping_address.state == 'Diyala'
+    assert obj.shipping_address.city == 'Khalis'
+    assert obj.shipping_address.street_line1 == 'KH 32th'
+    assert obj.shipping_address.street_line2 == 'KH 32th'
+    assert obj.shipping_address.post_code == 32006
+
+
+def test_ShippingOption():
+    dic = r'{"id": 23, "title": "apple", "prices": []}'
+    obj = types.ShippingOption(id=23, title='apple').to_json()
+    assert obj == dic
 
 
 def test_EncryptedCredentials():
@@ -1385,32 +1436,6 @@ def test_GameHighScore():
     assert obj.user.language_code == 'en'
 
 
-def test_OrderInfo():
-    dic = {
-        'name': 'namey',
-        'phone_number': '11223344',
-        'email': 'ma24th@yahoo.com',
-        'shipping_address': {
-            'country_code': 'iq',
-            'state': 'Diyala',
-            'city': 'Khalis',
-            'street_line1': 'KH 32th',
-            'street_line2': 'KH 32th',
-            'post_code': 32006
-        }
-    }
-    obj = types.OrderInfo.de_json(dic)
-    assert obj.name == 'namey'
-    assert obj.phone_number == '11223344'
-    assert obj.email == 'ma24th@yahoo.com'
-    assert obj.shipping_address.country_code == 'iq'
-    assert obj.shipping_address.state == 'Diyala'
-    assert obj.shipping_address.city == 'Khalis'
-    assert obj.shipping_address.street_line1 == 'KH 32th'
-    assert obj.shipping_address.street_line2 == 'KH 32th'
-    assert obj.shipping_address.post_code == 32006
-
-
 def test_PassportData():
     dic = {
         'EncryptedPassportElement': '12u8kadf',
@@ -1419,9 +1444,3 @@ def test_PassportData():
     obj = types.PassportData.de_json(dic)
     assert obj.data == '12u8kadf'
     assert obj.credentials == "djladjf:dkjfaklj"
-
-
-def test_ShippingOption():
-    dic = r'{"id": 23, "title": "apple", "prices": []}'
-    obj = types.ShippingOption(id=23, title='apple').to_json()
-    assert obj == dic
