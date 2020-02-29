@@ -1252,6 +1252,27 @@ def test_ShippingOption():
     assert obj == dic
 
 
+def test_SuccessfulPayment():
+    dic = {
+        'currency': 'IQD',
+        'total_amount': 25000,
+        'invoice_payload': 'trans',
+        'telegram_payment_charge_id': 2232,
+        'provider_payment_charge_id': 2333
+    }
+    obj = types.SuccessfulPayment.de_json(dic)
+    assert obj.currency == 'IQD'
+    assert obj.total_amount == 25000
+    assert obj.invoice_payload == 'trans'
+    assert obj.shipping_option_id == None
+    assert obj.order_info == None
+    assert obj.telegram_payment_charge_id == 2232
+    assert obj.provider_payment_charge_id == 2333
+
+
+
+
+
 def test_EncryptedCredentials():
     dic = {
         'data': 'SpyZjzIwdVAAIC',
