@@ -1431,6 +1431,148 @@ def test_EncryptedCredentials():
     assert obj.secret == 'secretpwd'
 
 
+def test_PassportElementError():
+    dic = {
+        'source': 'unspecified',
+        'type': 'any',
+        'element_hash': 'any',
+        'message': None,
+    }
+    obj = types.PassportElementError.de_json(dic)
+    assert obj.source == 'unspecified'
+    assert obj.type == 'any'
+    assert obj.element_hash == 'any'
+    assert obj.message == None
+
+
+def test_PassportElementErrorDataField():
+    dic = {
+        'source': 'data',
+        'type': 'any',
+        'field_name': 'abc',
+        'data_hash': 'any',
+        'message': None
+    }
+    obj = types.PassportElementErrorDataField.de_json(dic)
+    assert obj.source == 'data'
+    assert obj.type == 'any'
+    assert obj.field_name == 'abc'
+    assert obj.data_hash == 'any'
+    assert obj.message == None
+
+
+def test_PassportElementErrorFrontSide():
+    dic = {
+        'source': 'front_side',
+        'type': 'any',
+        'file_hash': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorFrontSide.de_json(dic)
+    assert obj.source == 'front_side'
+    assert obj.type == 'any'
+    assert obj.file_hash == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorFile():
+    dic = {
+        'source': 'file',
+        'type': 'any',
+        'file_hash': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorFile.de_json(dic)
+    assert obj.source == 'file'
+    assert obj.type == 'any'
+    assert obj.file_hash == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorFiles():
+    dic = {
+        'source': 'files',
+        'type': 'any',
+        'file_hashes': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorFiles.de_json(dic)
+    assert obj.source == 'files'
+    assert obj.type == 'any'
+    assert obj.file_hashes == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorReverseSide():
+    dic = {
+        'source': 'reverse_side',
+        'type': 'any',
+        'file_hash': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorReverseSide.de_json(dic)
+    assert obj.source == 'reverse_side'
+    assert obj.type == 'any'
+    assert obj.file_hash == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorSelfie():
+    dic = {
+        'source': 'selfie',
+        'type': 'any',
+        'file_hash': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorSelfie.de_json(dic)
+    assert obj.source == 'selfie'
+    assert obj.type == 'any'
+    assert obj.file_hash == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorTranslationFile():
+    dic = {
+        'source': 'translation_file',
+        'type': 'any',
+        'file_hash': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorTranslationFile.de_json(dic)
+    assert obj.source == 'translation_file'
+    assert obj.type == 'any'
+    assert obj.file_hash == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorTranslationFiles():
+    dic = {
+        'source': 'translation_files',
+        'type': 'any',
+        'file_hashes': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorTranslationFiles.de_json(dic)
+    assert obj.source == 'translation_files'
+    assert obj.type == 'any'
+    assert obj.file_hashes == 'abc'
+    assert obj.message == None
+
+
+def test_PassportElementErrorUnspecified():
+    dic = {
+        'source': 'unspecified',
+        'type': 'any',
+        'element_hash': 'abc',
+        'message': None
+    }
+    obj = types.PassportElementErrorUnspecified.de_json(dic)
+    assert obj.source == 'unspecified'
+    assert obj.type == 'any'
+    assert obj.element_hash == 'abc'
+    assert obj.message == None
+
+
 def test_Game():
     dic = {
         'title': 'GameTitle',
