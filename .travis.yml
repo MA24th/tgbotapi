@@ -4,6 +4,6 @@ python:
     - "3.7"
     - "3.8"
 script:
-    - cd tests
+    - pip install -e .
     - pytest -vvv
 
