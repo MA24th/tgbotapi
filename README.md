@@ -11,7 +11,9 @@ The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Frame
 
 This API is tested with:
 
+* Python 3.6
 * Python 3.7
+* Python 3.8
 
 There are two ways to install the framework:
 
