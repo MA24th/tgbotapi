@@ -3071,6 +3071,8 @@ class PassportElementError(JsonDeserializable):
             return PassportElementErrorTranslationFiles.de_json(json_string)
         elif source == 'unspecified':
             return PassportElementErrorUnspecified.de_json(json_string)
+        else:
+            return None
 
 
 class PassportElementErrorDataField(JsonDeserializable):
@@ -3223,14 +3225,14 @@ class PassportElementErrorTranslationFiles(JsonDeserializable):
         obj = cls.check_json(json_string)
         source = obj['source']  # Error source, must be translation_files
         type = obj['type']
-        file_hash = obj['file_hash']
+        file_hashes = obj['file_hashes']
         message = obj['message']
-        return cls(source, type, file_hash, message)
+        return cls(source, type, file_hashes, message)
 
-    def __init__(self, source, type, file_hash, message):
+    def __init__(self, source, type, file_hashes, message):
         self.source = source
         self.type = type
-        self.file_hash = file_hash
+        self.file_hashes = file_hashes
         self.message = message
 
 
