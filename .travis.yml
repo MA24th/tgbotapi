@@ -4,7 +4,5 @@ python:
     - "3.7"
     - "3.8"
 script:
-    - python3.6 -m pytest tests/ -vvv
-    - python3.7 -m pytest tests/ -vvv
-    - python3.8 -m pytest tests/ -vvv
+    - pytest tests/ -vvv
 
