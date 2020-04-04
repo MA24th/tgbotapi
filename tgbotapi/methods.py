@@ -87,6 +87,14 @@ def _check_result(method_name, result):
 
 
 def get_updates(token, offset=None, limit=None, timeout=None, allowed_updates=None):
+    """
+    Use this method to receive incoming updates using long polling.
+    :param offset [Integer, Optional]:
+    :param limit [Integer, Optional]:
+    :param timeout [timeout, Optional]:
+    :param allowed_updates [Array of String, Optional]:
+    :return: An Array of Update objects.
+    """
     method_url = r'getUpdates'
     payload = {}
     if offset:
