@@ -390,6 +390,9 @@ class Message(JsonDeserializable):
         if 'poll' in obj:
             opts['poll'] = Poll.de_json(obj['poll'])
             content_type = 'poll'
+        if 'dice' in obj:
+            opts['dice'] = Dice.de_json(obj['dice'])
+            content_type = 'Dice'
         if 'new_chat_members' in obj:
             opts['new_chat_members'] = Message.parse_chat_members(
                 obj['new_chat_members'])
