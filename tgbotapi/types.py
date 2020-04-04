@@ -92,23 +92,19 @@ class Update(JsonDeserializable):
     """ 
     This object represents an incoming update,
     At most one of the optional parameters can be present in any given update.
+    :field update_id [Integer]:
+    :field message [Message, Optional]:
+    :field edited_message [Message, Optional]:
+    :field channel_post [Message, Optional]:
+    :field edited_channel_post [Message, Optional]:
+    :field inline_query [InlineQuery, Optional]:
+    :field chosen_inline_result [ChosenInlineResult, Optional]:
+    :field callback_query [CallbackQuery, Optional]:
+    :field shipping_query [ShippingQuery, Optional]:
+    :field pre_checkout_query [PreCheckoutQuery, Optional]:
+    :field poll [Poll, Optional]:
+    :field poll_answer [PollAnswer, Optional]
     """
-
-    def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
-                 chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer):
-        self.update_id = update_id
-        self.message = message
-        self.edited_message = edited_message
-        self.channel_post = channel_post
-        self.edited_channel_post = edited_channel_post
-        self.inline_query = inline_query
-        self.chosen_inline_result = chosen_inline_result
-        self.callback_query = callback_query
-        self.shipping_query = shipping_query
-        self.pre_checkout_query = pre_checkout_query
-        self.poll = poll
-        self.poll_anwser = poll_answer
-
     @classmethod
     def de_json(cls, json_type):
         obj = cls.check_json(json_type)
@@ -150,6 +146,21 @@ class Update(JsonDeserializable):
             poll_answer = PollAnswer.de_json(obj['poll_answer'])
         return cls(update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                    chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer)
+
+    def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
+                 chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer):
+        self.update_id = update_id
+        self.message = message
+        self.edited_message = edited_message
+        self.channel_post = channel_post
+        self.edited_channel_post = edited_channel_post
+        self.inline_query = inline_query
+        self.chosen_inline_result = chosen_inline_result
+        self.callback_query = callback_query
+        self.shipping_query = shipping_query
+        self.pre_checkout_query = pre_checkout_query
+        self.poll = poll
+        self.poll_anwser = poll_answer
 
 
 class WebhookInfo(JsonDeserializable):
