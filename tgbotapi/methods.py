@@ -852,7 +852,8 @@ def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker
     :returns: True on success.
     """
     method_url = 'createNewStickerSet'
-    payload = {'user_id': user_id, 'name': name,'t itle': title, 'emojis': emojis}
+    payload = {'user_id': user_id, 'name': name,
+               't itle': title, 'emojis': emojis}
     files = None
     if not is_string(png_sticker):
         files = {'png_sticker': png_sticker}
@@ -867,7 +868,19 @@ def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def add_sticker_to_set(token, user_id, name, png_sticker, emojis, mask_position):
+def add_sticker_to_set(token, user_id, name, png_sticker, tgs_sticker, emojis, mask_position):
+    """
+    Use this method to add a new sticker to a set created by the bot. 
+    You must use exactly one of the fields png_sticker or tgs_sticker. 
+    Animated stickers can be added to animated sticker sets and only to them.
+    :param user_id [Integer, Required]:
+    :param name [String, Required]:
+    :param png_sticker [InputFile or String, Required]:
+    :param tgs_sticker [InputFile, Optional]:
+    :param emojis [String, Required]:
+    :param mask_position [MaskPostion, Optional]
+    :returns: True on success.
+    """
     method_url = 'addStickerToSet'
     payload = {'user_id': user_id, 'name': name, 'emojis': emojis}
     files = None
@@ -875,6 +888,8 @@ def add_sticker_to_set(token, user_id, name, png_sticker, emojis, mask_position)
         files = {'png_sticker': png_sticker}
     else:
         payload['png_sticker'] = png_sticker
+    if not is_string(tgs_sticker):
+        files = {'tgs_sticker': tgs_sticker}
     if mask_position:
         payload['mask_position'] = mask_position.to_json()
     return _make_request(token, method_url, params=payload, files=files, method='post')
