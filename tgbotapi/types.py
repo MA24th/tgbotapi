@@ -974,6 +974,18 @@ class Poll(JsonDeserializable):
         return op
 
 
+class Dice(JsonDeserializable):
+    """ This object represents a dice with random value from 1 to 6 """
+    @classmethod
+    def de_json(cls, json_string):
+        obj = cls.check_json(json_string)
+        value = obj['value']
+        return cls(value)
+
+    def __init__(self, value):
+        self.value = value
+
+
 class UserProfilePhotos(JsonDeserializable):
     """ This object represents one size of a photo or a file / sticker thumbnail """
     @classmethod
