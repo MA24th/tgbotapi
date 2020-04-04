@@ -222,14 +222,41 @@ def send_audio(token, chat_id, audio, caption=None, duration=None, performer=Non
         payload['connect-timeout'] = timeout
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
-# sendDocument
 
+def send_Document(token, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send general files.
+    :param chat_id [Integer or String, Required]:
+    :param document [InputFile or String, Required]:
+    :param thumb [InputFile or String, Optional]:
+    :param caption [String 0-1024 characters, Optional]:
+    :param parse_mode [String, Optional]:
+    :param diable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :return: On success, the sent Message is returned.
+    """
+    method_url = r'sendDocument'
+    payload = {'chat_id': chat_id}
+    files = None
+    if not is_string(document):
+        files = {'document': document}
+    else:
+        payload['document'] = document
+    if thumb:
+        payload['thumb'] = thumb
+    if caption:
+        payload['caption'] = caption
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
+    if reply_to_message_id:
+        payload['reply_to_message_id'] = reply_to_message_id
+    if reply_markup:
+        payload['reply_markup'] = _convert_markup(reply_markup)
+    return _make_request(token, method_url, params=payload, files=files, method='post')
 
-def get_method_by_type(data_type):
-    if data_type == 'document':
-        return r'sendDocument'
-    if data_type == 'sticker':
-        return r'sendSticker'
 
 
 def send_video(token, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
@@ -756,7 +783,32 @@ def delete_message(token, chat_id, message_id):
     return _make_request(token, method_url, params=payload, method='post')
 
 
-# sendSticker
+
+def send_sticker(token, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=None):
+    """
+    Use this method to send static .WEBP or animated .TGS stickers.
+    :param chat_id [Integer or String, Required]:
+    :param sticker [InputFile or String, Required]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :return: On success, the sent Message is returned.
+    """
+    method_url = r'sendSticker'
+    payload = {'chat_id': chat_id}
+    files = None
+    if not is_string(sticker):
+        files = {'sticker': sticker}
+    else:
+        payload['sticker'] = sticker
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
+    if reply_to_message_id:
+        payload['reply_to_message_id'] = reply_to_message_id
+    if reply_markup:
+        payload['reply_markup'] = _convert_markup(reply_markup)
+    return _make_request(token, method_url, params=payload, files=files, method='post')
+
 
 def get_sticker_set(token, name):
     method_url = 'getStickerSet'
@@ -811,7 +863,19 @@ def delete_sticker_from_set(token, sticker):
     return _make_request(token, method_url, params=payload, method='post')
 
 
-# setStickerSetThumb
+def set_sticker_set_thumb(token, name, user_id, thumb=None):
+    """
+    Use this method to set the thumbnail of a sticker set.
+    :param name [String, Required]:
+    :param user_id [Integer, Required]:
+    :param thumb [InputFile or String, Optional]
+    :return: True on success
+    """
+    method_url = r'setStickerSetThumb'
+    payload = {'name': name, 'user_id': user_id}
+    if thumb:
+        payload['thumb'] = thumb
+    return _make_request(token, method_url, params=payload)
 
 
 def answer_inline_query(token, inline_query_id, results, cache_time=None, is_personal=None, next_offset=None,
@@ -1003,30 +1067,6 @@ def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_m
 
 
 # CUSTOM FUNCTIONS (NOT PROVIDED BY TELEGRAM BOT API)
-def send_data(token, chat_id, data, data_type, reply_to_message_id=None, reply_markup=None, parse_mode=None,
-              disable_notification=None, timeout=None, caption=None):
-    method_url = get_method_by_type(data_type)
-    payload = {'chat_id': chat_id}
-    files = None
-    if not is_string(data):
-        files = {data_type: data}
-    else:
-        payload[data_type] = data
-    if reply_to_message_id:
-        payload['reply_to_message_id'] = reply_to_message_id
-    if reply_markup:
-        payload['reply_markup'] = _convert_markup(reply_markup)
-    if parse_mode and data_type == 'document':
-        payload['parse_mode'] = parse_mode
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
-    if caption:
-        payload['caption'] = caption
-    return _make_request(token, method_url, params=payload, files=files, method='post')
-
-
 def get_file_url(token, file_id):
     if FILE_URL is None:
         return "https://api.telegram.org/file/bot{0}/{1}".format(token, get_file(token, file_id)['file_path'])
