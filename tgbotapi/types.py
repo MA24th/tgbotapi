@@ -1720,13 +1720,15 @@ class StickerSet(JsonDeserializable):
         title = obj['title']
         contains_masks = obj['contains_masks']
         stickers = StickerSet.parse_stickers(obj['stickers'])
-        return cls(name, title, contains_masks, stickers)
+        thumb = PhotoSize.de_json(obj['thumb'])
+        return cls(name, title, contains_masks, stickers, thumb)
 
-    def __init__(self, name, title, contains_masks, stickers):
-        self.stickers = stickers
-        self.contains_masks = contains_masks
-        self.title = title
+    def __init__(self, name, title, contains_masks, stickers, thumb):
         self.name = name
+        self.title = title
+        self.contains_masks = contains_masks
+        self.stickers = stickers
+        self.thumb = thumb
 
     @classmethod
     def parse_stickers(cls, objs):
