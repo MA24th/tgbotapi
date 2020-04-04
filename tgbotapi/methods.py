@@ -836,15 +836,30 @@ def upload_sticker_file(token, user_id, png_sticker):
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def create_new_sticker_set(token, user_id, name, title, png_sticker, emojis, contains_masks=None, mask_position=None):
+def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None, mask_position=None):
+    """
+    Use this method to create a new sticker set owned by a user. 
+    The bot will be able to edit the sticker set thus created. 
+    You must use exactly one of the fields png_sticker or tgs_sticker. 
+    :param user_id [Integer, Required]:
+    :param name [String, Required]:
+    :param title [String, Required]:
+    :param png_sticker [InputFile or String, Optional]:
+    :param tgs_sticker [InputFile, Optional]:
+    :param emojis [String, Required]:
+    :param contains_masks [Boolean, Optional]:
+    :param mask_position [MaskPostion, Optional]
+    :returns: True on success.
+    """
     method_url = 'createNewStickerSet'
-    payload = {'user_id': user_id, 'name': name,
-               'title': title, 'emojis': emojis}
+    payload = {'user_id': user_id, 'name': name,'t itle': title, 'emojis': emojis}
     files = None
     if not is_string(png_sticker):
         files = {'png_sticker': png_sticker}
     else:
         payload['png_sticker'] = png_sticker
+    if not is_string(tgs_sticker):
+        files = {'tgs_sticker', tgs_sticker}
     if contains_masks:
         payload['contains_masks'] = contains_masks
     if mask_position:
