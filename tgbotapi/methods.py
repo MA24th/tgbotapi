@@ -258,7 +258,6 @@ def send_Document(token, chat_id, document, thumb=None, caption=None, parse_mode
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-
 def send_video(token, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
                parse_mode=None, supports_streaming=None, disable_notification=None, timeout=None):
     method_url = r'sendVideo'
@@ -697,6 +696,16 @@ def answer_callback_query(token, callback_query_id, text=None, show_alert=None, 
     return _make_request(token, method_url, params=payload, method='post')
 
 
+def set_my_commands(token, commands):
+    """
+    Use this method to change the list of the bot's commands. 
+    :param commands [Array of BotCommand, Required]:
+    :returns: True on success.
+    """
+    method_url = r'setMyCommands'
+    payload = {'commands': commands}
+    return _make_request(token, method_url, params=payload)
+
 
 def get_my_commands(token):
     """
@@ -708,6 +717,7 @@ def get_my_commands(token):
     return _make_request(token, method_url)
 
 # Updating messages
+
 
 def edit_message_text(token, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                       disable_web_page_preview=None, reply_markup=None):
@@ -786,7 +796,6 @@ def delete_message(token, chat_id, message_id):
     method_url = r'deleteMessage'
     payload = {'chat_id': chat_id, 'message_id': message_id}
     return _make_request(token, method_url, params=payload, method='post')
-
 
 
 def send_sticker(token, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=None):
