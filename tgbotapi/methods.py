@@ -696,11 +696,16 @@ def answer_callback_query(token, callback_query_id, text=None, show_alert=None, 
         payload['cache_time'] = cache_time
     return _make_request(token, method_url, params=payload, method='post')
 
-# setMyCommands
 
 
-#  getMyCommands
-
+def get_my_commands(token):
+    """
+    Use this method to get the current list of the bot's commands. 
+    :param [Requires no parameters]:
+    :returns: Array of BotCommand on success.
+    """
+    method_url = r'getMyCommands'
+    return _make_request(token, method_url)
 
 # Updating messages
 
