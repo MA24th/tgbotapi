@@ -405,8 +405,7 @@ class Message(JsonDeserializable):
             opts['dice'] = Dice.de_json(obj['dice'])
             content_type = 'Dice'
         if 'new_chat_members' in obj:
-            opts['new_chat_members'] = Message.parse_chat_members(
-                obj['new_chat_members'])
+            opts['new_chat_members'] = Message.parse_users(obj['new_chat_members'])
             content_type = 'new_chat_members'
         if 'left_chat_member' in obj:
             opts['left_chat_member'] = User.de_json(obj['left_chat_member'])
@@ -471,11 +470,11 @@ class Message(JsonDeserializable):
         return ret
 
     @classmethod
-    def parse_chat_members(cls, new_chat_members):
-        ret = []
-        for cm in new_chat_members:
-            ret.append(ChatMember.de_json(cm))
-        return ret
+    def parse_users(cls, new_chat_members):
+        users = []
+        for x in new_chat_members:
+            users.append(User.de_json(x))
+        return users
 
     def __init__(self, message_id, from_user, date, chat, content_type, options, json_string):
         self.content_type = content_type
