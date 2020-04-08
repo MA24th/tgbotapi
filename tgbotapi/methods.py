@@ -28,7 +28,7 @@ def _make_request(token, method_name, method='get', params=None, files=None):
     :param method: HTTP method to be used. Defaults to 'get'.
     :param params: Optional parameters. Should be a dictionary with key-value pairs.
     :param files: Optional files.
-    :return: The result parsed to a JSON dictionary.
+    :returns: The result parsed to a JSON dictionary.
     """
     if API_URL is None:
         request_url = "https://api.telegram.org/bot{0}/{1}".format(
@@ -65,7 +65,7 @@ def _check_result(method_name, result):
     :raises ApiException: if one of the above listed cases is applicable
     :param method_name: The name of the method called
     :param result: The returned result of the method request
-    :return: The result parsed to a JSON dictionary.
+    :returns: The result parsed to a JSON dictionary.
     """
     if result.status_code != 200:
         msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
@@ -93,7 +93,7 @@ def get_updates(token, offset=None, limit=None, timeout=None, allowed_updates=No
     :param limit [Integer, Optional]:
     :param timeout [timeout, Optional]:
     :param allowed_updates [Array of String, Optional]:
-    :return: An Array of Update objects.
+    :returns: An Array of Update objects.
     """
     method_url = r'getUpdates'
     payload = {}
@@ -109,6 +109,14 @@ def get_updates(token, offset=None, limit=None, timeout=None, allowed_updates=No
 
 
 def set_webhook(token, url=None, certificate=None, max_connections=None, allowed_updates=None):
+    """
+    Use this method to specify a url and receive incoming updates via an outgoing webhook.
+    :param url [String, Required]:
+    :param certificate [InputFile, Optional]:
+    :param max_connections [Integer, Optional]:
+    :param allowed_updates [Array of String, Optional]
+    :returns: True on success
+    """
     method_url = r'setWebhook'
     payload = {
         'url': url if url else "",
@@ -124,53 +132,72 @@ def set_webhook(token, url=None, certificate=None, max_connections=None, allowed
 
 
 def delete_webhook(token):
+    """
+    Use this method to remove webhook integration if you decide to switch back to getUpdates. 
+    :param requires no parameters:
+    :returns: True on success. 
+    """
     method_url = r'deleteWebhook'
     return _make_request(token, method_url)
 
 
 def get_webhook_info(token):
+    """
+    Use this method to get current webhook status. 
+    :param requires no parameters:
+    :returns: a WebhookInfo object, if the bot is using getUpdates, will return an object with the url field empty.
+    """
     method_url = r'getWebhookInfo'
     payload = {}
     return _make_request(token, method_url, params=payload)
 
 
 def get_me(token):
+    """
+    A simple method for testing your bot's auth token. 
+    :param requires no parameters: 
+    :returns: basic information about the bot in form of a User object.
+    """
     method_url = r'getMe'
     return _make_request(token, method_url)
 
 
-def send_message(token, chat_id, text, disable_web_page_preview=None, reply_to_message_id=None, reply_markup=None,
-                 parse_mode=None, disable_notification=None, timeout=None):
+def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview=None, disable_notification=None,  reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send text messages. On success, the sent Message is returned.
-    :param token:
-    :param chat_id:
-    :param text:
-    :param disable_web_page_preview:
-    :param reply_to_message_id:
-    :param reply_markup:
-    :param parse_mode:
-    :param disable_notification:
-    :return:
+    :param chat_id [Integer or String, Required]:
+    :param text [String, Required]:
+    :param parse_mode [String, Optional]:
+    :param disable_web_page_preview [Boolean, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
+    :returns: On success, the sent Message is returned
     """
     method_url = r'sendMessage'
-    payload = {'chat_id': str(chat_id), 'text': text}
+    payload = {'chat_id': chat_id, 'text': text}
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if disable_web_page_preview:
         payload['disable_web_page_preview'] = disable_web_page_preview
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
-    if parse_mode:
-        payload['parse_mode'] = parse_mode
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def forward_message(token, chat_id, from_chat_id, message_id, disable_notification=None):
+    """
+    Use this method to forward messages of any kind.
+    :param chat_id [Integer or String, Required]:
+    :param from_chat_id [Integer or String, Required]:
+    :param disable_notification [Boolean, Optional]:
+    :param message_id [Integer, Required]
+    :returns: On success, the sent Message.
+    """
     method_url = r'forwardMessage'
     payload = {'chat_id': chat_id,
                'from_chat_id': from_chat_id, 'message_id': message_id}
@@ -179,8 +206,18 @@ def forward_message(token, chat_id, from_chat_id, message_id, disable_notificati
     return _make_request(token, method_url, params=payload)
 
 
-def send_photo(token, chat_id, photo, caption=None, reply_to_message_id=None, reply_markup=None,
-               parse_mode=None, disable_notification=None):
+def send_photo(token, chat_id, photo, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send photos. 
+    :param chat_id [Integer or String, Required]:
+    :param photo [InputFile or String, Required]:
+    :param caption [String, Optional]:
+    :param parse_mode [String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
+    :returns: On success, the sent Message is returned.
+    """
     method_url = r'sendPhoto'
     payload = {'chat_id': chat_id}
     files = None
@@ -190,19 +227,33 @@ def send_photo(token, chat_id, photo, caption=None, reply_to_message_id=None, re
         payload['photo'] = photo
     if caption:
         payload['caption'] = caption
-    if reply_to_message_id:
-        payload['reply_to_message_id'] = reply_to_message_id
-    if reply_markup:
-        payload['reply_markup'] = _convert_markup(reply_markup)
     if parse_mode:
         payload['parse_mode'] = parse_mode
     if disable_notification:
         payload['disable_notification'] = disable_notification
+    if reply_to_message_id:
+        payload['reply_to_message_id'] = reply_to_message_id
+    if reply_markup:
+        payload['reply_markup'] = _convert_markup(reply_markup)
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def send_audio(token, chat_id, audio, caption=None, duration=None, performer=None, title=None, reply_to_message_id=None,
-               reply_markup=None, parse_mode=None, disable_notification=None, timeout=None):
+def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None, thumb=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send audio files.
+    :param chat_id [Integer or String, Required]:
+    :param audio [InputFile or String, Required]:
+    :param caption [String, Optional]:
+    :param parse_mode [String, Optional]:
+    :param duration [Integer, Optional]:
+    :param performer [String, Optional]:
+    :param title [String, Optional]:
+    :param thumb [InputFile or String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
+    :returns: On success, the send Message.
+    """
     method_url = r'sendAudio'
     payload = {'chat_id': chat_id}
     files = None
@@ -212,22 +263,22 @@ def send_audio(token, chat_id, audio, caption=None, duration=None, performer=Non
         payload['audio'] = audio
     if caption:
         payload['caption'] = caption
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if duration:
         payload['duration'] = duration
     if performer:
         payload['performer'] = performer
     if title:
         payload['title'] = title
+    if thumb:
+        payload['thumb'] = thumb
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
-    if parse_mode:
-        payload['parse_mode'] = parse_mode
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
@@ -239,10 +290,10 @@ def send_Document(token, chat_id, document, thumb=None, caption=None, parse_mode
     :param thumb [InputFile or String, Optional]:
     :param caption [String 0-1024 characters, Optional]:
     :param parse_mode [String, Optional]:
-    :param diable_notification [Boolean, Optional]:
+    :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :return: On success, the sent Message is returned.
+    :returns: On success, the sent Message.
     """
     method_url = r'sendDocument'
     payload = {'chat_id': chat_id}
@@ -266,62 +317,110 @@ def send_Document(token, chat_id, document, thumb=None, caption=None, parse_mode
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def send_video(token, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
-               parse_mode=None, supports_streaming=None, disable_notification=None, timeout=None):
+def send_video(token, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None, parse_mode=None, supports_streaming=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send video files.
+    :param chat_id [Integer or String, Required]:
+    :param video [InputFile or String, Required]:
+    :param duration [Integer, Optional]:
+    :param width [Integer, Optional]:
+    :param height [Integer, Optional]:
+    :param thumb [InputFile or String, Optional]:
+    :param caption [String 0-1024 characters, Optional]:
+    :param parse_mode [String, Optional]:
+    :param supports_streaming [Boolean, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: On success, the sent Message.
+    """    
     method_url = r'sendVideo'
     payload = {'chat_id': chat_id}
     files = None
-    if not is_string(data):
-        files = {'video': data}
+    if not is_string(video):
+        files = {'video': video}
     else:
-        payload['video'] = data
+        payload['video'] = video
     if duration:
         payload['duration'] = duration
+    if width:
+        payload['width'] = width
+    if height:
+        payload['height'] = height
+    if thumb:
+        payload['thumb'] = thumb
     if caption:
         payload['caption'] = caption
-    if reply_to_message_id:
-        payload['reply_to_message_id'] = reply_to_message_id
-    if reply_markup:
-        payload['reply_markup'] = _convert_markup(reply_markup)
     if parse_mode:
         payload['parse_mode'] = parse_mode
     if supports_streaming:
         payload['supports_streaming'] = supports_streaming
     if disable_notification:
         payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
-    return _make_request(token, method_url, params=payload, files=files, method='post')
-
-
-def send_animation(token, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
-                   parse_mode=None, disable_notification=None, timeout=None):
-    method_url = r'sendAnimation'
-    payload = {'chat_id': chat_id}
-    files = None
-    if not is_string(data):
-        files = {'animation': data}
-    else:
-        payload['animation'] = data
-    if duration:
-        payload['duration'] = duration
-    if caption:
-        payload['caption'] = caption
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
+    return _make_request(token, method_url, params=payload, files=files, method='post')
+
+
+def send_animation(token, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send animation files.
+    :param chat_id [Integer or String, Required]:
+    :param animation [InputFile or String, Required]:
+    :param duration [Integer, Optional]:
+    :param width [Integer, Optional]:
+    :param height [Integer, Optional]:
+    :param thumb [InputFile or String, Optional]:
+    :param caption [String 0-1024 characters, Optional]:
+    :param parse_mode [String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: On success, the sent Message.
+    """ 
+    method_url = r'sendAnimation'
+    payload = {'chat_id': chat_id}
+    files = None
+    if not is_string(animation):
+        files = {'animation': animation}
+    else:
+        payload['animation'] = animation
+    if duration:
+        payload['duration'] = duration
+    if width:
+        payload['width'] = width
+    if height:
+        payload['height'] = height
+    if thumb:
+        payload['thumb'] = thumb
+    if caption:
+        payload['caption'] = caption
     if parse_mode:
         payload['parse_mode'] = parse_mode
     if disable_notification:
         payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
+    if reply_to_message_id:
+        payload['reply_to_message_id'] = reply_to_message_id
+    if reply_markup:
+        payload['reply_markup'] = _convert_markup(reply_markup)
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def send_voice(token, chat_id, voice, caption=None, duration=None, reply_to_message_id=None, reply_markup=None,
-               parse_mode=None, disable_notification=None, timeout=None):
+def send_voice(token, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send audio files.
+    :param chat_id [Integer or String, Required]:
+    :param voice [InputFile or String, Required]:
+    :param caption [String 0-1024 characters, Optional]:
+    :param parse_mode [String, Optional]:
+    :param duration [Integer, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: On success, the sent Message.
+    """ 
     method_url = r'sendVoice'
     payload = {'chat_id': chat_id}
     files = None
@@ -331,48 +430,63 @@ def send_voice(token, chat_id, voice, caption=None, duration=None, reply_to_mess
         payload['voice'] = voice
     if caption:
         payload['caption'] = caption
+    if parse_mode:
+        payload['parse_mode'] = parse_mode
     if duration:
         payload['duration'] = duration
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
-    if parse_mode:
-        payload['parse_mode'] = parse_mode
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def send_video_note(token, chat_id, data, duration=None, length=None, reply_to_message_id=None, reply_markup=None,
-                    disable_notification=None, timeout=None):
+def send_video_note(token, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send video messages.
+    :param chat_id [Integer or String, Required]:
+    :param video_note [InputFile or String, Required]:
+    :param duration [Integer, Optional]:
+    :param length [Integer, Optional]:
+    :param thumb [InputFile or String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: On success, the sent Message.
+    """  
     method_url = r'sendVideoNote'
     payload = {'chat_id': chat_id}
     files = None
-    if not is_string(data):
-        files = {'video_note': data}
+    if not is_string(video_note):
+        files = {'video_note': video_note}
     else:
-        payload['video_note'] = data
+        payload['video_note'] = video_note
     if duration:
         payload['duration'] = duration
     if length:
         payload['length'] = length
-    else:
-        payload['length'] = 639  # seems like it is MAX length size
+    if thumb:
+        payload['thumb'] = thumb
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
-    if timeout:
-        payload['connect-timeout'] = timeout
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
 def send_media_group(token, chat_id, media, disable_notification=None, reply_to_message_id=None):
+    """
+    Use this method to send a group of photos or videos as an album.
+    :param chat_id [Integer or String, Required]:
+    :param media [Array of InputMediaPhoto and InputMediaVideo, Required]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :returns: On success, an array of the sent Messages.
+    """
     method_url = r'sendMediaGroup'
     media_json, files = _convert_input_media_array(media)
     payload = {'chat_id': chat_id, 'media': media_json}
@@ -380,12 +494,23 @@ def send_media_group(token, chat_id, media, disable_notification=None, reply_to_
         payload['disable_notification'] = disable_notification
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
-    return _make_request(token, method_url, params=payload, method='post' if files else 'get',
-                         files=files if files else None)
+    return _make_request(token, method_url, params=payload, method='post' if files else 'get', files=files if files else None)
 
 
 def send_location(token, chat_id, latitude, longitude, live_period=None, reply_to_message_id=None, reply_markup=None,
                   disable_notification=None):
+    """
+    Use this method to send video messages.
+    :param chat_id [Integer or String, Required]:
+    :param video_note [InputFile or String, Required]:
+    :param duration [Integer, Optional]:
+    :param length [Integer, Optional]:
+    :param thumb [InputFile or String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: On success, the sent Message.
+    """  
     method_url = r'sendLocation'
     payload = {'chat_id': chat_id,
                'latitude': latitude, 'longitude': longitude}
@@ -482,7 +607,7 @@ def send_dice(token, chat_id, disable_notification=None, reply_to_message_id=Non
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :return: On success, the sent Message is returned.
+    :returns: On success, the sent Message is returned.
     """
     method_url = r'sendDice'
     payload = {'chat_id': chat_id}
@@ -689,7 +814,7 @@ def answer_callback_query(token, callback_query_id, text=None, show_alert=None, 
     :param url: (Optional) URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @Botfather, specify the URL that opens your game – note that this will only work if the query comes from a callback_game button.
     Otherwise, you may use links like telegram.me/your_bot?start=XXXX that open your bot with a parameter.
     :param cache_time: (Optional) The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
-    :return:
+    :returns:
     """
     method_url = 'answerCallbackQuery'
     payload = {'callback_query_id': callback_query_id}
@@ -814,7 +939,7 @@ def send_sticker(token, chat_id, sticker, reply_to_message_id=None, reply_markup
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :return: On success, the sent Message is returned.
+    :returns: On success, the sent Message is returned.
     """
     method_url = r'sendSticker'
     payload = {'chat_id': chat_id}
@@ -921,7 +1046,7 @@ def set_sticker_set_thumb(token, name, user_id, thumb=None):
     :param name [String, Required]:
     :param user_id [Integer, Required]:
     :param thumb [InputFile or String, Optional]
-    :return: True on success
+    :returns: True on success
     """
     method_url = r'setStickerSetThumb'
     payload = {'name': name, 'user_id': user_id}
@@ -978,7 +1103,7 @@ def send_invoice(token, chat_id, title, description, invoice_payload, provider_t
     :param reply_to_message_id: If the message is a reply, ID of the original message
     :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button
     :param provider_data:
-    :return:
+    :returns:
     """
     method_url = r'sendInvoice'
     payload = {'chat_id': chat_id, 'title': title, 'description': description, 'payload': invoice_payload,
@@ -1021,7 +1146,7 @@ def answer_shipping_query(token, shipping_query_id, ok, shipping_options=None, e
     :param ok: Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
     :param shipping_options: Required if ok is True. A JSON-serialized array of available shipping options.
     :param error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
-    :return:
+    :returns:
     """
     method_url = 'answerShippingQuery'
     payload = {'shipping_query_id': shipping_query_id, 'ok': ok}
@@ -1040,7 +1165,7 @@ def answer_pre_checkout_query(token, pre_checkout_query_id, ok, error_message=No
     :param pre_checkout_query_id: Unique identifier for the query to be answered
     :param ok: Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
     :param error_message: Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
-    :return:
+    :returns:
     """
     method_url = 'answerPreCheckoutQuery'
     payload = {'pre_checkout_query_id': pre_checkout_query_id, 'ok': ok}
@@ -1078,7 +1203,7 @@ def set_game_score(token, user_id, score, force=None, disable_edit_message=None,
     :param chat_id: (Optional, required if inline_message_id is not specified) Unique identifier for the target chat (or username of the target channel in the format @channelusername)
     :param message_id: (Optional, required if inline_message_id is not specified) Unique identifier of the sent message
     :param inline_message_id: (Optional, required if chat_id and message_id are not specified) Identifier of the inline message
-    :return:
+    :returns:
     """
     method_url = r'setGameScore'
     payload = {'user_id': user_id, 'score': score}
@@ -1105,7 +1230,7 @@ def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_m
     :param chat_id: (Optional, required if inline_message_id is not specified) Unique identifier for the target chat (or username of the target channel in the format @channelusername)
     :param message_id: (Optional, required if inline_message_id is not specified) Unique identifier of the sent message
     :param inline_message_id: (Optional, required if chat_id and message_id are not specified) Identifier of the inline message
-    :return:
+    :returns:
     """
     method_url = r'getGameHighScores'
     payload = {'user_id': user_id}
