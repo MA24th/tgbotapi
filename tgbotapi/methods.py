@@ -804,13 +804,26 @@ def promote_chat_member(token, chat_id, user_id, can_change_info=None, can_post_
         payload['can_promote_members'] = can_promote_members
     return _make_request(token, method_url, params=payload, method='post')
 
-# setChatAdministratorCustomTitle
+
+def set_chat_adminstrator_custom_title(token, chat_id, user_id, custom_title):
+    """
+    Use this method to set a custom title for an administrator in a supergroup promoted by the bot. 
+    :param token [Integer, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param user_id [Integer, Required]:
+    :param custom_title [String, Required]:
+    :returns: True on success.
+    """
+    method_url = r'setChatAdministratorCustomTitle'
+    payload = {'chat_id': chat_id, 'user_id': user_id, 'custom_title': custom_title}
+    return _make_request(token, method_url, params=payload, method='post')
+
 
 # setChatPermissions
 
 
 def export_chat_invite_link(token, chat_id):
-    method_url = 'exportChatInviteLink'
+    method_url = r'exportChatInviteLink'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload, method='post')
 
