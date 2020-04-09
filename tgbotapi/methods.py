@@ -23,12 +23,12 @@ def _get_req_session(reset=False):
 def _make_request(token, method_name, method='get', params=None, files=None):
     """
     Makes a request to the Telegram API.
-    :param token: The bot's API token. (Created with @BotFather)
-    :param method_name: Name of the API method to be called. (E.g. 'getUpdates')
-    :param method: HTTP method to be used. Defaults to 'get'.
-    :param params: Optional parameters. Should be a dictionary with key-value pairs.
-    :param files: Optional files.
-    :returns: The result parsed to a JSON dictionary.
+    :param token: [String, Required]: The bot's API token. (Created with @BotFather)
+    :param method_name: [String, Required]: Name of the API method to be called. (E.g. 'getUpdates')
+    :param method: [HTTP method, Optional] Defaults to 'get'.
+    :param params: [Dict ,Optional]: Should be a dictionary with key-value pairs.
+    :param files: [Optional] files content's a data.
+    :returns: a JSON dictionary.
     """
     if API_URL is None:
         request_url = "https://api.telegram.org/bot{0}/{1}".format(
@@ -63,9 +63,9 @@ def _check_result(method_name, result):
         - The method call was unsuccessful (The JSON 'ok' field equals False)
 
     :raises ApiException: if one of the above listed cases is applicable
-    :param method_name: The name of the method called
-    :param result: The returned result of the method request
-    :returns: The result parsed to a JSON dictionary.
+    :param method_name: [String, Required]: The name of the method called
+    :param result: [Dict, Required]: The returned result of the method request
+    :returns: a JSON dictionary.
     """
     if result.status_code != 200:
         msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
@@ -115,7 +115,7 @@ def set_webhook(token, url=None, certificate=None, max_connections=None, allowed
     :param certificate [InputFile, Optional]:
     :param max_connections [Integer, Optional]:
     :param allowed_updates [Array of String, Optional]
-    :returns: True on success
+    :returns: True On success.
     """
     method_url = r'setWebhook'
     payload = {
@@ -145,7 +145,7 @@ def get_webhook_info(token):
     """
     Use this method to get current webhook status. 
     :param requires no parameters:
-    :returns: a WebhookInfo object, if the bot is using getUpdates, will return an object with the url field empty.
+    :returns: a WebhookInfo object, otherwise an object with the url field empty.
     """
     method_url = r'getWebhookInfo'
     payload = {}
@@ -156,7 +156,7 @@ def get_me(token):
     """
     A simple method for testing your bot's auth token. 
     :param requires no parameters: 
-    :returns: basic information about the bot in form of a User object.
+    :returns: a User object.
     """
     method_url = r'getMe'
     return _make_request(token, method_url)
@@ -165,14 +165,14 @@ def get_me(token):
 def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview=None, disable_notification=None,  reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send text messages. On success, the sent Message is returned.
-    :param chat_id [Integer or String, Required]:
+    :param chat_id [Integer or String, Requierd]:
     :param text [String, Required]:
     :param parse_mode [String, Optional]:
     :param disable_web_page_preview [Boolean, Optional]:
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
-    :returns: On success, the sent Message is returned
+    :returns: a Message object.
     """
     method_url = r'sendMessage'
     payload = {'chat_id': chat_id, 'text': text}
@@ -192,11 +192,11 @@ def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview
 def forward_message(token, chat_id, from_chat_id, message_id, disable_notification=None):
     """
     Use this method to forward messages of any kind.
-    :param chat_id [Integer or String, Required]:
+    :param chat_id [Integer or String, Requierd]:
     :param from_chat_id [Integer or String, Required]:
     :param disable_notification [Boolean, Optional]:
-    :param message_id [Integer, Required]
-    :returns: On success, the sent Message.
+    :param message_id [Integer, Required]:
+    :returns: a Message object.
     """
     method_url = r'forwardMessage'
     payload = {'chat_id': chat_id,
@@ -209,14 +209,14 @@ def forward_message(token, chat_id, from_chat_id, message_id, disable_notificati
 def send_photo(token, chat_id, photo, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send photos. 
-    :param chat_id [Integer or String, Required]:
+    :param chat_id [Integer or String, Requierd]:
     :param photo [InputFile or String, Required]:
     :param caption [String, Optional]:
     :param parse_mode [String, Optional]:
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
-    :returns: On success, the sent Message is returned.
+    :returns: a Message object.
     """
     method_url = r'sendPhoto'
     payload = {'chat_id': chat_id}
@@ -252,7 +252,7 @@ def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=No
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
-    :returns: On success, the send Message.
+    :returns: a Message object.
     """
     method_url = r'sendAudio'
     payload = {'chat_id': chat_id}
@@ -293,7 +293,7 @@ def send_Document(token, chat_id, document, thumb=None, caption=None, parse_mode
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message.
+    :returns: a Message object.
     """
     method_url = r'sendDocument'
     payload = {'chat_id': chat_id}
@@ -332,7 +332,7 @@ def send_video(token, chat_id, video, duration=None, width=None, height=None, th
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message.
+    :returns: a Message object.
     """    
     method_url = r'sendVideo'
     payload = {'chat_id': chat_id}
@@ -378,7 +378,7 @@ def send_animation(token, chat_id, animation, duration=None, width=None, height=
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message.
+    :returns: a Message object.
     """ 
     method_url = r'sendAnimation'
     payload = {'chat_id': chat_id}
@@ -419,7 +419,7 @@ def send_voice(token, chat_id, voice, caption=None, parse_mode=None, duration=No
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message.
+    :returns: a Message object.
     """ 
     method_url = r'sendVoice'
     payload = {'chat_id': chat_id}
@@ -454,7 +454,7 @@ def send_video_note(token, chat_id, video_note, duration=None, length=None, thum
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message.
+    :returns: a Message object.
     """  
     method_url = r'sendVideoNote'
     payload = {'chat_id': chat_id}
@@ -485,7 +485,7 @@ def send_media_group(token, chat_id, media, disable_notification=None, reply_to_
     :param media [Array of InputMediaPhoto and InputMediaVideo, Required]:
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
-    :returns: On success, an array of the sent Messages.
+    :returns: a Messages object.
     """
     method_url = r'sendMediaGroup'
     media_json, files = _convert_input_media_array(media)
@@ -497,36 +497,43 @@ def send_media_group(token, chat_id, media, disable_notification=None, reply_to_
     return _make_request(token, method_url, params=payload, method='post' if files else 'get', files=files if files else None)
 
 
-def send_location(token, chat_id, latitude, longitude, live_period=None, reply_to_message_id=None, reply_markup=None,
-                  disable_notification=None):
+def send_location(token, chat_id, latitude, longitude, live_period=None, disable_notification=None, reply_to_message_id=None, reply_markup=None,):
     """
-    Use this method to send video messages.
+    Use this method to send point on the map.
     :param chat_id [Integer or String, Required]:
-    :param video_note [InputFile or String, Required]:
-    :param duration [Integer, Optional]:
-    :param length [Integer, Optional]:
-    :param thumb [InputFile or String, Optional]:
+    :param latitude [Float, Required]:
+    :param longitude [Float, Required]:
+    :param live_period [Integer, Optional]:
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message.
+    :returns: a Message object.
     """  
     method_url = r'sendLocation'
     payload = {'chat_id': chat_id,
                'latitude': latitude, 'longitude': longitude}
     if live_period:
         payload['live_period'] = live_period
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
     if reply_to_message_id:
         payload['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
     return _make_request(token, method_url, params=payload)
 
 
-def edit_message_live_location(token, latitude, longitude, chat_id=None, message_id=None,
-                               inline_message_id=None, reply_markup=None):
+def edit_message_live_location(token,  latitude, longitude, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+    """
+    Use this method to edit live location messages.
+    :param chat_id [Integer or String, Optional, Required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, Required if inline_message_id is not specified]:
+    :param inline_message_id [String, Optional, Required if chat_id and message_id are not specified]:
+    :param latitude [Float, Required]:
+    :param longitude [Float, Required]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]
+    :returns: a Message object, otherwise True.
+    """
     method_url = r'editMessageLiveLocation'
     payload = {'latitude': latitude, 'longitude': longitude}
     if chat_id:
@@ -540,8 +547,15 @@ def edit_message_live_location(token, latitude, longitude, chat_id=None, message
     return _make_request(token, method_url, params=payload)
 
 
-def stop_message_live_location(token, chat_id=None, message_id=None,
-                               inline_message_id=None, reply_markup=None):
+def stop_message_live_location(token, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+    """
+    Use this method to stop updating a live location message before live_period expires.
+    :param chat_id [Integer or String, Optional, Required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, Required if inline_message_id is not specified]:
+    :param inline_message_id [String, Optional, Required if chat_id and message_id are not specified]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]
+    :returns: a Message object, otherwise True.
+    """
     method_url = r'stopMessageLiveLocation'
     payload = {}
     if chat_id:
@@ -555,13 +569,27 @@ def stop_message_live_location(token, chat_id=None, message_id=None,
     return _make_request(token, method_url, params=payload)
 
 
-def send_venue(token, chat_id, latitude, longitude, title, address, foursquare_id=None, disable_notification=None,
-               reply_to_message_id=None, reply_markup=None):
+def send_venue(token, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send information about a venue.
+    :param chat_id [Integer or String, Required]:
+    :param latitude [Float, Required]:
+    :param longitude [Float, Required]:
+    :param title [String, Required]:
+    :param address [String, Required]:
+    :param foursquare_id [String, Optional]:
+    :param foursquare_type [String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: a Message object.
+    """  
     method_url = r'sendVenue'
-    payload = {'chat_id': chat_id, 'latitude': latitude,
-               'longitude': longitude, 'title': title, 'address': address}
+    payload = {'chat_id': chat_id, 'latitude': latitude, 'longitude': longitude, 'title': title, 'address': address}
     if foursquare_id:
         payload['foursquare_id'] = foursquare_id
+    if foursquare_type:
+        payload['foursquare_type'] = foursquare_type
     if disable_notification:
         payload['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -571,13 +599,26 @@ def send_venue(token, chat_id, latitude, longitude, title, address, foursquare_i
     return _make_request(token, method_url, params=payload)
 
 
-def send_contact(token, chat_id, phone_number, first_name, last_name=None, disable_notification=None,
-                 reply_to_message_id=None, reply_markup=None):
+def send_contact(token, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send information about a venue.
+    :param chat_id [Integer or String, Required]:
+    :param phone_number [String, Required]:
+    :param first_name [String, Required]:
+    :param last_name [String, Optional]:
+    :param vcard [String, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: a Message object.
+    """
     method_url = r'sendContact'
     payload = {'chat_id': chat_id,
                'phone_number': phone_number, 'first_name': first_name}
     if last_name:
         payload['last_name'] = last_name
+    if vcard:
+        payload['vcard'] = vcard
     if disable_notification:
         payload['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -587,10 +628,34 @@ def send_contact(token, chat_id, phone_number, first_name, last_name=None, disab
     return _make_request(token, method_url, params=payload)
 
 
-def send_poll(token, chat_id, question, options, disable_notifications=False, reply_to_message_id=None, reply_markup=None):
+def send_poll(token, chat_id, question, options, is_anonymous=None, type=None, allows_multiple_answers=None, correct_option_id=None, is_closed=None, disable_notifications=False, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send information about a venue.
+    :param chat_id [Integer or String, Required]:
+    :param question [String, Required]:
+    :param options [Array of String, Required]:
+    :param is_anonymous [Boolean, Optional]:
+    :param type [String, Optional]:
+    :param allows_multiple_answers [Boolean, Optional]:
+    :param correct_option_id [Integer, Optional]:
+    :param is_closed [Boolean, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+    :returns: a Message object.
+    """
     method_url = r'sendPoll'
-    payload = {'chat_id': str(chat_id), 'question': question,
-               'options': _convert_list_json_serializable(options)}
+    payload = {'chat_id': chat_id, 'question': question, 'options': _convert_list_json_serializable(options)}
+    if is_anonymous:
+        payload['is_anonymous'] = is_anonymous
+    if type:
+        payload['type'] = type    
+    if allows_multiple_answers:
+        payload['allows_multiple_answers'] = allows_multiple_answers
+    if correct_option_id:
+        payload['correct_option_id'] = correct_option_id
+    if type:
+        payload['type'] = type  
     if disable_notifications:
         payload['disable_notification'] = disable_notifications
     if reply_to_message_id:
@@ -602,12 +667,12 @@ def send_poll(token, chat_id, question, options, disable_notifications=False, re
 
 def send_dice(token, chat_id, disable_notification=None, reply_to_message_id=None, reply_markup=None):
     """
-    Use this method to send a dice, which will have a random value from 1 to 6
+    Use this method to send a dice.
     :param chat_id [Integer or String, Requierd]:
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
-    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message is returned.
+    :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]:
+    :returns: a Message object.
     """
     method_url = r'sendDice'
     payload = {'chat_id': chat_id}
@@ -621,12 +686,25 @@ def send_dice(token, chat_id, disable_notification=None, reply_to_message_id=Non
 
 
 def send_chat_action(token, chat_id, action):
+    """
+    Use this method when you need to tell the user that something is happening on the bot's side.
+    :param chat_id [Integer or String, Requierd]:
+    :param action [String, Required]:
+    :returns: True On success.
+    """
     method_url = r'sendChatAction'
     payload = {'chat_id': chat_id, 'action': action}
     return _make_request(token, method_url, params=payload)
 
 
 def get_user_profile_photos(token, user_id, offset=None, limit=None):
+    """
+    Use this method when you need to tell the user that something is happening on the bot's side.
+    :param user_id [Integer or String, Requierd]:
+    :param offset [Integer, Optional]:
+    :param limit [Integer, Optional]:
+    :returns: a UserProfilePhoto object.
+    """
     method_url = r'getUserProfilePhotos'
     payload = {'user_id': user_id}
     if offset:
@@ -637,11 +715,24 @@ def get_user_profile_photos(token, user_id, offset=None, limit=None):
 
 
 def get_file(token, file_id):
+    """
+    Use this method when you need to tell the user that something is happening on the bot's side.
+    :param file_id [Integer or String, Requierd]:
+    :returns: a File object.
+    """
     method_url = r'getFile'
-    return _make_request(token, method_url, params={'file_id': file_id})
+    payload = {'file_id': file_id}
+    return _make_request(token, method_url, params=payload)
 
 
 def kick_chat_member(token, chat_id, user_id, until_date=None):
+    """
+    Use this method when you need to tell the user that something is happening on the bot's side.
+    :param chat_id [Integer or String, Requierd]:
+    :param user_id [Integer, Requierd]:
+    :param until_date [Integer, Optional]:
+    :returns: True On success.
+    """
     method_url = 'kickChatMember'
     payload = {'chat_id': chat_id, 'user_id': user_id}
     if until_date:
@@ -650,44 +741,49 @@ def kick_chat_member(token, chat_id, user_id, until_date=None):
 
 
 def unban_chat_member(token, chat_id, user_id):
+    """
+    Use this method when you need to tell the user that something is happening on the bot's side.
+    :param chat_id [Integer or String, Requierd]: Unique identifier for the target chat or username of the target channel (in the format @channelusername).
+    :param user_id [Integer, Requierd]:
+    :returns: True On success.
+    """
     method_url = 'unbanChatMember'
     payload = {'chat_id': chat_id, 'user_id': user_id}
     return _make_request(token, method_url, params=payload, method='post')
 
 
-def restrict_chat_member(token, chat_id, user_id, until_date=None,
-                         can_send_messages=None, can_send_media_messages=None,
-                         can_send_polls=None, can_send_other_messages=None,
-                         can_add_web_page_previews=None, can_change_info=None,
-                         can_invite_users=None, can_pin_messages=None):
+def restrict_chat_member(token, chat_id, user_id, permissions, until_date=None):
+    """
+    Use this method to restrict a user in a supergroup.
+    :param chat_id [Integer or String, Requierd]: Unique identifier for the target chat or username of the target channel (in the format @channelusername).
+    :param user_id [Integer, Requierd]:
+    :param permissions [ChatPermissions, Required]:
+    :param until_date [Integer, Optional]
+    :returns: True On success.
+    """
     method_url = 'restrictChatMember'
-    payload = {'chat_id': chat_id, 'user_id': user_id}
+    payload = {'chat_id': chat_id, 'user_id': user_id, 'permissions':permissions}
     if until_date:
         payload['until_date'] = until_date
-    if can_send_messages:
-        payload['can_send_messages'] = can_send_messages
-    if can_send_media_messages:
-        payload['can_send_media_messages'] = can_send_media_messages
-    if can_send_polls:
-        payload['can_send_polls'] = can_send_polls
-    if can_send_other_messages:
-        payload['can_send_other_messages'] = can_send_other_messages
-    if can_add_web_page_previews:
-        payload['can_add_web_page_previews'] = can_add_web_page_previews
-    if can_change_info:
-        payload['can_change_info'] = can_change_info
-    if can_invite_users:
-        payload['can_invite_users'] = can_invite_users
-    if can_pin_messages:
-        payload['can_pin_messages'] = can_pin_messages
     return _make_request(token, method_url, params=payload, method='post')
 
 
-def promote_chat_member(token, chat_id, user_id,
-                        can_change_info=None, can_post_messages=None,
-                        can_edit_messages=None, can_delete_messages=None,
-                        can_invite_users=None, can_restrict_members=None,
-                        can_pin_messages=None, can_promote_members=None):
+def promote_chat_member(token, chat_id, user_id, can_change_info=None, can_post_messages=None, can_edit_messages=None, can_delete_messages=None, can_invite_users=None, can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
+    """
+    Use this method to promote or demote a user in a supergroup or a channel.
+    :param token [String, Required]: 
+    :param chat_id [Integer or String, Requierd]:
+    :param user_id [Integer, Requierd]: ]
+    :param can_change_info [Boolean, Optional]: 
+    :param can_post_messages [Boolean, Optional]: 
+    :param can_edit_messages [Boolean, Optional]: 
+    :param can_delete_messages [Boolean, Optional]: 
+    :param can_invite_users [Boolean, Optional]: 
+    :param can_restrict_members [Boolean, Optional]: 
+    :param can_pin_messages [Boolean, Optional]: 
+    :param can_promote_members [Boolean, Optional]: 
+    :returns: True On success.
+    """
     method_url = 'promoteChatMember'
     payload = {'chat_id': chat_id, 'user_id': user_id}
     if can_change_info:
@@ -1194,16 +1290,16 @@ def send_game(token, chat_id, game_short_name, disable_notification=None, reply_
 def set_game_score(token, user_id, score, force=None, disable_edit_message=None, chat_id=None, message_id=None,
                    inline_message_id=None):
     """
-    Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited Message, otherwise returns True. Returns an error, if the new score is not greater than the user's current score in the chat.
-    :param token: Bot's token (you don't need to fill this)
-    :param user_id: User identifier
-    :param score: New score, must be non-negative
-    :param force: (Optional) Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
-    :param disable_edit_message: (Optional) Pass True, if the game message should not be automatically edited to include the current scoreboard
-    :param chat_id: (Optional, required if inline_message_id is not specified) Unique identifier for the target chat (or username of the target channel in the format @channelusername)
-    :param message_id: (Optional, required if inline_message_id is not specified) Unique identifier of the sent message
-    :param inline_message_id: (Optional, required if chat_id and message_id are not specified) Identifier of the inline message
-    :returns:
+    Use this method to set the score of the specified user in a game.
+    :param token [String, Required]: Bot's token (you don't need to fill this)
+    :param user_id [Integer, Required]: User identifier
+    :param score [Integer, Required]: New score, must be non-negative
+    :param force [Boolean, Optional]: Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
+    :param disable_edit_message [Boolean, Optional]: Pass True, if the game message should not be automatically edited to include the current scoreboard
+    :param chat_id: [Optional, required if inline_message_id is not specifie Unique identifier for the target chat (or username of the target channel in the format @channelusername)
+    :param message_id: [Integer, Optional]: required if inline_message_id is not specified) Unique identifier of the sent message
+    :param inline_message_id: [Integer, Optional]: required if chat_id and message_id are not specified) Identifier of the inline message
+    :returns: On success a Message object, otherwise returns True.
     """
     method_url = r'setGameScore'
     payload = {'user_id': user_id, 'score': score}
@@ -1223,14 +1319,13 @@ def set_game_score(token, user_id, score, force=None, disable_edit_message=None,
 # https://core.telegram.org/bots/api#getgamehighscores
 def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_message_id=None):
     """
-    Use this method to get data for high score tables. Will return the score of the specified user and several of his neighbors in a game. On success, returns an Array of GameHighScore objects.
-    This method will currently return scores for the target user, plus two of his closest neighbors on each side. Will also return the top three users if the user and his neighbors are not among them. Please note that this behavior is subject to change.
-    :param token: Bot's token (you don't need to fill this)
-    :param user_id: Target user id
-    :param chat_id: (Optional, required if inline_message_id is not specified) Unique identifier for the target chat (or username of the target channel in the format @channelusername)
-    :param message_id: (Optional, required if inline_message_id is not specified) Unique identifier of the sent message
-    :param inline_message_id: (Optional, required if chat_id and message_id are not specified) Identifier of the inline message
-    :returns:
+    Use this method to get data for high score tables.
+    :param token [String, Required]:
+    :param user_id [Integer, Required]: 
+    :param chat_id [String or Integer, Optional]:
+    :param message_id [Integer, Optional]:
+    :param inline_message_id [Integer, Optional]:
+    :returns: an Array of GameHighScore objects.
     """
     method_url = r'getGameHighScores'
     payload = {'user_id': user_id}
