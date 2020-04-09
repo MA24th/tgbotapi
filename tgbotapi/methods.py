@@ -832,13 +832,26 @@ def set_chat_permissions(token, chat_id, permissions):
     return _make_request(token, method_url, params=payload, method='post')
 
 def export_chat_invite_link(token, chat_id):
+    """
+    Use this method to generate a new invite link for a chat. 
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: new link as String on success.
+    """
     method_url = r'exportChatInviteLink'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def set_chat_photo(token, chat_id, photo):
-    method_url = 'setChatPhoto'
+    """
+    Use this method to set a new profile photo for the chat.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param photo [InputFile, Required]:
+    :returns: True on success.
+    """
+    method_url = r'setChatPhoto'
     payload = {'chat_id': chat_id}
     files = None
     if not is_string(photo):
@@ -849,73 +862,154 @@ def set_chat_photo(token, chat_id, photo):
 
 
 def delete_chat_photo(token, chat_id):
-    method_url = 'deleteChatPhoto'
+    """
+    Use this method to delete a chat photo.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: True on success.
+    """
+    method_url = r'deleteChatPhoto'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def set_chat_title(token, chat_id, title):
-    method_url = 'setChatTitle'
+    """
+    Use this method to change the title of a chat.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param title [String, Required]:
+    :returns: True on success.
+    """
+    method_url = r'setChatTitle'
     payload = {'chat_id': chat_id, 'title': title}
     return _make_request(token, method_url, params=payload, method='post')
 
 
-def set_chat_description(token, chat_id, description):
-    method_url = 'setChatDescription'
-    payload = {'chat_id': chat_id, 'description': description}
+def set_chat_description(token, chat_id, description=None):
+    """
+    Use this method to change the description of a group, a supergroup or a channel.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param description [String, Optional]:
+    :returns: True on success.
+    """
+    method_url = r'setChatDescription'
+    payload = {'chat_id': chat_id}
+    if description:
+        payload['description'] = description
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def pin_chat_message(token, chat_id, message_id, disable_notification=False):
-    method_url = 'pinChatMessage'
-    payload = {'chat_id': chat_id, 'message_id': message_id,
-               'disable_notification': disable_notification}
+    """
+    Use this method to pin a message in a group, a supergroup, or a channel.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param message_id [Integer, Required]:
+    :param disable_notification [Boolean, Optional]:
+    :returns: True on success.
+    """
+    method_url = r'pinChatMessage'
+    payload = {'chat_id': chat_id, 'message_id': message_id}
+    if disable_notification:
+        payload['disable_notification'] = disable_notification
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def unpin_chat_message(token, chat_id):
-    method_url = 'unpinChatMessage'
+    """
+    Use this method to unpin a message in a group, a supergroup, or a channel.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: True on success.
+    """
+    method_url = r'unpinChatMessage'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def leave_chat(token, chat_id):
+    """
+    Use this method for your bot to leave a group, supergroup or channel.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: True on success.
+    """
     method_url = r'leaveChat'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload)
 
 
 def get_chat(token, chat_id):
+    """
+    Use this method to get up to date information about the chat.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: a Chat object.
+    """
     method_url = r'getChat'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload)
 
 
 def get_chat_administrators(token, chat_id):
+    """
+    Use this method to get a list of administrators in a chat.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: an Array of ChatMember object.
+    """
     method_url = r'getChatAdministrators'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload)
 
 
 def get_chat_members_count(token, chat_id):
+    """
+    Use this method to get the number of members in a chat.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: Integer On success.
+    """
     method_url = r'getChatMembersCount'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload)
 
 
 def get_chat_member(token, chat_id, user_id):
+    """
+    Use this method to get information about a member of a chat.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param chat_id [Integer, Required]:
+    :returns: a ChatMember object On success.
+    """
     method_url = r'getChatMember'
     payload = {'chat_id': chat_id, 'user_id': user_id}
     return _make_request(token, method_url, params=payload)
 
 
 def set_chat_sticker_set(token, chat_id, sticker_set_name):
+    """
+    Use this method to set a new group sticker set for a supergroup.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param sticker_set_name [String, Required]:
+    :returns: True On success.
+    """
     method_url = r'setChatStickerSet'
     payload = {'chat_id': chat_id, 'sticker_set_name': sticker_set_name}
     return _make_request(token, method_url, params=payload)
 
 
 def delete_chat_sticker_set(token, chat_id):
+    """
+    Use this method to delete a group sticker set from a supergroup.
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :returns: True On success.
+    """
     method_url = r'deleteChatStickerSet'
     payload = {'chat_id': chat_id}
     return _make_request(token, method_url, params=payload)
@@ -923,18 +1017,16 @@ def delete_chat_sticker_set(token, chat_id):
 
 def answer_callback_query(token, callback_query_id, text=None, show_alert=None, url=None, cache_time=None):
     """
-    Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
-    Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via BotFather and accept the terms. Otherwise, you may use links like telegram.me/your_bot?start=XXXX that open your bot with a parameter.
-    :param token: Bot's token (you don't need to fill this)
-    :param callback_query_id: Unique identifier for the query to be answered
-    :param text: (Optional) Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
-    :param show_alert: (Optional) If true, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
-    :param url: (Optional) URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @Botfather, specify the URL that opens your game – note that this will only work if the query comes from a callback_game button.
-    Otherwise, you may use links like telegram.me/your_bot?start=XXXX that open your bot with a parameter.
-    :param cache_time: (Optional) The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
-    :returns:
+    Use this method to send answers to callback queries sent from inline keyboards.     
+    :param token [String, Required]:
+    :param callback_query_id [String, Optional]: 
+    :param text [String, Optional]:
+    :param show_alert [Boolean, Optional]:
+    :param url [String, Optional]:
+    :param cache_time [Integer, Optional]:
+    :returns: True On success.
     """
-    method_url = 'answerCallbackQuery'
+    method_url = r'answerCallbackQuery'
     payload = {'callback_query_id': callback_query_id}
     if text:
         payload['text'] = text
@@ -951,7 +1043,7 @@ def set_my_commands(token, commands):
     """
     Use this method to change the list of the bot's commands. 
     :param commands [Array of BotCommand, Required]:
-    :returns: True on success.
+    :returns: True On success.
     """
     method_url = r'setMyCommands'
     payload = {'commands': commands}
@@ -962,7 +1054,7 @@ def get_my_commands(token):
     """
     Use this method to get the current list of the bot's commands. 
     :param [Requires no parameters]:
-    :returns: Array of BotCommand on success.
+    :returns: Array of BotCommand On success.
     """
     method_url = r'getMyCommands'
     return _make_request(token, method_url)
@@ -970,8 +1062,19 @@ def get_my_commands(token):
 # Updating messages
 
 
-def edit_message_text(token, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
-                      disable_web_page_preview=None, reply_markup=None):
+def edit_message_text(token, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None, disable_web_page_preview=None, reply_markup=None):
+    """
+    Use this method to edit text and game messages.
+    :param token [String, Required]:
+    :param chat_id [Integer or String, Optional, Required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, Required if inline_message_id is not specified]:
+    :param inline_message_id [String, Optional, Required if chat_id and message_id are not specified]:
+    :param text [String, Required]:
+    :param parse_mode [String, Optional]:
+    :param disable_web_page_preview [Boolean, Optional]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Message object On success, otherwise True.
+    """
     method_url = r'editMessageText'
     payload = {'text': text}
     if chat_id:
@@ -989,8 +1092,18 @@ def edit_message_text(token, text, chat_id=None, message_id=None, inline_message
     return _make_request(token, method_url, params=payload, method='post')
 
 
-def edit_message_caption(token, caption, chat_id=None, message_id=None, inline_message_id=None,
-                         parse_mode=None, reply_markup=None):
+def edit_message_caption(token, caption, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None, reply_markup=None):
+    """
+    Use this method to edit captions of messages.
+    :param token [String, Required]:
+    :param chat_id [Integer or String, Optional, Required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, Required if inline_message_id is not specified]:
+    :param inline_message_id [String, Optional, Required if chat_id and message_id are not specified]:
+    :param caption [String, Required]:
+    :param parse_mode [String, Optional]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Message object On success, otherwise True.
+    """
     method_url = r'editMessageCaption'
     payload = {'caption': caption}
     if chat_id:
@@ -1007,6 +1120,16 @@ def edit_message_caption(token, caption, chat_id=None, message_id=None, inline_m
 
 
 def edit_message_media(token, media, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+    """
+    Use this method to edit animation, audio, document, photo, or video messages.
+    :param token [String, Required]:
+    :param chat_id [Integer or String, Optional, Required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, Required if inline_message_id is not specified]:
+    :param inline_message_id [String, Optional, Required if chat_id and message_id are not specified]:
+    :param media [InputMedia, Required]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Message object On success, otherwise True.
+    """
     method_url = r'editMessageMedia'
     media_json, file = _convert_input_media(media)
     payload = {'media': media_json}
@@ -1022,6 +1145,15 @@ def edit_message_media(token, media, chat_id=None, message_id=None, inline_messa
 
 
 def edit_message_reply_markup(token, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+    """
+    Use this method to edit only the reply markup of messages.
+    :param token [String, Required]:
+    :param chat_id [Integer or String, Optional, Required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, Required if inline_message_id is not specified]:
+    :param inline_message_id [String, Optional, Required if chat_id and message_id are not specified]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Message object On success, otherwise True.
+    """
     method_url = r'editMessageReplyMarkup'
     payload = {}
     if chat_id:
@@ -1036,14 +1168,29 @@ def edit_message_reply_markup(token, chat_id=None, message_id=None, inline_messa
 
 
 def stop_poll(token, chat_id, message_id, reply_markup=None):
+    """
+    Use this method to stop a poll which was sent by the bot.
+    :param token [String, Required]:
+    :param chat_id [Integer or String, Required]:
+    :param message_id [Integer, Required]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Poll object On success.
+    """
     method_url = r'stopPoll'
-    payload = {'chat_id': str(chat_id), 'message_id': message_id}
+    payload = {'chat_id': chat_id, 'message_id': message_id}
     if reply_markup:
         payload['reply_markup'] = _convert_markup(reply_markup)
     return _make_request(token, method_url, params=payload)
 
 
 def delete_message(token, chat_id, message_id):
+    """
+    Use this method to delete a message.
+    :param token [String, Required]:
+    :param chat_id [Integer or String, Required]:
+    :param message_id [Integer, Required]:
+    :returns: True On success.
+    """
     method_url = r'deleteMessage'
     payload = {'chat_id': chat_id, 'message_id': message_id}
     return _make_request(token, method_url, params=payload, method='post')
@@ -1052,12 +1199,13 @@ def delete_message(token, chat_id, message_id):
 def send_sticker(token, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=None):
     """
     Use this method to send static .WEBP or animated .TGS stickers.
+    :param token [String, Required]:
     :param chat_id [Integer or String, Required]:
     :param sticker [InputFile or String, Required]:
     :param disable_notification [Boolean, Optional]:
     :param reply_to_message_id [Integer, Optional]:
     :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-    :returns: On success, the sent Message is returned.
+    :returns: a Message object On success.
     """
     method_url = r'sendSticker'
     payload = {'chat_id': chat_id}
@@ -1076,12 +1224,25 @@ def send_sticker(token, chat_id, sticker, reply_to_message_id=None, reply_markup
 
 
 def get_sticker_set(token, name):
-    method_url = 'getStickerSet'
+    method_url = r'getStickerSet'
+    """
+    Use this method to send static .WEBP or animated .TGS stickers.
+    :param token [String, Required]:
+    :param name [String, Required]:
+    :returns: a StickerSet object On success.
+    """    
     return _make_request(token, method_url, params={'name': name})
 
 
 def upload_sticker_file(token, user_id, png_sticker):
-    method_url = 'uploadStickerFile'
+    """
+    Use this method to upload a .PNG file with a sticker.
+    :param token [String, Required]:
+    :param user_id [Integer, Required]:
+    :param png_sticker [InputFile, Required]:
+    :returns: a File object On success.
+    """    
+    method_url = r'uploadStickerFile'
     payload = {'user_id': user_id}
     files = {'png_sticker': png_sticker}
     return _make_request(token, method_url, params=payload, files=files, method='post')
@@ -1090,8 +1251,7 @@ def upload_sticker_file(token, user_id, png_sticker):
 def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None, mask_position=None):
     """
     Use this method to create a new sticker set owned by a user. 
-    The bot will be able to edit the sticker set thus created. 
-    You must use exactly one of the fields png_sticker or tgs_sticker. 
+    :param token [String, Required]:
     :param user_id [Integer, Required]:
     :param name [String, Required]:
     :param title [String, Required]:
@@ -1100,11 +1260,11 @@ def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker
     :param emojis [String, Required]:
     :param contains_masks [Boolean, Optional]:
     :param mask_position [MaskPostion, Optional]
-    :returns: True on success.
+    :returns: True On success.
     """
-    method_url = 'createNewStickerSet'
+    method_url = r'createNewStickerSet'
     payload = {'user_id': user_id, 'name': name,
-               't itle': title, 'emojis': emojis}
+               'title': title, 'emojis': emojis}
     files = None
     if not is_string(png_sticker):
         files = {'png_sticker': png_sticker}
@@ -1119,11 +1279,10 @@ def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def add_sticker_to_set(token, user_id, name, png_sticker, tgs_sticker, emojis, mask_position):
+def add_sticker_to_set(token, user_id, name, png_sticker, emojis, tgs_sticker=None, mask_position=None):
     """
-    Use this method to add a new sticker to a set created by the bot. 
-    You must use exactly one of the fields png_sticker or tgs_sticker. 
-    Animated stickers can be added to animated sticker sets and only to them.
+    Use this method to add a new sticker to a set created by the bot.
+    :param token [String, Required]:
     :param user_id [Integer, Required]:
     :param name [String, Required]:
     :param png_sticker [InputFile or String, Required]:
@@ -1132,7 +1291,7 @@ def add_sticker_to_set(token, user_id, name, png_sticker, tgs_sticker, emojis, m
     :param mask_position [MaskPostion, Optional]
     :returns: True on success.
     """
-    method_url = 'addStickerToSet'
+    method_url = r'addStickerToSet'
     payload = {'user_id': user_id, 'name': name, 'emojis': emojis}
     files = None
     if not is_string(png_sticker):
@@ -1147,13 +1306,26 @@ def add_sticker_to_set(token, user_id, name, png_sticker, tgs_sticker, emojis, m
 
 
 def set_sticker_position_in_set(token, sticker, position):
-    method_url = 'setStickerPositionInSet'
+    """
+    Use this method to move a sticker in a set created by the bot to a specific position. 
+    :param token [String, Required]:
+    :param sticker [String, Required]:
+    :param position [Integr, Required]:
+    :returns: True on success.
+    """
+    method_url = r'setStickerPositionInSet'
     payload = {'sticker': sticker, 'position': position}
     return _make_request(token, method_url, params=payload, method='post')
 
 
 def delete_sticker_from_set(token, sticker):
-    method_url = 'deleteStickerFromSet'
+    """
+    Use this method to delete a sticker from a set created by the bot.
+    :param token [String, Required]:
+    :param sticker [String, Required]:
+    :returns: True on success.
+    """
+    method_url = r'deleteStickerFromSet'
     payload = {'sticker': sticker}
     return _make_request(token, method_url, params=payload, method='post')
 
@@ -1161,9 +1333,10 @@ def delete_sticker_from_set(token, sticker):
 def set_sticker_set_thumb(token, name, user_id, thumb=None):
     """
     Use this method to set the thumbnail of a sticker set.
+    :param token [String, Required]:
     :param name [String, Required]:
     :param user_id [Integer, Required]:
-    :param thumb [InputFile or String, Optional]
+    :param thumb [InputFile or String, Optional]:
     :returns: True on success
     """
     method_url = r'setStickerSetThumb'
@@ -1173,11 +1346,21 @@ def set_sticker_set_thumb(token, name, user_id, thumb=None):
     return _make_request(token, method_url, params=payload)
 
 
-def answer_inline_query(token, inline_query_id, results, cache_time=None, is_personal=None, next_offset=None,
-                        switch_pm_text=None, switch_pm_parameter=None):
-    method_url = 'answerInlineQuery'
-    payload = {'inline_query_id': inline_query_id,
-               'results': _convert_list_json_serializable(results)}
+def answer_inline_query(token, inline_query_id, results, cache_time=None, is_personal=None, next_offset=None, switch_pm_text=None, switch_pm_parameter=None):
+    """
+    Use this method to send answers to an inline query.
+    :param token [String, Required]:
+    :param inline_query_id [String, Required]:
+    :param results [Array of InlineQueryResultger, Required]:
+    :param cache_time [Integer, Optional]:
+    :param is_personal [Boolean, Optional]:
+    :param next_offset [String, Optional]:
+    :param switch_pm_text [String, Optional]:
+    :param switch_pm_parameter [String, Optional]:
+    :returns: True on success
+    """
+    method_url = r'answerInlineQuery'
+    payload = {'inline_query_id': inline_query_id, 'results': _convert_list_json_serializable(results)}
     if cache_time is not None:
         payload['cache_time'] = cache_time
     if is_personal:
@@ -1193,67 +1376,68 @@ def answer_inline_query(token, inline_query_id, results, cache_time=None, is_per
 
 # Payments (https://core.telegram.org/bots/api#payments)
 
-def send_invoice(token, chat_id, title, description, invoice_payload, provider_token, currency, prices,
-                 start_parameter, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
-                 need_name=None, need_phone_number=None, need_email=None, need_shipping_address=None, is_flexible=None,
-                 disable_notification=None, reply_to_message_id=None, reply_markup=None, provider_data=None):
+def send_invoice(token, chat_id, title, description, payload, provider_token, start_parameter, currency, prices, provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None, need_name=None, need_phone_number=None, need_email=None, need_shipping_address=None, send_phone_number_to_provider=None,  send_email_to_provider=None, is_flexible=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send invoices. On success, the sent Message is returned.
-    :param token: Bot's token (you don't need to fill this)
-    :param chat_id: Unique identifier for the target private chat
-    :param title: Product name
-    :param description: Product description
-    :param invoice_payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
-    :param provider_token: Payments provider token, obtained via @Botfather
-    :param currency: Three-letter ISO 4217 currency code, see https://core.telegram.org/bots/payments#supported-currencies
-    :param prices: Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
-    :param start_parameter: Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
-    :param photo_url: URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
-    :param photo_size: Photo size
-    :param photo_width: Photo width
-    :param photo_height: Photo height
-    :param need_name: Pass True, if you require the user's full name to complete the order
-    :param need_phone_number: Pass True, if you require the user's phone number to complete the order
-    :param need_email: Pass True, if you require the user's email to complete the order
-    :param need_shipping_address: Pass True, if you require the user's shipping address to complete the order
-    :param is_flexible: Pass True, if the final price depends on the shipping method
-    :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
-    :param reply_to_message_id: If the message is a reply, ID of the original message
-    :param reply_markup: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button
-    :param provider_data:
-    :returns:
+    :param token [String, Required]:
+    :param chat_id [Integer, Required]:
+    :param title [String, Required]:
+    :param description [String, Required]:
+    :param payload [String, Required]:
+    :param provider_token [String, Required]:
+    :param start_parameter [String, Required]:
+    :param currency [String, Required]:
+    :param prices [Array of LabeledPrice, Required]:
+    :param provider_data [String, Optional]:
+    :param photo_url [String, Optional]:
+    :param photo_size [Integer, Optional]:
+    :param photo_width [Integer, Optional]: Photo width
+    :param photo_height [Integer, Optional]: Photo height
+    :param need_name [Boolean, Optional]:
+    :param need_phone_number [Boolean, Optional]:
+    :param need_email [Boolean, Optional]:
+    :param need_shipping_address [Boolean, Optional]:
+    :param send_phone_number_to_provider [Boolean, Optional]:
+    :param send_email_to_provider [Boolean, Optional]: 
+    :param is_flexible [Boolean, Optional]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Message object.
     """
     method_url = r'sendInvoice'
-    payload = {'chat_id': chat_id, 'title': title, 'description': description, 'payload': invoice_payload,
-               'provider_token': provider_token, 'start_parameter': start_parameter, 'currency': currency,
-               'prices': _convert_list_json_serializable(prices)}
-    if photo_url:
-        payload['photo_url'] = photo_url
-    if photo_size:
-        payload['photo_size'] = photo_size
-    if photo_width:
-        payload['photo_width'] = photo_width
-    if photo_height:
-        payload['photo_height'] = photo_height
-    if need_name:
-        payload['need_name'] = need_name
-    if need_phone_number:
-        payload['need_phone_number'] = need_phone_number
-    if need_email:
-        payload['need_email'] = need_email
-    if need_shipping_address:
-        payload['need_shipping_address'] = need_shipping_address
-    if is_flexible:
-        payload['is_flexible'] = is_flexible
-    if disable_notification:
-        payload['disable_notification'] = disable_notification
-    if reply_to_message_id:
-        payload['reply_to_message_id'] = reply_to_message_id
-    if reply_markup:
-        payload['reply_markup'] = _convert_markup(reply_markup)
+    params = {'chat_id': chat_id, 'title': title, 'description': description, 'payload': payload, 'provider_token': provider_token, 'start_parameter': start_parameter, 'currency': currency, 'prices': _convert_list_json_serializable(prices)}
     if provider_data:
-        payload['provider_data'] = provider_data
-    return _make_request(token, method_url, params=payload)
+        params['provider_data'] = provider_data
+    if photo_url:
+        params['photo_url'] = photo_url
+    if photo_size:
+        params['photo_size'] = photo_size
+    if photo_width:
+        params['photo_width'] = photo_width
+    if photo_height:
+        params['photo_height'] = photo_height
+    if need_name:
+        params['need_name'] = need_name
+    if need_phone_number:
+        params['need_phone_number'] = need_phone_number
+    if need_email:
+        params['need_email'] = need_email
+    if need_shipping_address:
+        params['need_shipping_address'] = need_shipping_address
+    if send_phone_number_to_provider:
+        params['send_phone_number_to_provider'] = send_phone_number_to_provider
+    if send_email_to_provider:
+        params['send_email_to_provider'] = send_email_to_provider
+    if is_flexible:
+        params['is_flexible'] = is_flexible
+    if disable_notification:
+        params['disable_notification'] = disable_notification
+    if reply_to_message_id:
+        params['reply_to_message_id'] = reply_to_message_id
+    if reply_markup:
+        params['reply_markup'] = _convert_markup(reply_markup)
+    return _make_request(token, method_url, params=params)
 
 
 def answer_shipping_query(token, shipping_query_id, ok, shipping_options=None, error_message=None):
@@ -1278,25 +1462,44 @@ def answer_shipping_query(token, shipping_query_id, ok, shipping_options=None, e
 
 def answer_pre_checkout_query(token, pre_checkout_query_id, ok, error_message=None):
     """
-    Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
-    :param token: Bot's token (you don't need to fill this)
-    :param pre_checkout_query_id: Unique identifier for the query to be answered
-    :param ok: Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
-    :param error_message: Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
-    :returns:
+    Use this method to respond to such pre-checkout queries. 
+    :param token [String, Required]:
+    :param pre_checkout_query_id [String, Required]:
+    :param ok [Boolean, Required]:
+    :param error_message [String, Optional, Required if ok is False]:
+    :returns: True On success.
     """
-    method_url = 'answerPreCheckoutQuery'
+    method_url = r'answerPreCheckoutQuery'
     payload = {'pre_checkout_query_id': pre_checkout_query_id, 'ok': ok}
     if error_message:
         payload['error_message'] = error_message
     return _make_request(token, method_url, params=payload)
 
 
-# setPassportDataErrors
+def set_passport_data_errors(token, user_id, erros):
+    """
+    Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason.
+    :param token [String, Required]:
+    :param user_id [Integer, Required]:
+    :param errors [Array of PassportElementError, Required]:
+    :returns: True On success.
+    """
+    method_url = r'setPassportDataErrors'
+    params = {'user_id': user_id, 'errors': erros}
+    return _make_request(token, method_url, params)
 
-# Game
 
 def send_game(token, chat_id, game_short_name, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    """
+    Use this method to send a game.
+    :param token [String, Required]:
+    :param chat_id [Integer, Required]:
+    :param game_short_name [String, Required]:
+    :param disable_notification [Boolean, Optional]:
+    :param reply_to_message_id [Integer, Optional]:
+    :param reply_markup [InlineKeyboardMarkup, Optional]:
+    :returns: a Message object On success.
+    """
     method_url = r'sendGame'
     payload = {'chat_id': chat_id, 'game_short_name': game_short_name}
     if disable_notification:
@@ -1309,18 +1512,17 @@ def send_game(token, chat_id, game_short_name, disable_notification=None, reply_
 
 
 # https://core.telegram.org/bots/api#setgamescore
-def set_game_score(token, user_id, score, force=None, disable_edit_message=None, chat_id=None, message_id=None,
-                   inline_message_id=None):
+def set_game_score(token, user_id, score, force=None, disable_edit_message=None, chat_id=None, message_id=None, inline_message_id=None):
     """
     Use this method to set the score of the specified user in a game.
-    :param token [String, Required]: Bot's token (you don't need to fill this)
-    :param user_id [Integer, Required]: User identifier
-    :param score [Integer, Required]: New score, must be non-negative
-    :param force [Boolean, Optional]: Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
-    :param disable_edit_message [Boolean, Optional]: Pass True, if the game message should not be automatically edited to include the current scoreboard
-    :param chat_id: [Optional, required if inline_message_id is not specifie Unique identifier for the target chat (or username of the target channel in the format @channelusername)
-    :param message_id: [Integer, Optional]: required if inline_message_id is not specified) Unique identifier of the sent message
-    :param inline_message_id: [Integer, Optional]: required if chat_id and message_id are not specified) Identifier of the inline message
+    :param token [String, Required]:
+    :param user_id [Integer, Required]:
+    :param score [Integer, Required]: 
+    :param force [Boolean, Optional]: 
+    :param disable_edit_message [Boolean, Optional]: 
+    :param chat_id [Optional, required if inline_message_id is not specified]:
+    :param message_id [Integer, Optional, required if inline_message_id is not specified]:
+    :param inline_message_id [Integer, Optional, required if chat_id and message_id are not specified]:
     :returns: On success a Message object, otherwise returns True.
     """
     method_url = r'setGameScore'
