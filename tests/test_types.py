@@ -896,7 +896,14 @@ def test_StickerSet():
         'name': 'stt',
         'title': 'sst',
         'contains_masks': False,
-        'stickers': [{'file_id': 222, 'file_unique_id': 2323, 'width': 30, 'height': 20, 'is_animated': True, 'emoji': '🐣', 'set_name': 'st', 'file_size': 32}]
+        'stickers': [{'file_id': 222, 'file_unique_id': 2323, 'width': 30, 'height': 20, 'is_animated': True, 'emoji': '🐣', 'set_name': 'st', 'file_size': 32}],
+        'thumb': {
+            'file_id': 1111,
+            'file_unique_id': 1122,
+            'width': 40,
+            'height': 40,
+            'file_size': 32
+            }
     }
     obj = types.StickerSet.de_json(dic)
     assert obj.name == 'stt'
@@ -905,6 +912,11 @@ def test_StickerSet():
     assert obj.stickers[0].file_id == 222
     assert obj.stickers[0].file_unique_id == 2323
     assert obj.stickers[0].width == 30
+    assert obj.thumb.file_id == 1111
+    assert obj.thumb.file_unique_id == 1122
+    assert obj.thumb.width == 40
+    assert obj.thumb.height == 40
+    assert obj.thumb.file_size == 32
 
 
 def test_MaskPosition():
