@@ -819,8 +819,17 @@ def set_chat_adminstrator_custom_title(token, chat_id, user_id, custom_title):
     return _make_request(token, method_url, params=payload, method='post')
 
 
-# setChatPermissions
-
+def set_chat_permissions(token, chat_id, permissions):
+    """
+    Use this method to set default chat permissions for all members. 
+    :param token [String, Required]:
+    :param chat_id [String or Integer, Required]:
+    :param permissions	[ChatPermissions, Required]:
+    :returns: True on success.
+    """
+    method_url = r'setChatPermissions'
+    payload = {'chat_id': chat_id, 'permissions': permissions}
+    return _make_request(token, method_url, params=payload, method='post')
 
 def export_chat_invite_link(token, chat_id):
     method_url = r'exportChatInviteLink'
