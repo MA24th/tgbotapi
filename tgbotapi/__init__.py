@@ -84,7 +84,7 @@ class TBot:
 
     def __init__(self, token, threaded=True, skip_pending=False, num_threads=2):
         """
-        :param token [String, Required]: The bot's API token. (Created with @BotFather)
+        :param token: String: Required, The bot's API token. (Created with @BotFather)
         :returns: a Tbot object.
         """
 
@@ -114,6 +114,8 @@ class TBot:
         self.callback_query_handlers = []
         self.shipping_query_handlers = []
         self.pre_checkout_query_handlers = []
+        self.poll_handlers = []
+        self.poll_answer_handlers = []
 
         self.threaded = threaded
         if self.threaded:
@@ -123,8 +125,8 @@ class TBot:
         """
         Enable saving next step handlers (by default saving disable)
 
-        :param delay [Integer, Required]: Delay between changes in handlers and saving
-        :param filename [Data ,Required]: Filename of save file
+        :param delay: Integer: Required, Delay between changes in handlers and saving
+        :param filename: Data: Required, Filename of save file
         """
         self.next_step_saver = Saver(self.next_step_handlers, filename, delay)
 
@@ -132,8 +134,8 @@ class TBot:
         """
         Enable saving reply handlers (by default saving disable)
 
-        :param delay [Integer, Required]: Delay between changes in handlers and saving
-        :param filename [Data ,Required]: Filename of save file
+        :param delay: Integer: Required, Delay between changes in handlers and saving
+        :param filename: Data: Required, Filename of save file
         """
         self.reply_saver = Saver(self.reply_handlers, filename, delay)
 
@@ -153,8 +155,8 @@ class TBot:
         """
         Load next step handlers from save file
 
-        :param filename [Data ,Required]: Filename of the file where handlers was saved
-        :param del_file_after_loading [Boolean ,Required]: Is passed True, after loading save file will be deleted
+        :param filename: Data: Required, Filename of the file where handlers was saved
+        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
         """
         self.next_step_saver.load_handlers(filename, del_file_after_loading)
 
@@ -162,51 +164,48 @@ class TBot:
         """
         Load reply handlers from save file
 
-        :param filename [Data ,Required]: Filename of the file where handlers was saved
-        :param del_file_after_loading [Boolean ,Required]: Is passed True, after loading save file will be deleted
+        :param filename: Data: Required, Filename of the file where handlers was saved
+        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
         """
         self.reply_saver.load_handlers(filename)
 
     def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling.
-        :param offset [Integer, Optional]: Identifier of the first update to be returned.
-        :param limit [Integer, Optional]: Limits the number of updates to be retrieved.
-        :param timeout [Integer, Optional]: Timeout in seconds for long polling.
-        :param allowed_updates [Array of String, Optional]: List the types of updates you want your bot to receive.
-        :returns: an Array of Updates object.
+        :param offset: Integer: Optional, Identifier of the first update to be returned.
+        :param limit: Integer: Optional, Limits the number of updates to be retrieved.
+        :param timeout: Integer: Optional, Timeout in seconds for long polling.
+        :param allowed_updates: Array of String: Optional, List the types of updates you want your bot to receive.
+        :return: an Array of Updates object.
         """
         json_updates = methods.get_updates(self.token, offset, limit, timeout, allowed_updates)
-        Updates = []
+        updates = []
         for x in json_updates:
-            Updates.append(types.Update.de_json(x))
-        return Updates
-
+            updates.append(types.Update.de_json(x))
+        return updates
 
     def set_webhook(self, url=None, certificate=None, max_connections=None, allowed_updates=None):
         """
         Use this method to specify a url and receive incoming updates via an outgoing webhook.
-        :param url [String, Required]:
-        :param certificate [InputFile, Optional]:
-        :param max_connections [Integer, Optional]:
-        :param allowed_updates [Array of String, Optional]
-        :returns: True On success.
+        :param url: String: Required,
+        :param certificate: InputFile: Optional,
+        :param max_connections: Integer: Optional,
+        :param allowed_updates: Array of String: Optional,
+        :return: True On success.
         """
         return methods.set_webhook(self.token, url, certificate, max_connections, allowed_updates)
 
     def delete_webhook(self):
         """
-        Use this method to remove webhook integration if you decide to switch back to getUpdates. 
-        :param requires no parameters:
-        :returns: True on success. 
+        Use this method to remove webhook integration if you decide to switch back to getUpdates.
+        :return: True on success.
         """
         return methods.delete_webhook(self.token)
 
     def get_webhook_info(self):
         """
-        Use this method to get current webhook status. 
-        :param requires no parameters:
-        :returns: a WebhookInfo object, otherwise an object with the url field empty.
+        Use this method to get current webhook status.
+        :return: a WebhookInfo object, otherwise an object with the url field empty.
         """
         return types.WebhookInfo.de_json(methods.get_webhook_info(self.token))
 
@@ -245,7 +244,7 @@ class TBot:
 
     def process_new_updates(self, updates):
         new_messages = []
-        edited_new_messages = []
+        new_edited_messages = []
         new_channel_posts = []
         new_edited_channel_posts = []
         new_inline_querys = []
@@ -253,6 +252,8 @@ class TBot:
         new_callback_querys = []
         new_shipping_querys = []
         new_pre_checkout_querys = []
+        new_poll = []
+        new_poll_answer = []
 
         for update in updates:
             if update.update_id > self.last_update_id:
@@ -260,7 +261,7 @@ class TBot:
             if update.message:
                 new_messages.append(update.message)
             if update.edited_message:
-                edited_new_messages.append(update.edited_message)
+                new_edited_messages.append(update.edited_message)
             if update.channel_post:
                 new_channel_posts.append(update.channel_post)
             if update.edited_channel_post:
@@ -275,12 +276,16 @@ class TBot:
                 new_shipping_querys.append(update.shipping_query)
             if update.pre_checkout_query:
                 new_pre_checkout_querys.append(update.pre_checkout_query)
+            if update.poll:
+                new_poll.append(update.poll)
+            if update.poll_anwser:
+                new_poll_answer.append(update.poll_anwser)
 
         logger.debug('Received {0} new updates'.format(len(updates)))
         if len(new_messages) > 0:
             self.process_new_messages(new_messages)
-        if len(edited_new_messages) > 0:
-            self.process_new_edited_messages(edited_new_messages)
+        if len(new_edited_messages) > 0:
+            self.process_new_edited_messages(new_edited_messages)
         if len(new_channel_posts) > 0:
             self.process_new_channel_posts(new_channel_posts)
         if len(new_edited_channel_posts) > 0:
@@ -295,6 +300,10 @@ class TBot:
             self.process_new_pre_checkout_query(new_pre_checkout_querys)
         if len(new_shipping_querys) > 0:
             self.process_new_shipping_query(new_shipping_querys)
+        if len(new_poll) > 0:
+            self.process_new_poll(new_poll)
+        if len(new_poll_answer) > 0:
+            self.process_new_poll_answer(new_poll_answer)
 
     def process_new_messages(self, new_messages):
         self._notify_next_handlers(new_messages)
@@ -332,6 +341,12 @@ class TBot:
         self._notify_command_handlers(
             self.pre_checkout_query_handlers, pre_checkout_querys)
 
+    def process_new_poll(self, poll):
+        self._notify_command_handlers(self.poll_handlers, poll)
+
+    def process_new_poll_answer(self, poll_answer):
+        self._notify_command_handlers(self.poll_answer_handlers, poll_answer)
+
     def __notify_update(self, new_messages):
         for listener in self.update_listener:
             self._exec_task(listener, new_messages)
@@ -353,9 +368,9 @@ class TBot:
         Warning: Do not call this function more than once!
 
         Always get updates.
-        :param interval:
-        :param none_stop: Do not stop polling when an ApiException occurs.
-        :param timeout: Timeout in seconds for long polling.
+        :param none_stop: Boolean: Do not stop polling when an ApiException occurs.
+        :param interval: Integer:
+        :param timeout: Integer: Timeout in seconds for long polling.
         :return:
         """
         if self.threaded:
@@ -451,9 +466,8 @@ class TBot:
 
     def get_me(self):
         """
-        A simple method for testing your bot's auth token. 
-        :param requires no parameters: 
-        :returns: a User object.
+        A simple method for testing your bot's auth token.
+        :return: a User object.
         """
         return types.User.de_json(methods.get_me(self.token))
 
@@ -558,23 +572,25 @@ class TBot:
         return types.ChatMember.de_json(result)
 
     def send_message(self, chat_id, text, disable_web_page_preview=None, reply_to_message_id=None, reply_markup=None,
-                     parse_mode=None, disable_notification=None, timeout=None):
+                     parse_mode=None, disable_notification=None):
         """
         Use this method to send text messages.
 
         Warning: Do not send more than about 5000 characters each message, otherwise you'll risk an HTTP 414 error.
         If you must send more than 5000 characters, use the split_string function in methods.py.
 
-        :param chat_id:
-        :param text:
-        :param disable_web_page_preview:
-        :param reply_to_message_id:
+        :param chat_id: Integer or String: Required,
+        :param text: String: Required,
+        :param parse_mode: String: Required,
+        :param disable_web_page_preview: Boolean: Optional,
+        :param disable_notification: Boolean: Optional, Sends the message silently.
+        :param reply_to_message_id: Integer: Optional,
         :param reply_markup:
-        :param parse_mode:
-        :param disable_notification: Boolean, Optional. Sends the message silently.
         :return: API reply.
         """
-        return types.Message.de_json(methods.send_message(self.token, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,  reply_to_message_id, reply_markup))
+        return types.Message.de_json(
+            methods.send_message(self.token, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
+                                 reply_to_message_id, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=None):
         """
@@ -636,48 +652,54 @@ class TBot:
             methods.send_audio(self.token, chat_id, audio, caption, duration, performer, title, reply_to_message_id,
                                reply_markup, parse_mode, disable_notification, timeout))
 
-    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=None,
+                   reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send audio files.
-        :param chat_id [Integer or String, Required]:
-        :param voice [InputFile or String, Required]:
-        :param caption [String 0-1024 characters, Optional]:
-        :param parse_mode [String, Optional]:
-        :param duration [Integer, Optional]:
-        :param disable_notification [Boolean, Optional]:
-        :param reply_to_message_id [Integer, Optional]:
-        :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+        :param chat_id: Integer or String: Required,
+        :param voice: InputFile or String: Required,
+        :param caption: String 0-1024 characters: Optional,
+        :param parse_mode: String: Optional,
+        :param duration: Integer: Optional,
+        :param disable_notification: Boolean: Optional,
+        :param reply_to_message_id: Integer: Optional,
+        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
         :returns: a Message object.
-        """ 
-        return types.Message.de_json(methods.send_voice(self.token, chat_id, voice, caption, parse_mode, duration, disable_notification, reply_to_message_id, reply_markup))
+        """
+        return types.Message.de_json(
+            methods.send_voice(self.token, chat_id, voice, caption, parse_mode, duration, disable_notification,
+                               reply_to_message_id, reply_markup))
 
-    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None,
+                      reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send general files.
-        :param chat_id [Integer or String, Required]:
-        :param document [InputFile or String, Required]:
-        :param thumb [InputFile or String, Optional]:
-        :param caption [String 0-1024 characters, Optional]:
-        :param parse_mode [String, Optional]:
-        :param disable_notification [Boolean, Optional]:
-        :param reply_to_message_id [Integer, Optional]:
-        :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
-        :returns: a Message object.
+        :param chat_id: Integer or String: Required
+        :param document: InputFile or String: Required
+        :param thumb: InputFile or String: Optional
+        :param caption: String 0-1024 characters: Optional
+        :param parse_mode: String, Optional]:
+        :param disable_notification: Boolean: Optional
+        :param reply_to_message_id: Integer: Optional
+        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
+        :return: a Message object.
         """
-        return types.Message.de_json(methods.send_document(self.token, chat_id, document, thumb, caption, parse_mode, disable_notification, reply_to_message_id, reply_markup))
+        return types.Message.de_json(
+            methods.send_document(self.token, chat_id, document, thumb, caption, parse_mode, disable_notification,
+                                  reply_to_message_id, reply_markup))
 
     def send_sticker(self, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=None):
         """
         Use this method to send static .WEBP or animated .TGS stickers.
-        :param token [String, Required]:
-        :param chat_id [Integer or String, Required]:
-        :param sticker [InputFile or String, Required]:
-        :param disable_notification [Boolean, Optional]:
-        :param reply_to_message_id [Integer, Optional]:
-        :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+        :param chat_id: Integer or String: Required,
+        :param sticker: InputFile or String: Required,
+        :param disable_notification: Boolean: Optional,
+        :param reply_to_message_id: Integer: Optional,
+        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
         :returns: a Message object On success.
         """
-        return types.Message.de_json(methods.send_sticker(self.token, chat_id, sticker, reply_to_message_id, reply_markup, disable_notification))
+        return types.Message.de_json(
+            methods.send_sticker(self.token, chat_id, sticker, reply_to_message_id, reply_markup, disable_notification))
 
     def send_video(self, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
                    parse_mode=None, supports_streaming=None, disable_notification=None, timeout=None):
@@ -705,7 +727,7 @@ class TBot:
         """
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound).
         :param chat_id: Integer : Unique identifier for the message recipient — User or GroupChat id
-        :param data: InputFile or String : Animation to send. You can either pass a file_id as String to resend an animation that is already on the Telegram server
+        :param animation: InputFile or String : Animation to send. You can either pass a file_id as String to resend an animation that is already on the Telegram server
         :param duration: Integer : Duration of sent video in seconds
         :param caption: String : Animation caption (may also be used when resending animation by file_id).
         :param parse_mode:
@@ -881,7 +903,9 @@ class TBot:
         """
         return methods.restrict_chat_member(self.token, chat_id, user_id, permissions, until_date)
 
-    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None, can_edit_messages=None, can_delete_messages=None, can_invite_users=None, can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
+    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
+                            can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
+                            can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
         """
         Use this method to promote or demote a user in a supergroup or a channel. 
         The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
@@ -898,7 +922,9 @@ class TBot:
         :param can_promote_members [Boolean, Optional]: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
         :returns: True On success.
         """
-        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages, can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages, can_promote_members)
+        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages,
+                                           can_edit_messages, can_delete_messages, can_invite_users,
+                                           can_restrict_members, can_pin_messages, can_promote_members)
 
     def export_chat_invite_link(self, chat_id):
         """
@@ -1743,6 +1769,52 @@ class TBot:
         :return:
         """
         self.pre_checkout_query_handlers.append(handler_dict)
+
+    def poll_handler(self, func, **kwargs):
+        """
+        Poll request handler
+        :param func:
+        :param kwargs:
+        :return:
+        """
+
+        def decorator(handler):
+            handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
+            self.add_poll_handler(handler_dict)
+            return handler
+
+        return decorator
+
+    def add_poll_handler(self, handler_dict):
+        """
+        Adds a poll request handler
+        :param handler_dict:
+        :return:
+        """
+        self.poll_handlers.append(handler_dict)
+
+    def poll_answer_handler(self, func, **kwargs):
+        """
+        Poll request handler
+        :param func:
+        :param kwargs:
+        :return:
+        """
+
+        def decorator(handler):
+            handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
+            self.add_poll_answer_handler(handler_dict)
+            return handler
+
+        return decorator
+
+    def add_poll_answer_handler(self, handler_dict):
+        """
+        Adds a poll request handler
+        :param handler_dict:
+        :return:
+        """
+        self.poll_answer_handlers.append(handler_dict)
 
     def _test_message_handler(self, message_handler, message):
         """
