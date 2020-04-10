@@ -84,8 +84,8 @@ class TBot:
 
     def __init__(self, token, threaded=True, skip_pending=False, num_threads=2):
         """
-        :param token: bot API token
-        :return: Tbot object.
+        :param token [String, Required]: The bot's API token. (Created with @BotFather)
+        :returns: a Tbot object.
         """
 
         self.token = token
@@ -123,8 +123,8 @@ class TBot:
         """
         Enable saving next step handlers (by default saving disable)
 
-        :param delay: Delay between changes in handlers and saving
-        :param filename: Filename of save file
+        :param delay [Integer, Required]: Delay between changes in handlers and saving
+        :param filename [Data ,Required]: Filename of save file
         """
         self.next_step_saver = Saver(self.next_step_handlers, filename, delay)
 
@@ -132,8 +132,8 @@ class TBot:
         """
         Enable saving reply handlers (by default saving disable)
 
-        :param delay: Delay between changes in handlers and saving
-        :param filename: Filename of save file
+        :param delay [Integer, Required]: Delay between changes in handlers and saving
+        :param filename [Data ,Required]: Filename of save file
         """
         self.reply_saver = Saver(self.reply_handlers, filename, delay)
 
@@ -153,8 +153,8 @@ class TBot:
         """
         Load next step handlers from save file
 
-        :param filename: Filename of the file where handlers was saved
-        :param del_file_after_loading: Is passed True, after loading save file will be deleted
+        :param filename [Data ,Required]: Filename of the file where handlers was saved
+        :param del_file_after_loading [Boolean ,Required]: Is passed True, after loading save file will be deleted
         """
         self.next_step_saver.load_handlers(filename, del_file_after_loading)
 
@@ -162,43 +162,56 @@ class TBot:
         """
         Load reply handlers from save file
 
-        :param filename: Filename of the file where handlers was saved
-        :param del_file_after_loading: Is passed True, after loading save file will be deleted
+        :param filename [Data ,Required]: Filename of the file where handlers was saved
+        :param del_file_after_loading [Boolean ,Required]: Is passed True, after loading save file will be deleted
         """
         self.reply_saver.load_handlers(filename)
 
+    def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
+        """
+        Use this method to receive incoming updates using long polling.
+        :param offset [Integer, Optional]: Identifier of the first update to be returned.
+        :param limit [Integer, Optional]: Limits the number of updates to be retrieved.
+        :param timeout [Integer, Optional]: Timeout in seconds for long polling.
+        :param allowed_updates [Array of String, Optional]: List the types of updates you want your bot to receive.
+        :returns: an Array of Updates object.
+        """
+        json_updates = methods.get_updates(self.token, offset, limit, timeout, allowed_updates)
+        Updates = []
+        for x in json_updates:
+            Updates.append(types.Update.de_json(x))
+        return Updates
+
+
     def set_webhook(self, url=None, certificate=None, max_connections=None, allowed_updates=None):
+        """
+        Use this method to specify a url and receive incoming updates via an outgoing webhook.
+        :param url [String, Required]:
+        :param certificate [InputFile, Optional]:
+        :param max_connections [Integer, Optional]:
+        :param allowed_updates [Array of String, Optional]
+        :returns: True On success.
+        """
         return methods.set_webhook(self.token, url, certificate, max_connections, allowed_updates)
 
     def delete_webhook(self):
         """
-        Use this method to remove webhook integration if you decide to switch back to getUpdates.
-        :return: bool
+        Use this method to remove webhook integration if you decide to switch back to getUpdates. 
+        :param requires no parameters:
+        :returns: True on success. 
         """
         return methods.delete_webhook(self.token)
 
     def get_webhook_info(self):
-        result = methods.get_webhook_info(self.token)
-        return types.WebhookInfo.de_json(result)
-
-    def remove_webhook(self):
-        return self.set_webhook()  # No params resets webhook
-
-    def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
-        Use this method to receive incoming updates using long polling (wiki). An Array of Update objects is returned.
-        :param allowed_updates: Array of string. List the types of updates you want your bot to receive.
-        :param offset: Integer. Identifier of the first update to be returned.
-        :param limit: Integer. Limits the number of updates to be retrieved.
-        :param timeout: Integer. Timeout in seconds for long polling.
-        :return: array of Updates
+        Use this method to get current webhook status. 
+        :param requires no parameters:
+        :returns: a WebhookInfo object, otherwise an object with the url field empty.
         """
-        json_updates = methods.get_updates(
-            self.token, offset, limit, timeout, allowed_updates)
-        ret = []
-        for ju in json_updates:
-            ret.append(types.Update.de_json(ju))
-        return ret
+        return types.WebhookInfo.de_json(methods.get_webhook_info(self.token))
+
+    # def remove_webhook(self):
+    #     return self.set_webhook()  # No params resets webhook
 
     def __skip_updates(self):
         """
@@ -437,8 +450,12 @@ class TBot:
         self.update_listener.append(listener)
 
     def get_me(self):
-        result = methods.get_me(self.token)
-        return types.User.de_json(result)
+        """
+        A simple method for testing your bot's auth token. 
+        :param requires no parameters: 
+        :returns: a User object.
+        """
+        return types.User.de_json(methods.get_me(self.token))
 
     def get_file(self, file_id):
         return types.File.de_json(methods.get_file(self.token, file_id))
@@ -557,9 +574,7 @@ class TBot:
         :param disable_notification: Boolean, Optional. Sends the message silently.
         :return: API reply.
         """
-        return types.Message.de_json(
-            methods.send_message(self.token, chat_id, text, disable_web_page_preview, reply_to_message_id,
-                                 reply_markup, parse_mode, disable_notification, timeout))
+        return types.Message.de_json(methods.send_message(self.token, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,  reply_to_message_id, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=None):
         """
@@ -621,58 +636,48 @@ class TBot:
             methods.send_audio(self.token, chat_id, audio, caption, duration, performer, title, reply_to_message_id,
                                reply_markup, parse_mode, disable_notification, timeout))
 
-    def send_voice(self, chat_id, voice, caption=None, duration=None, reply_to_message_id=None, reply_markup=None,
-                   parse_mode=None, disable_notification=None, timeout=None):
+    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
         """
-        Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message.
-        :param chat_id:Unique identifier for the message recipient.
-        :param voice:
-        :param caption:
-        :param duration:Duration of sent audio in seconds
-        :param reply_to_message_id:
-        :param reply_markup:
-        :param parse_mode
-        :param disable_notification:
-        :param timeout:
-        :return: Message
-        """
-        return types.Message.de_json(
-            methods.send_voice(self.token, chat_id, voice, caption, duration, reply_to_message_id, reply_markup,
-                               parse_mode, disable_notification, timeout))
+        Use this method to send audio files.
+        :param chat_id [Integer or String, Required]:
+        :param voice [InputFile or String, Required]:
+        :param caption [String 0-1024 characters, Optional]:
+        :param parse_mode [String, Optional]:
+        :param duration [Integer, Optional]:
+        :param disable_notification [Boolean, Optional]:
+        :param reply_to_message_id [Integer, Optional]:
+        :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+        :returns: a Message object.
+        """ 
+        return types.Message.de_json(methods.send_voice(self.token, chat_id, voice, caption, parse_mode, duration, disable_notification, reply_to_message_id, reply_markup))
 
-    def send_document(self, chat_id, data, reply_to_message_id=None, caption=None, reply_markup=None,
-                      parse_mode=None, disable_notification=None, timeout=None):
+    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send general files.
-        :param chat_id:
-        :param data:
-        :param reply_to_message_id:
-        :param caption:
-        :param reply_markup:
-        :param parse_mode:
-        :param disable_notification:
-        :param timeout:
-        :return: API reply.
+        :param chat_id [Integer or String, Required]:
+        :param document [InputFile or String, Required]:
+        :param thumb [InputFile or String, Optional]:
+        :param caption [String 0-1024 characters, Optional]:
+        :param parse_mode [String, Optional]:
+        :param disable_notification [Boolean, Optional]:
+        :param reply_to_message_id [Integer, Optional]:
+        :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+        :returns: a Message object.
         """
-        return types.Message.de_json(
-            methods.send_data(self.token, chat_id, data, 'document', reply_to_message_id, reply_markup,
-                              parse_mode, disable_notification, timeout, caption=caption))
+        return types.Message.de_json(methods.send_document(self.token, chat_id, document, thumb, caption, parse_mode, disable_notification, reply_to_message_id, reply_markup))
 
-    def send_sticker(self, chat_id, data, reply_to_message_id=None, reply_markup=None, disable_notification=None,
-                     timeout=None):
+    def send_sticker(self, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=None):
         """
-        Use this method to send .webp stickers.
-        :param chat_id:
-        :param data:
-        :param reply_to_message_id:
-        :param reply_markup:
-        :param disable_notification: to disable the notification
-        :param timeout: timeout
-        :return: API reply.
+        Use this method to send static .WEBP or animated .TGS stickers.
+        :param token [String, Required]:
+        :param chat_id [Integer or String, Required]:
+        :param sticker [InputFile or String, Required]:
+        :param disable_notification [Boolean, Optional]:
+        :param reply_to_message_id [Integer, Optional]:
+        :param reply_markup [InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply, Optional]
+        :returns: a Message object On success.
         """
-        return types.Message.de_json(
-            methods.send_data(self.token, chat_id, data, 'sticker', reply_to_message_id, reply_markup,
-                              disable_notification, timeout))
+        return types.Message.de_json(methods.send_sticker(self.token, chat_id, sticker, reply_to_message_id, reply_markup, disable_notification))
 
     def send_video(self, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
                    parse_mode=None, supports_streaming=None, disable_notification=None, timeout=None):
@@ -853,7 +858,7 @@ class TBot:
         """
         return methods.unban_chat_member(self.token, chat_id, user_id)
 
-    def restrict_chat_member(self, chat_id, user_id, until_date=None, can_send_messages=None, can_send_media_messages=None, can_send_polls=None, can_send_other_messages=None, can_add_web_page_previews=None, can_change_info=None, can_invite_users=None, can_pin_messages=None):
+    def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
         Use this method to restrict a user in a supergroup.
         The bot must be an administrator in the supergroup for this to work and must have
@@ -874,34 +879,26 @@ class TBot:
             implies can_send_media_messages
         :return: types.Message
         """
-        return methods.restrict_chat_member(self.token, chat_id, user_id, until_date, can_send_messages, can_send_media_messages,
-                                            can_send_polls, can_send_other_messages, can_add_web_page_previews, can_change_info, can_invite_users, can_pin_messages)
+        return methods.restrict_chat_member(self.token, chat_id, user_id, permissions, until_date)
 
-    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
-                            can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
-                            can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
+    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None, can_edit_messages=None, can_delete_messages=None, can_invite_users=None, can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
         """
-        Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator
-        in the chat for this to work and must have the appropriate admin rights.
-        Pass False for all boolean parameters to demote a user. Returns True on success.
-        :param chat_id: Unique identifier for the target chat or username of the target channel (
-            in the format @channelusername)
-        :param user_id: Int : Unique identifier of the target user
-        :param can_change_info: Bool: Pass True, if the administrator can change chat title, photo and other settings
-        :param can_post_messages: Bool : Pass True, if the administrator can create channel posts, channels only
-        :param can_edit_messages: Bool : Pass True, if the administrator can edit messages of other users, channels only
-        :param can_delete_messages: Bool : Pass True, if the administrator can delete messages of other users
-        :param can_invite_users: Bool : Pass True, if the administrator can invite new users to the chat
-        :param can_restrict_members: Bool: Pass True, if the administrator can restrict, ban or unban chat members
-        :param can_pin_messages: Bool: Pass True, if the administrator can pin messages, supergroups only
-        :param can_promote_members: Bool: Pass True, if the administrator can add new administrators with a subset
-            of his own privileges or demote administrators that he has promoted, directly or indirectly
-            (promoted by administrators that were appointed by him)
-        :return:
+        Use this method to promote or demote a user in a supergroup or a channel. 
+        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+        Pass False for all boolean parameters to demote a user. 
+        :param chat_id [Integer or String, Requierd]: Unique identifier for the target chat or username of the target channel (in the format @channelusername).
+        :param user_id [Integer, Requierd]: Unique identifier for the target user.
+        :param can_change_info [Boolean, Optional]: Pass True, if the administrator can change chat title, photo and other settings.
+        :param can_post_messages [Boolean, Optional]: Pass True, if the administrator can create channel posts, channels only.
+        :param can_edit_messages [Boolean, Optional]: Pass True, if the administrator can edit messages of other users and can pin messages, channels only.
+        :param can_delete_messages [Boolean, Optional]: Pass True, if the administrator can delete messages of other users.
+        :param can_invite_users [Boolean, Optional]: Pass True, if the administrator can invite new users to the chat.
+        :param can_restrict_members [Boolean, Optional]: Pass True, if the administrator can restrict, ban or unban chat members.
+        :param can_pin_messages [Boolean, Optional]: Pass True, if the administrator can pin messages, supergroups only.
+        :param can_promote_members [Boolean, Optional]: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
+        :returns: True On success.
         """
-        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages,
-                                           can_edit_messages, can_delete_messages, can_invite_users,
-                                           can_restrict_members, can_pin_messages, can_promote_members)
+        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages, can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages, can_promote_members)
 
     def export_chat_invite_link(self, chat_id):
         """
@@ -1100,29 +1097,32 @@ class TBot:
                      is_flexible=None, disable_notification=None, reply_to_message_id=None, reply_markup=None,
                      provider_data=None):
         """
-        Sends invoice
-            :param chat_id:
-            :param title:
-            :param description:
-            :param invoice_payload:
-            :param provider_token:
-            :param currency:
-            :param prices:
-            :param start_parameter:
-            :param photo_url:
-            :param photo_size:
-        :param photo_width:
-        :param photo_height:
-        :param need_name:
-        :param need_phone_number:
-        :param need_email:
-        :param need_shipping_address:
-        :param is_flexible:
-        :param disable_notification:
-        :param reply_to_message_id:
-        :param reply_markup:
-        :param provider_data:
-        :return:
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param token [String, Required]: Bot's token (you don't need to fill this)
+        :param chat_id [Integer, Required]: Unique identifier for the target private chat
+        :param title [String, Required]: Product name
+        :param description [String, Required]: Product description
+        :param payload [String, Required]: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
+        :param provider_token [String, Required]: Payments provider token, obtained via @Botfather
+        :param start_parameter [String, Required]: Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
+        :param currency [String, Required]: Three-letter ISO 4217 currency code, see https://core.telegram.org/bots/payments#supported-currencies
+        :param prices [Array of LabeledPrice, Required]: Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
+        :param provider_data [String, Optional]: JSON-encoded data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
+        :param photo_url [String, Optional]: URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
+        :param photo_size [Integer, Optional]: Photo size
+        :param photo_width [Integer, Optional]: Photo width
+        :param photo_height [Integer, Optional]: Photo height
+        :param need_name [Boolean, Optional]: Pass True, if you require the user's full name to complete the order
+        :param need_phone_number [Boolean, Optional]: Pass True, if you require the user's phone number to complete the order
+        :param need_email [Boolean, Optional]: Pass True, if you require the user's email to complete the order
+        :param need_shipping_address [Boolean, Optional]: Pass True, if you require the user's shipping address to complete the order
+        :param send_phone_number_to_provider [Boolean, Optional]: Pass True, if user's phone number should be sent to provider
+        :param send_email_to_provider [Boolean, Optional]: Pass True, if user's email address should be sent to provider
+        :param is_flexible [Boolean, Optional]: Pass True, if the final price depends on the shipping method
+        :param disable_notification [Boolean, Optional]: Sends the message silently. Users will receive a notification with no sound.
+        :param reply_to_message_id [Integer, Optional]: If the message is a reply, ID of the original message
+        :param reply_markup [InlineKeyboardMarkup, Optional]: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button
+        :returns: a Message object.
         """
         result = methods.send_invoice(self.token, chat_id, title, description, invoice_payload, provider_token,
                                       currency, prices, start_parameter, photo_url, photo_size, photo_width,

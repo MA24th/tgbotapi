@@ -241,6 +241,7 @@ def send_photo(token, chat_id, photo, caption=None, parse_mode=None, disable_not
 def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None, thumb=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send audio files.
+    :param token [String, Required]:
     :param chat_id [Integer or String, Required]:
     :param audio [InputFile or String, Required]:
     :param caption [String, Optional]:
@@ -282,9 +283,10 @@ def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=No
     return _make_request(token, method_url, params=payload, files=files, method='post')
 
 
-def send_Document(token, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
+def send_document(token, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send general files.
+    :param token [String, Required]:
     :param chat_id [Integer or String, Required]:
     :param document [InputFile or String, Required]:
     :param thumb [InputFile or String, Optional]:
