@@ -70,11 +70,11 @@ def _check_result(api_method, result):
     return result_json
 
 
-def get_updates(token, offset=None, limit=None, timeout=None, allowed_updates=None):
+def get_updates(token, offset=None, limit=None, timeout=0, allowed_updates=None):
     """
     Use this method to receive incoming updates using long polling.
     :param str token: The bot's API token. (Created with @BotFather).
-    :param str offset: Identifier of the first update to be returned.
+    :param int offset: Identifier of the first update to be returned.
     :param int limit: Limits the number of updates to be retrieved.
     :param int timeout: Timeout in seconds for long polling, Defaults to 0.
     :param list allowed_updates: An Array of String.
@@ -185,7 +185,7 @@ def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(api_url, api_method, files, params, http_method='post')
 
 
 def forward_message(token, chat_id, from_chat_id, message_id, disable_notification=False):
@@ -522,7 +522,7 @@ def send_media_group(token, chat_id, media, disable_notification=False, reply_to
 
 
 def send_location(token, chat_id, latitude, longitude, live_period=None, disable_notification=False,
-                  reply_to_message_id=None, reply_markup=None, ):
+                  reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send point on the map.
     :param str token: The bot's API token. (Created with @BotFather).
@@ -687,7 +687,7 @@ def send_poll(token, chat_id, question, options, is_anonymous=True, type='regula
     :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll preview.
     :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound.
     :param int reply_to_message_id: If the message is a reply, ID of the original message.
-    :param list[dict] reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+    :param any reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
     api_method = r'sendPoll'
@@ -1328,7 +1328,7 @@ def delete_message(token, chat_id, message_id):
     return _make_request(api_url, api_method, files, params, http_method='post')
 
 
-def send_sticker(token, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=False):
+def send_sticker(token, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send static .WEBP or animated .TGS stickers.
     :param str token: The bot's API token. (Created with @BotFather).
@@ -1730,24 +1730,6 @@ def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_m
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     return _make_request(api_url, api_method, files, params, http_method='get')
-
-
-# CUSTOM FUNCTIONS
-def download_file(token, file_path):
-    """
-    Use this method to download file with specified file_path.
-    :param str token: The bot's API token. (Created with @BotFather).
-    :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
-    :return: any, On success.
-    """
-    api_url = "https://api.telegram.org/file/bot{0}/{1}".format(token, file_path)
-    result = _get_req_session().get(api_url, proxies)
-    if result.status_code != 200:
-        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
-            .format(result.status_code, result.reason, result.text)
-        raise ApiException(msg, 'Download file', result)
-    return result.content
-
 
 def _convert_list_json_serializable(results):
     ret = ''

@@ -172,45 +172,17 @@ class TBot:
     def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling.
-        :param offset: Integer: Optional, Identifier of the first update to be returned.
-        :param limit: Integer: Optional, Limits the number of updates to be retrieved.
-        :param timeout: Integer: Optional, Timeout in seconds for long polling.
-        :param allowed_updates: Array of String: Optional, List the types of updates you want your bot to receive.
-        :return: an Array of Updates object.
+        :param int offset: Identifier of the first update to be returned.
+        :param int limit: Limits the number of updates to be retrieved.
+        :param int timeout: Timeout in seconds for long polling, Defaults to 0.
+        :param list allowed_updates: An Array of String.
+        :return: An Array of Update objects.
         """
         json_updates = methods.get_updates(self.token, offset, limit, timeout, allowed_updates)
         updates = []
         for x in json_updates:
             updates.append(types.Update.de_json(x))
         return updates
-
-    def set_webhook(self, url=None, certificate=None, max_connections=None, allowed_updates=None):
-        """
-        Use this method to specify a url and receive incoming updates via an outgoing webhook.
-        :param url: String: Required,
-        :param certificate: InputFile: Optional,
-        :param max_connections: Integer: Optional,
-        :param allowed_updates: Array of String: Optional,
-        :return: True On success.
-        """
-        return methods.set_webhook(self.token, url, certificate, max_connections, allowed_updates)
-
-    def delete_webhook(self):
-        """
-        Use this method to remove webhook integration if you decide to switch back to getUpdates.
-        :return: True on success.
-        """
-        return methods.delete_webhook(self.token)
-
-    def get_webhook_info(self):
-        """
-        Use this method to get current webhook status.
-        :return: a WebhookInfo object, otherwise an object with the url field empty.
-        """
-        return types.WebhookInfo.de_json(methods.get_webhook_info(self.token))
-
-    # def remove_webhook(self):
-    #     return self.set_webhook()  # No params resets webhook
 
     def __skip_updates(self):
         """
@@ -238,8 +210,7 @@ class TBot:
             logger.debug('Skipped {0} pending messages'.format(
                 self.__skip_updates()))
             self.skip_pending = False
-        updates = self.get_updates(
-            offset=(self.last_update_id + 1), timeout=timeout)
+        updates = self.get_updates(offset=(self.last_update_id + 1), timeout=timeout)
         self.process_new_updates(updates)
 
     def process_new_updates(self, updates):
@@ -464,6 +435,31 @@ class TBot:
     def set_update_listener(self, listener):
         self.update_listener.append(listener)
 
+    def set_webhook(self, url=None, certificate=None, max_connections=40, allowed_updates=None):
+        """
+        Use this method to specify a url and receive incoming updates via an outgoing webhook.
+        :param str url: HTTPS url to send updates to. Use an empty string to remove webhook integration.
+        :param any certificate: Upload your public key [InputFile] certificate so that the root certificate in use can be checked.
+        :param int max_connections: Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.
+        :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive.
+        :return: True On success.
+        """
+        return methods.set_webhook(self.token, url, certificate, max_connections, allowed_updates)
+
+    def delete_webhook(self):
+        """
+        Use this method to remove webhook integration if you decide to switch back to getUpdates.
+        :return: True on success.
+        """
+        return methods.delete_webhook(self.token)
+
+    def get_webhook_info(self):
+        """
+        Use this method to get current webhook status.
+        :return: a WebhookInfo object, otherwise an object with the url field empty.
+        """
+        return types.WebhookInfo.de_json(methods.get_webhook_info(self.token))
+
     def get_me(self):
         """
         A simple method for testing your bot's auth token.
@@ -471,53 +467,458 @@ class TBot:
         """
         return types.User.de_json(methods.get_me(self.token))
 
+    def send_message(self, chat_id, text, parse_mode=None, disable_web_page_preview=False, disable_notification=False,
+                     reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param str parse_mode: Send Markdown or HTML.
+        :param bool disable_web_page_preview: Disables link previews for links in this message.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_message(self.token, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
+                                 reply_to_message_id, reply_markup))
+
+    def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
+        """
+        Use this method to forward messages of any kind.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str from_chat_id: Unique identifier for the chat where the original message was sent.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int message_id: Message identifier in the chat specified in from_chat_id.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.forward_message(self.token, chat_id, from_chat_id, message_id, disable_notification))
+
+    def send_photo(self, token, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
+                   reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send photos.
+        :param str token: The bot's API token. (Created with @BotFather).
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any photo: Photo [file_id or InputFile] to send.
+        :param str caption: Photo caption, 0-1024 characters after entities parsing
+        :param str parse_mode: Send Markdown or HTML.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_photo(self.token, chat_id, photo, caption, parse_mode, disable_notification,
+                               reply_to_message_id, reply_markup))
+
+    def send_audio(self, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
+                   thumb=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send audio files.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any audio: Audio [file_id or InputFile] to send.
+        :param str caption: Photo caption, 0-1024 characters after entities parsing
+        :param str parse_mode: Send Markdown or HTML.
+        :param int duration: Duration of the audio in seconds.
+        :param str performer: Performer.
+        :param str title: Track Name.
+        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_audio(self.token, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
+                               disable_notification, reply_to_message_id, reply_markup))
+
+    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=False,
+                      reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send general files.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any document: File [file_id or InputFile] to send.
+        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str caption: Document caption, 0-1024 characters after entities parsing
+        :param str parse_mode: Send Markdown or HTML.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_document(self.token, chat_id, document, thumb, caption, parse_mode, disable_notification,
+                                  reply_to_message_id, reply_markup))
+
+    def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
+                   parse_mode=None, supports_streaming=None, disable_notification=False, reply_to_message_id=None,
+                   reply_markup=None):
+        """
+        Use this method to send video files.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any video: Video [file_id or InputFile] to send.
+        :param int duration: Duration of the video in seconds.
+        :param int width: Video width.
+        :param int height: Video height.
+        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str caption: Video caption, 0-1024 characters after entities parsing.
+        :param str parse_mode: Send Markdown or HTML.
+        :param bool supports_streaming: Pass True, if the uploaded video is suitable for streaming.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_video(self.token, chat_id, video, duration, width, height, thumb, caption, parse_mode,
+                               supports_streaming, disable_notification, reply_to_message_id, reply_markup))
+
+    def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
+                       parse_mode=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send animation files.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any animation: Animation [file_id or InputFile] to send.
+        :param int duration: Duration of the animation in seconds.
+        :param int width: Animation width.
+        :param int height: Animation height.
+        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str caption: Video caption, 0-1024 characters after entities parsing.
+        :param str parse_mode: Send Markdown or HTML.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_animation(self.token, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
+                                   disable_notification, reply_to_message_id, reply_markup))
+
+    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=False,
+                   reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send audio files.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any voice: Audio [file_id or InputFile] to send.
+        :param str caption: Video caption, 0-1024 characters after entities parsing.
+        :param str parse_mode: Send Markdown or HTML.
+        :param int duration: Duration of the voice in seconds.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_voice(self.token, chat_id, voice, caption, parse_mode, duration, disable_notification,
+                               reply_to_message_id, reply_markup))
+
+    def send_video_note(self, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
+                        reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send video messages.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any video_note: Video note [file_id or InputFile] to send.
+        :param int duration: Duration of the VideoNote in seconds.
+        :param int length: Video width and height, i.e. diameter of the video message.
+        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_video_note(self.token, chat_id, video_note, duration, length, thumb, disable_notification,
+                                    reply_to_message_id, reply_markup))
+
+    def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None):
+        """
+        Use this method to send a group of photos or videos as an album.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param list media: A JSON-serialized array of [InputMediaPhoto or InputMediaVideo] to be sent, must include 2–10 items
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :return: a Messages object.
+        """
+        result = methods.send_media_group(
+            self.token, chat_id, media, disable_notification, reply_to_message_id)
+        ret = []
+        for msg in result:
+            ret.append(types.Message.de_json(msg))
+        return ret
+
+    def send_location(self, chat_id, latitude, longitude, live_period=None, disable_notification=False,
+                      reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send point on the map.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param float latitude: Latitude of the location.
+        :param float longitude: Longitude of the location.
+        :param int live_period: Period in seconds for which the location will be updated, should be between 60 and 86400.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_location(self.token, chat_id, latitude, longitude, live_period, disable_notification,
+                                  reply_to_message_id, reply_markup))
+
+    def edit_message_live_location(self, latitude, longitude, chat_id=None, message_id=None, inline_message_id=None,
+                                   reply_markup=None):
+        """
+        Use this method to edit live location messages.
+        :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
+        :param float latitude: Latitude of the location.
+        :param float longitude: Longitude of the location.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object, otherwise True.
+        """
+        return types.Message.de_json(
+            methods.edit_message_live_location(self.token, latitude, longitude, chat_id, message_id,
+                                               inline_message_id, reply_markup))
+
+    def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+        """
+        Use this method to stop updating a live location message before live_period expires.
+        :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object, otherwise True.
+        """
+        return types.Message.de_json(
+            methods.stop_message_live_location(self.token, chat_id, message_id, inline_message_id, reply_markup))
+
+    def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
+                   disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send information about a venue.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param float latitude: Latitude of the location.
+        :param float longitude: Longitude of the location.
+        :param str title: Name of the venue.
+        :param str address: Address of the venue.
+        :param str foursquare_id: Foursquare identifier of the venue.
+        :param str foursquare_type: Foursquare type of the venue, if known.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_venue(self.token, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
+                               disable_notification, reply_to_message_id, reply_markup))
+
+    def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
+                     reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send information about a venue.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str phone_number: Contact's phone number.
+        :param str first_name: Contact's first name.
+        :param str last_name: Contact's last name.
+        :param str vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_contact(self.token, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
+                                 reply_to_message_id, reply_markup))
+
+    def send_poll(self, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
+                  correct_option_id=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
+                  reply_markup=None):
+        """
+        Use this method to send information about a venue.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str question: Poll question, 1-255 characters.
+        :param list options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters each.
+        :param bool is_anonymous: True, if the poll needs to be anonymous, defaults to True.
+        :param str type: Poll type, “quiz” or “regular”, defaults to “regular”.
+        :param bool allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False.
+        :param int correct_option_id: 0-based identifier of the correct answer option, required for polls in quiz mode.
+        :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll preview.
+        :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param any reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_poll(self.token, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
+                              correct_option_id, is_closed, disable_notifications, reply_to_message_id, reply_markup))
+    # send_dice
+
+    def send_chat_action(self, chat_id, action):
+        """
+        Use this method when you need to tell the user that something is happening on the bot's side.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str action: Type of action to broadcast.
+        :return: True On success.
+        """
+        return methods.send_chat_action(self.token, chat_id, action)
+
+    def get_user_profile_photos(self, user_id, offset=None, limit=100):
+        """
+        Use this method to get a list of profile pictures for a user.
+        :param int or str user_id: Unique identifier of the target user.
+        :param int offset: Sequential number of the first photo to be returned. By default, all photos are returned.
+        :param int limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
+        :return: a UserProfilePhoto object.
+        """
+        return types.UserProfilePhotos.de_json(methods.get_user_profile_photos(self.token, user_id, offset, limit))
+
     def get_file(self, file_id):
+        """
+        Use this method to get basic info about a file and prepare it for downloading.
+        :param int or str file_id: File identifier to get info about
+        :return: a File object.
+        """
         return types.File.de_json(methods.get_file(self.token, file_id))
 
-    def get_file_url(self, file_id):
-        return methods.get_file_url(self.token, file_id)
+    def kick_chat_member(self, chat_id, user_id, until_date=None):
+        """
+        Use this method to kick a user from a group, a supergroup or a channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str user_id: Unique identifier of the target user.
+        :param int until_date: Date when the user will be unbanned, unix time.
+        :return: True On success.
+        """
+        return methods.kick_chat_member(self.token, chat_id, user_id, until_date)
 
-    def download_file(self, file_path):
-        return methods.download_file(self.token, file_path)
+    def unban_chat_member(self, chat_id, user_id):
+        """
+        Use this method to unban a previously kicked user in a supergroup or channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str user_id: Unique identifier of the target user.
+        :return: True On success.
+        """
+        return methods.unban_chat_member(self.token, chat_id, user_id)
 
-    def get_user_profile_photos(self, user_id, offset=None, limit=None):
+    def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
-        Retrieves the user profile photos of the person with 'user_id'
-        See https://core.telegram.org/bots/api#getuserprofilephotos
-        :param user_id:
-        :param offset:
-        :param limit:
-        :return: API reply.
+        Use this method to restrict a user in a supergroup.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str user_id: Unique identifier of the target user.
+        :param dict permissions: New user permissions must be ChatPermissions object.
+        :param int until_date: 	Date when restrictions will be lifted for the user, unix time.
+        :return: True On success.
         """
-        result = methods.get_user_profile_photos(
-            self.token, user_id, offset, limit)
-        return types.UserProfilePhotos.de_json(result)
+        return methods.restrict_chat_member(self.token, chat_id, user_id, permissions, until_date)
 
-    def get_chat(self, chat_id):
+    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
+                            can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
+                            can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
         """
-        Use this method to get up to date information about the chat (current name of the user for one-on-one
-        conversations, current username of a user, group or channel, etc.). Returns a Chat object on success.
-        :param chat_id:
-        :return:
+        Use this method to promote or demote a user in a supergroup or a channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str user_id: Unique identifier of the target user.
+        :param bool can_change_info: Pass True, if the administrator can change chat title, photo and other settings.
+        :param bool can_post_messages: Pass True, if the administrator can create channel posts, channels only.
+        :param bool can_edit_messages: Pass True, if the administrator can edit messages of other users and can pin messages, channels only.
+        :param bool can_delete_messages: Pass True, if the administrator can delete messages of other users.
+        :param bool can_invite_users: Pass True, if the administrator can invite new users to the chat.
+        :param bool can_restrict_members: Pass True, if the administrator can restrict, ban or unban chat members.
+        :param bool can_pin_messages: Pass True, if the administrator can pin messages, supergroups only.
+        :param bool can_promote_members: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
+        :return: True On success.
         """
-        result = methods.get_chat(self.token, chat_id)
-        return types.Chat.de_json(result)
+        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages,
+                                           can_edit_messages, can_delete_messages, can_invite_users,
+                                           can_restrict_members, can_pin_messages, can_promote_members)
+    # set_chat_administrator_custom_title
+
+    # set_chat_permissions
+    def export_chat_invite_link(self, chat_id):
+        """
+        Use this method to generate a new invite link for a chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: new link as String on success.
+        """
+        return methods.export_chat_invite_link(self.token, chat_id)
+
+    def set_chat_photo(self, chat_id, photo):
+        """
+        Use this method to set a new profile photo for the chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any photo: Use this method to set a new profile photo for the chat.
+        :return: True on success.
+        """
+        return methods.set_chat_photo(self.token, chat_id, photo)
+
+    def delete_chat_photo(self, chat_id):
+        """
+        Use this method to delete a chat photo.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: True on success.
+        """
+        return methods.delete_chat_photo(self.token, chat_id)
+
+    def set_chat_title(self, chat_id, title):
+        """
+        Use this method to change the title of a chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str title: New chat title, 1-255 characters.
+        :return: True on success.
+        """
+        return methods.set_chat_title(self.token, chat_id, title)
+
+    def set_chat_description(self, chat_id, description):
+        """
+        Use this method to change the description of a group, a supergroup or a channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str description: New chat description, 0-255 characters.
+        :return: True on success.
+        """
+        return methods.set_chat_description(self.token, chat_id, description)
+
+    def pin_chat_message(self, chat_id, message_id, disable_notification=False):
+        """
+        Use this method to pin a message in a group, a supergroup, or a channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int message_id: Identifier of a message to pin.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :return: True on success.
+        """
+        return methods.pin_chat_message(self.token, chat_id, message_id, disable_notification)
+
+    def unpin_chat_message(self, chat_id):
+        """
+        Use this method to unpin a message in a group, a supergroup, or a channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: True on success.
+        """
+        return methods.unpin_chat_message(self.token, chat_id)
 
     def leave_chat(self, chat_id):
         """
-        Use this method for your bot to leave a group, supergroup or channel. Returns True on success.
-        :param chat_id:
-        :return:
+        Use this method for your bot to leave a group, supergroup or channel.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: True on success.
         """
         result = methods.leave_chat(self.token, chat_id)
         return result
 
+    def get_chat(self, chat_id):
+        """
+        Use this method to get up to date information about the chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: a Chat object.
+        """
+        result = methods.get_chat(self.token, chat_id)
+        return types.Chat.de_json(result)
+
     def get_chat_administrators(self, chat_id):
         """
-        Use this method to get a list of administrators in a chat. On success, returns an Array of ChatMember objects
-        that contains information about all chat administrators except other bots.
-        :param chat_id:
-        :return:
+        Use this method to get a list of administrators in a chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: an Array of ChatMember object.
         """
         result = methods.get_chat_administrators(self.token, chat_id)
         ret = []
@@ -527,506 +928,66 @@ class TBot:
 
     def get_chat_members_count(self, chat_id):
         """
-        Use this method to get the number of members in a chat. Returns Int on success.
-        :param chat_id:
-        :return:
+        Use this method to get the number of members in a chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: Integer On success.
         """
-        result = methods.get_chat_members_count(self.token, chat_id)
-        return result
-
-    def set_chat_sticker_set(self, chat_id, sticker_set_name):
-        """
-        Use this method to set a new group sticker set for a supergroup. The bot must be an administrator
-        in the chat for this to work and must have the appropriate admin rights.
-        Use the field can_set_sticker_set optionally returned in getChat requests to check
-        if the bot can use this method. Returns True on success.
-        :param chat_id: Unique identifier for the target chat or username of the target supergroup
-        (in the format @supergroupusername)
-        :param sticker_set_name: Name of the sticker set to be set as the group sticker set
-        :return:
-        """
-        result = methods.set_chat_sticker_set(
-            self.token, chat_id, sticker_set_name)
-        return result
-
-    def delete_chat_sticker_set(self, chat_id):
-        """
-        Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat
-        for this to work and must have the appropriate admin rights. Use the field can_set_sticker_set
-        optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
-        :param chat_id:	Unique identifier for the target chat or username of the target supergroup
-        (in the format @supergroupusername)
-        :return:
-        """
-        result = methods.delete_chat_sticker_set(self.token, chat_id)
-        return result
+        return methods.get_chat_members_count(self.token, chat_id)
 
     def get_chat_member(self, chat_id, user_id):
         """
-        Use this method to get information about a member of a chat. Returns a ChatMember object on success.
-        :param chat_id:
-        :param user_id:
-        :return:
+        Use this method to get information about a member of a chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int user_id: Unique identifier of the target user.
+        :return: a ChatMember object On success.
         """
-        result = methods.get_chat_member(self.token, chat_id, user_id)
-        return types.ChatMember.de_json(result)
+        return types.ChatMember.de_json(methods.get_chat_member(self.token, chat_id, user_id))
 
-    def send_message(self, chat_id, text, disable_web_page_preview=None, reply_to_message_id=None, reply_markup=None,
-                     parse_mode=None, disable_notification=None):
+    def set_chat_sticker_set(self, chat_id, sticker_set_name):
         """
-        Use this method to send text messages.
+        Use this method to set a new group sticker set for a supergroup.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
+        :return: True On success.
+        """
+        return methods.set_chat_sticker_set(self.token, chat_id, sticker_set_name)
 
-        Warning: Do not send more than about 5000 characters each message, otherwise you'll risk an HTTP 414 error.
-        If you must send more than 5000 characters, use the split_string function in methods.py.
+    def delete_chat_sticker_set(self, chat_id):
+        """
+        Use this method to delete a group sticker set from a supergroup.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: True On success.
+        """
+        return methods.delete_chat_sticker_set(self.token, chat_id)
 
-        :param chat_id: Integer or String: Required,
-        :param text: String: Required,
-        :param parse_mode: String: Required,
-        :param disable_web_page_preview: Boolean: Optional,
-        :param disable_notification: Boolean: Optional, Sends the message silently.
-        :param reply_to_message_id: Integer: Optional,
-        :param reply_markup:
-        :return: API reply.
+    def answer_callback_query(self, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
         """
-        return types.Message.de_json(
-            methods.send_message(self.token, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
-                                 reply_to_message_id, reply_markup))
+        Use this method to send answers to callback queries sent from inline keyboards.
+        :param str callback_query_id: Unique identifier for the query to be answered.
+        :param str text: Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
+        :param bool show_alert: If true, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
+        :param str url: URL that will be opened by the user's client.
+        :param int cache_time: The maximum amount of time in seconds that the result of the callback query may be cached client-side.
+        :return: True On success.
+        """
+        return methods.answer_callback_query(self.token, callback_query_id, text, show_alert, url, cache_time)
 
-    def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=None):
-        """
-        Use this method to forward messages of any kind.
-        :param disable_notification:
-        :param chat_id: which chat to forward
-        :param from_chat_id: which chat message from
-        :param message_id: message id
-        :return: API reply.
-        """
-        return types.Message.de_json(
-            methods.forward_message(self.token, chat_id, from_chat_id, message_id, disable_notification))
+    # set_my_commands
 
-    def delete_message(self, chat_id, message_id):
-        """
-        Use this method to delete message. Returns True on success.
-        :param chat_id: in which chat to delete
-        :param message_id: which message to delete
-        :return: API reply.
-        """
-        return methods.delete_message(self.token, chat_id, message_id)
-
-    def send_photo(self, chat_id, photo, caption=None, reply_to_message_id=None, reply_markup=None,
-                   parse_mode=None, disable_notification=None):
-        """
-        Use this method to send photos.
-        :param disable_notification:
-        :param chat_id:
-        :param photo:
-        :param caption:
-        :param parse_mode
-        :param reply_to_message_id:
-        :param reply_markup:
-        :return: API reply.
-        """
-        return types.Message.de_json(
-            methods.send_photo(self.token, chat_id, photo, caption, reply_to_message_id, reply_markup,
-                               parse_mode, disable_notification))
-
-    def send_audio(self, chat_id, audio, caption=None, duration=None, performer=None, title=None,
-                   reply_to_message_id=None, reply_markup=None, parse_mode=None, disable_notification=None,
-                   timeout=None):
-        """
-        Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .mp3 format.
-        :param chat_id:Unique identifier for the message recipient
-        :param audio:Audio file to send.
-        :param caption:
-        :param duration:Duration of the audio in seconds
-        :param performer:Performer
-        :param title:Track name
-        :param reply_to_message_id:If the message is a reply, ID of the original message
-        :param reply_markup:
-        :param parse_mode
-        :param disable_notification:
-        :param timeout:
-        :return: Message
-        """
-        return types.Message.de_json(
-            methods.send_audio(self.token, chat_id, audio, caption, duration, performer, title, reply_to_message_id,
-                               reply_markup, parse_mode, disable_notification, timeout))
-
-    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=None,
-                   reply_to_message_id=None, reply_markup=None):
-        """
-        Use this method to send audio files.
-        :param chat_id: Integer or String: Required,
-        :param voice: InputFile or String: Required,
-        :param caption: String 0-1024 characters: Optional,
-        :param parse_mode: String: Optional,
-        :param duration: Integer: Optional,
-        :param disable_notification: Boolean: Optional,
-        :param reply_to_message_id: Integer: Optional,
-        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
-        :returns: a Message object.
-        """
-        return types.Message.de_json(
-            methods.send_voice(self.token, chat_id, voice, caption, parse_mode, duration, disable_notification,
-                               reply_to_message_id, reply_markup))
-
-    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=None,
-                      reply_to_message_id=None, reply_markup=None):
-        """
-        Use this method to send general files.
-        :param chat_id: Integer or String: Required
-        :param document: InputFile or String: Required
-        :param thumb: InputFile or String: Optional
-        :param caption: String 0-1024 characters: Optional
-        :param parse_mode: String, Optional]:
-        :param disable_notification: Boolean: Optional
-        :param reply_to_message_id: Integer: Optional
-        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
-        :return: a Message object.
-        """
-        return types.Message.de_json(
-            methods.send_document(self.token, chat_id, document, thumb, caption, parse_mode, disable_notification,
-                                  reply_to_message_id, reply_markup))
-
-    def send_sticker(self, chat_id, sticker, reply_to_message_id=None, reply_markup=None, disable_notification=None):
-        """
-        Use this method to send static .WEBP or animated .TGS stickers.
-        :param chat_id: Integer or String: Required,
-        :param sticker: InputFile or String: Required,
-        :param disable_notification: Boolean: Optional,
-        :param reply_to_message_id: Integer: Optional,
-        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
-        :returns: a Message object On success.
-        """
-        return types.Message.de_json(
-            methods.send_sticker(self.token, chat_id, sticker, reply_to_message_id, reply_markup, disable_notification))
-
-    def send_video(self, chat_id, data, duration=None, caption=None, reply_to_message_id=None, reply_markup=None,
-                   parse_mode=None, supports_streaming=None, disable_notification=None, timeout=None):
-        """
-        Use this method to send video files, Telegram clients support mp4 videos.
-        :param chat_id: Integer : Unique identifier for the message recipient — User or GroupChat id
-        :param data: InputFile or String : Video to send. You can either pass a file_id as String to resend a video that is already on the Telegram server
-        :param duration: Integer : Duration of sent video in seconds
-        :param caption: String : Video caption (may also be used when resending videos by file_id).
-        :param parse_mode:
-        :param supports_streaming:
-        :param reply_to_message_id:
-        :param reply_markup:
-        :param disable_notification:
-        :param timeout:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.send_video(self.token, chat_id, data, duration, caption, reply_to_message_id, reply_markup,
-                               parse_mode, supports_streaming, disable_notification, timeout))
-
-    def send_animation(self, chat_id, animation, duration=None, caption=None, reply_to_message_id=None,
-                       reply_markup=None,
-                       parse_mode=None, disable_notification=None, timeout=None):
-        """
-        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound).
-        :param chat_id: Integer : Unique identifier for the message recipient — User or GroupChat id
-        :param animation: InputFile or String : Animation to send. You can either pass a file_id as String to resend an animation that is already on the Telegram server
-        :param duration: Integer : Duration of sent video in seconds
-        :param caption: String : Animation caption (may also be used when resending animation by file_id).
-        :param parse_mode:
-        :param reply_to_message_id:
-        :param reply_markup:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.send_animation(self.token, chat_id, animation, duration, caption, reply_to_message_id,
-                                   reply_markup,
-                                   parse_mode, disable_notification, timeout))
-
-    def send_video_note(self, chat_id, data, duration=None, length=None, reply_to_message_id=None, reply_markup=None,
-                        disable_notification=None, timeout=None):
-        """
-        Use this method to send video files, Telegram clients support mp4 videos.
-        :param chat_id: Integer : Unique identifier for the message recipient — User or GroupChat id
-        :param data: InputFile or String : Video note to send. You can either pass a file_id as String to resend a video that is already on the Telegram server
-        :param duration: Integer : Duration of sent video in seconds
-        :param length: Integer : Video width and height, Can't be None and should be in range of (0, 640)
-        :param reply_to_message_id:
-        :param reply_markup:
-        :param disable_notification:
-        :param timeout:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.send_video_note(self.token, chat_id, data, duration, length, reply_to_message_id, reply_markup,
-                                    disable_notification, timeout))
-
-    def send_media_group(self, chat_id, media, disable_notification=None, reply_to_message_id=None):
-        """
-        send a group of photos or videos as an album. On success, an array of the sent Messages is returned.
-        :param chat_id:
-        :param media:
-        :param disable_notification:
-        :param reply_to_message_id:
-        :return:
-        """
-        result = methods.send_media_group(
-            self.token, chat_id, media, disable_notification, reply_to_message_id)
-        ret = []
-        for msg in result:
-            ret.append(types.Message.de_json(msg))
-        return ret
-
-    def send_location(self, chat_id, latitude, longitude, live_period=None, reply_to_message_id=None, reply_markup=None,
-                      disable_notification=None):
-        """
-        Use this method to send point on the map.
-        :param chat_id:
-        :param latitude:
-        :param longitude:
-        :param live_period
-        :param reply_to_message_id:
-        :param reply_markup:
-        :param disable_notification:
-        :return: API reply.
-        """
-        return types.Message.de_json(
-            methods.send_location(self.token, chat_id, latitude, longitude, live_period, reply_to_message_id,
-                                  reply_markup,
-                                  disable_notification))
-
-    def edit_message_live_location(self, latitude, longitude, chat_id=None, message_id=None,
-                                   inline_message_id=None, reply_markup=None):
-        """
-        Use this method to edit live location
-        :param latitude:
-        :param longitude:
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param reply_markup:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.edit_message_live_location(self.token, latitude, longitude, chat_id, message_id,
-                                               inline_message_id, reply_markup))
-
-    def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
-        """
-        Use this method to stop updating a live location message sent by the bot
-        or via the bot (for inline bots) before live_period expires
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param reply_markup:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.stop_message_live_location(self.token, chat_id, message_id, inline_message_id, reply_markup))
-
-    def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, disable_notification=None,
-                   reply_to_message_id=None, reply_markup=None):
-        """
-        Use this method to send information about a venue.
-        :param chat_id: Integer or String : Unique identifier for the target chat or username of the target channel
-        :param latitude: Float : Latitude of the venue
-        :param longitude: Float : Longitude of the venue
-        :param title: String : Name of the venue
-        :param address: String : Address of the venue
-        :param foursquare_id: String : Foursquare identifier of the venue
-        :param disable_notification:
-        :param reply_to_message_id:
-        :param reply_markup:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.send_venue(self.token, chat_id, latitude, longitude, title, address, foursquare_id,
-                               disable_notification, reply_to_message_id, reply_markup)
-        )
-
-    def send_contact(self, chat_id, phone_number, first_name, last_name=None, disable_notification=None,
-                     reply_to_message_id=None, reply_markup=None):
-        return types.Message.de_json(
-            methods.send_contact(self.token, chat_id, phone_number, first_name, last_name, disable_notification,
-                                 reply_to_message_id, reply_markup)
-        )
-
-    def send_chat_action(self, chat_id, action):
-        """
-        Use this method when you need to tell the user that something is happening on the bot's side.
-        The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear
-        its typing status).
-        :param chat_id:
-        :param action:  One of the following strings: 'typing', 'upload_photo', 'record_video', 'upload_video',
-                        'record_audio', 'upload_audio', 'upload_document', 'find_location', 'record_video_note', 'upload_video_note'.
-        :return: API reply. :type: boolean
-        """
-        return methods.send_chat_action(self.token, chat_id, action)
-
-    def kick_chat_member(self, chat_id, user_id, until_date=None):
-        """
-        Use this method to kick a user from a group or a supergroup.
-        :param chat_id: Int or string : Unique identifier for the target group or username of the target supergroup
-        :param user_id: Int : Unique identifier of the target user
-        :param until_date: Date when the user will be unbanned, unix time. If user is banned for more than 366 days or
-               less than 30 seconds from the current time they are considered to be banned forever
-        :return: boolean
-        """
-        return methods.kick_chat_member(self.token, chat_id, user_id, until_date)
-
-    def unban_chat_member(self, chat_id, user_id):
-        """
-        Removes member from the ban
-        :param chat_id:
-        :param user_id:
-        :return:
-        """
-        return methods.unban_chat_member(self.token, chat_id, user_id)
-
-    def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
-        """
-        Use this method to restrict a user in a supergroup.
-        The bot must be an administrator in the supergroup for this to work and must have
-        the appropriate admin rights. Pass True for all boolean parameters to lift restrictions from a user.
-        Returns True on success.
-        :param chat_id: Int or String : 	Unique identifier for the target group or username of the target supergroup
-            or channel (in the format @channelusername)
-        :param user_id: Int : Unique identifier of the target user
-        :param until_date: Date when restrictions will be lifted for the user, unix time.
-            If user is restricted for more than 366 days or less than 30 seconds from the current time,
-            they are considered to be restricted forever
-        :param can_send_messages: Pass True, if the user can send text messages, contacts, locations and venues
-        :param can_send_media_messages Pass True, if the user can send audios, documents, photos, videos, video notes
-            and voice notes, implies can_send_messages
-        :param can_send_other_messages: Pass True, if the user can send animations, games, stickers and
-            use inline bots, implies can_send_media_messages
-        :param can_add_web_page_previews: Pass True, if the user may add web page previews to their messages,
-            implies can_send_media_messages
-        :return: types.Message
-        """
-        return methods.restrict_chat_member(self.token, chat_id, user_id, permissions, until_date)
-
-    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
-                            can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
-                            can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
-        """
-        Use this method to promote or demote a user in a supergroup or a channel. 
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Pass False for all boolean parameters to demote a user. 
-        :param chat_id [Integer or String, Requierd]: Unique identifier for the target chat or username of the target channel (in the format @channelusername).
-        :param user_id [Integer, Requierd]: Unique identifier for the target user.
-        :param can_change_info [Boolean, Optional]: Pass True, if the administrator can change chat title, photo and other settings.
-        :param can_post_messages [Boolean, Optional]: Pass True, if the administrator can create channel posts, channels only.
-        :param can_edit_messages [Boolean, Optional]: Pass True, if the administrator can edit messages of other users and can pin messages, channels only.
-        :param can_delete_messages [Boolean, Optional]: Pass True, if the administrator can delete messages of other users.
-        :param can_invite_users [Boolean, Optional]: Pass True, if the administrator can invite new users to the chat.
-        :param can_restrict_members [Boolean, Optional]: Pass True, if the administrator can restrict, ban or unban chat members.
-        :param can_pin_messages [Boolean, Optional]: Pass True, if the administrator can pin messages, supergroups only.
-        :param can_promote_members [Boolean, Optional]: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
-        :returns: True On success.
-        """
-        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages,
-                                           can_edit_messages, can_delete_messages, can_invite_users,
-                                           can_restrict_members, can_pin_messages, can_promote_members)
-
-    def export_chat_invite_link(self, chat_id):
-        """
-        Use this method to export an invite link to a supergroup or a channel. The bot must be an administrator
-        in the chat for this to work and must have the appropriate admin rights.
-        Returns exported invite link as String on success.
-        :param chat_id: Id: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :return:
-        """
-        return methods.export_chat_invite_link(self.token, chat_id)
-
-    def set_chat_photo(self, chat_id, photo):
-        """
-        Use this method to set a new profile photo for the chat. Photos can't be changed for private chats.
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Returns True on success.
-        Note: In regular groups (non-supergroups), this method will only work if the ‘All Members Are Admins’
-            setting is off in the target group.
-        :param chat_id: Int or Str: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :param photo: InputFile: New chat photo, uploaded using multipart/form-data
-        :return:
-        """
-        return methods.set_chat_photo(self.token, chat_id, photo)
-
-    def delete_chat_photo(self, chat_id):
-        """
-        Use this method to delete a chat photo. Photos can't be changed for private chats.
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Returns True on success.
-        Note: In regular groups (non-supergroups), this method will only work if the ‘All Members Are Admins’
-            setting is off in the target group.
-        :param chat_id: Int or Str: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :return:
-        """
-        return methods.delete_chat_photo(self.token, chat_id)
-
-    def set_chat_title(self, chat_id, title):
-        """
-        Use this method to change the title of a chat. Titles can't be changed for private chats.
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Returns True on success.
-        Note: In regular groups (non-supergroups), this method will only work if the ‘All Members Are Admins’
-            setting is off in the target group.
-        :param chat_id: Int or Str: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :param title: New chat title, 1-255 characters
-        :return:
-        """
-        return methods.set_chat_title(self.token, chat_id, title)
-
-    def set_chat_description(self, chat_id, description):
-        """
-        Use this method to change the description of a supergroup or a channel.
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Returns True on success.
-        :param chat_id: Int or Str: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :param description: Str: New chat description, 0-255 characters
-        :return:
-        """
-        return methods.set_chat_description(self.token, chat_id, description)
-
-    def pin_chat_message(self, chat_id, message_id, disable_notification=False):
-        """
-        Use this method to pin a message in a supergroup.
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Returns True on success.
-        :param chat_id: Int or Str: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :param message_id: Int: Identifier of a message to pin
-        :param disable_notification: Bool: Pass True, if it is not necessary to send a notification
-            to all group members about the new pinned message
-        :return:
-        """
-        return methods.pin_chat_message(self.token, chat_id, message_id, disable_notification)
-
-    def unpin_chat_message(self, chat_id):
-        """
-        Use this method to unpin a message in a supergroup chat.
-        The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-        Returns True on success.
-        :param chat_id: Int or Str: Unique identifier for the target chat or username of the target channel
-            (in the format @channelusername)
-        :return:
-        """
-        return methods.unpin_chat_message(self.token, chat_id)
+    # get_my_commands
 
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
-                          disable_web_page_preview=None, reply_markup=None):
+                          disable_web_page_preview=False, reply_markup=None):
         """
         Use this method to edit text and game messages.
-        :param text:
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param parse_mode:
-        :param disable_web_page_preview:
-        :param reply_markup:
-        :return:
+        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param str parse_mode: Send Markdown or HTML.
+        :param bool disable_web_page_preview: Disables link previews for links in this message
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_text(self.token, text, chat_id, message_id, inline_message_id, parse_mode,
                                            disable_web_page_preview, reply_markup)
@@ -1035,15 +996,33 @@ class TBot:
             return result
         return types.Message.de_json(result)
 
+    def edit_message_caption(self, caption, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
+                             reply_markup=None):
+        """
+        Use this method to edit captions of messages.
+        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param str caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param str parse_mode: Send Markdown or HTML.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object On success, otherwise True.
+        """
+        result = methods.edit_message_caption(self.token, caption, chat_id, message_id, inline_message_id, parse_mode,
+                                              reply_markup)
+        if type(result) == bool:
+            return result
+        return types.Message.de_json(result)
+
     def edit_message_media(self, media, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
         """
-        Use this method to edit animation, audio, document, photo, or video messages. If a message is a part of a message album, then it can be edited only to a photo or a video. Otherwise, message type can be changed arbitrarily. When inline message is edited, new file can't be uploaded. Use previously uploaded file via its file_id or specify a URL.
-        :param media:
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param reply_markup:
-        :return:
+        Use this method to edit animation, audio, document, photo, or video messages.
+        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param any media: A JSON-serialized object for a new media content of the message must be InputMedia.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.:
+        :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_media(
             self.token, media, chat_id, message_id, inline_message_id, reply_markup)
@@ -1055,11 +1034,11 @@ class TBot:
     def edit_message_reply_markup(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
         """
         Use this method to edit only the reply markup of messages.
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param reply_markup:
-        :return:
+        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_reply_markup(
             self.token, chat_id, message_id, inline_message_id, reply_markup)
@@ -1067,266 +1046,237 @@ class TBot:
             return result
         return types.Message.de_json(result)
 
-    def send_game(self, chat_id, game_short_name, disable_notification=None, reply_to_message_id=None,
-                  reply_markup=None):
+    def stop_poll(self, chat_id, message_id, reply_markup=None):
         """
-        Used to send the game
-        :param chat_id:
-        :param game_short_name:
-        :param disable_notification:
-        :param reply_to_message_id:
-        :param reply_markup:
-        :return:
+        Use this method to stop a poll which was sent by the bot.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int message_id: Identifier of the original message with the poll.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Poll object On success.
         """
-        result = methods.send_game(self.token, chat_id, game_short_name, disable_notification, reply_to_message_id,
-                                   reply_markup)
-        return types.Message.de_json(result)
+        return types.Poll.de_json(methods.stop_poll(self.token, chat_id, message_id, reply_markup))
 
-    def set_game_score(self, user_id, score, force=None, chat_id=None, message_id=None, inline_message_id=None,
-                       edit_message=None):
+    def delete_message(self, chat_id, message_id):
         """
-        Sets the value of points in the game to a specific user
-        :param user_id:
-        :param score:
-        :param force:
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param edit_message:
-        :return:
+        Use this method to delete a message, including service messages, with the following limitations:
+            - A message can only be deleted if it was sent less than 48 hours ago.
+            - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
+            - Bots can delete outgoing messages in private chats, groups, and supergroups.
+            - Bots can delete incoming messages in private chats.
+            - Bots granted can_post_messages permissions can delete outgoing messages in channels.
+            - If the bot is an administrator of a group, it can delete any message there.
+            - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int message_id: Identifier of the message to delete
+        :return: True On success.
         """
-        result = methods.set_game_score(self.token, user_id, score, force, chat_id, message_id, inline_message_id,
-                                        edit_message)
+        return methods.delete_message(self.token, chat_id, message_id)
+
+    def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send static .WEBP or animated .TGS stickers.
+        :param chat_id: Integer or String: Required,
+        :param sticker: InputFile or String: Required,
+        :param disable_notification: Boolean: Optional,
+        :param reply_to_message_id: Integer: Optional,
+        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
+        :returns: a Message object On success.
+        """
+        return types.Message.de_json(
+            methods.send_sticker(self.token, chat_id, sticker, disable_notification, reply_to_message_id, reply_markup))
+
+    def get_sticker_set(self, name):
+        """
+        Use this method to get a sticker set.
+        :param str name:  Name of the sticker set.
+        :return: a StickerSet object On success.
+        """
+        return types.StickerSet.de_json(methods.get_sticker_set(self.token, name))
+
+    def upload_sticker_file(self, user_id, png_sticker):
+        """
+        Use this method to upload a .PNG file with a sticker.
+        :param int user_id: Unique identifier of the target user.
+        :param any png_sticker: Png image with the sticker,
+        :return: a File object On success.
+        """
+        return types.File.de_json(methods.upload_sticker_file(self.token, user_id, png_sticker))
+
+    def create_new_sticker_set(self, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
+                               mask_position=False):
+        """
+        Use this method to create a new sticker set owned by a user.
+        :param int user_id: Unique identifier of the target user.
+        :param str name: Short name of sticker set.
+        :param str title: New chat title, 1-255 characters.
+        :param any png_sticker: PNG image [file_id or InputFile] with the sticker.
+        :param any tgs_sticker: TGS animation [InputFile] with the sticker.
+        :param str emojis: One or more emoji corresponding to the sticker.
+        :param bool contains_masks: Pass True, if a set of mask stickers should be created.
+        :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
+        :return: True On success.
+        """
+        return methods.create_new_sticker_set(self.token, user_id, name, title, png_sticker, tgs_sticker, emojis,
+                                              contains_masks, mask_position)
+
+    def add_sticker_to_set(self, user_id, name, png_sticker, tgs_sticker, emojis, mask_position=False):
+        """
+        Use this method to add a new sticker to a set created by the bot.
+        :param int user_id: Unique identifier of the target user.
+        :param str name: Short name of sticker set.
+        :param any png_sticker: PNG image [file_id or InputFile] with the sticker.
+        :param any tgs_sticker: TGS animation [InputFile] with the sticker.
+        :param str emojis: One or more emoji corresponding to the sticker.
+        :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
+        :return: True on success.
+        """
+        return methods.add_sticker_to_set(self.token, user_id, name, png_sticker, tgs_sticker, emojis, mask_position)
+
+    def set_sticker_position_in_set(self, sticker, position):
+        """
+        Use this method to move a sticker in a set created by the bot to a specific position.
+        :param str sticker: File identifier of the sticker.
+        :param int position: New sticker position in the set, zero-based.
+        :return: True on success.
+        """
+        return methods.set_sticker_position_in_set(self.token, sticker, position)
+
+    def delete_sticker_from_set(self, sticker):
+        """
+        Use this method to delete a sticker from a set created by the bot.
+        :param str sticker: File identifier of the sticker.
+        :return: True on success.
+        """
+        return methods.delete_sticker_from_set(self.token, sticker)
+
+    # set_sticker_set_thumb
+
+    def answer_inline_query(self, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
+                            switch_pm_text=None, switch_pm_parameter=None):
+        """
+        Use this method to send answers to an inline query.
+        :param str inline_query_id: Unique identifier for the answered query.
+        :param any results: A JSON-serialized array of [InlineQueryResult] results for the inline query.
+        :param int cache_time: The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
+        :param bool is_personal: Pass True, if results may be cached on the server side only for the user that sent the query.
+        :param str next_offset: Pass the offset that a client should send in the next query with the same text to receive more results.
+        :param str switch_pm_text: If passed, clients will display a button with specified text that switches the user to a private chat with the bot and sends the bot a start message with the parameter switch_pm_parameter.
+        :param str switch_pm_parameter: 	Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
+        :return: True on success
+        """
+        return methods.answer_inline_query(self.token, inline_query_id, results, cache_time, is_personal, next_offset,
+                                           switch_pm_text, switch_pm_parameter)
+
+    def send_invoice(self, chat_id, title, description, payload, provider_token, start_parameter, currency, prices,
+                     provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
+                     need_name=False, need_phone_number=False, need_email=False, need_shipping_address=False,
+                     send_phone_number_to_provider=False, send_email_to_provider=False, is_flexible=False,
+                     disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send invoices. On success, the sent Message is returned.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str title: New chat title, 1-255 characters.
+        :param str description: Product description, 1-255 characters
+        :param str payload: Bot-defined invoice payload, 1-128 bytes.
+        :param str provider_token: Payments provider token, obtained via Botfather.
+        :param str start_parameter: Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter.
+        :param str currency: Three-letter ISO 4217 currency code.
+        :param list prices: Price breakdown, a JSON-serialized list of components.
+        :param str provider_data: JSON-encoded data about the invoice, which will be shared with the payment provider.
+        :param str photo_url: URL of the product photo for the invoice.
+        :param photo_size: Photo Size.
+        :param photo_width: Photo Width.
+        :param photo_height: Photo Height.
+        :param need_name: Pass True, if you require the user's full name to complete the order
+        :param need_phone_number: Pass True, if you require the user's phone number to complete the order.
+        :param need_email: Pass True, if you require the user's email address to complete the order
+        :param need_shipping_address: Pass True, if you require the user's shipping address to complete the order.
+        :param send_phone_number_to_provider: Pass True, if user's phone number should be sent to provider.
+        :param send_email_to_provider: Pass True, if user's email address should be sent to provider.
+        :param is_flexible: Pass True, if the final price depends on the shipping method.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_invoice(self.token, chat_id, title, description, payload, provider_token, start_parameter,
+                                 currency, prices, provider_data, photo_url, photo_size, photo_width, photo_height,
+                                 need_name, need_phone_number, need_email, need_shipping_address,
+                                 send_phone_number_to_provider, send_email_to_provider, is_flexible, disable_notification,
+                                 reply_to_message_id, reply_markup))
+
+    def answer_shipping_query(self, shipping_query_id, ok, shipping_options=None, error_message=None):
+        """
+        Use this method to reply to shipping queries,
+        If you sent an invoice requesting a shipping address and the parameter is_flexible was specified,
+        the Bot API will send an Update with a shipping_query field to the bot.
+        :param str shipping_query_id: Unique identifier for the query to be answered
+        :param bool ok: Specify True if delivery to the specified address is possible and False if there are any problems.
+        :param list shipping_options: Required if ok is True. A JSON-serialized array of available shipping options.
+        :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
+        :return: True, On success.
+        """
+        return methods.answer_shipping_query(self.token, shipping_query_id, ok, shipping_options, error_message)
+
+    def answer_pre_checkout_query(self, pre_checkout_query_id, ok, error_message=None):
+        """
+        Use this method to respond to such pre-checkout queries.
+        :param str pre_checkout_query_id: Unique identifier for the query to be answered.
+        :param bool ok: Specify True if delivery to the specified address is possible and False if there are any problems.
+        :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
+        :return: True On success.
+        """
+        return methods.answer_pre_checkout_query(self.token, pre_checkout_query_id, ok, error_message)
+
+    # set_passport_data_errors
+
+    def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send a game.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str game_short_name: Short name of the game, serves as the unique identifier for the game.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :return: a Message object On success.
+        """
+        return types.Message.de_json(methods.send_game(self.token, chat_id, game_short_name, disable_notification,
+                                                       reply_to_message_id, reply_markup))
+
+    def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
+                        inline_message_id=None):
+        """
+        Use this method to set the score of the specified user in a game.
+        :param int user_id: Unique identifier of the target user.
+        :param int score: New score, must be non-negative.
+        :param bool force: Pass True, if the high score is allowed to decrease.
+        :param bool disable_edit_message: Pass True, if the game message should not be automatically edited to include the current scoreboard.
+        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :return: On success a Message object, otherwise returns True.
+        """
+        result = methods.set_game_score(self.token, user_id, score, force, disable_edit_message, chat_id, message_id,
+                                        inline_message_id)
         if type(result) == bool:
             return result
         return types.Message.de_json(result)
 
     def get_game_high_scores(self, user_id, chat_id=None, message_id=None, inline_message_id=None):
         """
-        Gets top points and game play
-        :param user_id:
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :return:
+        Use this method to get data for high score tables.
+        :param int user_id: Unique identifier of the target user.
+        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :return: an Array of GameHighScore objects.
         """
-        result = methods.get_game_high_scores(
-            self.token, user_id, chat_id, message_id, inline_message_id)
+        result = methods.get_game_high_scores(self.token, user_id, chat_id, message_id, inline_message_id)
         ret = []
         for r in result:
             ret.append(types.GameHighScore.de_json(r))
         return ret
-
-    def send_invoice(self, chat_id, title, description, invoice_payload, provider_token, currency, prices,
-                     start_parameter, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
-                     need_name=None, need_phone_number=None, need_email=None, need_shipping_address=None,
-                     is_flexible=None, disable_notification=None, reply_to_message_id=None, reply_markup=None,
-                     provider_data=None):
-        """
-        Use this method to send invoices. On success, the sent Message is returned.
-        :param token [String, Required]: Bot's token (you don't need to fill this)
-        :param chat_id [Integer, Required]: Unique identifier for the target private chat
-        :param title [String, Required]: Product name
-        :param description [String, Required]: Product description
-        :param payload [String, Required]: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
-        :param provider_token [String, Required]: Payments provider token, obtained via @Botfather
-        :param start_parameter [String, Required]: Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
-        :param currency [String, Required]: Three-letter ISO 4217 currency code, see https://core.telegram.org/bots/payments#supported-currencies
-        :param prices [Array of LabeledPrice, Required]: Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
-        :param provider_data [String, Optional]: JSON-encoded data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
-        :param photo_url [String, Optional]: URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
-        :param photo_size [Integer, Optional]: Photo size
-        :param photo_width [Integer, Optional]: Photo width
-        :param photo_height [Integer, Optional]: Photo height
-        :param need_name [Boolean, Optional]: Pass True, if you require the user's full name to complete the order
-        :param need_phone_number [Boolean, Optional]: Pass True, if you require the user's phone number to complete the order
-        :param need_email [Boolean, Optional]: Pass True, if you require the user's email to complete the order
-        :param need_shipping_address [Boolean, Optional]: Pass True, if you require the user's shipping address to complete the order
-        :param send_phone_number_to_provider [Boolean, Optional]: Pass True, if user's phone number should be sent to provider
-        :param send_email_to_provider [Boolean, Optional]: Pass True, if user's email address should be sent to provider
-        :param is_flexible [Boolean, Optional]: Pass True, if the final price depends on the shipping method
-        :param disable_notification [Boolean, Optional]: Sends the message silently. Users will receive a notification with no sound.
-        :param reply_to_message_id [Integer, Optional]: If the message is a reply, ID of the original message
-        :param reply_markup [InlineKeyboardMarkup, Optional]: A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button
-        :returns: a Message object.
-        """
-        result = methods.send_invoice(self.token, chat_id, title, description, invoice_payload, provider_token,
-                                      currency, prices, start_parameter, photo_url, photo_size, photo_width,
-                                      photo_height,
-                                      need_name, need_phone_number, need_email, need_shipping_address, is_flexible,
-                                      disable_notification, reply_to_message_id, reply_markup, provider_data)
-        return types.Message.de_json(result)
-
-    def send_poll(self, chat_id, poll, disable_notifications=False, reply_to_message=None, reply_markup=None):
-        """
-        Sends poll
-        :param chat_id:
-        :param poll:
-        :param disable_notifications:
-        :param reply_to_message:
-        :param reply_markup:
-        :return:
-        """
-        return types.Message.de_json(
-            methods.send_poll(self.token, chat_id, poll.question, poll.options, disable_notifications,
-                              reply_to_message, reply_markup))
-
-    def stop_poll(self, chat_id, message_id):
-        """
-        Stops poll
-        :param chat_id:
-        :param message_id:
-        :return:
-        """
-        return types.Poll.de_json(methods.stop_poll(self.token, chat_id, message_id))
-
-    def answer_shipping_query(self, shipping_query_id, ok, shipping_options=None, error_message=None):
-        """
-        Asks for an answer to a shipping question
-        :param shipping_query_id:
-        :param ok:
-        :param shipping_options:
-        :param error_message:
-        :return:
-        """
-        return methods.answer_shipping_query(self.token, shipping_query_id, ok, shipping_options, error_message)
-
-    def answer_pre_checkout_query(self, pre_checkout_query_id, ok, error_message=None):
-        """
-        Response to a request for pre-inspection
-        :param pre_checkout_query_id:
-        :param ok:
-        :param error_message:
-        :return:
-            """
-        return methods.answer_pre_checkout_query(self.token, pre_checkout_query_id, ok, error_message)
-
-    def edit_message_caption(self, caption, chat_id=None, message_id=None, inline_message_id=None,
-                             parse_mode=None, reply_markup=None):
-        """
-        Use this method to edit captions of messages
-        :param caption:
-        :param chat_id:
-        :param message_id:
-        :param inline_message_id:
-        :param parse_mode:
-        :param reply_markup:
-        :return:
-        """
-        result = methods.edit_message_caption(self.token, caption, chat_id, message_id, inline_message_id,
-                                              parse_mode, reply_markup)
-        if type(result) == bool:
-            return result
-        return types.Message.de_json(result)
-
-    def reply_to(self, message, text, **kwargs):
-        """
-        Convenience function for `send_message(message.chat.id, text, reply_to_message_id=message.message_id, **kwargs)`
-            :param message:
-        :param text:
-        :param kwargs:
-        :return:
-        """
-        return self.send_message(message.chat.id, text, reply_to_message_id=message.message_id, **kwargs)
-
-    def answer_inline_query(self, inline_query_id, results, cache_time=None, is_personal=None, next_offset=None,
-                            switch_pm_text=None, switch_pm_parameter=None):
-        """
-        Use this method to send answers to an inline query. On success, True is returned.
-        No more than 50 results per query are allowed.
-        :param inline_query_id: Unique identifier for the answered query
-        :param results: Array of results for the inline query
-        :param cache_time: The maximum amount of time in seconds that the result of the inline query may be cached on the server.
-        :param is_personal: Pass True, if results may be cached on the server side only for the user that sent the query.
-        :param next_offset: Pass the offset that a client should send in the next query with the same text to receive more results.
-        :param switch_pm_parameter: If passed, clients will display a button with specified text that switches the user
-         to a private chat with the bot and sends the bot a start message with the parameter switch_pm_parameter
-        :param switch_pm_text: 	Parameter for the start message sent to the bot when user presses the switch button
-        :return: True means success.
-        """
-        return methods.answer_inline_query(self.token, inline_query_id, results, cache_time, is_personal,
-                                           next_offset,
-                                           switch_pm_text, switch_pm_parameter)
-
-    def answer_callback_query(self, callback_query_id, text=None, show_alert=None, url=None, cache_time=None):
-        """
-        Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to
-        the user as a notification at the top of the chat screen or as an alert.
-        :param callback_query_id:
-        :param text:
-        :param show_alert:
-        :param url:
-        :param cache_time:
-        :return:
-        """
-        return methods.answer_callback_query(self.token, callback_query_id, text, show_alert, url, cache_time)
-
-    def get_sticker_set(self, name):
-        """
-        Use this method to get a sticker set. On success, a StickerSet object is returned.
-        :param name:
-        :return:
-        """
-        result = methods.get_sticker_set(self.token, name)
-        return types.StickerSet.de_json(result)
-
-    def upload_sticker_file(self, user_id, png_sticker):
-        """
-        Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet
-        methods (can be used multiple times). Returns the uploaded File on success.
-        :param user_id:
-        :param png_sticker:
-        :return:
-        """
-        result = methods.upload_sticker_file(
-            self.token, user_id, png_sticker)
-        return types.File.de_json(result)
-
-    def create_new_sticker_set(self, user_id, name, title, png_sticker, emojis, contains_masks=None,
-                               mask_position=None):
-        """
-        Use this method to create new sticker set owned by a user. The bot will be able to edit the created sticker set.
-        Returns True on success.
-        :param user_id:
-        :param name:
-        :param title:
-        :param png_sticker:
-        :param emojis:
-        :param contains_masks:
-        :param mask_position:
-        :return:
-        """
-        return methods.create_new_sticker_set(self.token, user_id, name, title, png_sticker, emojis, contains_masks,
-                                              mask_position)
-
-    def add_sticker_to_set(self, user_id, name, png_sticker, emojis, mask_position=None):
-        """
-        Use this method to add a new sticker to a set created by the bot. Returns True on success.
-        :param user_id:
-        :param name:
-        :param png_sticker:
-        :param emojis:
-        :param mask_position:
-        :return:
-        """
-        return methods.add_sticker_to_set(self.token, user_id, name, png_sticker, emojis, mask_position)
-
-    def set_sticker_position_in_set(self, sticker, position):
-        """
-        Use this method to move a sticker in a set created by the bot to a specific position . Returns True on success.
-        :param sticker:
-        :param position:
-        :return:
-        """
-        return methods.set_sticker_position_in_set(self.token, sticker, position)
-
-    def delete_sticker_from_set(self, sticker):
-        """
-        Use this method to delete a sticker from a set created by the bot. Returns True on success.
-        :param sticker:
-        :return:
-        """
-        return methods.delete_sticker_from_set(self.token, sticker)
 
     def register_for_reply(self, message, callback, *args, **kwargs):
         """
@@ -1498,9 +1448,13 @@ class TBot:
         Message handler decorator.
         This decorator can be used to decorate functions that must handle certain types of messages.
         All message handlers are tested in the order they were added.
+        :param commands: String, Optional,
+        :param regexp: String, Optional,
+        :param func: Function, Optional,
+        :param content_types: String, Optional,
+        :returns: filtered Message.
 
         Example:
-
         bot = TBot('TOKEN')
 
         # Handles all messages which text matches regexp.
@@ -1823,20 +1777,20 @@ class TBot:
         :param message:
         :return:
         """
-        for filter, filter_value in six.iteritems(message_handler['filters']):
+        for filterr, filter_value in six.iteritems(message_handler['filters']):
             if filter_value is None:
                 continue
 
-            if not self._test_filter(filter, filter_value, message):
+            if not self._test_filter(filterr, filter_value, message):
                 return False
 
         return True
 
     @staticmethod
-    def _test_filter(filter, filter_value, message):
+    def _test_filter(filterr, filter_value, message):
         """
         Test filters
-        :param filter:
+        :param filterr:
         :param filter_value:
         :param message:
         :return:
@@ -1848,7 +1802,7 @@ class TBot:
             'func': lambda msg: filter_value(msg)
         }
 
-        return test_cases.get(filter, lambda msg: False)(message)
+        return test_cases.get(filterr, lambda msg: False)(message)
 
     def _notify_command_handlers(self, handlers, new_messages):
         """
@@ -1899,10 +1853,6 @@ class AsyncTBot(TBot):
     @async_dec()
     def get_file(self, *args):
         return TBot.get_file(self, *args)
-
-    @async_dec()
-    def download_file(self, *args):
-        return TBot.download_file(self, *args)
 
     @async_dec()
     def get_user_profile_photos(self, *args, **kwargs):
