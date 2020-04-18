@@ -2,10 +2,9 @@ import json
 import six
 from .utilities import is_string, generate_random_token
 
-""" Telegram Available methods
-    All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 
-    Use either URL query string or application/json or application/x-www-form-urlencoded or multipart/form-data for passing parameters in Bot API requests.
-    On successful call, a JSON-object containing the result will be returned.
+""" Telegram Available types
+    All types used in the Bot API responses are represented as JSON-objects.
+    It is safe to use 32-bit signed integers for storing all Integer fields unless otherwise noted.
 """
 
 
@@ -90,20 +89,7 @@ class JsonSerializable(object):
 
 class Update(JsonDeserializable):
     """ 
-    This object represents an incoming update,
-    At most one of the optional parameters can be present in any given update.
-    :field update_id [Integer]:
-    :field message [Message, Optional]:
-    :field edited_message [Message, Optional]:
-    :field channel_post [Message, Optional]:
-    :field edited_channel_post [Message, Optional]:
-    :field inline_query [InlineQuery, Optional]:
-    :field chosen_inline_result [ChosenInlineResult, Optional]:
-    :field callback_query [CallbackQuery, Optional]:
-    :field shipping_query [ShippingQuery, Optional]:
-    :field pre_checkout_query [PreCheckoutQuery, Optional]:
-    :field poll [Poll, Optional]:
-    :field poll_answer [PollAnswer, Optional]
+    This object represents an incoming update
     """
     @classmethod
     def de_json(cls, json_type):
@@ -126,8 +112,7 @@ class Update(JsonDeserializable):
             inline_query = InlineQuery.de_json(obj['inline_query'])
         chosen_inline_result = None
         if 'chosen_inline_result' in obj:
-            chosen_inline_result = ChosenInlineResult.de_json(
-                obj['chosen_inline_result'])
+            chosen_inline_result = ChosenInlineResult.de_json(obj['chosen_inline_result'])
         callback_query = None
         if 'callback_query' in obj:
             callback_query = CallbackQuery.de_json(obj['callback_query'])
@@ -136,8 +121,7 @@ class Update(JsonDeserializable):
             shipping_query = ShippingQuery.de_json(obj['shipping_query'])
         pre_checkout_query = None
         if 'pre_checkout_query' in obj:
-            pre_checkout_query = PreCheckoutQuery.de_json(
-                obj['pre_checkout_query'])
+            pre_checkout_query = PreCheckoutQuery.de_json(obj['pre_checkout_query'])
         poll = None
         if 'poll' in obj:
             poll = Poll.de_json(obj['poll'])
@@ -160,7 +144,7 @@ class Update(JsonDeserializable):
         self.shipping_query = shipping_query
         self.pre_checkout_query = pre_checkout_query
         self.poll = poll
-        self.poll_anwser = poll_answer
+        self.poll_answer = poll_answer
 
 
 class WebhookInfo(JsonDeserializable):
@@ -199,33 +183,8 @@ class WebhookInfo(JsonDeserializable):
 
 class User(JsonDeserializable):
     """ This object represents a Telegram user or bot """
-
-    def __init__(self, id, is_bot, first_name, last_name=None, username=None, language_code=None, can_join_groups=None, can_read_all_group_messages=None, supports_inline_queries=None):
-        """
-        :param id: [Integer] Unique identifier for this user or bot.
-        :param is_bot: [Boolean] True, if this user is a bot.
-        :param first_name: [String] User‘s or bot’s first name.
-        :param last_name: [String] Optional. User‘s or bot’s last name.
-        :param username: [String] Optional. User‘s or bot’s username.
-        :param language_code: [String] Optional. IETF language tag of the user's language.
-        :param can_join_groups: [Boolean] Optional. True, if the bot can be invited to groups. Returned only in getMe.
-        :param can_read_all_group_messages: [Boolean] Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.
-        :param supports_inline_queries: [Boolean] Optional. True, if the bot supports inline queries. Returned only in getMe.
-        """
-
-        self.id = id
-        self.is_bot = is_bot
-        self.first_name = first_name
-        self.username = username
-        self.last_name = last_name
-        self.language_code = language_code
-        self.can_join_groups = can_join_groups
-        self.can_read_all_group_messages = can_read_all_group_messages
-        self.supports_inline_queries = supports_inline_queries
-
     @classmethod
     def de_json(cls, json_string):
-        """ :return JSON-object """
         obj = cls.check_json(json_string)
         id = obj['id']
         is_bot = obj['is_bot']
@@ -249,7 +208,20 @@ class User(JsonDeserializable):
         supports_inline_queries = None
         if 'supports_inline_queries' in obj:
             supports_inline_queries = obj.get('supports_inline_queries')
-        return cls(id, is_bot, first_name, last_name, username, language_code, can_join_groups, can_read_all_group_messages, supports_inline_queries)
+        return cls(id, is_bot, first_name, last_name, username, language_code, can_join_groups,
+                   can_read_all_group_messages, supports_inline_queries)
+
+    def __init__(self, id, is_bot, first_name, last_name, username, language_code, can_join_groups,
+                 can_read_all_group_messages, supports_inline_queries):
+        self.id = id
+        self.is_bot = is_bot
+        self.first_name = first_name
+        self.username = username
+        self.last_name = last_name
+        self.language_code = language_code
+        self.can_join_groups = can_join_groups
+        self.can_read_all_group_messages = can_read_all_group_messages
+        self.supports_inline_queries = supports_inline_queries
 
 
 class Chat(JsonDeserializable):
@@ -533,7 +505,7 @@ class Message(JsonDeserializable):
             message.html_text
             >> "<b>Test</b> parse <i>formatting</i>, <a href=\"https://example.com\">url</a>, <a href=\"tg://user?id=123456\">text_mention</a> and mention @username"
 
-        Cusom subs:
+        Custom subs:
             You can customize the substitutes. By default, there is no substitute for the entities: hashtag, bot_command, email. You can add or modify substitute an existing entity.
         Example:
             message.custom_subs = {"bold": "<strong class=\"example\">{text}</strong>", "italic": "<i class=\"example\">{text}</i>", "mention": "<a href={url}>{text}</a>"}
@@ -1565,7 +1537,7 @@ class InputMedia(JsonSerializable):
             ret['parse_mode'] = self.parse_mode
         return ret
 
-    def _convert_input_media(self):
+    def convert_input_media(self):
         if is_string(self.media):
             return self.to_json(), None
 
@@ -1806,7 +1778,7 @@ class InlineQuery(JsonDeserializable):
         self.offset = offset
 
 
-class InlineQueryResult():
+class InlineQueryResult:
     """ This object represents one result of an inline query. 
         Telegram clients currently support results of the following 20 types:
             InlineQueryResultArticle
@@ -2653,7 +2625,7 @@ class InlineQueryResultVoice(JsonSerializable):
         return json.dumps(json_dict)
 
 
-class InputMessageContent():
+class InputMessageContent:
     """
     This object represents the content of a message to be sent as a result of an inline query. 
     Telegram clients currently support the following 4 types:
