@@ -48,7 +48,7 @@ def test_Update():
     assert obj.shipping_query == None
     assert obj.pre_checkout_query == None
     assert obj.poll == None
-    assert obj.poll_anwser == None
+    assert obj.poll_answer == None
 
 
 def test_WebhookInfo():
