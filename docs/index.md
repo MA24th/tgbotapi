@@ -2,11 +2,13 @@
 
 This framework is tested with:
 
+* Python 3.6
 * Python 3.7
+* Python 3.8
 
 [![GPLv2 license](https://img.shields.io/badge/LICENSE-GPLv2-red)](https://github.com/ma24th/tgbotapi/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/ma24th/tgbotapi.svg?branch=master)](https://travis-ci.com/ma24th/tgbotapi)
-[![PyPI](https://img.shields.io/badge/PyPI-v4.0.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
+[![PyPI](https://img.shields.io/badge/PyPI-v4.7.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
 [![Telegram Group](https://img.shields.io/badge/Telegram-Group-blue.svg)](https://telegram.me/@grid9x)
 
 
