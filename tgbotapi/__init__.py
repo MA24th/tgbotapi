@@ -496,11 +496,10 @@ class TBot:
         return types.Message.de_json(
             methods.forward_message(self.token, chat_id, from_chat_id, message_id, disable_notification))
 
-    def send_photo(self, token, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
+    def send_photo(self, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
                    reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send photos.
-        :param str token: The bot's API token. (Created with @BotFather).
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any photo: Photo [file_id or InputFile] to send.
         :param str caption: Photo caption, 0-1024 characters after entities parsing
