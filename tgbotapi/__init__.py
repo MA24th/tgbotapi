@@ -753,7 +753,18 @@ class TBot:
         return types.Message.de_json(
             methods.send_poll(self.token, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
                               correct_option_id, is_closed, disable_notifications, reply_to_message_id, reply_markup))
-    # send_dice
+
+    def send_dice(self, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+        """
+        Use this method to send a dice.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param list[dict] reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object.
+        """
+        return types.Message.de_json(
+            methods.send_dice(self.token, chat_id, disable_notification, reply_to_message_id, reply_markup))
 
     def send_chat_action(self, chat_id, action):
         """
@@ -781,6 +792,14 @@ class TBot:
         :return: a File object.
         """
         return types.File.de_json(methods.get_file(self.token, file_id))
+
+    def download_file(self, file_path):
+        """
+        Use this method to download file with specified file_path.
+        :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
+        :return: any, On success.
+        """
+        return methods.download_file(self.token, file_path)
 
     def kick_chat_member(self, chat_id, user_id, until_date=None):
         """
@@ -832,9 +851,26 @@ class TBot:
         return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages,
                                            can_edit_messages, can_delete_messages, can_invite_users,
                                            can_restrict_members, can_pin_messages, can_promote_members)
-    # set_chat_administrator_custom_title
 
-    # set_chat_permissions
+    def set_chat_administrator_custom_title(self, chat_id, user_id, custom_title):
+        """
+        Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str user_id: Unique identifier of the target user.
+        :param str custom_title: New custom title for the administrator; 0-16 characters.
+        :return: True on success.
+        """
+        return methods.set_chat_administrator_custom_title(self.token, chat_id, user_id, custom_title)
+
+    def set_chat_permissions(self, chat_id, permissions):
+        """
+        Use this method to set default chat permissions for all members.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param dict permissions: New default chat permissions must be a ChatPermissions object
+        :return: True on success.
+        """
+        return methods.set_chat_permissions(self.token, chat_id, permissions)
+
     def export_chat_invite_link(self, chat_id):
         """
         Use this method to generate a new invite link for a chat.
@@ -972,9 +1008,20 @@ class TBot:
         """
         return methods.answer_callback_query(self.token, callback_query_id, text, show_alert, url, cache_time)
 
-    # set_my_commands
+    def set_my_commands(self, commands):
+        """
+        Use this method to change the list of the bot's commands.
+        :param list commands: A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+        :return: True On success.
+        """
+        return methods.set_my_commands(self.token, commands)
 
-    # get_my_commands
+    def get_my_commands(self):
+        """
+        Use this method to get the current list of the bot's commands.
+        :return: Array of BotCommand On success.
+        """
+        return methods.get_my_commands(self.token)
 
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           disable_web_page_preview=False, reply_markup=None):
@@ -1149,7 +1196,16 @@ class TBot:
         """
         return methods.delete_sticker_from_set(self.token, sticker)
 
-    # set_sticker_set_thumb
+    def set_sticker_set_thumb(self, name, user_id, thumb=None):
+        """
+        Use this method to set the thumbnail of a sticker set.
+        :param str token: The bot's API token. (Created with @BotFather).
+        :param str name: Short name of sticker set.
+        :param int user_id: Unique identifier of the target user.
+        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :return: True on success
+        """
+        return methods.set_sticker_set_thumb(self.token, name, user_id, thumb)
 
     def answer_inline_query(self, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
                             switch_pm_text=None, switch_pm_parameter=None):
@@ -1203,7 +1259,8 @@ class TBot:
             methods.send_invoice(self.token, chat_id, title, description, payload, provider_token, start_parameter,
                                  currency, prices, provider_data, photo_url, photo_size, photo_width, photo_height,
                                  need_name, need_phone_number, need_email, need_shipping_address,
-                                 send_phone_number_to_provider, send_email_to_provider, is_flexible, disable_notification,
+                                 send_phone_number_to_provider, send_email_to_provider, is_flexible,
+                                 disable_notification,
                                  reply_to_message_id, reply_markup))
 
     def answer_shipping_query(self, shipping_query_id, ok, shipping_options=None, error_message=None):
@@ -1229,9 +1286,17 @@ class TBot:
         """
         return methods.answer_pre_checkout_query(self.token, pre_checkout_query_id, ok, error_message)
 
-    # set_passport_data_errors
+    def set_passport_data_errors(self, user_id, errors):
+        """
+        Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason.
+        :param int user_id: Unique identifier of the target user.
+        :param list errors: A JSON-serialized array of [PassportElementError] describing the errors.
+        :return: True On success.
+        """
+        return methods.set_passport_data_errors(self.token, user_id, errors)
 
-    def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+    def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
+                  reply_markup=None):
         """
         Use this method to send a game.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -1245,7 +1310,7 @@ class TBot:
                                                        reply_to_message_id, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
-                        inline_message_id=None):
+                       inline_message_id=None):
         """
         Use this method to set the score of the specified user in a game.
         :param int user_id: Unique identifier of the target user.
@@ -1448,11 +1513,11 @@ class TBot:
         Message handler decorator.
         This decorator can be used to decorate functions that must handle certain types of messages.
         All message handlers are tested in the order they were added.
-        :param commands: String, Optional,
-        :param regexp: String, Optional,
-        :param func: Function, Optional,
-        :param content_types: String, Optional,
-        :returns: filtered Message.
+        :param str commands: Bot Commands like (/start, /help).
+        :param str regexp: Sequence of characters that define a search pattern.
+        :param str func: any python function that return True On success like (lambda).
+        :param str content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
+        :return: filtered Message.
 
         Example:
         bot = TBot('TOKEN')
@@ -1471,10 +1536,6 @@ class TBot:
         @bot.message_handler(func=lambda message: True, content_types=['audio', 'photo', 'voice', 'video', 'document', 'text', 'location', 'contact', 'sticker'])
         def default_command(message):
             bot.send_message(message.chat.id, "This is the default command handler.")
-
-        :param regexp: Optional regular expression.
-        :param func: Optional lambda function. The lambda receives the message to test as the first parameter. It must return True if the command should handle the message.
-        :param content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
         """
 
         if content_types is None:
@@ -1849,54 +1910,14 @@ class AsyncTBot(TBot):
     @async_dec()
     def get_me(self):
         return TBot.get_me(self)
-
     @async_dec()
-    def get_file(self, *args):
-        return TBot.get_file(self, *args)
 
-    @async_dec()
-    def get_user_profile_photos(self, *args, **kwargs):
-        return TBot.get_user_profile_photos(self, *args, **kwargs)
-
-    @async_dec()
-    def get_chat(self, *args):
-        return TBot.get_chat(self, *args)
-
-    @async_dec()
-    def leave_chat(self, *args):
-        return TBot.leave_chat(self, *args)
-
-    @async_dec()
-    def get_chat_administrators(self, *args):
-        return TBot.get_chat_administrators(self, *args)
-
-    @async_dec()
-    def get_chat_members_count(self, *args):
-        return TBot.get_chat_members_count(self, *args)
-
-    @async_dec()
-    def set_chat_sticker_set(self, *args):
-        return TBot.set_chat_sticker_set(self, *args)
-
-    @async_dec()
-    def delete_chat_sticker_set(self, *args):
-        return TBot.delete_chat_sticker_set(self, *args)
-
-    @async_dec()
-    def get_chat_member(self, *args):
-        return TBot.get_chat_member(self, *args)
-
-    @async_dec()
     def send_message(self, *args, **kwargs):
         return TBot.send_message(self, *args, **kwargs)
 
     @async_dec()
     def forward_message(self, *args, **kwargs):
         return TBot.forward_message(self, *args, **kwargs)
-
-    @async_dec()
-    def delete_message(self, *args):
-        return TBot.delete_message(self, *args)
 
     @async_dec()
     def send_photo(self, *args, **kwargs):
@@ -1907,20 +1928,20 @@ class AsyncTBot(TBot):
         return TBot.send_audio(self, *args, **kwargs)
 
     @async_dec()
-    def send_voice(self, *args, **kwargs):
-        return TBot.send_voice(self, *args, **kwargs)
-
-    @async_dec()
     def send_document(self, *args, **kwargs):
         return TBot.send_document(self, *args, **kwargs)
 
     @async_dec()
-    def send_sticker(self, *args, **kwargs):
-        return TBot.send_sticker(self, *args, **kwargs)
-
-    @async_dec()
     def send_video(self, *args, **kwargs):
         return TBot.send_video(self, *args, **kwargs)
+
+    @async_dec()
+    def sen_animation(self, *args, **kwargs):
+        return TBot.send_animation(self, *args, **kwargs)
+
+    @async_dec()
+    def send_voice(self, *args, **kwargs):
+        return TBot.send_voice(self, *args, **kwargs)
 
     @async_dec()
     def send_video_note(self, *args, **kwargs):
@@ -1951,8 +1972,28 @@ class AsyncTBot(TBot):
         return TBot.send_contact(self, *args, **kwargs)
 
     @async_dec()
+    def send_poll(self, *args, **kwargs):
+        return TBot.send_poll(self, *args, **kwargs)
+
+    @async_dec()
+    def send_dice(self, *args, **kwargs):
+        return TBot.send_dice(self, *args, **kwargs)
+
+    @async_dec()
     def send_chat_action(self, *args, **kwargs):
         return TBot.send_chat_action(self, *args, **kwargs)
+
+    @async_dec()
+    def get_user_profile_photos(self, *args, **kwargs):
+        return TBot.get_user_profile_photos(self, *args, **kwargs)
+
+    @async_dec()
+    def get_file(self, *args):
+        return TBot.get_file(self, *args)
+
+    @async_dec()
+    def download_file(self, *args):
+        return TBot.download_file(self, *args)
 
     @async_dec()
     def kick_chat_member(self, *args, **kwargs):
@@ -1969,6 +2010,10 @@ class AsyncTBot(TBot):
     @async_dec()
     def promote_chat_member(self, *args, **kwargs):
         return TBot.promote_chat_member(self, *args, **kwargs)
+
+    @async_dec()
+    def set_chat_permissions(self, *args, **kwargs):
+        return TBot.set_chat_permissions(self, *args, **kwargs)
 
     @async_dec()
     def export_chat_invite_link(self, *args):
@@ -1999,8 +2044,57 @@ class AsyncTBot(TBot):
         return TBot.unpin_chat_message(self, *args)
 
     @async_dec()
+    def leave_chat(self, *args):
+        return TBot.leave_chat(self, *args)
+
+    @async_dec()
+    def get_chat(self, *args):
+        return TBot.get_chat(self, *args)
+
+    @async_dec()
+    def get_chat_administrators(self, *args):
+        return TBot.get_chat_administrators(self, *args)
+
+    @async_dec()
+    def get_chat_members_count(self, *args):
+        return TBot.get_chat_members_count(self, *args)
+
+    @async_dec()
+    def send_sticker(self, *args, **kwargs):
+        return TBot.send_sticker(self, *args, **kwargs)
+
+    @async_dec()
+    def get_chat_member(self, *args):
+        return TBot.get_chat_member(self, *args)
+
+    @async_dec()
+    def set_chat_sticker_set(self, *args):
+        return TBot.set_chat_sticker_set(self, *args)
+
+    @async_dec()
+    def delete_chat_sticker_set(self, *args):
+        return TBot.delete_chat_sticker_set(self, *args)
+
+    @async_dec()
+    def answer_callback_query(self, *args, **kwargs):
+        return TBot.answer_callback_query(self, *args, **kwargs)
+
+    @async_dec()
+    def set_my_commands(self, *args):
+        return TBot.set_my_commands(self, *args)
+
+    @async_dec()
+    def get_my_commands(self):
+        return TBot.get_my_commands(self)
+
+    @async_dec()
     def edit_message_text(self, *args, **kwargs):
         return TBot.edit_message_text(self, *args, **kwargs)
+
+    @async_dec()
+    def edit_message_caption(self, *args, **kwargs):
+        return TBot.edit_message_caption(self, *args, **kwargs)
+
 
     @async_dec()
     def edit_message_media(self, *args, **kwargs):
@@ -2011,40 +2105,16 @@ class AsyncTBot(TBot):
         return TBot.edit_message_reply_markup(self, *args, **kwargs)
 
     @async_dec()
-    def send_game(self, *args, **kwargs):
-        return TBot.send_game(self, *args, **kwargs)
+    def stop_poll(self, *args, **kwargs):
+        return TBot.stop_poll(self, *args, **kwargs)
 
     @async_dec()
-    def set_game_score(self, *args, **kwargs):
-        return TBot.set_game_score(self, *args, **kwargs)
+    def delete_message(self, *args):
+        return TBot.delete_message(self, *args)
 
     @async_dec()
-    def get_game_high_scores(self, *args, **kwargs):
-        return TBot.get_game_high_scores(self, *args, **kwargs)
-
-    @async_dec()
-    def send_invoice(self, *args, **kwargs):
-        return TBot.send_invoice(self, *args, **kwargs)
-
-    @async_dec()
-    def answer_shipping_query(self, *args, **kwargs):
-        return TBot.answer_shipping_query(self, *args, **kwargs)
-
-    @async_dec()
-    def answer_pre_checkout_query(self, *args, **kwargs):
-        return TBot.answer_pre_checkout_query(self, *args, **kwargs)
-
-    @async_dec()
-    def edit_message_caption(self, *args, **kwargs):
-        return TBot.edit_message_caption(self, *args, **kwargs)
-
-    @async_dec()
-    def answer_inline_query(self, *args, **kwargs):
-        return TBot.answer_inline_query(self, *args, **kwargs)
-
-    @async_dec()
-    def answer_callback_query(self, *args, **kwargs):
-        return TBot.answer_callback_query(self, *args, **kwargs)
+    def send_sticker(self, *args, **kwargs):
+        return TBot.send_sticker(self, *args, **kwargs)
 
     @async_dec()
     def get_sticker_set(self, *args, **kwargs):
@@ -2071,9 +2141,37 @@ class AsyncTBot(TBot):
         return TBot.delete_sticker_from_set(self, *args, **kwargs)
 
     @async_dec()
-    def send_poll(self, *args, **kwargs):
-        return TBot.send_poll(self, *args, **kwargs)
+    def set_sticker_set_thumb(self, *args, **kwargs):
+        return TBot.set_sticker_set_thumb(self, *args, **kwargs)
 
     @async_dec()
-    def stop_poll(self, *args, **kwargs):
-        return TBot.stop_poll(self, *args, **kwargs)
+    def answer_inline_query(self, *args, **kwargs):
+        return TBot.answer_inline_query(self, *args, **kwargs)
+
+    @async_dec()
+    def send_invoice(self, *args, **kwargs):
+        return TBot.send_invoice(self, *args, **kwargs)
+
+    @async_dec()
+    def answer_shipping_query(self, *args, **kwargs):
+        return TBot.answer_shipping_query(self, *args, **kwargs)
+
+    @async_dec()
+    def answer_pre_checkout_query(self, *args, **kwargs):
+        return TBot.answer_pre_checkout_query(self, *args, **kwargs)
+
+    @async_dec()
+    def set_passport_data_errors(self, *args, **kwargs):
+        return TBot.set_passport_data_errors(self, *args, **kwargs)
+
+    @async_dec()
+    def send_game(self, *args, **kwargs):
+        return TBot.send_game(self, *args, **kwargs)
+
+    @async_dec()
+    def set_game_score(self, *args, **kwargs):
+        return TBot.set_game_score(self, *args, **kwargs)
+
+    @async_dec()
+    def get_game_high_scores(self, *args, **kwargs):
+        return TBot.get_game_high_scores(self, *args, **kwargs)
