@@ -785,6 +785,22 @@ def get_file(token, file_id):
     return _make_request(api_url, api_method, files, params, http_method='get')
 
 
+def download_file(token, file_path):
+    """
+    Use this method to download file with specified file_path.
+    :param str token: The bot's API token. (Created with @BotFather).
+    :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
+    :return: any, On success.
+    """
+    api_url = "https://api.telegram.org/file/bot{0}/{1}".format(token, file_path)
+    result = _get_req_session().get(api_url, proxies)
+    if result.status_code != 200:
+        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
+            .format(result.status_code, result.reason, result.text)
+        raise ApiException(msg, 'Download file', result)
+    return result.content
+
+
 def kick_chat_member(token, chat_id, user_id, until_date=None):
     """
     Use this method to kick a user from a group, a supergroup or a channel.
@@ -1730,6 +1746,7 @@ def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_m
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     return _make_request(api_url, api_method, files, params, http_method='get')
+
 
 def _convert_list_json_serializable(results):
     ret = ''
