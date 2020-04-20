@@ -84,7 +84,10 @@ class TBot:
 
     def __init__(self, token, threaded=True, skip_pending=False, num_threads=2):
         """
-        :param token: String: Required, The bot's API token. (Created with @BotFather)
+        :param str token: Required, The bot's API token. (Created with @BotFather)
+        :param bool threaded:
+        :param bool skip_pending:
+        :param int num_threads:
         :returns: a Tbot object.
         """
 
@@ -109,7 +112,7 @@ class TBot:
         self.edited_message_handlers = []
         self.channel_post_handlers = []
         self.edited_channel_post_handlers = []
-        self.inline_handlers = []
+        self.inline_query_handlers = []
         self.chosen_inline_handlers = []
         self.callback_query_handlers = []
         self.shipping_query_handlers = []
@@ -294,7 +297,7 @@ class TBot:
             self.edited_channel_post_handlers, edited_channel_post)
 
     def process_new_inline_query(self, new_inline_querys):
-        self._notify_command_handlers(self.inline_handlers, new_inline_querys)
+        self._notify_command_handlers(self.inline_query_handlers, new_inline_querys)
 
     def process_new_chosen_inline_query(self, new_chosen_inline_querys):
         self._notify_command_handlers(
@@ -326,7 +329,7 @@ class TBot:
         while not self.__stop_polling.is_set():
             try:
                 self.polling(timeout=timeout, *args, **kwargs)
-            except Exception as _e:
+            except ConnectionError or ConnectionAbortedError or ConnectionRefusedError or ConnectionResetError:
                 time.sleep(timeout)
                 pass
         logger.info("Break infinity polling")
@@ -1198,7 +1201,6 @@ class TBot:
     def set_sticker_set_thumb(self, name, user_id, thumb=None):
         """
         Use this method to set the thumbnail of a sticker set.
-        :param str token: The bot's API token. (Created with @BotFather).
         :param str name: Short name of sticker set.
         :param int user_id: Unique identifier of the target user.
         :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
@@ -1378,18 +1380,18 @@ class TBot:
     def _notify_reply_handlers(self, new_messages):
         """
         Notify handlers of the answers
-        :param new_messages:
+        :param any new_messages:
         :return:
         """
         for message in new_messages:
             if hasattr(message, "reply_to_message") and message.reply_to_message is not None:
-                reply_msg_id = message.reply_to_message.message_id
-                if reply_msg_id in self.reply_handlers.keys():
-                    handlers = self.reply_handlers[reply_msg_id]
+                reply_mid = message.reply_to_message.message_id
+                if reply_mid in self.reply_handlers.keys():
+                    handlers = self.reply_handlers[reply_mid]
                     for handler in handlers:
                         self._exec_task(
                             handler["callback"], message, *handler["args"], **handler["kwargs"])
-                    self.reply_handlers.pop(reply_msg_id)
+                    self.reply_handlers.pop(reply_mid)
                     if self.reply_saver is not None:
                         self.reply_saver.start_save_timer()
 
@@ -1511,30 +1513,11 @@ class TBot:
         """
         Message handler decorator.
         This decorator can be used to decorate functions that must handle certain types of messages.
-        All message handlers are tested in the order they were added.
         :param str commands: Bot Commands like (/start, /help).
         :param str regexp: Sequence of characters that define a search pattern.
         :param str func: any python function that return True On success like (lambda).
         :param str content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
         :return: filtered Message.
-
-        Example:
-        bot = TBot('TOKEN')
-
-        # Handles all messages which text matches regexp.
-        @bot.message_handler(regexp='someregexp')
-        def command_help(message):
-            bot.send_message(message.chat.id, 'Did someone call for help?')
-
-        # Handle all sent documents of type 'text/plain'.
-        @bot.message_handler(func=lambda message: message.document.mime_type == 'text/plain', content_types=['document'])
-        def command_handle_document(message):
-            bot.send_message(message.chat.id, 'Document received, sir!')
-
-        # Handle all other commands.
-        @bot.message_handler(func=lambda message: True, content_types=['audio', 'photo', 'voice', 'video', 'document', 'text', 'location', 'contact', 'sticker'])
-        def default_command(message):
-            bot.send_message(message.chat.id, "This is the default command handler.")
         """
 
         if content_types is None:
@@ -1557,20 +1540,20 @@ class TBot:
     def add_message_handler(self, handler_dict):
         """
         Adds a message handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.message_handlers.append(handler_dict)
 
     def edited_message_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
         """
-        Edit message handler decorator
-        :param commands:
-        :param regexp:
-        :param func:
-        :param content_types:
-        :param kwargs:
-        :return:
+        Edited message handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of edited messages.
+        :param str commands: Bot Commands like (/start, /help).
+        :param str regexp: Sequence of characters that define a search pattern.
+        :param str func: any python function that return True On success like (lambda).
+        :param str content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
+        :return: filtered Message.
         """
 
         if content_types is None:
@@ -1591,20 +1574,20 @@ class TBot:
     def add_edited_message_handler(self, handler_dict):
         """
         Adds the edit message handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.edited_message_handlers.append(handler_dict)
 
     def channel_post_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
         """
-        Channel post handler decorator
-        :param commands:
-        :param regexp:
-        :param func:
-        :param content_types:
-        :param kwargs:
-        :return:
+        Channel post handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of channel post.
+        :param str commands: Bot Commands like (/start, /help).
+        :param str regexp: Sequence of characters that define a search pattern.
+        :param str func: any python function that return True On success like (lambda).
+        :param str content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
+        :return: filtered Message.
         """
 
         if content_types is None:
@@ -1625,20 +1608,20 @@ class TBot:
     def add_channel_post_handler(self, handler_dict):
         """
         Adds channel post handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.channel_post_handlers.append(handler_dict)
 
     def edited_channel_post_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
         """
-        Edit channel post handler decorator
-        :param commands:
-        :param regexp:
-        :param func:
-        :param content_types:
-        :param kwargs:
-        :return:
+        Edited channel post handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of edited channel post.
+        :param str commands: Bot Commands like (/start, /help).
+        :param str regexp: Sequence of characters that define a search pattern.
+        :param str func: any python function that return True On success like (lambda).
+        :param str content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
+        :return: filtered Message.
         """
 
         if content_types is None:
@@ -1659,41 +1642,43 @@ class TBot:
     def add_edited_channel_post_handler(self, handler_dict):
         """
         Adds the edit channel post handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.edited_channel_post_handlers.append(handler_dict)
 
-    def inline_handler(self, func, **kwargs):
+    def inline_query_handler(self, func, **kwargs):
         """
-        Inline call handler decorator
-        :param func:
-        :param kwargs:
-        :return:
+        inline handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of inline query.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
             handler_dict = self._build_handler_dict(
                 handler, func=func, **kwargs)
-            self.add_inline_handler(handler_dict)
+            self.add_inline_query_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_inline_handler(self, handler_dict):
+    def add_inline_query_handler(self, handler_dict):
         """
         Adds inline call handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
-        self.inline_handlers.append(handler_dict)
+        self.inline_query_handlers.append(handler_dict)
 
     def chosen_inline_handler(self, func, **kwargs):
         """
-        Description: TBD
-        :param func:
-        :param kwargs:
-        :return:
+        Chosen inline handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of messages.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
@@ -1707,17 +1692,18 @@ class TBot:
     def add_chosen_inline_handler(self, handler_dict):
         """
         Description: TBD
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.chosen_inline_handlers.append(handler_dict)
 
     def callback_query_handler(self, func, **kwargs):
         """
-        Callback request handler decorator
-        :param func:
-        :param kwargs:
-        :return:
+        Callback query handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of messages.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
@@ -1731,17 +1717,18 @@ class TBot:
     def add_callback_query_handler(self, handler_dict):
         """
         Adds a callback request handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.callback_query_handlers.append(handler_dict)
 
     def shipping_query_handler(self, func, **kwargs):
         """
-        Shipping request handler
-        :param func:
-        :param kwargs:
-        :return:
+        shipping query handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of messages.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
@@ -1755,17 +1742,18 @@ class TBot:
     def add_shipping_query_handler(self, handler_dict):
         """
         Adds a shipping request handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.shipping_query_handlers.append(handler_dict)
 
     def pre_checkout_query_handler(self, func, **kwargs):
         """
-        Pre-checkout request handler
-        :param func:
-        :param kwargs:
-        :return:
+        Pre checkout query handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of messages.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
@@ -1779,17 +1767,18 @@ class TBot:
     def add_pre_checkout_query_handler(self, handler_dict):
         """
         Adds a pre-checkout request handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.pre_checkout_query_handlers.append(handler_dict)
 
     def poll_handler(self, func, **kwargs):
         """
-        Poll request handler
-        :param func:
-        :param kwargs:
-        :return:
+        Poll handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of poll.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
@@ -1802,17 +1791,18 @@ class TBot:
     def add_poll_handler(self, handler_dict):
         """
         Adds a poll request handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.poll_handlers.append(handler_dict)
 
     def poll_answer_handler(self, func, **kwargs):
         """
-        Poll request handler
-        :param func:
-        :param kwargs:
-        :return:
+        Poll answer handler decorator.
+        This decorator can be used to decorate functions that must handle certain types of messages.
+        :param str func: any python function that return True On success like (lambda).
+        :param str kwargs:
+        :return: filtered Message.
         """
 
         def decorator(handler):
@@ -1825,7 +1815,7 @@ class TBot:
     def add_poll_answer_handler(self, handler_dict):
         """
         Adds a poll request handler
-        :param handler_dict:
+        :param dict handler_dict:
         :return:
         """
         self.poll_answer_handlers.append(handler_dict)
@@ -1909,8 +1899,8 @@ class AsyncTBot(TBot):
     @async_dec()
     def get_me(self):
         return TBot.get_me(self)
-    @async_dec()
 
+    @async_dec()
     def send_message(self, *args, **kwargs):
         return TBot.send_message(self, *args, **kwargs)
 
@@ -2093,7 +2083,6 @@ class AsyncTBot(TBot):
     @async_dec()
     def edit_message_caption(self, *args, **kwargs):
         return TBot.edit_message_caption(self, *args, **kwargs)
-
 
     @async_dec()
     def edit_message_media(self, *args, **kwargs):
