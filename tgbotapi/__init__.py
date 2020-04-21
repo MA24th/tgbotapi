@@ -202,8 +202,8 @@ class TBot:
                 new_pre_checkout_querys.append(update.pre_checkout_query)
             if update.poll:
                 new_poll.append(update.poll)
-            if update.poll_anwser:
-                new_poll_answer.append(update.poll_anwser)
+            if update.poll_answer:
+                new_poll_answer.append(update.poll_answer)
 
         logger.debug('Received {0} new updates'.format(len(updates)))
         if len(new_messages) > 0:
