@@ -10,31 +10,31 @@ from .utilities import per_thread, logger, is_string
     On successful call, a JSON-object containing the result will be returned.
 """
 
-proxies = None
-
 
 def _get_req_session(reset=False):
     return per_thread('req_session', lambda: requests.session(), reset)
 
 
-def _make_request(api_url, api_method, files, params, http_method):
+def _make_request(method, api_url, api_method, files, params, proxies):
     """
     Makes a request to the Telegram API.
+    :param str method: HTTP method ['get', 'post'].
     :param str api_url: telegram api url for api_method.
     :param str api_method: Name of the API method to be called. (E.g. 'getUpdates').
     :param any or None files: files content's a data.
     :param dict or None params: Should be a dictionary with key-value pairs.
-    :param str http_method: HTTP method ['get', 'post'].
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :return dict result: a JSON dictionary.
     """
-    logger.debug("Request: method={0} url={1} params={2} files={3}".format(http_method, api_url, params, files))
+    logger.debug("Request: method={0} url={1} params={2} files={3}".format(method, api_url, params, files))
     timeout = 9999
     if params:
         if 'timeout' in params:
             timeout = params['timeout'] + 10
 
-    result = _get_req_session().request(http_method, api_url, params, data=None, headers=None, cookies=None,
-                                        files=files, auth=None, timeout=timeout)
+    result = _get_req_session().request(method, api_url, params, data=None, headers=None,
+                                        cookies=None, files=files, auth=None, timeout=timeout, allow_redirects=True,
+                                        proxies=proxies, verify=None, stream=None, cert=None)
     logger.debug("The server returned: '{0}'".format(result.text.encode('utf8')))
     return _check_result(api_method, result)['result']
 
@@ -71,16 +71,18 @@ def _check_result(api_method, result):
     return result_json
 
 
-def get_updates(token, offset=None, limit=None, timeout=0, allowed_updates=None):
+def get_updates(token, proxies, offset=None, limit=None, timeout=0, allowed_updates=None):
     """
     Use this method to receive incoming updates using long polling.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int offset: Identifier of the first update to be returned.
     :param int limit: Limits the number of updates to be retrieved.
     :param int timeout: Timeout in seconds for long polling, Defaults to 0.
     :param list allowed_updates: An Array of String.
     :return: An Array of Update objects.
     """
+    method = r'get'
     api_method = r'getUpdates'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -93,19 +95,21 @@ def get_updates(token, offset=None, limit=None, timeout=0, allowed_updates=None)
         params['timeout'] = timeout
     if allowed_updates:
         params['allowed_updates'] = json.dumps(allowed_updates)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_webhook(token, url=None, certificate=None, max_connections=None, allowed_updates=None):
+def set_webhook(token, proxies, url=None, certificate=None, max_connections=None, allowed_updates=None):
     """
     Use this method to specify a url and receive incoming updates via an outgoing webhook.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str url: HTTPS url to send updates to. Use an empty string to remove webhook integration.
     :param any certificate: Upload your public key [InputFile] certificate so that the root certificate in use can be checked.
     :param int max_connections: Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.
     :param list allowed_updates: A JSON-serialized list of the update types you want your bot to receive.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'setWebhook'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -116,53 +120,60 @@ def set_webhook(token, url=None, certificate=None, max_connections=None, allowed
         params['max_connections'] = max_connections
     if allowed_updates:
         params['allowed_updates'] = json.dumps(allowed_updates)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_webhook(token):
+def delete_webhook(token, proxies):
     """
     Use this method to remove webhook integration if you decide to switch back to getUpdates. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'deleteWebhook'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_webhook_info(token):
+def get_webhook_info(token, proxies):
     """
     Use this method to get current webhook status. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :return: a WebhookInfo object, otherwise an object with the url field empty.
     """
+    method = r'get'
     api_method = r'getWebhookInfo'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_me(token):
+def get_me(token, proxies):
     """
     A simple method for testing your bot's auth token. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :return: a User object.
     """
+    method = r'get'
     api_method = r'getMe'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview=False, disable_notification=False,
-                 reply_to_message_id=None, reply_markup=None):
+def send_message(token, proxies, chat_id, text, parse_mode=None, disable_web_page_preview=False,
+                 disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send text messages. On success, the sent Message is returned.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
     :param str parse_mode: Send Markdown or HTML.
@@ -172,6 +183,7 @@ def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendMessage'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -186,33 +198,36 @@ def send_message(token, chat_id, text, parse_mode=None, disable_web_page_preview
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def forward_message(token, chat_id, from_chat_id, message_id, disable_notification=False):
+def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_notification=False):
     """
     Use this method to forward messages of any kind.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int or str from_chat_id: Unique identifier for the chat where the original message was sent.
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
     :param int message_id: Message identifier in the chat specified in from_chat_id.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'forwardMessage'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
     if disable_notification:
         params['disable_notification'] = disable_notification
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_photo(token, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
+def send_photo(token, proxies, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
                reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send photos.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any photo: Photo [file_id or InputFile] to send.
     :param str caption: Photo caption, 0-1024 characters after entities parsing
@@ -222,6 +237,7 @@ def send_photo(token, chat_id, photo, caption=None, parse_mode=None, disable_not
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendPhoto'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -240,14 +256,15 @@ def send_photo(token, chat_id, photo, caption=None, parse_mode=None, disable_not
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
+def send_audio(token, proxies, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
                thumb=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send audio files.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any audio: Audio [file_id or InputFile] to send.
     :param str caption: Photo caption, 0-1024 characters after entities parsing
@@ -261,6 +278,7 @@ def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=No
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendAudio'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -287,14 +305,15 @@ def send_audio(token, chat_id, audio, caption=None, parse_mode=None, duration=No
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_document(token, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=False,
+def send_document(token, proxies, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=False,
                   reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send general files.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any document: File [file_id or InputFile] to send.
     :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
@@ -305,6 +324,7 @@ def send_document(token, chat_id, document, thumb=None, caption=None, parse_mode
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendDocument'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -325,14 +345,15 @@ def send_document(token, chat_id, document, thumb=None, caption=None, parse_mode
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video(token, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None, parse_mode=None,
+def send_video(token, proxies, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None, parse_mode=None,
                supports_streaming=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send video files.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any video: Video [file_id or InputFile] to send.
     :param int duration: Duration of the video in seconds.
@@ -347,6 +368,7 @@ def send_video(token, chat_id, video, duration=None, width=None, height=None, th
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendVideo'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -375,14 +397,15 @@ def send_video(token, chat_id, video, duration=None, width=None, height=None, th
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_animation(token, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
+def send_animation(token, proxies, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
                    parse_mode=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send animation files.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any animation: Animation [file_id or InputFile] to send.
     :param int duration: Duration of the animation in seconds.
@@ -396,6 +419,7 @@ def send_animation(token, chat_id, animation, duration=None, width=None, height=
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendAnimation'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -422,14 +446,15 @@ def send_animation(token, chat_id, animation, duration=None, width=None, height=
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_voice(token, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=False,
+def send_voice(token, proxies, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=False,
                reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send audio files.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any voice: Audio [file_id or InputFile] to send.
     :param str caption: Video caption, 0-1024 characters after entities parsing.
@@ -440,6 +465,7 @@ def send_voice(token, chat_id, voice, caption=None, parse_mode=None, duration=No
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendVoice'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     params = {'chat_id': chat_id}
@@ -460,14 +486,15 @@ def send_voice(token, chat_id, voice, caption=None, parse_mode=None, duration=No
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video_note(token, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
+def send_video_note(token, proxies, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
                     reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send video messages.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any video_note: Video note [file_id or InputFile] to send.
     :param int duration: Duration of the VideoNote in seconds.
@@ -478,6 +505,7 @@ def send_video_note(token, chat_id, video_note, duration=None, length=None, thum
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendVideoNote'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     params = {'chat_id': chat_id}
@@ -498,19 +526,21 @@ def send_video_note(token, chat_id, video_note, duration=None, length=None, thum
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_media_group(token, chat_id, media, disable_notification=False, reply_to_message_id=None):
+def send_media_group(token, proxies, chat_id, media, disable_notification=False, reply_to_message_id=None):
     """
     Use this method to send a group of photos or videos as an album.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param list media: A JSON-serialized array of [InputMediaPhoto or InputMediaVideo] to be sent, must include 2–10 items
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
     :param int reply_to_message_id: If the message is a reply, ID of the original message.
     :return: a Messages object.
     """
+    method = r'post'
     api_method = r'sendMediaGroup'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     media_json, files = _convert_input_media_array(media)
@@ -519,14 +549,15 @@ def send_media_group(token, chat_id, media, disable_notification=False, reply_to
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
-    return _make_request(api_url, api_method, files, params, http_method='post' if files else 'get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_location(token, chat_id, latitude, longitude, live_period=None, disable_notification=False,
+def send_location(token, proxies, chat_id, latitude, longitude, live_period=None, disable_notification=False,
                   reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send point on the map.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param float latitude: Latitude of the location.
     :param float longitude: Longitude of the location.
@@ -536,6 +567,7 @@ def send_location(token, chat_id, latitude, longitude, live_period=None, disable
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendLocation'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -549,14 +581,15 @@ def send_location(token, chat_id, latitude, longitude, live_period=None, disable
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_live_location(token, latitude, longitude, chat_id=None, message_id=None, inline_message_id=None,
-                               reply_markup=None):
+def edit_message_live_location(token, proxies, latitude, longitude, chat_id=None, message_id=None,
+                               inline_message_id=None, reply_markup=None):
     """
     Use this method to edit live location messages.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
@@ -565,6 +598,7 @@ def edit_message_live_location(token, latitude, longitude, chat_id=None, message
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object, otherwise True.
     """
+    method = r'post'
     api_method = r'editMessageLiveLocation'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -577,19 +611,21 @@ def edit_message_live_location(token, latitude, longitude, chat_id=None, message
         params['inline_message_id'] = inline_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def stop_message_live_location(token, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+def stop_message_live_location(token, proxies, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
     """
     Use this method to stop updating a live location message before live_period expires.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object, otherwise True.
     """
+    method = r'post'
     api_method = r'stopMessageLiveLocation'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -602,14 +638,15 @@ def stop_message_live_location(token, chat_id=None, message_id=None, inline_mess
         params['inline_message_id'] = inline_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_venue(token, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
+def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
                disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send information about a venue.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param float latitude: Latitude of the location.
     :param float longitude: Longitude of the location.
@@ -622,6 +659,7 @@ def send_venue(token, chat_id, latitude, longitude, title, address, foursquare_i
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendVenue'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -636,14 +674,15 @@ def send_venue(token, chat_id, latitude, longitude, title, address, foursquare_i
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_contact(token, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
+def send_contact(token, proxies, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
                  reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send information about a venue.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str phone_number: Contact's phone number.
     :param str first_name: Contact's first name.
@@ -654,6 +693,7 @@ def send_contact(token, chat_id, phone_number, first_name, last_name=None, vcard
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendContact'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -669,15 +709,16 @@ def send_contact(token, chat_id, phone_number, first_name, last_name=None, vcard
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_poll(token, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
+def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
               correct_option_id=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
               reply_markup=None):
     """
     Use this method to send information about a venue.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str question: Poll question, 1-255 characters.
     :param list options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters each.
@@ -691,6 +732,7 @@ def send_poll(token, chat_id, question, options, is_anonymous=True, type='regula
     :param any reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendPoll'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -711,19 +753,21 @@ def send_poll(token, chat_id, question, options, is_anonymous=True, type='regula
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(token, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_dice(token, proxies, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send a dice.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
     :param int reply_to_message_id: If the message is a reply, ID of the original message.
     :param list[dict] reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendDice'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -734,33 +778,37 @@ def send_dice(token, chat_id, disable_notification=False, reply_to_message_id=No
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = reply_markup
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_chat_action(token, chat_id, action):
+def send_chat_action(token, proxies, chat_id, action):
     """
     Use this method when you need to tell the user that something is happening on the bot's side.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str action: Type of action to broadcast.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'sendChatAction'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'action': action}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_user_profile_photos(token, user_id, offset=None, limit=100):
+def get_user_profile_photos(token, proxies, user_id, offset=None, limit=100):
     """
     Use this method to get a list of profile pictures for a user.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str user_id: Unique identifier of the target user.
     :param int offset: Sequential number of the first photo to be returned. By default, all photos are returned.
     :param int limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
     :return: a UserProfilePhoto object.
     """
+    method = r'post'
     api_method = r'getUserProfilePhotos'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -769,27 +817,30 @@ def get_user_profile_photos(token, user_id, offset=None, limit=100):
         params['offset'] = offset
     if limit:
         params['limit'] = limit
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_file(token, file_id):
+def get_file(token, proxies, file_id):
     """
     Use this method to get basic info about a file and prepare it for downloading.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str file_id: File identifier to get info about
     :return: a File object.
     """
+    method = r'post'
     api_method = r'getFile'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'file_id': file_id}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def download_file(token, file_path):
+def download_file(token, proxies, file_path):
     """
     Use this method to download file with specified file_path.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
     :return: any, On success.
     """
@@ -802,64 +853,71 @@ def download_file(token, file_path):
     return result.content
 
 
-def kick_chat_member(token, chat_id, user_id, until_date=None):
+def kick_chat_member(token, proxies, chat_id, user_id, until_date=None):
     """
     Use this method to kick a user from a group, a supergroup or a channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int or str user_id: Unique identifier of the target user.
     :param int until_date: Date when the user will be unbanned, unix time.
     :return: True On success.
     """
+    method = r'post'
     api_method = 'kickChatMember'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
     if until_date:
         params['until_date'] = until_date
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unban_chat_member(token, chat_id, user_id):
+def unban_chat_member(token, proxies, chat_id, user_id):
     """
     Use this method to unban a previously kicked user in a supergroup or channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int or str user_id: Unique identifier of the target user.
     :return: True On success.
     """
+    method = r'post'
     api_method = 'unbanChatMember'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def restrict_chat_member(token, chat_id, user_id, permissions, until_date=None):
+def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_date=None):
     """
     Use this method to restrict a user in a supergroup.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int or str user_id: Unique identifier of the target user.
     :param dict permissions: New user permissions must be ChatPermissions object.
     :param int until_date: 	Date when restrictions will be lifted for the user, unix time.
     :return: True On success.
     """
+    method = r'post'
     api_method = 'restrictChatMember'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id, 'permissions': permissions}
     if until_date:
         params['until_date'] = until_date
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def promote_chat_member(token, chat_id, user_id, can_change_info=None, can_post_messages=None, can_edit_messages=None,
-                        can_delete_messages=None, can_invite_users=None, can_restrict_members=None,
-                        can_pin_messages=None, can_promote_members=None):
+def promote_chat_member(token, proxies, chat_id, user_id, can_change_info=None, can_post_messages=None,
+                        can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
+                        can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
     """
     Use this method to promote or demote a user in a supergroup or a channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int or str user_id: Unique identifier of the target user.
     :param bool can_change_info: Pass True, if the administrator can change chat title, photo and other settings.
@@ -872,6 +930,7 @@ def promote_chat_member(token, chat_id, user_id, can_change_info=None, can_post_
     :param bool can_promote_members: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
     :return: True On success.
     """
+    method = r'post'
     api_method = 'promoteChatMember'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -892,62 +951,70 @@ def promote_chat_member(token, chat_id, user_id, can_change_info=None, can_post_
         params['can_pin_messages'] = can_pin_messages
     if can_promote_members:
         params['can_promote_members'] = can_promote_members
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_administrator_custom_title(token, chat_id, user_id, custom_title):
+def set_chat_administrator_custom_title(token, proxies, chat_id, user_id, custom_title):
     """
     Use this method to set a custom title for an administrator in a supergroup promoted by the bot. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int or str user_id: Unique identifier of the target user.
     :param str custom_title: New custom title for the administrator; 0-16 characters.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'setChatAdministratorCustomTitle'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id, 'custom_title': custom_title}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_permissions(token, chat_id, permissions):
+def set_chat_permissions(token, proxies, chat_id, permissions):
     """
     Use this method to set default chat permissions for all members. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param dict permissions: New default chat permissions must be a ChatPermissions object
     :return: True on success.
     """
+    method = r'post'
     api_method = r'setChatPermissions'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'permissions': permissions}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def export_chat_invite_link(token, chat_id):
+def export_chat_invite_link(token, proxies, chat_id):
     """
     Use this method to generate a new invite link for a chat. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: new link as String on success.
     """
+    method = r'get'
     api_method = r'exportChatInviteLink'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_photo(token, chat_id, photo):
+def set_chat_photo(token, proxies, chat_id, photo):
     """
     Use this method to set a new profile photo for the chat.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any photo: Use this method to set a new profile photo for the chat.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'setChatPhoto'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -956,191 +1023,216 @@ def set_chat_photo(token, chat_id, photo):
         files = {'photo': photo}
     else:
         params['photo'] = photo
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_chat_photo(token, chat_id):
+def delete_chat_photo(token, proxies, chat_id):
     """
     Use this method to delete a chat photo.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'deleteChatPhoto'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_title(token, chat_id, title):
+def set_chat_title(token, proxies, chat_id, title):
     """
     Use this method to change the title of a chat.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str title: New chat title, 1-255 characters.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'setChatTitle'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'title': title}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_description(token, chat_id, description=None):
+def set_chat_description(token, proxies, chat_id, description=None):
     """
     Use this method to change the description of a group, a supergroup or a channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str description: New chat description, 0-255 characters.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'setChatDescription'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
     if description:
         params['description'] = description
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def pin_chat_message(token, chat_id, message_id, disable_notification=False):
+def pin_chat_message(token, proxies, chat_id, message_id, disable_notification=False):
     """
     Use this method to pin a message in a group, a supergroup, or a channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int message_id: Identifier of a message to pin.
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'pinChatMessage'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     if disable_notification:
         params['disable_notification'] = disable_notification
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unpin_chat_message(token, chat_id):
+def unpin_chat_message(token, proxies, chat_id):
     """
     Use this method to unpin a message in a group, a supergroup, or a channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'unpinChatMessage'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def leave_chat(token, chat_id):
+def leave_chat(token, proxies, chat_id):
     """
     Use this method for your bot to leave a group, supergroup or channel.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'leaveChat'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat(token, chat_id):
+def get_chat(token, proxies, chat_id):
     """
     Use this method to get up to date information about the chat.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: a Chat object.
     """
+    method = r'get'
     api_method = r'getChat'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_administrators(token, chat_id):
+def get_chat_administrators(token, proxies, chat_id):
     """
     Use this method to get a list of administrators in a chat.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: an Array of ChatMember object.
     """
+    method = r'get'
     api_method = r'getChatAdministrators'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_members_count(token, chat_id):
+def get_chat_members_count(token, proxies, chat_id):
     """
     Use this method to get the number of members in a chat.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: Integer On success.
     """
+    method = r'get'
     api_method = r'getChatMembersCount'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_member(token, chat_id, user_id):
+def get_chat_member(token, proxies, chat_id, user_id):
     """
     Use this method to get information about a member of a chat.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int user_id: Unique identifier of the target user.
     :return: a ChatMember object On success.
     """
+    method = r'get'
     api_method = r'getChatMember'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_sticker_set(token, chat_id, sticker_set_name):
+def set_chat_sticker_set(token, proxies, chat_id, sticker_set_name):
     """
     Use this method to set a new group sticker set for a supergroup.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'setChatStickerSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'sticker_set_name': sticker_set_name}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_chat_sticker_set(token, chat_id):
+def delete_chat_sticker_set(token, proxies, chat_id):
     """
     Use this method to delete a group sticker set from a supergroup.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'deleteChatStickerSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_callback_query(token, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
+def answer_callback_query(token, proxies, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
     """
     Use this method to send answers to callback queries sent from inline keyboards.     
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str callback_query_id: Unique identifier for the query to be answered.
     :param str text: Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
     :param bool show_alert: If true, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
@@ -1148,6 +1240,7 @@ def answer_callback_query(token, callback_query_id, text=None, show_alert=False,
     :param int cache_time: The maximum amount of time in seconds that the result of the callback query may be cached client-side.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'answerCallbackQuery'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1160,42 +1253,47 @@ def answer_callback_query(token, callback_query_id, text=None, show_alert=False,
         params['url'] = url
     if cache_time is not None:
         params['cache_time'] = cache_time
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_my_commands(token, commands):
+def set_my_commands(token, proxies, commands):
     """
     Use this method to change the list of the bot's commands.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param list commands: A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'setMyCommands'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'commands': commands}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_my_commands(token):
+def get_my_commands(token, proxies):
     """
     Use this method to get the current list of the bot's commands.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :return: Array of BotCommand On success.
     """
+    method = r'get'
     api_method = r'getMyCommands'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
 # Updating messages
-def edit_message_text(token, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
+def edit_message_text(token, proxies, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                       disable_web_page_preview=False, reply_markup=None):
     """
     Use this method to edit text and game messages.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
@@ -1205,6 +1303,7 @@ def edit_message_text(token, text, chat_id=None, message_id=None, inline_message
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object On success, otherwise True.
     """
+    method = r'post'
     api_method = r'editMessageText'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1221,14 +1320,15 @@ def edit_message_text(token, text, chat_id=None, message_id=None, inline_message
         params['disable_web_page_preview'] = disable_web_page_preview
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_caption(token, caption, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
+def edit_message_caption(token, proxies, caption, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                          reply_markup=None):
     """
     Use this method to edit captions of messages.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
@@ -1237,6 +1337,7 @@ def edit_message_caption(token, caption, chat_id=None, message_id=None, inline_m
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object On success, otherwise True.
     """
+    method = r'post'
     api_method = r'editMessageCaption'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1251,13 +1352,14 @@ def edit_message_caption(token, caption, chat_id=None, message_id=None, inline_m
         params['parse_mode'] = parse_mode
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_media(token, media, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+def edit_message_media(token, proxies, media, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
     """
     Use this method to edit animation, audio, document, photo, or video messages.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
@@ -1265,6 +1367,7 @@ def edit_message_media(token, media, chat_id=None, message_id=None, inline_messa
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.:
     :return: a Message object On success, otherwise True.
     """
+    method = r'post'
     api_method = r'editMessageMedia'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     media_json, files = _convert_input_media(media)
@@ -1277,19 +1380,21 @@ def edit_message_media(token, media, chat_id=None, message_id=None, inline_messa
         params['inline_message_id'] = inline_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_reply_markup(token, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+def edit_message_reply_markup(token, proxies, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
     """
     Use this method to edit only the reply markup of messages.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object On success, otherwise True.
     """
+    method = r'post'
     api_method = r'editMessageReplyMarkup'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1302,28 +1407,30 @@ def edit_message_reply_markup(token, chat_id=None, message_id=None, inline_messa
         params['inline_message_id'] = inline_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def stop_poll(token, chat_id, message_id, reply_markup=None):
+def stop_poll(token, proxies, chat_id, message_id, reply_markup=None):
     """
     Use this method to stop a poll which was sent by the bot.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int message_id: Identifier of the original message with the poll.
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Poll object On success.
     """
+    method = r'post'
     api_method = r'stopPoll'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_message(token, chat_id, message_id):
+def delete_message(token, proxies, chat_id, message_id):
     """
     Use this method to delete a message, including service messages, with the following limitations:
         - A message can only be deleted if it was sent less than 48 hours ago.
@@ -1334,21 +1441,24 @@ def delete_message(token, chat_id, message_id):
         - If the bot is an administrator of a group, it can delete any message there.
         - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param int message_id: Identifier of the message to delete
     :return: True On success.
     """
+    method = r'post'
     api_method = r'deleteMessage'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_sticker(token, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_sticker(token, proxies, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send static .WEBP or animated .TGS stickers.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param any sticker: Sticker [file_id or InputFile] to send.
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -1356,6 +1466,7 @@ def send_sticker(token, chat_id, sticker, disable_notification=False, reply_to_m
     :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object On success.
     """
+    method = r'post'
     api_method = r'sendSticker'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1370,43 +1481,48 @@ def send_sticker(token, chat_id, sticker, disable_notification=False, reply_to_m
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_sticker_set(token, name):
+def get_sticker_set(token, proxies, name):
     """
     Use this method to get a sticker set.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str name:  Name of the sticker set.
     :return: a StickerSet object On success.
     """
+    method = r'post'
     api_method = r'getStickerSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'name': name}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def upload_sticker_file(token, user_id, png_sticker):
+def upload_sticker_file(token, proxies, user_id, png_sticker):
     """
     Use this method to upload a .PNG file with a sticker.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int user_id: Unique identifier of the target user.
     :param any png_sticker: Png image with the sticker,
     :return: a File object On success.
     """
+    method = r'post'
     api_method = r'uploadStickerFile'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = {'png_sticker': png_sticker}
     params = {'user_id': user_id}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
+def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
                            mask_position=False):
     """
     Use this method to create a new sticker set owned by a user. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int user_id: Unique identifier of the target user.
     :param str name: Short name of sticker set.
     :param str title: New chat title, 1-255 characters.
@@ -1417,6 +1533,7 @@ def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker
     :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'createNewStickerSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1431,13 +1548,14 @@ def create_new_sticker_set(token, user_id, name, title, png_sticker, tgs_sticker
         params['contains_masks'] = contains_masks
     if mask_position:
         params['mask_position'] = mask_position.to_json()
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def add_sticker_to_set(token, user_id, name, png_sticker, emojis, tgs_sticker=None, mask_position=False):
+def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_sticker=None, mask_position=False):
     """
     Use this method to add a new sticker to a set created by the bot.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int user_id: Unique identifier of the target user.
     :param str name: Short name of sticker set.
     :param any png_sticker: PNG image [file_id or InputFile] with the sticker.
@@ -1446,6 +1564,7 @@ def add_sticker_to_set(token, user_id, name, png_sticker, emojis, tgs_sticker=No
     :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'addStickerToSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1458,61 +1577,68 @@ def add_sticker_to_set(token, user_id, name, png_sticker, emojis, tgs_sticker=No
         files = {'tgs_sticker': tgs_sticker}
     if mask_position:
         params['mask_position'] = mask_position.to_json()
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_sticker_position_in_set(token, sticker, position):
+def set_sticker_position_in_set(token, proxies, sticker, position):
     """
     Use this method to move a sticker in a set created by the bot to a specific position. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str sticker: File identifier of the sticker.
     :param int position: New sticker position in the set, zero-based.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'setStickerPositionInSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'sticker': sticker, 'position': position}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_sticker_from_set(token, sticker):
+def delete_sticker_from_set(token, proxies, sticker):
     """
     Use this method to delete a sticker from a set created by the bot.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str sticker: File identifier of the sticker.
     :return: True on success.
     """
+    method = r'post'
     api_method = r'deleteStickerFromSet'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'sticker': sticker}
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_sticker_set_thumb(token, name, user_id, thumb=None):
+def set_sticker_set_thumb(token, proxies, name, user_id, thumb=None):
     """
     Use this method to set the thumbnail of a sticker set.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str name: Short name of sticker set.
     :param int user_id: Unique identifier of the target user.
     :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
     :return: True on success
     """
+    method = r'post'
     api_method = r'setStickerSetThumb'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'name': name, 'user_id': user_id}
     if thumb:
         params['thumb'] = thumb
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_inline_query(token, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
+def answer_inline_query(token, proxies, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
                         switch_pm_text=None, switch_pm_parameter=None):
     """
     Use this method to send answers to an inline query.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str inline_query_id: Unique identifier for the answered query.
     :param any results: A JSON-serialized array of [InlineQueryResult] results for the inline query.
     :param int cache_time: The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
@@ -1522,6 +1648,7 @@ def answer_inline_query(token, inline_query_id, results, cache_time=300, is_pers
     :param str switch_pm_parameter: 	Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
     :return: True on success
     """
+    method = r'post'
     api_method = r'answerInlineQuery'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1536,11 +1663,11 @@ def answer_inline_query(token, inline_query_id, results, cache_time=300, is_pers
         params['switch_pm_text'] = switch_pm_text
     if switch_pm_parameter:
         params['switch_pm_parameter'] = switch_pm_parameter
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
 # Payments (https://core.telegram.org/bots/api#payments)
-def send_invoice(token, chat_id, title, description, payload, provider_token, start_parameter, currency, prices,
+def send_invoice(token, proxies, chat_id, title, description, payload, provider_token, start_parameter, currency, prices,
                  provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
                  need_name=False, need_phone_number=False, need_email=False, need_shipping_address=False,
                  send_phone_number_to_provider=False, send_email_to_provider=False, is_flexible=False,
@@ -1548,6 +1675,7 @@ def send_invoice(token, chat_id, title, description, payload, provider_token, st
     """
     Use this method to send invoices. On success, the sent Message is returned.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str title: New chat title, 1-255 characters.
     :param str description: Product description, 1-255 characters
@@ -1573,6 +1701,7 @@ def send_invoice(token, chat_id, title, description, payload, provider_token, st
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object.
     """
+    method = r'post'
     api_method = r'sendInvoice'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1609,21 +1738,23 @@ def send_invoice(token, chat_id, title, description, payload, provider_token, st
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_shipping_query(token, shipping_query_id, ok, shipping_options=None, error_message=None):
+def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_options=None, error_message=None):
     """
     Use this method to reply to shipping queries,
     If you sent an invoice requesting a shipping address and the parameter is_flexible was specified,
     the Bot API will send an Update with a shipping_query field to the bot.
     :param str token: Bot's token (you don't need to fill this)
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str shipping_query_id: Unique identifier for the query to be answered
     :param bool ok: Specify True if delivery to the specified address is possible and False if there are any problems.
     :param list shipping_options: Required if ok is True. A JSON-serialized array of available shipping options.
     :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
     :return: True, On success.
     """
+    method = r'post'
     api_method = 'answerShippingQuery'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1633,46 +1764,51 @@ def answer_shipping_query(token, shipping_query_id, ok, shipping_options=None, e
             shipping_options)
     if error_message:
         params['error_message'] = error_message
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_pre_checkout_query(token, pre_checkout_query_id, ok, error_message=None):
+def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_message=None):
     """
     Use this method to respond to such pre-checkout queries. 
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param str pre_checkout_query_id: Unique identifier for the query to be answered.
     :param bool ok: Specify True if delivery to the specified address is possible and False if there are any problems.
     :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'answerPreCheckoutQuery'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'pre_checkout_query_id': pre_checkout_query_id, 'ok': ok}
     if error_message:
         params['error_message'] = error_message
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_passport_data_errors(token, user_id, errors):
+def set_passport_data_errors(token, proxies, user_id, errors):
     """
     Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int user_id: Unique identifier of the target user.
     :param list errors: A JSON-serialized array of [PassportElementError] describing the errors.
     :return: True On success.
     """
+    method = r'post'
     api_method = r'setPassportDataErrors'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'user_id': user_id, 'errors': errors}
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_game(token, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_game(token, proxies, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send a game.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param str game_short_name: Short name of the game, serves as the unique identifier for the game.
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -1680,6 +1816,7 @@ def send_game(token, chat_id, game_short_name, disable_notification=False, reply
     :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
     :return: a Message object On success.
     """
+    method = r'post'
     api_method = r'sendGame'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1690,15 +1827,16 @@ def send_game(token, chat_id, game_short_name, disable_notification=False, reply
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
         params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
 # https://core.telegram.org/bots/api#setgamescore
-def set_game_score(token, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
+def set_game_score(token, proxies, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
                    inline_message_id=None):
     """
     Use this method to set the score of the specified user in a game.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int user_id: Unique identifier of the target user.
     :param int score: New score, must be non-negative.
     :param bool force: Pass True, if the high score is allowed to decrease.
@@ -1708,6 +1846,7 @@ def set_game_score(token, user_id, score, force=False, disable_edit_message=Fals
     :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
     :return: On success a Message object, otherwise returns True.
     """
+    method = r'post'
     api_method = r'setGameScore'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1722,20 +1861,22 @@ def set_game_score(token, user_id, score, force=False, disable_edit_message=Fals
         params['inline_message_id'] = inline_message_id
     if disable_edit_message:
         params['disable_edit_message'] = disable_edit_message
-    return _make_request(api_url, api_method, files, params, http_method='post')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
 # https://core.telegram.org/bots/api#getgamehighscores
-def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_message_id=None):
+def get_game_high_scores(token, proxies, user_id, chat_id=None, message_id=None, inline_message_id=None):
     """
     Use this method to get data for high score tables.
     :param str token: The bot's API token. (Created with @BotFather).
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
     :param int user_id: Unique identifier of the target user.
     :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
     :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
     :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
     :return: an Array of GameHighScore objects.
     """
+    method = r'get'
     api_method = r'getGameHighScores'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
@@ -1746,7 +1887,7 @@ def get_game_high_scores(token, user_id, chat_id=None, message_id=None, inline_m
         params['message_id'] = message_id
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
-    return _make_request(api_url, api_method, files, params, http_method='get')
+    return _make_request(method, api_url, api_method, files, params, proxies)
 
 
 def _convert_list_json_serializable(results):

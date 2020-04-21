@@ -82,16 +82,18 @@ class Saver:
 class TBot:
     """ This is TBot Class """
 
-    def __init__(self, token, threaded=True, skip_pending=False, num_threads=2):
+    def __init__(self, token, threaded=True, skip_pending=False, num_threads=2, proxies=None):
         """
         :param str token: Required, The bot's API token. (Created with @BotFather)
         :param bool threaded:
         :param bool skip_pending:
         :param int num_threads:
-        :returns: a Tbot object.
+        :param dict or None proxies:
+        :return: a Tbot object.
         """
 
         self.__token = token
+        self.__proxies = proxies
         self.__threaded = threaded
         self.__skip_pending = skip_pending
         if self.__threaded:
@@ -131,7 +133,7 @@ class TBot:
         :param list allowed_updates: An Array of String.
         :return: An Array of Update objects.
         """
-        json_updates = methods.get_updates(self.__token, offset, limit, timeout, allowed_updates)
+        json_updates = methods.get_updates(self.__token, self.__proxies, offset, limit, timeout, allowed_updates)
         updates = []
         for x in json_updates:
             updates.append(types.Update.de_json(x))
@@ -397,28 +399,28 @@ class TBot:
         :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive.
         :return: True On success.
         """
-        return methods.set_webhook(self.__token, url, certificate, max_connections, allowed_updates)
+        return methods.set_webhook(self.__token, self.__proxies, url, certificate, max_connections, allowed_updates)
 
     def delete_webhook(self):
         """
         Use this method to remove webhook integration if you decide to switch back to getUpdates.
         :return: True on success.
         """
-        return methods.delete_webhook(self.__token)
+        return methods.delete_webhook(self.__token, self.__proxies)
 
     def get_webhook_info(self):
         """
         Use this method to get current webhook status.
         :return: a WebhookInfo object, otherwise an object with the url field empty.
         """
-        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__token))
+        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__token, self.__proxies))
 
     def get_me(self):
         """
         A simple method for testing your bot's auth token.
         :return: a User object.
         """
-        return types.User.de_json(methods.get_me(self.__token))
+        return types.User.de_json(methods.get_me(self.__token, self.__proxies))
 
     def send_message(self, chat_id, text, parse_mode=None, disable_web_page_preview=False, disable_notification=False,
                      reply_to_message_id=None, reply_markup=None):
@@ -434,7 +436,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_message(self.__token, chat_id, text, parse_mode, disable_web_page_preview,
+            methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, disable_web_page_preview,
                                  disable_notification,
                                  reply_to_message_id, reply_markup))
 
@@ -448,7 +450,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.forward_message(self.__token, chat_id, from_chat_id, message_id, disable_notification))
+            methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, disable_notification))
 
     def send_photo(self, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
                    reply_to_message_id=None, reply_markup=None):
@@ -464,7 +466,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_photo(self.__token, chat_id, photo, caption, parse_mode, disable_notification,
+            methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, disable_notification,
                                reply_to_message_id, reply_markup))
 
     def send_audio(self, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
@@ -485,7 +487,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_audio(self.__token, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
+            methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
                                disable_notification, reply_to_message_id, reply_markup))
 
     def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=False,
@@ -503,7 +505,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_document(self.__token, chat_id, document, thumb, caption, parse_mode, disable_notification,
+            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode, disable_notification,
                                   reply_to_message_id, reply_markup))
 
     def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
@@ -526,7 +528,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_video(self.__token, chat_id, video, duration, width, height, thumb, caption, parse_mode,
+            methods.send_video(self.__token, self.__proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode,
                                supports_streaming, disable_notification, reply_to_message_id, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
@@ -547,7 +549,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_animation(self.__token, chat_id, animation, duration, width, height, thumb, caption,
+            methods.send_animation(self.__token, self.__proxies, chat_id, animation, duration, width, height, thumb, caption,
                                    parse_mode,
                                    disable_notification, reply_to_message_id, reply_markup))
 
@@ -566,7 +568,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_voice(self.__token, chat_id, voice, caption, parse_mode, duration, disable_notification,
+            methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, duration, disable_notification,
                                reply_to_message_id, reply_markup))
 
     def send_video_note(self, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
@@ -584,7 +586,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_video_note(self.__token, chat_id, video_note, duration, length, thumb, disable_notification,
+            methods.send_video_note(self.__token, self.__proxies, chat_id, video_note, duration, length, thumb, disable_notification,
                                     reply_to_message_id, reply_markup))
 
     def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None):
@@ -597,7 +599,7 @@ class TBot:
         :return: a Messages object.
         """
         result = methods.send_media_group(
-            self.__token, chat_id, media, disable_notification, reply_to_message_id)
+            self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id)
         ret = []
         for msg in result:
             ret.append(types.Message.de_json(msg))
@@ -617,7 +619,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_location(self.__token, chat_id, latitude, longitude, live_period, disable_notification,
+            methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, live_period, disable_notification,
                                   reply_to_message_id, reply_markup))
 
     def edit_message_live_location(self, latitude, longitude, chat_id=None, message_id=None, inline_message_id=None,
@@ -633,7 +635,7 @@ class TBot:
         :return: a Message object, otherwise True.
         """
         return types.Message.de_json(
-            methods.edit_message_live_location(self.__token, latitude, longitude, chat_id, message_id,
+            methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, chat_id, message_id,
                                                inline_message_id, reply_markup))
 
     def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
@@ -646,7 +648,7 @@ class TBot:
         :return: a Message object, otherwise True.
         """
         return types.Message.de_json(
-            methods.stop_message_live_location(self.__token, chat_id, message_id, inline_message_id, reply_markup))
+            methods.stop_message_live_location(self.__token, self.__proxies, chat_id, message_id, inline_message_id, reply_markup))
 
     def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
                    disable_notification=False, reply_to_message_id=None, reply_markup=None):
@@ -665,7 +667,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_venue(self.__token, chat_id, latitude, longitude, title, address, foursquare_id,
+            methods.send_venue(self.__token, self.__proxies, chat_id, latitude, longitude, title, address, foursquare_id,
                                foursquare_type,
                                disable_notification, reply_to_message_id, reply_markup))
 
@@ -684,7 +686,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_contact(self.__token, chat_id, phone_number, first_name, last_name, vcard,
+            methods.send_contact(self.__token, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
                                  disable_notification,
                                  reply_to_message_id, reply_markup))
 
@@ -707,7 +709,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_poll(self.__token, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
+            methods.send_poll(self.__token, self.__proxies, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
                               correct_option_id, is_closed, disable_notifications, reply_to_message_id, reply_markup))
 
     def send_dice(self, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
@@ -720,7 +722,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_dice(self.__token, chat_id, disable_notification, reply_to_message_id, reply_markup))
+            methods.send_dice(self.__token, self.__proxies, chat_id, disable_notification, reply_to_message_id, reply_markup))
 
     def send_chat_action(self, chat_id, action):
         """
@@ -729,7 +731,7 @@ class TBot:
         :param str action: Type of action to broadcast.
         :return: True On success.
         """
-        return methods.send_chat_action(self.__token, chat_id, action)
+        return methods.send_chat_action(self.__token, self.__proxies, chat_id, action)
 
     def get_user_profile_photos(self, user_id, offset=None, limit=100):
         """
@@ -739,7 +741,7 @@ class TBot:
         :param int limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
         :return: a UserProfilePhoto object.
         """
-        return types.UserProfilePhotos.de_json(methods.get_user_profile_photos(self.__token, user_id, offset, limit))
+        return types.UserProfilePhotos.de_json(methods.get_user_profile_photos(self.__token, self.__proxies, user_id, offset, limit))
 
     def get_file(self, file_id):
         """
@@ -747,7 +749,7 @@ class TBot:
         :param int or str file_id: File identifier to get info about
         :return: a File object.
         """
-        return types.File.de_json(methods.get_file(self.__token, file_id))
+        return types.File.de_json(methods.get_file(self.__token, self.__proxies, file_id))
 
     def download_file(self, file_path):
         """
@@ -755,7 +757,7 @@ class TBot:
         :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
         :return: any, On success.
         """
-        return methods.download_file(self.__token, file_path)
+        return methods.download_file(self.__token, self.__proxies, file_path)
 
     def kick_chat_member(self, chat_id, user_id, until_date=None):
         """
@@ -765,7 +767,7 @@ class TBot:
         :param int until_date: Date when the user will be unbanned, unix time.
         :return: True On success.
         """
-        return methods.kick_chat_member(self.__token, chat_id, user_id, until_date)
+        return methods.kick_chat_member(self.__token, self.__proxies, chat_id, user_id, until_date)
 
     def unban_chat_member(self, chat_id, user_id):
         """
@@ -774,7 +776,7 @@ class TBot:
         :param int or str user_id: Unique identifier of the target user.
         :return: True On success.
         """
-        return methods.unban_chat_member(self.__token, chat_id, user_id)
+        return methods.unban_chat_member(self.__token, self.__proxies, chat_id, user_id)
 
     def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
@@ -785,7 +787,7 @@ class TBot:
         :param int until_date: 	Date when restrictions will be lifted for the user, unix time.
         :return: True On success.
         """
-        return methods.restrict_chat_member(self.__token, chat_id, user_id, permissions, until_date)
+        return methods.restrict_chat_member(self.__token, self.__proxies, chat_id, user_id, permissions, until_date)
 
     def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
                             can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
@@ -804,7 +806,7 @@ class TBot:
         :param bool can_promote_members: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
         :return: True On success.
         """
-        return methods.promote_chat_member(self.__token, chat_id, user_id, can_change_info, can_post_messages,
+        return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, can_change_info, can_post_messages,
                                            can_edit_messages, can_delete_messages, can_invite_users,
                                            can_restrict_members, can_pin_messages, can_promote_members)
 
@@ -816,7 +818,7 @@ class TBot:
         :param str custom_title: New custom title for the administrator; 0-16 characters.
         :return: True on success.
         """
-        return methods.set_chat_administrator_custom_title(self.__token, chat_id, user_id, custom_title)
+        return methods.set_chat_administrator_custom_title(self.__token, self.__proxies, chat_id, user_id, custom_title)
 
     def set_chat_permissions(self, chat_id, permissions):
         """
@@ -825,7 +827,7 @@ class TBot:
         :param dict permissions: New default chat permissions must be a ChatPermissions object
         :return: True on success.
         """
-        return methods.set_chat_permissions(self.__token, chat_id, permissions)
+        return methods.set_chat_permissions(self.__token, self.__proxies, chat_id, permissions)
 
     def export_chat_invite_link(self, chat_id):
         """
@@ -833,7 +835,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: new link as String on success.
         """
-        return methods.export_chat_invite_link(self.__token, chat_id)
+        return methods.export_chat_invite_link(self.__token, self.__proxies, chat_id)
 
     def set_chat_photo(self, chat_id, photo):
         """
@@ -842,7 +844,7 @@ class TBot:
         :param any photo: Use this method to set a new profile photo for the chat.
         :return: True on success.
         """
-        return methods.set_chat_photo(self.__token, chat_id, photo)
+        return methods.set_chat_photo(self.__token, self.__proxies, chat_id, photo)
 
     def delete_chat_photo(self, chat_id):
         """
@@ -850,7 +852,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         """
-        return methods.delete_chat_photo(self.__token, chat_id)
+        return methods.delete_chat_photo(self.__token, self.__proxies, chat_id)
 
     def set_chat_title(self, chat_id, title):
         """
@@ -859,7 +861,7 @@ class TBot:
         :param str title: New chat title, 1-255 characters.
         :return: True on success.
         """
-        return methods.set_chat_title(self.__token, chat_id, title)
+        return methods.set_chat_title(self.__token, self.__proxies, chat_id, title)
 
     def set_chat_description(self, chat_id, description):
         """
@@ -868,7 +870,7 @@ class TBot:
         :param str description: New chat description, 0-255 characters.
         :return: True on success.
         """
-        return methods.set_chat_description(self.__token, chat_id, description)
+        return methods.set_chat_description(self.__token, self.__proxies, chat_id, description)
 
     def pin_chat_message(self, chat_id, message_id, disable_notification=False):
         """
@@ -878,7 +880,7 @@ class TBot:
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :return: True on success.
         """
-        return methods.pin_chat_message(self.__token, chat_id, message_id, disable_notification)
+        return methods.pin_chat_message(self.__token, self.__proxies, chat_id, message_id, disable_notification)
 
     def unpin_chat_message(self, chat_id):
         """
@@ -886,7 +888,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         """
-        return methods.unpin_chat_message(self.__token, chat_id)
+        return methods.unpin_chat_message(self.__token, self.__proxies, chat_id)
 
     def leave_chat(self, chat_id):
         """
@@ -894,7 +896,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         """
-        result = methods.leave_chat(self.__token, chat_id)
+        result = methods.leave_chat(self.__token, self.__proxies, chat_id)
         return result
 
     def get_chat(self, chat_id):
@@ -903,7 +905,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: a Chat object.
         """
-        result = methods.get_chat(self.__token, chat_id)
+        result = methods.get_chat(self.__token, self.__proxies, chat_id)
         return types.Chat.de_json(result)
 
     def get_chat_administrators(self, chat_id):
@@ -912,7 +914,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: an Array of ChatMember object.
         """
-        result = methods.get_chat_administrators(self.__token, chat_id)
+        result = methods.get_chat_administrators(self.__token, self.__proxies, chat_id)
         ret = []
         for r in result:
             ret.append(types.ChatMember.de_json(r))
@@ -924,7 +926,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: Integer On success.
         """
-        return methods.get_chat_members_count(self.__token, chat_id)
+        return methods.get_chat_members_count(self.__token, self.__proxies, chat_id)
 
     def get_chat_member(self, chat_id, user_id):
         """
@@ -933,7 +935,7 @@ class TBot:
         :param int user_id: Unique identifier of the target user.
         :return: a ChatMember object On success.
         """
-        return types.ChatMember.de_json(methods.get_chat_member(self.__token, chat_id, user_id))
+        return types.ChatMember.de_json(methods.get_chat_member(self.__token, self.__proxies, chat_id, user_id))
 
     def set_chat_sticker_set(self, chat_id, sticker_set_name):
         """
@@ -942,7 +944,7 @@ class TBot:
         :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
         :return: True On success.
         """
-        return methods.set_chat_sticker_set(self.__token, chat_id, sticker_set_name)
+        return methods.set_chat_sticker_set(self.__token, self.__proxies, chat_id, sticker_set_name)
 
     def delete_chat_sticker_set(self, chat_id):
         """
@@ -950,7 +952,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True On success.
         """
-        return methods.delete_chat_sticker_set(self.__token, chat_id)
+        return methods.delete_chat_sticker_set(self.__token, self.__proxies, chat_id)
 
     def answer_callback_query(self, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
         """
@@ -962,7 +964,7 @@ class TBot:
         :param int cache_time: The maximum amount of time in seconds that the result of the callback query may be cached client-side.
         :return: True On success.
         """
-        return methods.answer_callback_query(self.__token, callback_query_id, text, show_alert, url, cache_time)
+        return methods.answer_callback_query(self.__token, self.__proxies, callback_query_id, text, show_alert, url, cache_time)
 
     def set_my_commands(self, commands):
         """
@@ -970,14 +972,14 @@ class TBot:
         :param list commands: A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
         :return: True On success.
         """
-        return methods.set_my_commands(self.__token, commands)
+        return methods.set_my_commands(self.__token, self.__proxies, commands)
 
     def get_my_commands(self):
         """
         Use this method to get the current list of the bot's commands.
         :return: Array of BotCommand On success.
         """
-        return methods.get_my_commands(self.__token)
+        return methods.get_my_commands(self.__token, self.__proxies)
 
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           disable_web_page_preview=False, reply_markup=None):
@@ -992,7 +994,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
         """
-        result = methods.edit_message_text(self.__token, text, chat_id, message_id, inline_message_id, parse_mode,
+        result = methods.edit_message_text(self.__token, self.__proxies, text, chat_id, message_id, inline_message_id, parse_mode,
                                            disable_web_page_preview, reply_markup)
         # if edit inline message return is bool not Message.
         if type(result) == bool:
@@ -1011,7 +1013,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
         """
-        result = methods.edit_message_caption(self.__token, caption, chat_id, message_id, inline_message_id, parse_mode,
+        result = methods.edit_message_caption(self.__token, self.__proxies, caption, chat_id, message_id, inline_message_id, parse_mode,
                                               reply_markup)
         if type(result) == bool:
             return result
@@ -1028,7 +1030,7 @@ class TBot:
         :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_media(
-            self.__token, media, chat_id, message_id, inline_message_id, reply_markup)
+            self.__token, self.__proxies, media, chat_id, message_id, inline_message_id, reply_markup)
         # if edit inline message return is bool not Message.
         if type(result) == bool:
             return result
@@ -1044,7 +1046,7 @@ class TBot:
         :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_reply_markup(
-            self.__token, chat_id, message_id, inline_message_id, reply_markup)
+            self.__token, self.__proxies, chat_id, message_id, inline_message_id, reply_markup)
         if type(result) == bool:
             return result
         return types.Message.de_json(result)
@@ -1057,7 +1059,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Poll object On success.
         """
-        return types.Poll.de_json(methods.stop_poll(self.__token, chat_id, message_id, reply_markup))
+        return types.Poll.de_json(methods.stop_poll(self.__token, self.__proxies, chat_id, message_id, reply_markup))
 
     def delete_message(self, chat_id, message_id):
         """
@@ -1073,7 +1075,7 @@ class TBot:
         :param int message_id: Identifier of the message to delete
         :return: True On success.
         """
-        return methods.delete_message(self.__token, chat_id, message_id)
+        return methods.delete_message(self.__token, self.__proxies, chat_id, message_id)
 
     def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
@@ -1086,7 +1088,7 @@ class TBot:
         :returns: a Message object On success.
         """
         return types.Message.de_json(
-            methods.send_sticker(self.__token, chat_id, sticker, disable_notification, reply_to_message_id,
+            methods.send_sticker(self.__token, self.__proxies, chat_id, sticker, disable_notification, reply_to_message_id,
                                  reply_markup))
 
     def get_sticker_set(self, name):
@@ -1095,7 +1097,7 @@ class TBot:
         :param str name:  Name of the sticker set.
         :return: a StickerSet object On success.
         """
-        return types.StickerSet.de_json(methods.get_sticker_set(self.__token, name))
+        return types.StickerSet.de_json(methods.get_sticker_set(self.__token, self.__proxies, name))
 
     def upload_sticker_file(self, user_id, png_sticker):
         """
@@ -1104,7 +1106,7 @@ class TBot:
         :param any png_sticker: Png image with the sticker,
         :return: a File object On success.
         """
-        return types.File.de_json(methods.upload_sticker_file(self.__token, user_id, png_sticker))
+        return types.File.de_json(methods.upload_sticker_file(self.__token, self.__proxies, user_id, png_sticker))
 
     def create_new_sticker_set(self, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
                                mask_position=False):
@@ -1120,7 +1122,7 @@ class TBot:
         :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
         :return: True On success.
         """
-        return methods.create_new_sticker_set(self.__token, user_id, name, title, png_sticker, tgs_sticker, emojis,
+        return methods.create_new_sticker_set(self.__token, self.__proxies, user_id, name, title, png_sticker, tgs_sticker, emojis,
                                               contains_masks, mask_position)
 
     def add_sticker_to_set(self, user_id, name, png_sticker, tgs_sticker, emojis, mask_position=False):
@@ -1134,7 +1136,7 @@ class TBot:
         :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
         :return: True on success.
         """
-        return methods.add_sticker_to_set(self.__token, user_id, name, png_sticker, tgs_sticker, emojis, mask_position)
+        return methods.add_sticker_to_set(self.__token, self.__proxies, user_id, name, png_sticker, tgs_sticker, emojis, mask_position)
 
     def set_sticker_position_in_set(self, sticker, position):
         """
@@ -1143,7 +1145,7 @@ class TBot:
         :param int position: New sticker position in the set, zero-based.
         :return: True on success.
         """
-        return methods.set_sticker_position_in_set(self.__token, sticker, position)
+        return methods.set_sticker_position_in_set(self.__token, self.__proxies, sticker, position)
 
     def delete_sticker_from_set(self, sticker):
         """
@@ -1151,7 +1153,7 @@ class TBot:
         :param str sticker: File identifier of the sticker.
         :return: True on success.
         """
-        return methods.delete_sticker_from_set(self.__token, sticker)
+        return methods.delete_sticker_from_set(self.__token, self.__proxies, sticker)
 
     def set_sticker_set_thumb(self, name, user_id, thumb=None):
         """
@@ -1161,7 +1163,7 @@ class TBot:
         :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
         :return: True on success
         """
-        return methods.set_sticker_set_thumb(self.__token, name, user_id, thumb)
+        return methods.set_sticker_set_thumb(self.__token, self.__proxies, name, user_id, thumb)
 
     def answer_inline_query(self, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
                             switch_pm_text=None, switch_pm_parameter=None):
@@ -1176,7 +1178,7 @@ class TBot:
         :param str switch_pm_parameter: 	Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
         :return: True on success
         """
-        return methods.answer_inline_query(self.__token, inline_query_id, results, cache_time, is_personal, next_offset,
+        return methods.answer_inline_query(self.__token, self.__proxies, inline_query_id, results, cache_time, is_personal, next_offset,
                                            switch_pm_text, switch_pm_parameter)
 
     def send_invoice(self, chat_id, title, description, payload, provider_token, start_parameter, currency, prices,
@@ -1212,7 +1214,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_invoice(self.__token, chat_id, title, description, payload, provider_token, start_parameter,
+            methods.send_invoice(self.__token, self.__proxies, chat_id, title, description, payload, provider_token, start_parameter,
                                  currency, prices, provider_data, photo_url, photo_size, photo_width, photo_height,
                                  need_name, need_phone_number, need_email, need_shipping_address,
                                  send_phone_number_to_provider, send_email_to_provider, is_flexible,
@@ -1230,7 +1232,7 @@ class TBot:
         :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
         :return: True, On success.
         """
-        return methods.answer_shipping_query(self.__token, shipping_query_id, ok, shipping_options, error_message)
+        return methods.answer_shipping_query(self.__token, self.__proxies, shipping_query_id, ok, shipping_options, error_message)
 
     def answer_pre_checkout_query(self, pre_checkout_query_id, ok, error_message=None):
         """
@@ -1240,7 +1242,7 @@ class TBot:
         :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
         :return: True On success.
         """
-        return methods.answer_pre_checkout_query(self.__token, pre_checkout_query_id, ok, error_message)
+        return methods.answer_pre_checkout_query(self.__token, self.__proxies, pre_checkout_query_id, ok, error_message)
 
     def set_passport_data_errors(self, user_id, errors):
         """
@@ -1249,7 +1251,7 @@ class TBot:
         :param list errors: A JSON-serialized array of [PassportElementError] describing the errors.
         :return: True On success.
         """
-        return methods.set_passport_data_errors(self.__token, user_id, errors)
+        return methods.set_passport_data_errors(self.__token, self.__proxies, user_id, errors)
 
     def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
                   reply_markup=None):
@@ -1262,7 +1264,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success.
         """
-        return types.Message.de_json(methods.send_game(self.__token, chat_id, game_short_name, disable_notification,
+        return types.Message.de_json(methods.send_game(self.__token, self.__proxies, chat_id, game_short_name, disable_notification,
                                                        reply_to_message_id, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
@@ -1278,7 +1280,7 @@ class TBot:
         :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :return: On success a Message object, otherwise returns True.
         """
-        result = methods.set_game_score(self.__token, user_id, score, force, disable_edit_message, chat_id, message_id,
+        result = methods.set_game_score(self.__token, self.__proxies, user_id, score, force, disable_edit_message, chat_id, message_id,
                                         inline_message_id)
         if type(result) == bool:
             return result
@@ -1293,7 +1295,7 @@ class TBot:
         :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :return: an Array of GameHighScore objects.
         """
-        result = methods.get_game_high_scores(self.__token, user_id, chat_id, message_id, inline_message_id)
+        result = methods.get_game_high_scores(self.__token, self.__proxies, user_id, chat_id, message_id, inline_message_id)
         ret = []
         for r in result:
             ret.append(types.GameHighScore.de_json(r))
