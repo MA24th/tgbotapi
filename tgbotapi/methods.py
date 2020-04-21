@@ -33,7 +33,8 @@ def _make_request(api_url, api_method, files, params, http_method):
         if 'timeout' in params:
             timeout = params['timeout'] + 10
 
-    result = _get_req_session().request(http_method, api_url, params, files, timeout, proxies)
+    result = _get_req_session().request(http_method, api_url, params, data=None, headers=None, cookies=None,
+                                        files=files, auth=None, timeout=timeout)
     logger.debug("The server returned: '{0}'".format(result.text.encode('utf8')))
     return _check_result(api_method, result)['result']
 
