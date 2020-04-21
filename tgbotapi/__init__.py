@@ -1383,13 +1383,12 @@ class TBot:
         :return:
         """
         for message in new_messages:
-            if hasattr(message, "reply_to_message") and message.reply_to_message is not None:
+            if message.reply_to_message is not None:
                 reply_mid = message.reply_to_message.message_id
                 if reply_mid in self.__reply_handlers.keys():
                     handlers = self.__reply_handlers[reply_mid]
                     for handler in handlers:
-                        self._exec_task(
-                            handler["callback"], message, *handler["args"], **handler["kwargs"])
+                        self._exec_task(handler["callback"], message, *handler["args"], **handler["kwargs"])
                     self.__reply_handlers.pop(reply_mid)
                     if self.__reply_saver is not None:
                         self.__reply_saver.start_save_timer()
