@@ -91,86 +91,36 @@ class TBot:
         :returns: a Tbot object.
         """
 
-        self.token = token
-        self.update_listener = []
-        self.skip_pending = skip_pending
+        self.__token = token
+        self.__threaded = threaded
+        self.__skip_pending = skip_pending
+        if self.__threaded:
+            self.__worker_pool = ThreadPool(num_threads=num_threads)
 
+        self.__update_listener = []
         self.__stop_polling = threading.Event()
-        self.last_update_id = 0
-        self.exc_info = None
+        self.__last_update_id = 0
+        self.__exc_info = None
 
         # key: message_id, value: handler list
-        self.reply_handlers = {}
+        self.__reply_handlers = {}
 
         # key: chat_id, value: handler list
-        self.next_step_handlers = {}
+        self.__next_step_handlers = {}
+        self.__next_step_saver = None
+        self.__reply_saver = None
 
-        self.next_step_saver = None
-        self.reply_saver = None
-
-        self.message_handlers = []
-        self.edited_message_handlers = []
-        self.channel_post_handlers = []
-        self.edited_channel_post_handlers = []
-        self.inline_query_handlers = []
-        self.chosen_inline_handlers = []
-        self.callback_query_handlers = []
-        self.shipping_query_handlers = []
-        self.pre_checkout_query_handlers = []
-        self.poll_handlers = []
-        self.poll_answer_handlers = []
-
-        self.threaded = threaded
-        if self.threaded:
-            self.worker_pool = ThreadPool(num_threads=num_threads)
-
-    def enable_save_next_step_handlers(self, delay=120, filename="./.handler-saves/step.save"):
-        """
-        Enable saving next step handlers (by default saving disable)
-
-        :param delay: Integer: Required, Delay between changes in handlers and saving
-        :param filename: Data: Required, Filename of save file
-        """
-        self.next_step_saver = Saver(self.next_step_handlers, filename, delay)
-
-    def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
-        """
-        Enable saving reply handlers (by default saving disable)
-
-        :param delay: Integer: Required, Delay between changes in handlers and saving
-        :param filename: Data: Required, Filename of save file
-        """
-        self.reply_saver = Saver(self.reply_handlers, filename, delay)
-
-    def disable_save_next_step_handlers(self):
-        """
-        Disable saving next step handlers (by default saving disable)
-        """
-        self.next_step_saver = None
-
-    def disable_save_reply_handlers(self):
-        """
-        Disable saving next step handlers (by default saving disable)
-        """
-        self.reply_saver = None
-
-    def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
-        """
-        Load next step handlers from save file
-
-        :param filename: Data: Required, Filename of the file where handlers was saved
-        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
-        """
-        self.next_step_saver.load_handlers(filename, del_file_after_loading)
-
-    def load_reply_handlers(self, filename="./.handler-saves/reply.save", del_file_after_loading=True):
-        """
-        Load reply handlers from save file
-
-        :param filename: Data: Required, Filename of the file where handlers was saved
-        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
-        """
-        self.reply_saver.load_handlers(filename)
+        self.__message_handlers = []
+        self.__edited_message_handlers = []
+        self.__channel_post_handlers = []
+        self.__edited_channel_post_handlers = []
+        self.__inline_query_handlers = []
+        self.__chosen_inline_handlers = []
+        self.__callback_query_handlers = []
+        self.__shipping_query_handlers = []
+        self.__pre_checkout_query_handlers = []
+        self.__poll_handlers = []
+        self.__poll_answer_handlers = []
 
     def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
@@ -181,7 +131,7 @@ class TBot:
         :param list allowed_updates: An Array of String.
         :return: An Array of Update objects.
         """
-        json_updates = methods.get_updates(self.token, offset, limit, timeout, allowed_updates)
+        json_updates = methods.get_updates(self.__token, offset, limit, timeout, allowed_updates)
         updates = []
         for x in json_updates:
             updates.append(types.Update.de_json(x))
@@ -193,14 +143,14 @@ class TBot:
         :return: total updates skipped
         """
         total = 0
-        updates = self.get_updates(offset=self.last_update_id, timeout=1)
+        updates = self.get_updates(offset=self.__last_update_id, timeout=1)
         while updates:
             total += len(updates)
             for update in updates:
-                if update.update_id > self.last_update_id:
-                    self.last_update_id = update.update_id
+                if update.update_id > self.__last_update_id:
+                    self.__last_update_id = update.update_id
             updates = self.get_updates(
-                offset=self.last_update_id + 1, timeout=1)
+                offset=self.__last_update_id + 1, timeout=1)
         return total
 
     def __retrieve_updates(self, timeout=20):
@@ -209,14 +159,14 @@ class TBot:
         Registered listeners and applicable message handlers will be notified when a new message arrives.
         :raises ApiException when a call has failed.
         """
-        if self.skip_pending:
+        if self.__skip_pending:
             logger.debug('Skipped {0} pending messages'.format(
                 self.__skip_updates()))
-            self.skip_pending = False
-        updates = self.get_updates(offset=(self.last_update_id + 1), timeout=timeout)
-        self.process_new_updates(updates)
+            self.__skip_pending = False
+        updates = self.get_updates(offset=(self.__last_update_id + 1), timeout=timeout)
+        self.__process_new_updates(updates)
 
-    def process_new_updates(self, updates):
+    def __process_new_updates(self, updates):
         new_messages = []
         new_edited_messages = []
         new_channel_posts = []
@@ -230,8 +180,8 @@ class TBot:
         new_poll_answer = []
 
         for update in updates:
-            if update.update_id > self.last_update_id:
-                self.last_update_id = update.update_id
+            if update.update_id > self.__last_update_id:
+                self.__last_update_id = update.update_id
             if update.message:
                 new_messages.append(update.message)
             if update.edited_message:
@@ -257,72 +207,72 @@ class TBot:
 
         logger.debug('Received {0} new updates'.format(len(updates)))
         if len(new_messages) > 0:
-            self.process_new_messages(new_messages)
+            self.__process_new_messages(new_messages)
         if len(new_edited_messages) > 0:
-            self.process_new_edited_messages(new_edited_messages)
+            self.__process_new_edited_messages(new_edited_messages)
         if len(new_channel_posts) > 0:
-            self.process_new_channel_posts(new_channel_posts)
+            self.__process_new_channel_posts(new_channel_posts)
         if len(new_edited_channel_posts) > 0:
-            self.process_new_edited_channel_posts(new_edited_channel_posts)
+            self.__process_new_edited_channel_posts(new_edited_channel_posts)
         if len(new_inline_querys) > 0:
-            self.process_new_inline_query(new_inline_querys)
+            self.__process_new_inline_query(new_inline_querys)
         if len(new_chosen_inline_results) > 0:
-            self.process_new_chosen_inline_query(new_chosen_inline_results)
+            self.__process_new_chosen_inline_query(new_chosen_inline_results)
         if len(new_callback_querys) > 0:
-            self.process_new_callback_query(new_callback_querys)
+            self.__process_new_callback_query(new_callback_querys)
         if len(new_pre_checkout_querys) > 0:
-            self.process_new_pre_checkout_query(new_pre_checkout_querys)
+            self.__process_new_pre_checkout_query(new_pre_checkout_querys)
         if len(new_shipping_querys) > 0:
-            self.process_new_shipping_query(new_shipping_querys)
+            self.__process_new_shipping_query(new_shipping_querys)
         if len(new_poll) > 0:
-            self.process_new_poll(new_poll)
+            self.__process_new_poll(new_poll)
         if len(new_poll_answer) > 0:
-            self.process_new_poll_answer(new_poll_answer)
+            self.__process_new_poll_answer(new_poll_answer)
 
-    def process_new_messages(self, new_messages):
+    def __process_new_messages(self, new_messages):
         self._notify_next_handlers(new_messages)
         self._notify_reply_handlers(new_messages)
         self.__notify_update(new_messages)
-        self._notify_command_handlers(self.message_handlers, new_messages)
+        self._notify_command_handlers(self.__message_handlers, new_messages)
 
-    def process_new_edited_messages(self, edited_message):
+    def __process_new_edited_messages(self, edited_message):
         self._notify_command_handlers(
-            self.edited_message_handlers, edited_message)
+            self.__edited_message_handlers, edited_message)
 
-    def process_new_channel_posts(self, channel_post):
-        self._notify_command_handlers(self.channel_post_handlers, channel_post)
+    def __process_new_channel_posts(self, channel_post):
+        self._notify_command_handlers(self.__channel_post_handlers, channel_post)
 
-    def process_new_edited_channel_posts(self, edited_channel_post):
+    def __process_new_edited_channel_posts(self, edited_channel_post):
         self._notify_command_handlers(
-            self.edited_channel_post_handlers, edited_channel_post)
+            self.__edited_channel_post_handlers, edited_channel_post)
 
-    def process_new_inline_query(self, new_inline_querys):
-        self._notify_command_handlers(self.inline_query_handlers, new_inline_querys)
+    def __process_new_inline_query(self, new_inline_querys):
+        self._notify_command_handlers(self.__inline_query_handlers, new_inline_querys)
 
-    def process_new_chosen_inline_query(self, new_chosen_inline_querys):
+    def __process_new_chosen_inline_query(self, new_chosen_inline_querys):
         self._notify_command_handlers(
-            self.chosen_inline_handlers, new_chosen_inline_querys)
+            self.__chosen_inline_handlers, new_chosen_inline_querys)
 
-    def process_new_callback_query(self, new_callback_querys):
+    def __process_new_callback_query(self, new_callback_querys):
         self._notify_command_handlers(
-            self.callback_query_handlers, new_callback_querys)
+            self.__callback_query_handlers, new_callback_querys)
 
-    def process_new_shipping_query(self, new_shipping_querys):
+    def __process_new_shipping_query(self, new_shipping_querys):
         self._notify_command_handlers(
-            self.shipping_query_handlers, new_shipping_querys)
+            self.__shipping_query_handlers, new_shipping_querys)
 
-    def process_new_pre_checkout_query(self, pre_checkout_querys):
+    def __process_new_pre_checkout_query(self, pre_checkout_querys):
         self._notify_command_handlers(
-            self.pre_checkout_query_handlers, pre_checkout_querys)
+            self.__pre_checkout_query_handlers, pre_checkout_querys)
 
-    def process_new_poll(self, poll):
-        self._notify_command_handlers(self.poll_handlers, poll)
+    def __process_new_poll(self, poll):
+        self._notify_command_handlers(self.__poll_handlers, poll)
 
-    def process_new_poll_answer(self, poll_answer):
-        self._notify_command_handlers(self.poll_answer_handlers, poll_answer)
+    def __process_new_poll_answer(self, poll_answer):
+        self._notify_command_handlers(self.__poll_answer_handlers, poll_answer)
 
     def __notify_update(self, new_messages):
-        for listener in self.update_listener:
+        for listener in self.__update_listener:
             self._exec_task(listener, new_messages)
 
     def infinity_polling(self, timeout=20, *args, **kwargs):
@@ -347,7 +297,7 @@ class TBot:
         :param timeout: Integer: Timeout in seconds for long polling.
         :return:
         """
-        if self.threaded:
+        if self.__threaded:
             self.__threaded_polling(none_stop, interval, timeout)
         else:
             self.__non_threaded_polling(none_stop, interval, timeout)
@@ -361,7 +311,7 @@ class TBot:
         or_event = OrEvent(
             polling_thread.done_event,
             polling_thread.exception_event,
-            self.worker_pool.exception_event
+            self.__worker_pool.exception_event
         )
 
         while not self.__stop_polling.wait(interval):
@@ -372,7 +322,7 @@ class TBot:
                 or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
 
                 polling_thread.raise_exceptions()
-                self.worker_pool.raise_exceptions()
+                self.__worker_pool.raise_exceptions()
 
                 error_interval = 0.25
             except methods.ApiException as e:
@@ -382,7 +332,7 @@ class TBot:
                     logger.info("Exception occurred. Stopping.")
                 else:
                     polling_thread.clear_exceptions()
-                    self.worker_pool.clear_exceptions()
+                    self.__worker_pool.clear_exceptions()
                     logger.info(
                         "Waiting for {0} seconds until retry".format(error_interval))
                     time.sleep(error_interval)
@@ -422,8 +372,8 @@ class TBot:
         logger.info('Stopped polling.')
 
     def _exec_task(self, task, *args, **kwargs):
-        if self.threaded:
-            self.worker_pool.put(task, *args, **kwargs)
+        if self.__threaded:
+            self.__worker_pool.put(task, *args, **kwargs)
         else:
             task(*args, **kwargs)
 
@@ -432,11 +382,11 @@ class TBot:
 
     def stop_bot(self):
         self.stop_polling()
-        if self.worker_pool:
-            self.worker_pool.close()
+        if self.__worker_pool:
+            self.__worker_pool.close()
 
     def set_update_listener(self, listener):
-        self.update_listener.append(listener)
+        self.__update_listener.append(listener)
 
     def set_webhook(self, url=None, certificate=None, max_connections=40, allowed_updates=None):
         """
@@ -447,28 +397,28 @@ class TBot:
         :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive.
         :return: True On success.
         """
-        return methods.set_webhook(self.token, url, certificate, max_connections, allowed_updates)
+        return methods.set_webhook(self.__token, url, certificate, max_connections, allowed_updates)
 
     def delete_webhook(self):
         """
         Use this method to remove webhook integration if you decide to switch back to getUpdates.
         :return: True on success.
         """
-        return methods.delete_webhook(self.token)
+        return methods.delete_webhook(self.__token)
 
     def get_webhook_info(self):
         """
         Use this method to get current webhook status.
         :return: a WebhookInfo object, otherwise an object with the url field empty.
         """
-        return types.WebhookInfo.de_json(methods.get_webhook_info(self.token))
+        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__token))
 
     def get_me(self):
         """
         A simple method for testing your bot's auth token.
         :return: a User object.
         """
-        return types.User.de_json(methods.get_me(self.token))
+        return types.User.de_json(methods.get_me(self.__token))
 
     def send_message(self, chat_id, text, parse_mode=None, disable_web_page_preview=False, disable_notification=False,
                      reply_to_message_id=None, reply_markup=None):
@@ -484,7 +434,8 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_message(self.token, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
+            methods.send_message(self.__token, chat_id, text, parse_mode, disable_web_page_preview,
+                                 disable_notification,
                                  reply_to_message_id, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
@@ -497,7 +448,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.forward_message(self.token, chat_id, from_chat_id, message_id, disable_notification))
+            methods.forward_message(self.__token, chat_id, from_chat_id, message_id, disable_notification))
 
     def send_photo(self, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
                    reply_to_message_id=None, reply_markup=None):
@@ -513,7 +464,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_photo(self.token, chat_id, photo, caption, parse_mode, disable_notification,
+            methods.send_photo(self.__token, chat_id, photo, caption, parse_mode, disable_notification,
                                reply_to_message_id, reply_markup))
 
     def send_audio(self, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
@@ -534,7 +485,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_audio(self.token, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
+            methods.send_audio(self.__token, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
                                disable_notification, reply_to_message_id, reply_markup))
 
     def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=False,
@@ -552,7 +503,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_document(self.token, chat_id, document, thumb, caption, parse_mode, disable_notification,
+            methods.send_document(self.__token, chat_id, document, thumb, caption, parse_mode, disable_notification,
                                   reply_to_message_id, reply_markup))
 
     def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
@@ -575,7 +526,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_video(self.token, chat_id, video, duration, width, height, thumb, caption, parse_mode,
+            methods.send_video(self.__token, chat_id, video, duration, width, height, thumb, caption, parse_mode,
                                supports_streaming, disable_notification, reply_to_message_id, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
@@ -596,7 +547,8 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_animation(self.token, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
+            methods.send_animation(self.__token, chat_id, animation, duration, width, height, thumb, caption,
+                                   parse_mode,
                                    disable_notification, reply_to_message_id, reply_markup))
 
     def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=False,
@@ -614,7 +566,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_voice(self.token, chat_id, voice, caption, parse_mode, duration, disable_notification,
+            methods.send_voice(self.__token, chat_id, voice, caption, parse_mode, duration, disable_notification,
                                reply_to_message_id, reply_markup))
 
     def send_video_note(self, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
@@ -632,7 +584,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_video_note(self.token, chat_id, video_note, duration, length, thumb, disable_notification,
+            methods.send_video_note(self.__token, chat_id, video_note, duration, length, thumb, disable_notification,
                                     reply_to_message_id, reply_markup))
 
     def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None):
@@ -645,7 +597,7 @@ class TBot:
         :return: a Messages object.
         """
         result = methods.send_media_group(
-            self.token, chat_id, media, disable_notification, reply_to_message_id)
+            self.__token, chat_id, media, disable_notification, reply_to_message_id)
         ret = []
         for msg in result:
             ret.append(types.Message.de_json(msg))
@@ -665,7 +617,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_location(self.token, chat_id, latitude, longitude, live_period, disable_notification,
+            methods.send_location(self.__token, chat_id, latitude, longitude, live_period, disable_notification,
                                   reply_to_message_id, reply_markup))
 
     def edit_message_live_location(self, latitude, longitude, chat_id=None, message_id=None, inline_message_id=None,
@@ -681,7 +633,7 @@ class TBot:
         :return: a Message object, otherwise True.
         """
         return types.Message.de_json(
-            methods.edit_message_live_location(self.token, latitude, longitude, chat_id, message_id,
+            methods.edit_message_live_location(self.__token, latitude, longitude, chat_id, message_id,
                                                inline_message_id, reply_markup))
 
     def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
@@ -694,7 +646,7 @@ class TBot:
         :return: a Message object, otherwise True.
         """
         return types.Message.de_json(
-            methods.stop_message_live_location(self.token, chat_id, message_id, inline_message_id, reply_markup))
+            methods.stop_message_live_location(self.__token, chat_id, message_id, inline_message_id, reply_markup))
 
     def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
                    disable_notification=False, reply_to_message_id=None, reply_markup=None):
@@ -713,7 +665,8 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_venue(self.token, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
+            methods.send_venue(self.__token, chat_id, latitude, longitude, title, address, foursquare_id,
+                               foursquare_type,
                                disable_notification, reply_to_message_id, reply_markup))
 
     def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
@@ -731,7 +684,8 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_contact(self.token, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
+            methods.send_contact(self.__token, chat_id, phone_number, first_name, last_name, vcard,
+                                 disable_notification,
                                  reply_to_message_id, reply_markup))
 
     def send_poll(self, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
@@ -753,7 +707,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_poll(self.token, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
+            methods.send_poll(self.__token, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
                               correct_option_id, is_closed, disable_notifications, reply_to_message_id, reply_markup))
 
     def send_dice(self, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
@@ -766,7 +720,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_dice(self.token, chat_id, disable_notification, reply_to_message_id, reply_markup))
+            methods.send_dice(self.__token, chat_id, disable_notification, reply_to_message_id, reply_markup))
 
     def send_chat_action(self, chat_id, action):
         """
@@ -775,7 +729,7 @@ class TBot:
         :param str action: Type of action to broadcast.
         :return: True On success.
         """
-        return methods.send_chat_action(self.token, chat_id, action)
+        return methods.send_chat_action(self.__token, chat_id, action)
 
     def get_user_profile_photos(self, user_id, offset=None, limit=100):
         """
@@ -785,7 +739,7 @@ class TBot:
         :param int limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
         :return: a UserProfilePhoto object.
         """
-        return types.UserProfilePhotos.de_json(methods.get_user_profile_photos(self.token, user_id, offset, limit))
+        return types.UserProfilePhotos.de_json(methods.get_user_profile_photos(self.__token, user_id, offset, limit))
 
     def get_file(self, file_id):
         """
@@ -793,7 +747,7 @@ class TBot:
         :param int or str file_id: File identifier to get info about
         :return: a File object.
         """
-        return types.File.de_json(methods.get_file(self.token, file_id))
+        return types.File.de_json(methods.get_file(self.__token, file_id))
 
     def download_file(self, file_path):
         """
@@ -801,7 +755,7 @@ class TBot:
         :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
         :return: any, On success.
         """
-        return methods.download_file(self.token, file_path)
+        return methods.download_file(self.__token, file_path)
 
     def kick_chat_member(self, chat_id, user_id, until_date=None):
         """
@@ -811,7 +765,7 @@ class TBot:
         :param int until_date: Date when the user will be unbanned, unix time.
         :return: True On success.
         """
-        return methods.kick_chat_member(self.token, chat_id, user_id, until_date)
+        return methods.kick_chat_member(self.__token, chat_id, user_id, until_date)
 
     def unban_chat_member(self, chat_id, user_id):
         """
@@ -820,7 +774,7 @@ class TBot:
         :param int or str user_id: Unique identifier of the target user.
         :return: True On success.
         """
-        return methods.unban_chat_member(self.token, chat_id, user_id)
+        return methods.unban_chat_member(self.__token, chat_id, user_id)
 
     def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
@@ -831,7 +785,7 @@ class TBot:
         :param int until_date: 	Date when restrictions will be lifted for the user, unix time.
         :return: True On success.
         """
-        return methods.restrict_chat_member(self.token, chat_id, user_id, permissions, until_date)
+        return methods.restrict_chat_member(self.__token, chat_id, user_id, permissions, until_date)
 
     def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
                             can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
@@ -850,7 +804,7 @@ class TBot:
         :param bool can_promote_members: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
         :return: True On success.
         """
-        return methods.promote_chat_member(self.token, chat_id, user_id, can_change_info, can_post_messages,
+        return methods.promote_chat_member(self.__token, chat_id, user_id, can_change_info, can_post_messages,
                                            can_edit_messages, can_delete_messages, can_invite_users,
                                            can_restrict_members, can_pin_messages, can_promote_members)
 
@@ -862,7 +816,7 @@ class TBot:
         :param str custom_title: New custom title for the administrator; 0-16 characters.
         :return: True on success.
         """
-        return methods.set_chat_administrator_custom_title(self.token, chat_id, user_id, custom_title)
+        return methods.set_chat_administrator_custom_title(self.__token, chat_id, user_id, custom_title)
 
     def set_chat_permissions(self, chat_id, permissions):
         """
@@ -871,7 +825,7 @@ class TBot:
         :param dict permissions: New default chat permissions must be a ChatPermissions object
         :return: True on success.
         """
-        return methods.set_chat_permissions(self.token, chat_id, permissions)
+        return methods.set_chat_permissions(self.__token, chat_id, permissions)
 
     def export_chat_invite_link(self, chat_id):
         """
@@ -879,7 +833,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: new link as String on success.
         """
-        return methods.export_chat_invite_link(self.token, chat_id)
+        return methods.export_chat_invite_link(self.__token, chat_id)
 
     def set_chat_photo(self, chat_id, photo):
         """
@@ -888,7 +842,7 @@ class TBot:
         :param any photo: Use this method to set a new profile photo for the chat.
         :return: True on success.
         """
-        return methods.set_chat_photo(self.token, chat_id, photo)
+        return methods.set_chat_photo(self.__token, chat_id, photo)
 
     def delete_chat_photo(self, chat_id):
         """
@@ -896,7 +850,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         """
-        return methods.delete_chat_photo(self.token, chat_id)
+        return methods.delete_chat_photo(self.__token, chat_id)
 
     def set_chat_title(self, chat_id, title):
         """
@@ -905,7 +859,7 @@ class TBot:
         :param str title: New chat title, 1-255 characters.
         :return: True on success.
         """
-        return methods.set_chat_title(self.token, chat_id, title)
+        return methods.set_chat_title(self.__token, chat_id, title)
 
     def set_chat_description(self, chat_id, description):
         """
@@ -914,7 +868,7 @@ class TBot:
         :param str description: New chat description, 0-255 characters.
         :return: True on success.
         """
-        return methods.set_chat_description(self.token, chat_id, description)
+        return methods.set_chat_description(self.__token, chat_id, description)
 
     def pin_chat_message(self, chat_id, message_id, disable_notification=False):
         """
@@ -924,7 +878,7 @@ class TBot:
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :return: True on success.
         """
-        return methods.pin_chat_message(self.token, chat_id, message_id, disable_notification)
+        return methods.pin_chat_message(self.__token, chat_id, message_id, disable_notification)
 
     def unpin_chat_message(self, chat_id):
         """
@@ -932,7 +886,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         """
-        return methods.unpin_chat_message(self.token, chat_id)
+        return methods.unpin_chat_message(self.__token, chat_id)
 
     def leave_chat(self, chat_id):
         """
@@ -940,7 +894,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         """
-        result = methods.leave_chat(self.token, chat_id)
+        result = methods.leave_chat(self.__token, chat_id)
         return result
 
     def get_chat(self, chat_id):
@@ -949,7 +903,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: a Chat object.
         """
-        result = methods.get_chat(self.token, chat_id)
+        result = methods.get_chat(self.__token, chat_id)
         return types.Chat.de_json(result)
 
     def get_chat_administrators(self, chat_id):
@@ -958,7 +912,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: an Array of ChatMember object.
         """
-        result = methods.get_chat_administrators(self.token, chat_id)
+        result = methods.get_chat_administrators(self.__token, chat_id)
         ret = []
         for r in result:
             ret.append(types.ChatMember.de_json(r))
@@ -970,7 +924,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: Integer On success.
         """
-        return methods.get_chat_members_count(self.token, chat_id)
+        return methods.get_chat_members_count(self.__token, chat_id)
 
     def get_chat_member(self, chat_id, user_id):
         """
@@ -979,7 +933,7 @@ class TBot:
         :param int user_id: Unique identifier of the target user.
         :return: a ChatMember object On success.
         """
-        return types.ChatMember.de_json(methods.get_chat_member(self.token, chat_id, user_id))
+        return types.ChatMember.de_json(methods.get_chat_member(self.__token, chat_id, user_id))
 
     def set_chat_sticker_set(self, chat_id, sticker_set_name):
         """
@@ -988,7 +942,7 @@ class TBot:
         :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
         :return: True On success.
         """
-        return methods.set_chat_sticker_set(self.token, chat_id, sticker_set_name)
+        return methods.set_chat_sticker_set(self.__token, chat_id, sticker_set_name)
 
     def delete_chat_sticker_set(self, chat_id):
         """
@@ -996,7 +950,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True On success.
         """
-        return methods.delete_chat_sticker_set(self.token, chat_id)
+        return methods.delete_chat_sticker_set(self.__token, chat_id)
 
     def answer_callback_query(self, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
         """
@@ -1008,7 +962,7 @@ class TBot:
         :param int cache_time: The maximum amount of time in seconds that the result of the callback query may be cached client-side.
         :return: True On success.
         """
-        return methods.answer_callback_query(self.token, callback_query_id, text, show_alert, url, cache_time)
+        return methods.answer_callback_query(self.__token, callback_query_id, text, show_alert, url, cache_time)
 
     def set_my_commands(self, commands):
         """
@@ -1016,14 +970,14 @@ class TBot:
         :param list commands: A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
         :return: True On success.
         """
-        return methods.set_my_commands(self.token, commands)
+        return methods.set_my_commands(self.__token, commands)
 
     def get_my_commands(self):
         """
         Use this method to get the current list of the bot's commands.
         :return: Array of BotCommand On success.
         """
-        return methods.get_my_commands(self.token)
+        return methods.get_my_commands(self.__token)
 
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           disable_web_page_preview=False, reply_markup=None):
@@ -1038,7 +992,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
         """
-        result = methods.edit_message_text(self.token, text, chat_id, message_id, inline_message_id, parse_mode,
+        result = methods.edit_message_text(self.__token, text, chat_id, message_id, inline_message_id, parse_mode,
                                            disable_web_page_preview, reply_markup)
         # if edit inline message return is bool not Message.
         if type(result) == bool:
@@ -1057,7 +1011,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
         """
-        result = methods.edit_message_caption(self.token, caption, chat_id, message_id, inline_message_id, parse_mode,
+        result = methods.edit_message_caption(self.__token, caption, chat_id, message_id, inline_message_id, parse_mode,
                                               reply_markup)
         if type(result) == bool:
             return result
@@ -1074,7 +1028,7 @@ class TBot:
         :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_media(
-            self.token, media, chat_id, message_id, inline_message_id, reply_markup)
+            self.__token, media, chat_id, message_id, inline_message_id, reply_markup)
         # if edit inline message return is bool not Message.
         if type(result) == bool:
             return result
@@ -1090,7 +1044,7 @@ class TBot:
         :return: a Message object On success, otherwise True.
         """
         result = methods.edit_message_reply_markup(
-            self.token, chat_id, message_id, inline_message_id, reply_markup)
+            self.__token, chat_id, message_id, inline_message_id, reply_markup)
         if type(result) == bool:
             return result
         return types.Message.de_json(result)
@@ -1103,7 +1057,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Poll object On success.
         """
-        return types.Poll.de_json(methods.stop_poll(self.token, chat_id, message_id, reply_markup))
+        return types.Poll.de_json(methods.stop_poll(self.__token, chat_id, message_id, reply_markup))
 
     def delete_message(self, chat_id, message_id):
         """
@@ -1119,7 +1073,7 @@ class TBot:
         :param int message_id: Identifier of the message to delete
         :return: True On success.
         """
-        return methods.delete_message(self.token, chat_id, message_id)
+        return methods.delete_message(self.__token, chat_id, message_id)
 
     def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
@@ -1132,7 +1086,8 @@ class TBot:
         :returns: a Message object On success.
         """
         return types.Message.de_json(
-            methods.send_sticker(self.token, chat_id, sticker, disable_notification, reply_to_message_id, reply_markup))
+            methods.send_sticker(self.__token, chat_id, sticker, disable_notification, reply_to_message_id,
+                                 reply_markup))
 
     def get_sticker_set(self, name):
         """
@@ -1140,7 +1095,7 @@ class TBot:
         :param str name:  Name of the sticker set.
         :return: a StickerSet object On success.
         """
-        return types.StickerSet.de_json(methods.get_sticker_set(self.token, name))
+        return types.StickerSet.de_json(methods.get_sticker_set(self.__token, name))
 
     def upload_sticker_file(self, user_id, png_sticker):
         """
@@ -1149,7 +1104,7 @@ class TBot:
         :param any png_sticker: Png image with the sticker,
         :return: a File object On success.
         """
-        return types.File.de_json(methods.upload_sticker_file(self.token, user_id, png_sticker))
+        return types.File.de_json(methods.upload_sticker_file(self.__token, user_id, png_sticker))
 
     def create_new_sticker_set(self, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
                                mask_position=False):
@@ -1165,7 +1120,7 @@ class TBot:
         :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
         :return: True On success.
         """
-        return methods.create_new_sticker_set(self.token, user_id, name, title, png_sticker, tgs_sticker, emojis,
+        return methods.create_new_sticker_set(self.__token, user_id, name, title, png_sticker, tgs_sticker, emojis,
                                               contains_masks, mask_position)
 
     def add_sticker_to_set(self, user_id, name, png_sticker, tgs_sticker, emojis, mask_position=False):
@@ -1179,7 +1134,7 @@ class TBot:
         :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
         :return: True on success.
         """
-        return methods.add_sticker_to_set(self.token, user_id, name, png_sticker, tgs_sticker, emojis, mask_position)
+        return methods.add_sticker_to_set(self.__token, user_id, name, png_sticker, tgs_sticker, emojis, mask_position)
 
     def set_sticker_position_in_set(self, sticker, position):
         """
@@ -1188,7 +1143,7 @@ class TBot:
         :param int position: New sticker position in the set, zero-based.
         :return: True on success.
         """
-        return methods.set_sticker_position_in_set(self.token, sticker, position)
+        return methods.set_sticker_position_in_set(self.__token, sticker, position)
 
     def delete_sticker_from_set(self, sticker):
         """
@@ -1196,7 +1151,7 @@ class TBot:
         :param str sticker: File identifier of the sticker.
         :return: True on success.
         """
-        return methods.delete_sticker_from_set(self.token, sticker)
+        return methods.delete_sticker_from_set(self.__token, sticker)
 
     def set_sticker_set_thumb(self, name, user_id, thumb=None):
         """
@@ -1206,7 +1161,7 @@ class TBot:
         :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
         :return: True on success
         """
-        return methods.set_sticker_set_thumb(self.token, name, user_id, thumb)
+        return methods.set_sticker_set_thumb(self.__token, name, user_id, thumb)
 
     def answer_inline_query(self, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
                             switch_pm_text=None, switch_pm_parameter=None):
@@ -1221,7 +1176,7 @@ class TBot:
         :param str switch_pm_parameter: 	Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
         :return: True on success
         """
-        return methods.answer_inline_query(self.token, inline_query_id, results, cache_time, is_personal, next_offset,
+        return methods.answer_inline_query(self.__token, inline_query_id, results, cache_time, is_personal, next_offset,
                                            switch_pm_text, switch_pm_parameter)
 
     def send_invoice(self, chat_id, title, description, payload, provider_token, start_parameter, currency, prices,
@@ -1257,7 +1212,7 @@ class TBot:
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_invoice(self.token, chat_id, title, description, payload, provider_token, start_parameter,
+            methods.send_invoice(self.__token, chat_id, title, description, payload, provider_token, start_parameter,
                                  currency, prices, provider_data, photo_url, photo_size, photo_width, photo_height,
                                  need_name, need_phone_number, need_email, need_shipping_address,
                                  send_phone_number_to_provider, send_email_to_provider, is_flexible,
@@ -1275,7 +1230,7 @@ class TBot:
         :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
         :return: True, On success.
         """
-        return methods.answer_shipping_query(self.token, shipping_query_id, ok, shipping_options, error_message)
+        return methods.answer_shipping_query(self.__token, shipping_query_id, ok, shipping_options, error_message)
 
     def answer_pre_checkout_query(self, pre_checkout_query_id, ok, error_message=None):
         """
@@ -1285,7 +1240,7 @@ class TBot:
         :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
         :return: True On success.
         """
-        return methods.answer_pre_checkout_query(self.token, pre_checkout_query_id, ok, error_message)
+        return methods.answer_pre_checkout_query(self.__token, pre_checkout_query_id, ok, error_message)
 
     def set_passport_data_errors(self, user_id, errors):
         """
@@ -1294,7 +1249,7 @@ class TBot:
         :param list errors: A JSON-serialized array of [PassportElementError] describing the errors.
         :return: True On success.
         """
-        return methods.set_passport_data_errors(self.token, user_id, errors)
+        return methods.set_passport_data_errors(self.__token, user_id, errors)
 
     def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
                   reply_markup=None):
@@ -1307,7 +1262,7 @@ class TBot:
         :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success.
         """
-        return types.Message.de_json(methods.send_game(self.token, chat_id, game_short_name, disable_notification,
+        return types.Message.de_json(methods.send_game(self.__token, chat_id, game_short_name, disable_notification,
                                                        reply_to_message_id, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
@@ -1323,7 +1278,7 @@ class TBot:
         :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :return: On success a Message object, otherwise returns True.
         """
-        result = methods.set_game_score(self.token, user_id, score, force, disable_edit_message, chat_id, message_id,
+        result = methods.set_game_score(self.__token, user_id, score, force, disable_edit_message, chat_id, message_id,
                                         inline_message_id)
         if type(result) == bool:
             return result
@@ -1338,11 +1293,35 @@ class TBot:
         :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :return: an Array of GameHighScore objects.
         """
-        result = methods.get_game_high_scores(self.token, user_id, chat_id, message_id, inline_message_id)
+        result = methods.get_game_high_scores(self.__token, user_id, chat_id, message_id, inline_message_id)
         ret = []
         for r in result:
             ret.append(types.GameHighScore.de_json(r))
         return ret
+
+    def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
+        """
+        Enable saving reply handlers (by default saving disable)
+
+        :param delay: Integer: Required, Delay between changes in handlers and saving
+        :param filename: Data: Required, Filename of save file
+        """
+        self.__reply_saver = Saver(self.__reply_handlers, filename, delay)
+
+    def disable_save_reply_handlers(self):
+        """
+        Disable saving next step handlers (by default saving disable)
+        """
+        self.__reply_saver = None
+
+    def load_reply_handlers(self, filename="./.handler-saves/reply.save", del_file_after_loading=True):
+        """
+        Load reply handlers from save file
+
+        :param filename: Data: Required, Filename of the file where handlers was saved
+        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
+        """
+        self.__reply_saver.load_handlers(filename)
 
     def register_for_reply(self, message, callback, *args, **kwargs):
         """
@@ -1368,14 +1347,34 @@ class TBot:
         :param callback:    The callback function to be called when a reply arrives. Must accept one `message`
                             parameter, which will contain the replied message.
         """
-        if message_id in self.reply_handlers.keys():
-            self.reply_handlers[message_id].append(
+        if message_id in self.__reply_handlers.keys():
+            self.__reply_handlers[message_id].append(
                 Handler(callback, *args, **kwargs))
         else:
-            self.reply_handlers[message_id] = [
+            self.__reply_handlers[message_id] = [
                 Handler(callback, *args, **kwargs)]
-        if self.reply_saver is not None:
-            self.reply_saver.start_save_timer()
+        if self.__reply_saver is not None:
+            self.__reply_saver.start_save_timer()
+
+    def clear_reply_handlers(self, message):
+        """
+        Clears all callback functions registered by register_for_reply() and register_for_reply_by_message_id().
+
+        :param message: The message for which we want to clear reply handlers
+        """
+        message_id = message.message_id
+        self.clear_reply_handlers_by_message_id(message_id)
+
+    def clear_reply_handlers_by_message_id(self, message_id):
+        """
+        Clears all callback functions registered by register_for_reply() and register_for_reply_by_message_id().
+
+        :param message_id: The message id for which we want to clear reply handlers
+        """
+        self.__reply_handlers[message_id] = []
+
+        if self.__reply_saver is not None:
+            self.__reply_saver.start_save_timer()
 
     def _notify_reply_handlers(self, new_messages):
         """
@@ -1386,14 +1385,38 @@ class TBot:
         for message in new_messages:
             if hasattr(message, "reply_to_message") and message.reply_to_message is not None:
                 reply_mid = message.reply_to_message.message_id
-                if reply_mid in self.reply_handlers.keys():
-                    handlers = self.reply_handlers[reply_mid]
+                if reply_mid in self.__reply_handlers.keys():
+                    handlers = self.__reply_handlers[reply_mid]
                     for handler in handlers:
                         self._exec_task(
                             handler["callback"], message, *handler["args"], **handler["kwargs"])
-                    self.reply_handlers.pop(reply_mid)
-                    if self.reply_saver is not None:
-                        self.reply_saver.start_save_timer()
+                    self.__reply_handlers.pop(reply_mid)
+                    if self.__reply_saver is not None:
+                        self.__reply_saver.start_save_timer()
+
+    def enable_save_next_step_handlers(self, delay=120, filename="./.handler-saves/step.save"):
+        """
+        Enable saving next step handlers (by default saving disable)
+
+        :param delay: Integer: Required, Delay between changes in handlers and saving
+        :param filename: Data: Required, Filename of save file
+        """
+        self.__next_step_saver = Saver(self.__next_step_handlers, filename, delay)
+
+    def disable_save_next_step_handlers(self):
+        """
+        Disable saving next step handlers (by default saving disable)
+        """
+        self.__next_step_saver = None
+
+    def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
+        """
+        Load next step handlers from save file
+
+        :param filename: Data: Required, Filename of the file where handlers was saved
+        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
+        """
+        self.__next_step_saver.load_handlers(filename, del_file_after_loading)
 
     def register_next_step_handler(self, message, callback, *args, **kwargs):
         """
@@ -1421,15 +1444,15 @@ class TBot:
         :param args:        Args to pass in callback func
         :param kwargs:      Args to pass in callback func
         """
-        if chat_id in self.next_step_handlers.keys():
-            self.next_step_handlers[chat_id].append(
+        if chat_id in self.__next_step_handlers.keys():
+            self.__next_step_handlers[chat_id].append(
                 Handler(callback, *args, **kwargs))
         else:
-            self.next_step_handlers[chat_id] = [
+            self.__next_step_handlers[chat_id] = [
                 Handler(callback, *args, **kwargs)]
 
-        if self.next_step_saver is not None:
-            self.next_step_saver.start_save_timer()
+        if self.__next_step_saver is not None:
+            self.__next_step_saver.start_save_timer()
 
     def clear_step_handler(self, message):
         """
@@ -1446,30 +1469,10 @@ class TBot:
 
         :param chat_id: The chat for which we want to clear next step handlers
         """
-        self.next_step_handlers[chat_id] = []
+        self.__next_step_handlers[chat_id] = []
 
-        if self.next_step_saver is not None:
-            self.next_step_saver.start_save_timer()
-
-    def clear_reply_handlers(self, message):
-        """
-        Clears all callback functions registered by register_for_reply() and register_for_reply_by_message_id().
-
-        :param message: The message for which we want to clear reply handlers
-        """
-        message_id = message.message_id
-        self.clear_reply_handlers_by_message_id(message_id)
-
-    def clear_reply_handlers_by_message_id(self, message_id):
-        """
-        Clears all callback functions registered by register_for_reply() and register_for_reply_by_message_id().
-
-        :param message_id: The message id for which we want to clear reply handlers
-        """
-        self.reply_handlers[message_id] = []
-
-        if self.reply_saver is not None:
-            self.reply_saver.start_save_timer()
+        if self.__next_step_saver is not None:
+            self.__next_step_saver.start_save_timer()
 
     def _notify_next_handlers(self, new_messages):
         """
@@ -1482,8 +1485,8 @@ class TBot:
             message = new_messages[i]
             chat_id = message.chat.id
             was_poped = False
-            if chat_id in self.next_step_handlers.keys():
-                handlers = self.next_step_handlers.pop(chat_id, None)
+            if chat_id in self.__next_step_handlers.keys():
+                handlers = self.__next_step_handlers.pop(chat_id, None)
                 if handlers:
                     for handler in handlers:
                         self._exec_task(
@@ -1491,8 +1494,8 @@ class TBot:
                     # removing message that detects with next_step_handler
                     new_messages.pop(i)
                     was_poped = True
-                if self.next_step_saver is not None:
-                    self.next_step_saver.start_save_timer()
+                if self.__next_step_saver is not None:
+                    self.__next_step_saver.start_save_timer()
             if not was_poped:
                 i += 1
 
@@ -1531,19 +1534,19 @@ class TBot:
                                                     content_types=content_types,
                                                     **kwargs)
 
-            self.add_message_handler(handler_dict)
+            self.__add_message_handler(handler_dict)
 
             return handler
 
         return decorator
 
-    def add_message_handler(self, handler_dict):
+    def __add_message_handler(self, handler_dict):
         """
         Adds a message handler
         :param dict handler_dict:
         :return:
         """
-        self.message_handlers.append(handler_dict)
+        self.__message_handlers.append(handler_dict)
 
     def edited_message_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
         """
@@ -1566,18 +1569,18 @@ class TBot:
                                                     func=func,
                                                     content_types=content_types,
                                                     **kwargs)
-            self.add_edited_message_handler(handler_dict)
+            self.__add_edited_message_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_edited_message_handler(self, handler_dict):
+    def __add_edited_message_handler(self, handler_dict):
         """
         Adds the edit message handler
         :param dict handler_dict:
         :return:
         """
-        self.edited_message_handlers.append(handler_dict)
+        self.__edited_message_handlers.append(handler_dict)
 
     def channel_post_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
         """
@@ -1600,18 +1603,18 @@ class TBot:
                                                     func=func,
                                                     content_types=content_types,
                                                     **kwargs)
-            self.add_channel_post_handler(handler_dict)
+            self.__add_channel_post_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_channel_post_handler(self, handler_dict):
+    def __add_channel_post_handler(self, handler_dict):
         """
         Adds channel post handler
         :param dict handler_dict:
         :return:
         """
-        self.channel_post_handlers.append(handler_dict)
+        self.__channel_post_handlers.append(handler_dict)
 
     def edited_channel_post_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
         """
@@ -1634,18 +1637,18 @@ class TBot:
                                                     func=func,
                                                     content_types=content_types,
                                                     **kwargs)
-            self.add_edited_channel_post_handler(handler_dict)
+            self.__add_edited_channel_post_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_edited_channel_post_handler(self, handler_dict):
+    def __add_edited_channel_post_handler(self, handler_dict):
         """
         Adds the edit channel post handler
         :param dict handler_dict:
         :return:
         """
-        self.edited_channel_post_handlers.append(handler_dict)
+        self.__edited_channel_post_handlers.append(handler_dict)
 
     def inline_query_handler(self, func, **kwargs):
         """
@@ -1659,18 +1662,18 @@ class TBot:
         def decorator(handler):
             handler_dict = self._build_handler_dict(
                 handler, func=func, **kwargs)
-            self.add_inline_query_handler(handler_dict)
+            self.__add_inline_query_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_inline_query_handler(self, handler_dict):
+    def __add_inline_query_handler(self, handler_dict):
         """
         Adds inline call handler
         :param dict handler_dict:
         :return:
         """
-        self.inline_query_handlers.append(handler_dict)
+        self.__inline_query_handlers.append(handler_dict)
 
     def chosen_inline_handler(self, func, **kwargs):
         """
@@ -1684,18 +1687,18 @@ class TBot:
         def decorator(handler):
             handler_dict = self._build_handler_dict(
                 handler, func=func, **kwargs)
-            self.add_chosen_inline_handler(handler_dict)
+            self.__add_chosen_inline_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_chosen_inline_handler(self, handler_dict):
+    def __add_chosen_inline_handler(self, handler_dict):
         """
         Description: TBD
         :param dict handler_dict:
         :return:
         """
-        self.chosen_inline_handlers.append(handler_dict)
+        self.__chosen_inline_handlers.append(handler_dict)
 
     def callback_query_handler(self, func, **kwargs):
         """
@@ -1709,18 +1712,18 @@ class TBot:
         def decorator(handler):
             handler_dict = self._build_handler_dict(
                 handler, func=func, **kwargs)
-            self.add_callback_query_handler(handler_dict)
+            self.__add_callback_query_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_callback_query_handler(self, handler_dict):
+    def __add_callback_query_handler(self, handler_dict):
         """
         Adds a callback request handler
         :param dict handler_dict:
         :return:
         """
-        self.callback_query_handlers.append(handler_dict)
+        self.__callback_query_handlers.append(handler_dict)
 
     def shipping_query_handler(self, func, **kwargs):
         """
@@ -1734,18 +1737,18 @@ class TBot:
         def decorator(handler):
             handler_dict = self._build_handler_dict(
                 handler, func=func, **kwargs)
-            self.add_shipping_query_handler(handler_dict)
+            self.__add_shipping_query_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_shipping_query_handler(self, handler_dict):
+    def __add_shipping_query_handler(self, handler_dict):
         """
         Adds a shipping request handler
         :param dict handler_dict:
         :return:
         """
-        self.shipping_query_handlers.append(handler_dict)
+        self.__shipping_query_handlers.append(handler_dict)
 
     def pre_checkout_query_handler(self, func, **kwargs):
         """
@@ -1759,18 +1762,18 @@ class TBot:
         def decorator(handler):
             handler_dict = self._build_handler_dict(
                 handler, func=func, **kwargs)
-            self.add_pre_checkout_query_handler(handler_dict)
+            self.__add_pre_checkout_query_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_pre_checkout_query_handler(self, handler_dict):
+    def __add_pre_checkout_query_handler(self, handler_dict):
         """
         Adds a pre-checkout request handler
         :param dict handler_dict:
         :return:
         """
-        self.pre_checkout_query_handlers.append(handler_dict)
+        self.__pre_checkout_query_handlers.append(handler_dict)
 
     def poll_handler(self, func, **kwargs):
         """
@@ -1783,18 +1786,18 @@ class TBot:
 
         def decorator(handler):
             handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
-            self.add_poll_handler(handler_dict)
+            self.__add_poll_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_poll_handler(self, handler_dict):
+    def __add_poll_handler(self, handler_dict):
         """
         Adds a poll request handler
         :param dict handler_dict:
         :return:
         """
-        self.poll_handlers.append(handler_dict)
+        self.__poll_handlers.append(handler_dict)
 
     def poll_answer_handler(self, func, **kwargs):
         """
@@ -1807,18 +1810,18 @@ class TBot:
 
         def decorator(handler):
             handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
-            self.add_poll_answer_handler(handler_dict)
+            self.__add_poll_answer_handler(handler_dict)
             return handler
 
         return decorator
 
-    def add_poll_answer_handler(self, handler_dict):
+    def __add_poll_answer_handler(self, handler_dict):
         """
         Adds a poll request handler
         :param dict handler_dict:
         :return:
         """
-        self.poll_answer_handlers.append(handler_dict)
+        self.__poll_answer_handlers.append(handler_dict)
 
     def _test_message_handler(self, message_handler, message):
         """
@@ -1886,7 +1889,7 @@ class AsyncTBot(TBot):
 
     @async_dec()
     def disable_save_reply_handlers(self):
-        return TBot.enable_save_reply_handlers(self)
+        return TBot.disable_save_reply_handlers(self)
 
     @async_dec()
     def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
