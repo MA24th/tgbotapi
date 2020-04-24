@@ -769,22 +769,23 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, typ
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(token, proxies, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_dice(token, proxies, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None, reply_markup=None):
     """
     Use this method to send a dice.
     :param str token: The bot's API token. (Created with @BotFather).
     :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
+    :param str emoji: Emoji on which the dice throw animation is based. Currently, must be one of “🎲” or “🎯”, Defaults to “🎲” .
     :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
     :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-    :param int reply_to_message_id: If the message is a reply, ID of the original message.
-    :param list[dict] reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+    :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+    :param list[dict] or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
     :return: a Message object.
     """
     method = r'post'
     api_method = r'sendDice'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
-    params = {'chat_id': chat_id}
+    params = {'chat_id': chat_id, 'emoji': emoji}
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:

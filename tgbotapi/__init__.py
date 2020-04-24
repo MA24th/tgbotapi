@@ -728,17 +728,18 @@ class TBot:
                               open_period, close_date, is_closed, disable_notifications, reply_to_message_id,
                               reply_markup))
 
-    def send_dice(self, chat_id, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send a dice.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str emoji: Emoji on which the dice throw animation is based. Currently, must be one of “🎲” or “🎯”, Defauts to “🎲” .
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param list[dict] reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param list[dict] or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         """
         return types.Message.de_json(
-            methods.send_dice(self.__token, self.__proxies, chat_id, disable_notification, reply_to_message_id,
+            methods.send_dice(self.__token, self.__proxies, chat_id, emoji, disable_notification, reply_to_message_id,
                               reply_markup))
 
     def send_chat_action(self, chat_id, action):
