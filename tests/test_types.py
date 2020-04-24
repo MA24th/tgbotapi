@@ -2,7 +2,7 @@ import pytest
 from tgbotapi import types
 
 
-def test_Update():
+def test_update():
     dic = {
         "update_id": 938203,
         "message": {
@@ -542,6 +542,7 @@ def test_Poll():
             {'text': 'a', 'voter_count': 1},
             {'text': 'b', 'voter_count': 5}
         ],
+        'total_voter_count': 1003,
         'is_closed': False,
         'is_anonymous': True,
         'type': 'gif',
@@ -549,10 +550,11 @@ def test_Poll():
         'correct_option_id': 1
     }
     obj = types.Poll.de_json(dic)
-    assert obj.poll_id == 444
+    assert obj.id == 444
     assert obj.question == 'is abc?'
     assert obj.options[0].text == 'a'
     assert obj.options[1].voter_count == 5
+    assert obj.total_voter_count == 1003
     assert obj.is_closed == False
     assert obj.is_anonymous == True
     assert obj.type == 'gif'
@@ -568,7 +570,7 @@ def test_UserProfilePhotos():
                 {
                     "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH_SpyZjzIwdVAAIC",
                     "file_unique_id": "CEh0u682xwI",
-                    "file_size": 6150,  "width": 160, "height": 160
+                    "file_size": 6150, "width": 160, "height": 160
                 },
                 {
                     "file_id": "AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATOiTNi_YoJMghVAAIC",
@@ -645,8 +647,10 @@ def test_InlineKeyboardMarkup():
 
 
 def test_InlineKeyboardButton():
-    obj = types.InlineKeyboardButton(text='text', url='url', callback_data='callback_data', switch_inline_query='switch_inline_query',
-                                     switch_inline_query_current_chat='switch_inline_query_current_chat', callback_game='callback_game', pay='pay', login_url='login_url').to_json()
+    obj = types.InlineKeyboardButton(text='text', url='url', callback_data='callback_data',
+                                     switch_inline_query='switch_inline_query',
+                                     switch_inline_query_current_chat='switch_inline_query_current_chat',
+                                     callback_game='callback_game', pay='pay', login_url='login_url').to_json()
     assert obj == r'{"text": "text", "url": "url", "callback_data": "callback_data", "switch_inline_query": "switch_inline_query", "switch_inline_query_current_chat": "switch_inline_query_current_chat", "callback_game": "callback_game", "pay": "pay", "login_url": "login_url"}'
 
 
@@ -896,14 +900,16 @@ def test_StickerSet():
         'name': 'stt',
         'title': 'sst',
         'contains_masks': False,
-        'stickers': [{'file_id': 222, 'file_unique_id': 2323, 'width': 30, 'height': 20, 'is_animated': True, 'emoji': '🐣', 'set_name': 'st', 'file_size': 32}],
+        'stickers': [
+            {'file_id': 222, 'file_unique_id': 2323, 'width': 30, 'height': 20, 'is_animated': True, 'emoji': '🐣',
+             'set_name': 'st', 'file_size': 32}],
         'thumb': {
             'file_id': 1111,
             'file_unique_id': 1122,
             'width': 40,
             'height': 40,
             'file_size': 32
-            }
+        }
     }
     obj = types.StickerSet.de_json(dic)
     assert obj.name == 'stt'
@@ -1000,7 +1006,8 @@ def test_InlineQueryResultCachedDocument():
 def test_InlineQueryResultCachedGif():
     dic = r'{"type": "gif", "id": 24, "gif_file_id": 12, "title": "giftitle", "caption": "gifcaption", "parse_mode": "Markdown", "input_message_content": "any"}'
     obj = types.InlineQueryResultCachedGif(type='gif', id=24, gif_file_id=12, title='giftitle',
-                                           caption='gifcaption', parse_mode='Markdown', reply_markup=None, input_message_content='any').to_json()
+                                           caption='gifcaption', parse_mode='Markdown', reply_markup=None,
+                                           input_message_content='any').to_json()
     assert obj == dic
 
 
@@ -1013,8 +1020,11 @@ def test_InlineQueryResultCachedMpeg4Gif():
 
 def test_InlineQueryResultCachedPhoto():
     dic = r'{"type": "photo", "id": 122, "photo_url": "photourl", "thumb_url": "thumburl", "title": "tiltle", "description": "description", "caption": "caption", "parse_mode": "Markdown", "input_message_content": "any"}'
-    obj = types.InlineQueryResultCachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl', photo_width=30, photo_height=30,
-                                             title='tiltle', description='description', caption='caption', parse_mode='Markdown', reply_markup=None, input_message_content='any').to_json()
+    obj = types.InlineQueryResultCachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl',
+                                             photo_width=30, photo_height=30,
+                                             title='tiltle', description='description', caption='caption',
+                                             parse_mode='Markdown', reply_markup=None,
+                                             input_message_content='any').to_json()
     assert obj == dic
 
 
@@ -1674,12 +1684,12 @@ def test_GameHighScore():
     dic = {
         'position': 'player1',
         'user': {
-                    "id": 383324787,
-                    "is_bot": False,
-                    "first_name": "Mustafa",
-                    "last_name": "Asaad",
-                    "username": "MA24th",
-                    "language_code": "en"
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"
         },
         'score': 223
     }
