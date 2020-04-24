@@ -988,14 +988,18 @@ class Poll(JsonDeserializable):
 
 class Dice(JsonDeserializable):
     """ This object represents a dice with random value from 1 to 6 """
+    def __init__(self, value, emoji):
+        self.value = value
+        self.emoji = emoji
+
     @classmethod
     def de_json(cls, json_string):
         obj = cls.check_json(json_string)
+        emoji = obj['emoji']
         value = obj['value']
-        return cls(value)
+        return cls(emoji, value)
 
-    def __init__(self, value):
-        self.value = value
+
 
 
 class UserProfilePhotos(JsonDeserializable):
