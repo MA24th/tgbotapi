@@ -713,7 +713,8 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name=No
 
 
 def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
-              correct_option_id=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
+              correct_option_id=None, explanation=None, explanation_parse_mode=None, open_period=None, close_date=None,
+              is_closed=True, disable_notifications=False, reply_to_message_id=None,
               reply_markup=None):
     """
     Use this method to send information about a venue.
@@ -726,6 +727,10 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, typ
     :param str type: Poll type, “quiz” or “regular”, defaults to “regular”.
     :param bool allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False.
     :param int correct_option_id: 0-based identifier of the correct answer option, required for polls in quiz mode.
+    :param str or None explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll.
+    :param str or None explanation_parse_mode: Mode for parsing entities in the explanation.
+    :param int or None open_period: Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date.
+    :param int or None close_date: Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period.
     :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll preview.
     :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound.
     :param int reply_to_message_id: If the message is a reply, ID of the original message.
@@ -745,6 +750,14 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, typ
         params['allows_multiple_answers'] = allows_multiple_answers
     if correct_option_id:
         params['correct_option_id'] = correct_option_id
+    if explanation:
+        params['explanation'] = explanation
+    if explanation_parse_mode:
+        params['explanation_parse_mode'] = explanation_parse_mode
+    if open_period:
+        params['open_period'] = open_period
+    if close_date:
+        params['close_date'] = close_date
     if is_closed:
         params['is_closed'] = is_closed
     if disable_notifications:
