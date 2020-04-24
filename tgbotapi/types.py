@@ -926,12 +926,29 @@ class PollAnswer(JsonDeserializable):
 
 class Poll(JsonDeserializable):
     """ This object contains information about a poll """
+    def __init__(self, id, question, options, total_voter_count, is_closed, is_anonymous, type, allows_multiple_answers,
+                 correct_option_id, explanation, explanation_entities, open_period, close_date):
+        self.id = id
+        self.question = question
+        self.options = options
+        self.total_voter_count = total_voter_count
+        self.is_closed = is_closed
+        self.is_anonymous = is_anonymous
+        self.type = type
+        self.allows_multiple_answers = allows_multiple_answers
+        self.correct_option_id = correct_option_id
+        self.explanation = explanation
+        self.explanation_entities = explanation_entities
+        self.open_period = open_period
+        self.close_date = close_date
+
     @classmethod
     def de_json(cls, json_type):
         obj = cls.check_json(json_type)
-        poll_id = obj['id']
+        id = obj['id']
         question = obj['question']
         options = Poll.parse_options(obj['options'])
+        total_voter_count = obj['total_voter_count']
         is_closed = obj['is_closed']
         is_anonymous = obj['is_anonymous']
         type = obj['type']
@@ -939,24 +956,34 @@ class Poll(JsonDeserializable):
         correct_option_id = None
         if 'correct_option_id' in obj:
             correct_option_id = obj['correct_option_id']
-        return cls(poll_id, question, options, is_closed, is_anonymous, type, allows_multiple_answers, correct_option_id)
-
-    def __init__(self, poll_id, question, options, is_closed, is_anonymous, type, allows_multiple_answers, correct_option_id=None):
-        self.poll_id = poll_id
-        self.question = question
-        self.options = options
-        self.is_closed = is_closed
-        self.is_anonymous = is_anonymous
-        self.type = type
-        self.allows_multiple_answers = allows_multiple_answers
-        self.correct_option_id = correct_option_id
+        explanation = None
+        if 'explanation' in obj:
+            explanation = obj['explanation']
+        explanation_entities = None
+        if 'explanation_entities' in obj:
+            explanation_entities = Poll.parse_explanation_entities(obj['explanation_entities'])
+        open_period = None
+        if 'open_period' in obj:
+            open_period = obj['open_period']
+        close_date = None
+        if 'close_date' in obj:
+            close_date = obj['close_date']
+        return cls(id, question, options, total_voter_count, is_closed, is_anonymous, type, allows_multiple_answers,
+                   correct_option_id, explanation, explanation_entities, open_period, close_date)
 
     @classmethod
-    def parse_options(cls, options):
-        op = []
-        for option in options:
-            op.append(PollOption.de_json(option))
-        return op
+    def parse_options(cls, obj):
+        options = []
+        for x in obj:
+            options.append(PollOption.de_json(x))
+        return options
+
+    @classmethod
+    def parse_explanation_entities(cls, obj):
+        explanation_entities = []
+        for x in obj:
+            explanation_entities.append(MessageEntity.de_json(x))
+        return explanation_entities
 
 
 class Dice(JsonDeserializable):
