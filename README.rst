@@ -19,7 +19,7 @@ There are two ways to install the framework:
 
     ``$ cd tgbotapi``
 
-    ``$ python setup.py install``
+    ``$ pip install .``
 
 It is generally recommended to use the first option.
 ::
