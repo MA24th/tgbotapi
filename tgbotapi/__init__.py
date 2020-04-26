@@ -90,6 +90,7 @@ class TBot:
         :param int num_threads:
         :param dict or None proxies:
         :return: a Tbot object.
+        :rtype: TBot
         """
 
         self.__token = token
@@ -127,11 +128,12 @@ class TBot:
     def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling.
-        :param int offset: Identifier of the first update to be returned.
-        :param int limit: Limits the number of updates to be retrieved.
-        :param int timeout: Timeout in seconds for long polling, Defaults to 0.
-        :param list allowed_updates: An Array of String.
+        :param int or None offset: Identifier of the first update to be returned.
+        :param int or None limit: Limits the number of updates to be retrieved.
+        :param int or None timeout: Timeout in seconds for long polling, Defaults to 0.
+        :param list or None allowed_updates: An Array of String.
         :return: An Array of Update objects.
+        :rtype: list[types.Update]
         """
         json_updates = methods.get_updates(self.__token, self.__proxies, offset, limit, timeout, allowed_updates)
         updates = []
@@ -394,10 +396,11 @@ class TBot:
         """
         Use this method to specify a url and receive incoming updates via an outgoing webhook.
         :param str url: HTTPS url to send updates to. Use an empty string to remove webhook integration.
-        :param any certificate: Upload your public key [InputFile] certificate so that the root certificate in use can be checked.
+        :param any or None certificate: Upload your public key [InputFile] certificate so that the root certificate in use can be checked.
         :param int max_connections: Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.
         :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive.
         :return: True On success.
+        :rtype: dict
         """
         return methods.set_webhook(self.__token, self.__proxies, url, certificate, max_connections, allowed_updates)
 
@@ -405,6 +408,7 @@ class TBot:
         """
         Use this method to remove webhook integration if you decide to switch back to getUpdates.
         :return: True on success.
+        :rtype: dict
         """
         return methods.delete_webhook(self.__token, self.__proxies)
 
@@ -412,6 +416,7 @@ class TBot:
         """
         Use this method to get current webhook status.
         :return: a WebhookInfo object, otherwise an object with the url field empty.
+        :rtype: dict
         """
         return types.WebhookInfo.de_json(methods.get_webhook_info(self.__token, self.__proxies))
 
@@ -419,6 +424,7 @@ class TBot:
         """
         A simple method for testing your bot's auth token.
         :return: a User object.
+        :rtype: types.User
         """
         return types.User.de_json(methods.get_me(self.__token, self.__proxies))
 
@@ -428,12 +434,13 @@ class TBot:
         Use this method to send text messages. On success, the sent Message is returned.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
-        :param str parse_mode: Send Markdown or HTML.
+        :param str or None parse_mode: Send Markdown or HTML.
         :param bool disable_web_page_preview: Disables link previews for links in this message.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, disable_web_page_preview,
@@ -448,6 +455,7 @@ class TBot:
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int message_id: Message identifier in the chat specified in from_chat_id.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id,
@@ -459,12 +467,13 @@ class TBot:
         Use this method to send photos.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any photo: Photo [file_id or InputFile] to send.
-        :param str caption: Photo caption, 0-1024 characters after entities parsing
-        :param str parse_mode: Send Markdown or HTML.
+        :param str or None caption: Photo caption, 0-1024 characters after entities parsing
+        :param str or None parse_mode: Send Markdown or HTML.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, disable_notification,
@@ -476,16 +485,17 @@ class TBot:
         Use this method to send audio files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any audio: Audio [file_id or InputFile] to send.
-        :param str caption: Photo caption, 0-1024 characters after entities parsing
-        :param str parse_mode: Send Markdown or HTML.
-        :param int duration: Duration of the audio in seconds.
-        :param str performer: Performer.
-        :param str title: Track Name.
-        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str or None caption: Photo caption, 0-1024 characters after entities parsing
+        :param str or None parse_mode: Send Markdown or HTML.
+        :param int or None duration: Duration of the audio in seconds.
+        :param str or None performer: Performer.
+        :param str or None title: Track Name.
+        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, duration, performer,
@@ -498,13 +508,14 @@ class TBot:
         Use this method to send general files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any document: File [file_id or InputFile] to send.
-        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
-        :param str caption: Document caption, 0-1024 characters after entities parsing
-        :param str parse_mode: Send Markdown or HTML.
+        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str or None caption: Document caption, 0-1024 characters after entities parsing
+        :param str or None parse_mode: Send Markdown or HTML.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode,
@@ -518,17 +529,18 @@ class TBot:
         Use this method to send video files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any video: Video [file_id or InputFile] to send.
-        :param int duration: Duration of the video in seconds.
-        :param int width: Video width.
-        :param int height: Video height.
-        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
-        :param str caption: Video caption, 0-1024 characters after entities parsing.
-        :param str parse_mode: Send Markdown or HTML.
+        :param int or None duration: Duration of the video in seconds.
+        :param int or None width: Video width.
+        :param int or None height: Video height.
+        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str or None caption: Video caption, 0-1024 characters after entities parsing.
+        :param str or None parse_mode: Send Markdown or HTML.
         :param bool supports_streaming: Pass True, if the uploaded video is suitable for streaming.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_video(self.__token, self.__proxies, chat_id, video, duration, width, height, thumb, caption,
@@ -541,16 +553,17 @@ class TBot:
         Use this method to send animation files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any animation: Animation [file_id or InputFile] to send.
-        :param int duration: Duration of the animation in seconds.
-        :param int width: Animation width.
-        :param int height: Animation height.
-        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
-        :param str caption: Video caption, 0-1024 characters after entities parsing.
-        :param str parse_mode: Send Markdown or HTML.
+        :param int or None duration: Duration of the animation in seconds.
+        :param int or None width: Animation width.
+        :param int or None height: Animation height.
+        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param str or None caption: Video caption, 0-1024 characters after entities parsing.
+        :param str or None parse_mode: Send Markdown or HTML.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_animation(self.__token, self.__proxies, chat_id, animation, duration, width, height, thumb,
@@ -564,13 +577,14 @@ class TBot:
         Use this method to send audio files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any voice: Audio [file_id or InputFile] to send.
-        :param str caption: Video caption, 0-1024 characters after entities parsing.
-        :param str parse_mode: Send Markdown or HTML.
-        :param int duration: Duration of the voice in seconds.
+        :param str or None caption: Voice caption, 0-1024 characters after entities parsing.
+        :param str or None parse_mode: Send Markdown or HTML.
+        :param int or None duration: Duration of the voice in seconds.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, duration,
@@ -583,13 +597,14 @@ class TBot:
         Use this method to send video messages.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any video_note: Video note [file_id or InputFile] to send.
-        :param int duration: Duration of the VideoNote in seconds.
-        :param int length: Video width and height, i.e. diameter of the video message.
-        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :param int or None duration: Duration of the VideoNote in seconds.
+        :param int or None length: Video width and height, i.e. diameter of the video message.
+        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_video_note(self.__token, self.__proxies, chat_id, video_note, duration, length, thumb,
@@ -602,8 +617,9 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param list media: A JSON-serialized array of [InputMediaPhoto or InputMediaVideo] to be sent, must include 2–10 items
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
         :return: a Messages object.
+        :rtype: types.Message
         """
         result = methods.send_media_group(
             self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id)
@@ -619,11 +635,12 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
-        :param int live_period: Period in seconds for which the location will be updated, should be between 60 and 86400.
+        :param int or None live_period: Period in seconds for which the location will be updated, should be between 60 and 86400.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, live_period,
@@ -635,12 +652,13 @@ class TBot:
         """
         Use this method to edit live location messages.
         :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
+        :param int or None message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param types.InlineKeyboardMarkup reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object, otherwise True.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, chat_id, message_id,
@@ -650,10 +668,11 @@ class TBot:
         """
         Use this method to stop updating a live location message before live_period expires.
         :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param int or None message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
+        :param types.InlineKeyboardMarkup reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object, otherwise True.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.stop_message_live_location(self.__token, self.__proxies, chat_id, message_id, inline_message_id,
@@ -666,14 +685,15 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
-        :param str title: Name of the venue.
+        :param str or None title: Name of the venue.
         :param str address: Address of the venue.
-        :param str foursquare_id: Foursquare identifier of the venue.
-        :param str foursquare_type: Foursquare type of the venue, if known.
+        :param str or None foursquare_id: Foursquare identifier of the venue.
+        :param str or None foursquare_type: Foursquare type of the venue, if known.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_venue(self.__token, self.__proxies, chat_id, latitude, longitude, title, address,
@@ -684,16 +704,17 @@ class TBot:
     def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
                      reply_to_message_id=None, reply_markup=None):
         """
-        Use this method to send information about a venue.
+        Use this method to send phone contacts.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str phone_number: Contact's phone number.
         :param str first_name: Contact's first name.
-        :param str last_name: Contact's last name.
-        :param str vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
+        :param str or None last_name: Contact's last name.
+        :param str or None vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param dict reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_contact(self.__token, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
@@ -705,22 +726,24 @@ class TBot:
                   close_date=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
                   reply_markup=None):
         """
+        Use this method to send a native poll.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str question: Poll question, 1-255 characters.
         :param list options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters each.
         :param bool is_anonymous: True, if the poll needs to be anonymous, defaults to True.
-        :param str type: Poll type, “quiz” or “regular”, defaults to “regular”.
+        :param str or None type: Poll type, “quiz” or “regular”, defaults to “regular”.
         :param bool allows_multiple_answers: True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False.
-        :param int correct_option_id: 0-based identifier of the correct answer option, required for polls in quiz mode.
+        :param int or None correct_option_id: 0-based identifier of the correct answer option, required for polls in quiz mode.
         :param str or None explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll.
         :param str or None explanation_parse_mode: Mode for parsing entities in the explanation.
         :param int or None open_period: Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date.
         :param int or None close_date: Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period.
         :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll preview.
         :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param any reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_poll(self.__token, self.__proxies, chat_id, question, options, is_anonymous, type,
@@ -732,11 +755,12 @@ class TBot:
         """
         Use this method to send a dice.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param str emoji: Emoji on which the dice throw animation is based. Currently, must be one of “🎲” or “🎯”, Defauts to “🎲” .
+        :param str or None emoji: Emoji on which the dice throw animation is based. Currently, must be one of “🎲” or “🎯”, Defaults to “🎲” .
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
-        :param list[dict] or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_dice(self.__token, self.__proxies, chat_id, emoji, disable_notification, reply_to_message_id,
@@ -748,6 +772,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str action: Type of action to broadcast.
         :return: True On success.
+        :rtype: types.Message
         """
         return methods.send_chat_action(self.__token, self.__proxies, chat_id, action)
 
@@ -755,9 +780,10 @@ class TBot:
         """
         Use this method to get a list of profile pictures for a user.
         :param int or str user_id: Unique identifier of the target user.
-        :param int offset: Sequential number of the first photo to be returned. By default, all photos are returned.
-        :param int limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
+        :param int or None offset: Sequential number of the first photo to be returned. By default, all photos are returned.
+        :param int or None limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
         :return: a UserProfilePhoto object.
+        :rtype: types.Message
         """
         return types.UserProfilePhotos.de_json(
             methods.get_user_profile_photos(self.__token, self.__proxies, user_id, offset, limit))
@@ -765,16 +791,18 @@ class TBot:
     def get_file(self, file_id):
         """
         Use this method to get basic info about a file and prepare it for downloading.
-        :param int or str file_id: File identifier to get info about
+        :param str file_id: File identifier to get info about
         :return: a File object.
+        :rtype: types.File
         """
         return types.File.de_json(methods.get_file(self.__token, self.__proxies, file_id))
 
     def download_file(self, file_path):
         """
         Use this method to download file with specified file_path.
-        :param file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
+        :param str file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
         :return: any, On success.
+        :rtype: bytearray
         """
         return methods.download_file(self.__token, self.__proxies, file_path)
 
@@ -782,9 +810,10 @@ class TBot:
         """
         Use this method to kick a user from a group, a supergroup or a channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param int or str user_id: Unique identifier of the target user.
-        :param int until_date: Date when the user will be unbanned, unix time.
+        :param int user_id: Unique identifier of the target user.
+        :param int or None until_date: Date when the user will be unbanned, unix time.
         :return: True On success.
+        :rtype: dict
         """
         return methods.kick_chat_member(self.__token, self.__proxies, chat_id, user_id, until_date)
 
@@ -792,8 +821,9 @@ class TBot:
         """
         Use this method to unban a previously kicked user in a supergroup or channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param int or str user_id: Unique identifier of the target user.
+        :param int user_id: Unique identifier of the target user.
         :return: True On success.
+        :rtype: dict
         """
         return methods.unban_chat_member(self.__token, self.__proxies, chat_id, user_id)
 
@@ -801,10 +831,11 @@ class TBot:
         """
         Use this method to restrict a user in a supergroup.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param int or str user_id: Unique identifier of the target user.
-        :param dict permissions: New user permissions must be ChatPermissions object.
-        :param int until_date: 	Date when restrictions will be lifted for the user, unix time.
+        :param int user_id: Unique identifier of the target user.
+        :param types.ChatPermissions permissions: New user permissions must be ChatPermissions object.
+        :param int or None until_date: 	Date when restrictions will be lifted for the user, unix time.
         :return: True On success.
+        :rtype: dict
         """
         return methods.restrict_chat_member(self.__token, self.__proxies, chat_id, user_id, permissions, until_date)
 
@@ -814,7 +845,7 @@ class TBot:
         """
         Use this method to promote or demote a user in a supergroup or a channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param int or str user_id: Unique identifier of the target user.
+        :param int user_id: Unique identifier of the target user.
         :param bool can_change_info: Pass True, if the administrator can change chat title, photo and other settings.
         :param bool can_post_messages: Pass True, if the administrator can create channel posts, channels only.
         :param bool can_edit_messages: Pass True, if the administrator can edit messages of other users and can pin messages, channels only.
@@ -824,6 +855,7 @@ class TBot:
         :param bool can_pin_messages: Pass True, if the administrator can pin messages, supergroups only.
         :param bool can_promote_members: Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him).
         :return: True On success.
+        :rtype: dict
         """
         return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, can_change_info,
                                            can_post_messages,
@@ -834,9 +866,10 @@ class TBot:
         """
         Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param int or str user_id: Unique identifier of the target user.
+        :param int user_id: Unique identifier of the target user.
         :param str custom_title: New custom title for the administrator; 0-16 characters.
         :return: True on success.
+        :rtype: dict
         """
         return methods.set_chat_administrator_custom_title(self.__token, self.__proxies, chat_id, user_id, custom_title)
 
@@ -844,8 +877,9 @@ class TBot:
         """
         Use this method to set default chat permissions for all members.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param dict permissions: New default chat permissions must be a ChatPermissions object
+        :param types.ChatPermissions permissions: New default chat permissions must be a ChatPermissions object
         :return: True on success.
+        :rtype: dict
         """
         return methods.set_chat_permissions(self.__token, self.__proxies, chat_id, permissions)
 
@@ -854,6 +888,7 @@ class TBot:
         Use this method to generate a new invite link for a chat.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: new link as String on success.
+        :rtype: dict
         """
         return methods.export_chat_invite_link(self.__token, self.__proxies, chat_id)
 
@@ -863,6 +898,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any photo: Use this method to set a new profile photo for the chat.
         :return: True on success.
+        :rtype: dict
         """
         return methods.set_chat_photo(self.__token, self.__proxies, chat_id, photo)
 
@@ -871,6 +907,7 @@ class TBot:
         Use this method to delete a chat photo.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
+        :rtype: dict
         """
         return methods.delete_chat_photo(self.__token, self.__proxies, chat_id)
 
@@ -880,6 +917,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str title: New chat title, 1-255 characters.
         :return: True on success.
+        :rtype: dict
         """
         return methods.set_chat_title(self.__token, self.__proxies, chat_id, title)
 
@@ -889,6 +927,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str description: New chat description, 0-255 characters.
         :return: True on success.
+        :rtype: dict
         """
         return methods.set_chat_description(self.__token, self.__proxies, chat_id, description)
 
@@ -899,6 +938,7 @@ class TBot:
         :param int message_id: Identifier of a message to pin.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :return: True on success.
+        :rtype: dict
         """
         return methods.pin_chat_message(self.__token, self.__proxies, chat_id, message_id, disable_notification)
 
@@ -907,6 +947,7 @@ class TBot:
         Use this method to unpin a message in a group, a supergroup, or a channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
+        :rtype: dict
         """
         return methods.unpin_chat_message(self.__token, self.__proxies, chat_id)
 
@@ -915,24 +956,25 @@ class TBot:
         Use this method for your bot to leave a group, supergroup or channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
+        :rtype: dict
         """
-        result = methods.leave_chat(self.__token, self.__proxies, chat_id)
-        return result
+        return methods.leave_chat(self.__token, self.__proxies, chat_id)
 
     def get_chat(self, chat_id):
         """
         Use this method to get up to date information about the chat.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: a Chat object.
+        :rtype: types.Chat
         """
-        result = methods.get_chat(self.__token, self.__proxies, chat_id)
-        return types.Chat.de_json(result)
+        return types.Chat.de_json(methods.get_chat(self.__token, self.__proxies, chat_id))
 
     def get_chat_administrators(self, chat_id):
         """
         Use this method to get a list of administrators in a chat.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: an Array of ChatMember object.
+        :rtype: list[types.ChatMember]
         """
         result = methods.get_chat_administrators(self.__token, self.__proxies, chat_id)
         ret = []
@@ -945,6 +987,7 @@ class TBot:
         Use this method to get the number of members in a chat.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: Integer On success.
+        :rtype: dict
         """
         return methods.get_chat_members_count(self.__token, self.__proxies, chat_id)
 
@@ -954,6 +997,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :return: a ChatMember object On success.
+        :rtype: types.ChatMember
         """
         return types.ChatMember.de_json(methods.get_chat_member(self.__token, self.__proxies, chat_id, user_id))
 
@@ -963,6 +1007,7 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
         :return: True On success.
+        :rtype: dict
         """
         return methods.set_chat_sticker_set(self.__token, self.__proxies, chat_id, sticker_set_name)
 
@@ -971,6 +1016,7 @@ class TBot:
         Use this method to delete a group sticker set from a supergroup.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True On success.
+        :rtype: dict
         """
         return methods.delete_chat_sticker_set(self.__token, self.__proxies, chat_id)
 
@@ -978,11 +1024,12 @@ class TBot:
         """
         Use this method to send answers to callback queries sent from inline keyboards.
         :param str callback_query_id: Unique identifier for the query to be answered.
-        :param str text: Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
+        :param str or None text: Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
         :param bool show_alert: If true, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
-        :param str url: URL that will be opened by the user's client.
-        :param int cache_time: The maximum amount of time in seconds that the result of the callback query may be cached client-side.
+        :param str or None url: URL that will be opened by the user's client.
+        :param int or None cache_time: The maximum amount of time in seconds that the result of the callback query may be cached client-side.
         :return: True On success.
+        :rtype: dict
         """
         return methods.answer_callback_query(self.__token, self.__proxies, callback_query_id, text, show_alert, url,
                                              cache_time)
@@ -992,6 +1039,7 @@ class TBot:
         Use this method to change the list of the bot's commands.
         :param list commands: A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
         :return: True On success.
+        :rtype: dict
         """
         return methods.set_my_commands(self.__token, self.__proxies, commands)
 
@@ -999,6 +1047,7 @@ class TBot:
         """
         Use this method to get the current list of the bot's commands.
         :return: Array of BotCommand On success.
+        :rtype: tgbotapi.types.BotCommand
         """
         return methods.get_my_commands(self.__token, self.__proxies)
 
@@ -1007,13 +1056,14 @@ class TBot:
         """
         Use this method to edit text and game messages.
         :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param int or None message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
-        :param str parse_mode: Send Markdown or HTML.
+        :param str or None parse_mode: Send Markdown or HTML.
         :param bool disable_web_page_preview: Disables link previews for links in this message
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
+        :rtype: types.Message or dict
         """
         result = methods.edit_message_text(self.__token, self.__proxies, text, chat_id, message_id, inline_message_id,
                                            parse_mode,
@@ -1028,12 +1078,13 @@ class TBot:
         """
         Use this method to edit captions of messages.
         :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
-        :param str caption: New caption of the message, 0-1024 characters after entities parsing.
-        :param str parse_mode: Send Markdown or HTML.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param int or None message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param str or None caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param str or None parse_mode: Send Markdown or HTML.
+        :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
+        :rtype: tgbotapi.types.Message or dict
         """
         result = methods.edit_message_caption(self.__token, self.__proxies, caption, chat_id, message_id,
                                               inline_message_id, parse_mode,
@@ -1046,11 +1097,12 @@ class TBot:
         """
         Use this method to edit animation, audio, document, photo, or video messages.
         :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param int or None message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :param any media: A JSON-serialized object for a new media content of the message must be InputMedia.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.:
+        :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.:
         :return: a Message object On success, otherwise True.
+        :rtype: types.Message or dict
         """
         result = methods.edit_message_media(
             self.__token, self.__proxies, media, chat_id, message_id, inline_message_id, reply_markup)
@@ -1063,10 +1115,11 @@ class TBot:
         """
         Use this method to edit only the reply markup of messages.
         :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param int or None message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
+        :rtype: types.Message or dict
         """
         result = methods.edit_message_reply_markup(
             self.__token, self.__proxies, chat_id, message_id, inline_message_id, reply_markup)
@@ -1078,9 +1131,10 @@ class TBot:
         """
         Use this method to stop a poll which was sent by the bot.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param int message_id: Identifier of the original message with the poll.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param int or None message_id: Identifier of the original message with the poll.
+        :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Poll object On success.
+        :rtype: tgbotapi.types.Poll
         """
         return types.Poll.de_json(methods.stop_poll(self.__token, self.__proxies, chat_id, message_id, reply_markup))
 
@@ -1097,18 +1151,20 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int message_id: Identifier of the message to delete
         :return: True On success.
+        :rtype: dict
         """
         return methods.delete_message(self.__token, self.__proxies, chat_id, message_id)
 
     def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send static .WEBP or animated .TGS stickers.
-        :param chat_id: Integer or String: Required,
-        :param sticker: InputFile or String: Required,
-        :param disable_notification: Boolean: Optional,
-        :param reply_to_message_id: Integer: Optional,
-        :param reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply: Optional,
-        :returns: a Message object On success.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param any sticker: Sticker [file_id or InputFile] to send.
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
+        :return: a Message object On success.
+        :rtype: tgbotapi.types.Message
         """
         return types.Message.de_json(
             methods.send_sticker(self.__token, self.__proxies, chat_id, sticker, disable_notification,
@@ -1120,6 +1176,7 @@ class TBot:
         Use this method to get a sticker set.
         :param str name:  Name of the sticker set.
         :return: a StickerSet object On success.
+        :rtype: tgbotapi.types.StickerSet
         """
         return types.StickerSet.de_json(methods.get_sticker_set(self.__token, self.__proxies, name))
 
@@ -1129,6 +1186,7 @@ class TBot:
         :param int user_id: Unique identifier of the target user.
         :param any png_sticker: Png image with the sticker,
         :return: a File object On success.
+        :rtype: types.File
         """
         return types.File.de_json(methods.upload_sticker_file(self.__token, self.__proxies, user_id, png_sticker))
 
@@ -1139,12 +1197,13 @@ class TBot:
         :param int user_id: Unique identifier of the target user.
         :param str name: Short name of sticker set.
         :param str title: New chat title, 1-255 characters.
-        :param any png_sticker: PNG image [file_id or InputFile] with the sticker.
-        :param any tgs_sticker: TGS animation [InputFile] with the sticker.
+        :param any or None png_sticker: PNG image [file_id or InputFile] with the sticker.
+        :param any or None tgs_sticker: TGS animation [InputFile] with the sticker.
         :param str emojis: One or more emoji corresponding to the sticker.
         :param bool contains_masks: Pass True, if a set of mask stickers should be created.
-        :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
+        :param any or None mask_position: A JSON-serialized object for position where the mask should be placed on faces.
         :return: True On success.
+        :rtype: dict
         """
         return methods.create_new_sticker_set(self.__token, self.__proxies, user_id, name, title, png_sticker,
                                               tgs_sticker, emojis,
@@ -1156,10 +1215,11 @@ class TBot:
         :param int user_id: Unique identifier of the target user.
         :param str name: Short name of sticker set.
         :param any png_sticker: PNG image [file_id or InputFile] with the sticker.
-        :param any tgs_sticker: TGS animation [InputFile] with the sticker.
+        :param any or None tgs_sticker: TGS animation [InputFile] with the sticker.
         :param str emojis: One or more emoji corresponding to the sticker.
-        :param any mask_position: A JSON-serialized object for position where the mask should be placed on faces.
+        :param any or None mask_position: A JSON-serialized object for position where the mask should be placed on faces.
         :return: True on success.
+        :rtype: dict
         """
         return methods.add_sticker_to_set(self.__token, self.__proxies, user_id, name, png_sticker, tgs_sticker, emojis,
                                           mask_position)
@@ -1170,6 +1230,7 @@ class TBot:
         :param str sticker: File identifier of the sticker.
         :param int position: New sticker position in the set, zero-based.
         :return: True on success.
+        :rtype: dict
         """
         return methods.set_sticker_position_in_set(self.__token, self.__proxies, sticker, position)
 
@@ -1178,6 +1239,7 @@ class TBot:
         Use this method to delete a sticker from a set created by the bot.
         :param str sticker: File identifier of the sticker.
         :return: True on success.
+        :rtype: dict
         """
         return methods.delete_sticker_from_set(self.__token, self.__proxies, sticker)
 
@@ -1186,8 +1248,9 @@ class TBot:
         Use this method to set the thumbnail of a sticker set.
         :param str name: Short name of sticker set.
         :param int user_id: Unique identifier of the target user.
-        :param any thumb: Thumbnail [file_id or InputFile] of the file sent.
-        :return: True on success
+        :param str or bytearray or None thumb: Thumbnail [file_id or InputFile] of the file sent.
+        :return: True on success.
+        :rtype: dict
         """
         return methods.set_sticker_set_thumb(self.__token, self.__proxies, name, user_id, thumb)
 
@@ -1196,13 +1259,14 @@ class TBot:
         """
         Use this method to send answers to an inline query.
         :param str inline_query_id: Unique identifier for the answered query.
-        :param any results: A JSON-serialized array of [InlineQueryResult] results for the inline query.
-        :param int cache_time: The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
+        :param list results: A JSON-serialized array of [InlineQueryResult] results for the inline query.
+        :param int or None cache_time: The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
         :param bool is_personal: Pass True, if results may be cached on the server side only for the user that sent the query.
-        :param str next_offset: Pass the offset that a client should send in the next query with the same text to receive more results.
-        :param str switch_pm_text: If passed, clients will display a button with specified text that switches the user to a private chat with the bot and sends the bot a start message with the parameter switch_pm_parameter.
-        :param str switch_pm_parameter: 	Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
-        :return: True on success
+        :param str or None next_offset: Pass the offset that a client should send in the next query with the same text to receive more results.
+        :param str or None switch_pm_text: If passed, clients will display a button with specified text that switches the user to a private chat with the bot and sends the bot a start message with the parameter switch_pm_parameter.
+        :param str or None switch_pm_parameter: 	Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
+        :return: True on success.
+        :rtype: dict
         """
         return methods.answer_inline_query(self.__token, self.__proxies, inline_query_id, results, cache_time,
                                            is_personal, next_offset,
@@ -1215,7 +1279,7 @@ class TBot:
                      disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send invoices. On success, the sent Message is returned.
-        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int chat_id: Unique identifier for the target chat or username of the target channel.
         :param str title: New chat title, 1-255 characters.
         :param str description: Product description, 1-255 characters
         :param str payload: Bot-defined invoice payload, 1-128 bytes.
@@ -1223,11 +1287,11 @@ class TBot:
         :param str start_parameter: Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter.
         :param str currency: Three-letter ISO 4217 currency code.
         :param list prices: Price breakdown, a JSON-serialized list of components.
-        :param str provider_data: JSON-encoded data about the invoice, which will be shared with the payment provider.
+        :param dict provider_data: JSON-encoded data about the invoice, which will be shared with the payment provider.
         :param str photo_url: URL of the product photo for the invoice.
-        :param photo_size: Photo Size.
-        :param photo_width: Photo Width.
-        :param photo_height: Photo Height.
+        :param int photo_size: Photo Size.
+        :param int photo_width: Photo Width.
+        :param int photo_height: Photo Height.
         :param need_name: Pass True, if you require the user's full name to complete the order
         :param need_phone_number: Pass True, if you require the user's phone number to complete the order.
         :param need_email: Pass True, if you require the user's email address to complete the order
@@ -1236,9 +1300,10 @@ class TBot:
         :param send_email_to_provider: Pass True, if user's email address should be sent to provider.
         :param is_flexible: Pass True, if the final price depends on the shipping method.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object.
+        :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_invoice(self.__token, self.__proxies, chat_id, title, description, payload, provider_token,
@@ -1256,9 +1321,10 @@ class TBot:
         the Bot API will send an Update with a shipping_query field to the bot.
         :param str shipping_query_id: Unique identifier for the query to be answered
         :param bool ok: Specify True if delivery to the specified address is possible and False if there are any problems.
-        :param list shipping_options: Required if ok is True. A JSON-serialized array of available shipping options.
-        :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
+        :param list or None shipping_options: Required if ok is True. A JSON-serialized array of available shipping options.
+        :param str or None error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
         :return: True, On success.
+        :rtype: dict
         """
         return methods.answer_shipping_query(self.__token, self.__proxies, shipping_query_id, ok, shipping_options,
                                              error_message)
@@ -1268,8 +1334,9 @@ class TBot:
         Use this method to respond to such pre-checkout queries.
         :param str pre_checkout_query_id: Unique identifier for the query to be answered.
         :param bool ok: Specify True if delivery to the specified address is possible and False if there are any problems.
-        :param str error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
+        :param str or None error_message: Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order.
         :return: True On success.
+        :rtype: dict
         """
         return methods.answer_pre_checkout_query(self.__token, self.__proxies, pre_checkout_query_id, ok, error_message)
 
@@ -1279,6 +1346,7 @@ class TBot:
         :param int user_id: Unique identifier of the target user.
         :param list errors: A JSON-serialized array of [PassportElementError] describing the errors.
         :return: True On success.
+        :rtype: dict
         """
         return methods.set_passport_data_errors(self.__token, self.__proxies, user_id, errors)
 
@@ -1289,9 +1357,10 @@ class TBot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str game_short_name: Short name of the game, serves as the unique identifier for the game.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param int reply_to_message_id: If the message is a reply, ID of the original message.
-        :param any reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param dict or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success.
+        :rtype: tgbotapi.types.Message
         """
         return types.Message.de_json(
             methods.send_game(self.__token, self.__proxies, chat_id, game_short_name, disable_notification,
@@ -1305,10 +1374,11 @@ class TBot:
         :param int score: New score, must be non-negative.
         :param bool force: Pass True, if the high score is allowed to decrease.
         :param bool disable_edit_message: Pass True, if the game message should not be automatically edited to include the current scoreboard.
-        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param int chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int or None message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :return: On success a Message object, otherwise returns True.
+        :rtype: types.Message or dict
         """
         result = methods.set_game_score(self.__token, self.__proxies, user_id, score, force, disable_edit_message,
                                         chat_id, message_id,
@@ -1321,10 +1391,11 @@ class TBot:
         """
         Use this method to get data for high score tables.
         :param int user_id: Unique identifier of the target user.
-        :param int or str chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
-        :param int message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
-        :param str inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
+        :param int or None chat_id: Required if inline_message_id is not specified. Unique identifier for the target chat.
+        :param int or None message_id: Required if inline_message_id is not specified. Identifier of the message to edit.
+        :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :return: an Array of GameHighScore objects.
+        :rtype: list[tgbotapi.types.GameHighScore]
         """
         result = methods.get_game_high_scores(self.__token, self.__proxies, user_id, chat_id, message_id,
                                               inline_message_id)
