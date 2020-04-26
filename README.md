@@ -36,15 +36,13 @@ It is generally recommended to use the first option.
 *While the API is production-ready, it is still under development and it has regular updates, do not forget to update it regularly by calling `pip install tgbotapi --upgrade`*
 
 ## ChangeLog
-**_version 4.7.0_**
-- Added the method sendDice for sending a dice message, which will have a random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
-- Added the field dice to the Message object.
-- Added the method getMyCommands for getting the current list of the bot's commands.
-- Added the method setMyCommands for changing the list of the bot's commands through the Bot API instead of @BotFather.
-- Added the ability to create animated sticker sets by specifying the parameter tgs_sticker instead of png_sticker in the method createNewStickerSet.
-- Added the ability to add animated stickers to sets created by the bot by specifying the parameter tgs_sticker instead of png_sticker in the method addStickerToSet.
-- Added the field thumb to the StickerSet object.
-- Added the ability to change thumbnails of sticker sets created by the bot using the method setStickerSetThumb.
+**_version 4.8.0_**
+- Add explanations by specifying the parameters explanation and explanation_parse_mode in the method sendPoll.
+- Added the fields explanation and explanation_entities to the Poll object.
+- Supported timed polls that automatically close at a certain date and time. Set up by specifying the parameter open_period or close_date in the method sendPoll.
+- Added the fields open_period and close_date to the Poll object.
+- Supported the new darts animation for the dice mini-game. Choose between the default dice animation and darts animation by specifying the parameter emoji in the method sendDice.
+- Added the field emoji to the Dice object.ed the ability to change thumbnails of sticker sets created by the bot using the method setStickerSetThumb.
 
 **_Fixes_**
 
