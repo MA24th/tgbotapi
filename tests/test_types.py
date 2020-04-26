@@ -1,4 +1,3 @@
-import pytest
 from tgbotapi import types
 
 
@@ -27,7 +26,7 @@ def test_update():
     obj = types.Update.de_json(dic)
     assert obj.update_id == 938203
     assert obj.message.message_id == 241
-    assert obj.message.from_user.is_bot == False
+    assert obj.message.from_user.is_bot is False
     assert obj.message.from_user.id == 383324787
     assert obj.message.from_user.first_name == 'Mustafa'
     assert obj.message.from_user.last_name == 'Asaad'
@@ -39,19 +38,19 @@ def test_update():
     assert obj.message.chat.type == 'private'
     assert obj.message.date == 1441447009
     assert obj.message.text == '/start'
-    assert obj.edited_message == None
-    assert obj.channel_post == None
-    assert obj.edited_channel_post == None
-    assert obj.inline_query == None
-    assert obj.chosen_inline_result == None
-    assert obj.callback_query == None
-    assert obj.shipping_query == None
-    assert obj.pre_checkout_query == None
-    assert obj.poll == None
-    assert obj.poll_answer == None
+    assert obj.edited_message is None
+    assert obj.channel_post is None
+    assert obj.edited_channel_post is None
+    assert obj.inline_query is None
+    assert obj.chosen_inline_result is None
+    assert obj.callback_query is None
+    assert obj.shipping_query is None
+    assert obj.pre_checkout_query is None
+    assert obj.poll is None
+    assert obj.poll_answer is None
 
 
-def test_WebhookInfo():
+def test_webhook_info():
     dic = {
         'url': 'weburl',
         'has_custom_certificate': None,
@@ -63,7 +62,7 @@ def test_WebhookInfo():
     }
     obj = types.WebhookInfo.de_json(dic)
     assert obj.url == 'weburl'
-    assert obj.has_custom_certificate == None
+    assert None == obj.has_custom_certificate
     assert obj.pending_update_count == 1
     assert obj.last_error_date == 155555
     assert obj.last_error_message == 'abc'
@@ -71,7 +70,7 @@ def test_WebhookInfo():
     assert obj.allowed_updates == 'au'
 
 
-def test_User():
+def test_user():
     dic = {
         "id": 952435061,
         "is_bot": True,
@@ -86,16 +85,16 @@ def test_User():
     user = types.User.de_json(dic)
     assert user.id == 952435061
     assert user.first_name == 'GuardBot'
-    assert user.last_name == None
-    assert user.is_bot == True
+    assert user.last_name is None
+    assert user.is_bot is True
     assert user.username == '@gu9rdbot'
     assert user.language_code == 'en'
-    assert user.can_join_groups == True
-    assert user.can_read_all_group_messages == False
-    assert user.supports_inline_queries == True
+    assert user.can_join_groups is True
+    assert user.can_read_all_group_messages is False
+    assert user.supports_inline_queries is True
 
 
-def test_Chat():
+def test_chat():
     dic = {
         "id": -1001184458459,
         "type": "channel",
@@ -132,45 +131,45 @@ def test_Chat():
     assert obj.id == -1001184458459
     assert obj.type == 'channel'
     assert obj.title == 'GRID9'
-    assert obj.first_name == None
-    assert obj.last_name == None
+    assert obj.first_name is None
+    assert obj.last_name is None
     assert obj.photo.small_file_id == 111
     assert obj.photo.small_file_unique_id == 222
     assert obj.photo.big_file_id == 333
     assert obj.photo.big_file_unique_id == 444
     assert obj.description == 'group description'
-    assert obj.invite_link == None
+    assert obj.invite_link is None
     assert obj.pinned_message.message_id == 26
     assert obj.pinned_message.chat.id == -1001184458459
     assert obj.pinned_message.chat.title == 'GRID9'
     assert obj.pinned_message.chat.username == 'grid9x'
     assert obj.pinned_message.chat.type == 'channel'
-    assert obj.pinned_message.chat.first_name == None
-    assert obj.pinned_message.chat.last_name == None
-    assert obj.pinned_message.chat.photo == None
-    assert obj.pinned_message.chat.description == None
-    assert obj.pinned_message.chat.invite_link == None
-    assert obj.pinned_message.chat.pinned_message == None
-    assert obj.pinned_message.chat.permissions == None
-    assert obj.pinned_message.chat.slow_mode_delay == None
-    assert obj.pinned_message.chat.sticker_set_name == None
-    assert obj.pinned_message.chat.can_set_sticker_set == None
+    assert obj.pinned_message.chat.first_name is None
+    assert obj.pinned_message.chat.last_name is None
+    assert obj.pinned_message.chat.photo is None
+    assert obj.pinned_message.chat.description is None
+    assert obj.pinned_message.chat.invite_link is None
+    assert obj.pinned_message.chat.pinned_message is None
+    assert obj.pinned_message.chat.permissions is None
+    assert obj.pinned_message.chat.slow_mode_delay is None
+    assert obj.pinned_message.chat.sticker_set_name is None
+    assert obj.pinned_message.chat.can_set_sticker_set is None
     assert obj.pinned_message.date == 1581868153
     assert obj.pinned_message.text == '/start'
-    assert obj.permissions.can_send_messages == True
-    assert obj.permissions.can_send_media_messages == True
-    assert obj.permissions.can_send_polls == False
-    assert obj.permissions.can_send_other_messages == True
-    assert obj.permissions.can_add_web_page_previews == False
-    assert obj.permissions.can_change_info == False
-    assert obj.permissions.can_invite_users == True
-    assert obj.permissions.can_pin_messages == True
+    assert obj.permissions.can_send_messages is True
+    assert obj.permissions.can_send_media_messages is True
+    assert obj.permissions.can_send_polls is False
+    assert obj.permissions.can_send_other_messages is True
+    assert obj.permissions.can_add_web_page_previews is False
+    assert obj.permissions.can_change_info is False
+    assert obj.permissions.can_invite_users is True
+    assert obj.permissions.can_pin_messages is True
     assert obj.slow_mode_delay == 5
     assert obj.sticker_set_name == 'channelstickers'
-    assert obj.can_set_sticker_set == False
+    assert obj.can_set_sticker_set is False
 
 
-def test_Message():
+def test_message():
     dic = {
         'message_id': 23,
         'from': {
@@ -223,7 +222,7 @@ def test_Message():
     obj = types.Message.de_json(dic)
     assert obj.message_id == 23
     assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
+    assert obj.from_user.is_bot is False
     assert obj.from_user.first_name == 'Mustafa'
     assert obj.from_user.last_name == 'Asaad'
     assert obj.from_user.language_code == 'en'
@@ -232,14 +231,14 @@ def test_Message():
     assert obj.chat.type == 'channel'
     assert obj.chat.title == 'GRID9'
     assert obj.chat.username == 'grid9x'
-    assert obj.chat.first_name == None
-    assert obj.chat.last_name == None
+    assert obj.chat.first_name is None
+    assert obj.chat.last_name is None
     assert obj.chat.photo.small_file_id == 111
     assert obj.chat.photo.small_file_unique_id == 222
     assert obj.chat.photo.big_file_id == 333
     assert obj.chat.photo.big_file_unique_id == 444
     assert obj.chat.description == 'group description'
-    assert obj.chat.invite_link == None
+    assert obj.chat.invite_link is None
     assert obj.chat.pinned_message.message_id == 26
     assert obj.chat.pinned_message.chat.id == -1001184458459
     assert obj.chat.pinned_message.chat.type == 'channel'
@@ -247,20 +246,20 @@ def test_Message():
     assert obj.chat.pinned_message.chat.username == 'grid9x'
     assert obj.chat.pinned_message.date == 1581868153
     assert obj.chat.pinned_message.text == '/start'
-    assert obj.chat.permissions.can_send_messages == True
-    assert obj.chat.permissions.can_send_media_messages == True
-    assert obj.chat.permissions.can_send_polls == False
-    assert obj.chat.permissions.can_send_other_messages == True
-    assert obj.chat.permissions.can_add_web_page_previews == False
-    assert obj.chat.permissions.can_change_info == False
-    assert obj.chat.permissions.can_invite_users == True
-    assert obj.chat.permissions.can_pin_messages == True
+    assert obj.chat.permissions.can_send_messages is True
+    assert obj.chat.permissions.can_send_media_messages is True
+    assert obj.chat.permissions.can_send_polls is False
+    assert obj.chat.permissions.can_send_other_messages is True
+    assert obj.chat.permissions.can_add_web_page_previews is False
+    assert obj.chat.permissions.can_change_info is False
+    assert obj.chat.permissions.can_invite_users is True
+    assert obj.chat.permissions.can_pin_messages is True
     assert obj.chat.slow_mode_delay == 5
     assert obj.chat.sticker_set_name == 'channelstickers'
-    assert obj.chat.can_set_sticker_set == False
+    assert obj.chat.can_set_sticker_set is False
 
 
-def test_MessageEntity():
+def test_message_entity():
     dic = {
         'type': 'any',
         'offset': 2323,
@@ -273,11 +272,11 @@ def test_MessageEntity():
     assert obj.offset == 2323
     assert obj.length == 44
     assert obj.url == 'any_url'
-    assert obj.user == None
+    assert obj.user is None
     assert obj.language == 'en'
 
 
-def test_PhotoSize():
+def test_photo_size():
     dic = {
         'file_id': 1111,
         'file_unique_id': 1122,
@@ -293,7 +292,7 @@ def test_PhotoSize():
     assert obj.file_size == 32
 
 
-def test_Audio():
+def test_audio():
     dic = {
         'file_id': 1,
         'file_unique_id': 11,
@@ -323,7 +322,7 @@ def test_Audio():
     assert obj.thumb.height == 22
 
 
-def test_Document():
+def test_document():
     dic = {
         'file_id': 'BQADBQADMwIAAsYifgZ_CEh0u682xwI',
         'file_unique_id': 'CEh0u682xwI',
@@ -351,7 +350,7 @@ def test_Document():
     assert obj.file_size == 446
 
 
-def test_Video():
+def test_video():
     dic = {
         'file_id': 1,
         'file_unique_id': 2,
@@ -383,7 +382,7 @@ def test_Video():
     assert obj.file_size == 42
 
 
-def test_Animation():
+def test_animation():
     dic = {
         "file_id": 1,
         "file_unique_id": 221,
@@ -414,7 +413,7 @@ def test_Animation():
     assert obj.file_size == 64
 
 
-def test_Voice():
+def test_voice():
     dic = {
         "duration": 0,
         "mime_type": "audio/ogg",
@@ -430,7 +429,7 @@ def test_Voice():
     assert obj.file_size == 10481
 
 
-def test_VideoNote():
+def test_video_note():
     dic = {
         'file_id': 1,
         'file_unique_id': 2,
@@ -458,7 +457,7 @@ def test_VideoNote():
     assert obj.file_size == 42
 
 
-def test_Contact():
+def test_contact():
     json_string = {
         'phone_number': '009647815214015',
         'first_name': 'Mustafa',
@@ -474,14 +473,14 @@ def test_Contact():
     assert contact.vcard == 'vcard'
 
 
-def test_Location():
+def test_location():
     dic = {'longitude': 29, 'latitude': 44}
     obj = types.Location.de_json(dic)
     assert obj.longitude == 29
     assert obj.latitude == 44
 
 
-def test_Venue():
+def test_venue():
     dic = {
         'location': {
             'latitude': 44,
@@ -502,7 +501,7 @@ def test_Venue():
     assert obj.foursquare_type == 'any'
 
 
-def test_PollOption():
+def test_poll_option():
     dic = {
         'text': 'abc',
         'voter_count': 25
@@ -512,7 +511,7 @@ def test_PollOption():
     assert obj.voter_count == 25
 
 
-def test_PollAnswer():
+def test_poll_answer():
     dic = {
         'poll_id': 2,
         'user': {
@@ -526,7 +525,7 @@ def test_PollAnswer():
     }
     obj = types.PollAnswer.de_json(dic)
     assert obj.poll_id == 2
-    assert obj.user.is_bot == False
+    assert obj.user.is_bot is False
     assert obj.user.id == 383324787
     assert obj.user.first_name == 'Mustafa'
     assert obj.user.last_name == 'Asaad'
@@ -534,7 +533,7 @@ def test_PollAnswer():
     assert obj.option_ids == 44
 
 
-def test_Poll():
+def test_poll():
     dic = {
         'id': 444,
         'question': 'is abc?',
@@ -555,14 +554,14 @@ def test_Poll():
     assert obj.options[0].text == 'a'
     assert obj.options[1].voter_count == 5
     assert obj.total_voter_count == 1003
-    assert obj.is_closed == False
-    assert obj.is_anonymous == True
+    assert obj.is_closed is False
+    assert obj.is_anonymous is True
     assert obj.type == 'gif'
-    assert obj.allows_multiple_answers == False
+    assert obj.allows_multiple_answers is False
     assert obj.correct_option_id == 1
 
 
-def test_UserProfilePhotos():
+def test_user_profile_photos():
     dic = {
         "total_count": 1,
         "photos": [
@@ -595,7 +594,7 @@ def test_UserProfilePhotos():
     assert obj.photos[0][3].width == 800
 
 
-def test_File():
+def test_file():
     dic = {
         'file_id': 1123,
         'file_unique_id': 3211,
@@ -609,44 +608,44 @@ def test_File():
     assert obj.file_path == 'filepath'
 
 
-def test_ReplyKeyboardMarkup():
+def test_reply_keyboard_markup():
     dic = r'{"keyboard": []}'
     obj = types.ReplyKeyboardMarkup().to_json()
     assert obj == dic
 
 
-def test_KeyboardButton():
+def test_keyboard_button():
     dic = r'{"text": "any", "request_contact": "any"}'
     obj = types.KeyboardButton(text='any', request_contact='any',
                                request_location=None, request_poll=None).to_json()
     assert obj == dic
 
 
-def test_keyboardButtonPollType():
+def test_keyboard_button_poll_type():
     dic = {
         'type': 'any'
     }
     obj = types.KeyboardButtonPollType.de_json(dic)
-    assert obj.poll_type == 'any'
+    assert obj.type == 'any'
 
 
-def test_ReplyKeyboardRemove():
+def test_reply_keyboard_remove():
     dic = r'{"remove_keyboard": true}'
     obj = types.ReplyKeyboardRemove(selective=None).to_json()
     assert obj == dic
 
 
-def test_InlineKeyboardMarkup():
-    Markup = types.InlineKeyboardMarkup(row_width=2)
-    Button = types.InlineKeyboardButton
-    Markup.add(Button(text='bt1'))
-    Markup.add(Button(text='bt2'))
-    Markup.add(Button(text='bt3'))
-    obj = Markup.to_json()
+def test_inline_keyboard_markup():
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    button = types.InlineKeyboardButton
+    markup.add(button(text='bt1'))
+    markup.add(button(text='bt2'))
+    markup.add(button(text='bt3'))
+    obj = markup.to_json()
     assert obj == r'{"inline_keyboard": [[{"text": "bt1"}], [{"text": "bt2"}], [{"text": "bt3"}]]}'
 
 
-def test_InlineKeyboardButton():
+def test_inline_keyboard_button():
     obj = types.InlineKeyboardButton(text='text', url='url', callback_data='callback_data',
                                      switch_inline_query='switch_inline_query',
                                      switch_inline_query_current_chat='switch_inline_query_current_chat',
@@ -654,14 +653,14 @@ def test_InlineKeyboardButton():
     assert obj == r'{"text": "text", "url": "url", "callback_data": "callback_data", "switch_inline_query": "switch_inline_query", "switch_inline_query_current_chat": "switch_inline_query_current_chat", "callback_game": "callback_game", "pay": "pay", "login_url": "login_url"}'
 
 
-def test_LoginUrl():
+def test_login_url():
     dic = r'{"url": "any", "forward_text": "ftext", "bot_username": "gu9rdbot", "request_write_access": true}'
     obj = types.LoginUrl(url='any', forward_text='ftext',
                          bot_username='gu9rdbot', request_write_access=True).to_json()
     assert obj == dic
 
 
-def test_CallbackQuery():
+def test_call_back_query():
     dic = {
         "id": 1122,
         "from": {
@@ -695,14 +694,14 @@ def test_CallbackQuery():
     obj = types.CallbackQuery.de_json(dic)
     assert obj.id == 1122
     assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
+    assert obj.from_user.is_bot is False
     assert obj.from_user.first_name == 'Mustafa'
     assert obj.from_user.last_name == 'Asaad'
     assert obj.from_user.username == 'MA24th'
     assert obj.from_user.language_code == 'en'
     assert obj.message.message_id == 412
     assert obj.message.from_user.id == 383324787
-    assert obj.message.from_user.is_bot == False
+    assert obj.message.from_user.is_bot is False
     assert obj.message.from_user.first_name == 'Mustafa'
     assert obj.message.from_user.last_name == 'Asaad'
     assert obj.message.from_user.username == 'MA24th'
@@ -718,13 +717,13 @@ def test_CallbackQuery():
     assert obj.game_short_name == 'any'
 
 
-def test_ForceReply():
+def test_force_reply():
     dic = r'{"force_reply": true, "selective": true}'
     obj = types.ForceReply(selective='okay').to_json()
     assert obj == dic
 
 
-def test_ChatPhoto():
+def test_chat_photo():
     dic = {
         'small_file_id': 111,
         'small_file_unique_id': 222,
@@ -738,7 +737,7 @@ def test_ChatPhoto():
     assert obj.big_file_unique_id == 444
 
 
-def test_ChatMember():
+def test_chat_member():
     dic = {
         'user': {
             "id": 383324787,
@@ -769,31 +768,31 @@ def test_ChatMember():
     }
     obj = types.ChatMember.de_json(dic)
     assert obj.user.id == 383324787
-    assert obj.user.is_bot == False
+    assert obj.user.is_bot is False
     assert obj.user.first_name == 'Mustafa'
     assert obj.user.last_name == 'Asaad'
     assert obj.user.username == 'MA24th'
     assert obj.user.language_code == 'en'
     assert obj.status == 'creator'
     assert obj.custom_title == 'DevOps Lion'
-    assert obj.until_date == None
-    assert obj.can_be_edited == False
-    assert obj.can_post_messages == True
-    assert obj.can_edit_messages == True
-    assert obj.can_delete_messages == True
-    assert obj.can_restrict_members == True
-    assert obj.can_promote_members == True
-    assert obj.can_change_info == True
-    assert obj.can_invite_users == True
-    assert obj.can_pin_messages == True
-    assert obj.is_member == True
-    assert obj.can_send_messages == True
-    assert obj.can_send_media_messages == True
-    assert obj.can_send_polls == True
-    assert obj.can_send_other_messages == True
+    assert obj.until_date is None
+    assert obj.can_be_edited is False
+    assert obj.can_post_messages is True
+    assert obj.can_edit_messages is True
+    assert obj.can_delete_messages is True
+    assert obj.can_restrict_members is True
+    assert obj.can_promote_members is True
+    assert obj.can_change_info is True
+    assert obj.can_invite_users is True
+    assert obj.can_pin_messages is True
+    assert obj.is_member is True
+    assert obj.can_send_messages is True
+    assert obj.can_send_media_messages is True
+    assert obj.can_send_polls is True
+    assert obj.can_send_other_messages is True
 
 
-def test_ChatPermissions():
+def test_chat_permissions():
     dic = {
         'can_send_messages': True,
         'can_send_media_messages': True,
@@ -805,17 +804,27 @@ def test_ChatPermissions():
         'can_pin_messages': False
     }
     obj = types.ChatPermissions.de_json(dic)
-    assert obj.can_send_messages == True
-    assert obj.can_send_media_messages == True
-    assert obj.can_send_polls == False
-    assert obj.can_send_other_messages == True
-    assert obj.can_add_web_page_previews == False
-    assert obj.can_change_info == False
-    assert obj.can_invite_users == True
-    assert obj.can_pin_messages == False
+    assert obj.can_send_messages is True
+    assert obj.can_send_media_messages is True
+    assert obj.can_send_polls is False
+    assert obj.can_send_other_messages is True
+    assert obj.can_add_web_page_previews is False
+    assert obj.can_change_info is False
+    assert obj.can_invite_users is True
+    assert obj.can_pin_messages is False
 
 
-def test_ResponseParameters():
+def test_bot_commands():
+    dic = {
+        'command': 'command name',
+        'description': 'command description'
+    }
+    obj = types.BotCommand.de_json(dic)
+    assert obj.command == 'command name'
+    assert obj.description == 'command description'
+
+
+def test_response_parameters():
     dic = {
         'migrate_to_chat_id': 2342,
         'retry_after': 3232
@@ -825,53 +834,53 @@ def test_ResponseParameters():
     assert obj.retry_after == 3232
 
 
-def test_InputMedia():
+def test_input_media():
     dic = r'{"type": "any", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
     obj = types.InputMedia(type='any', media='any',
                            caption='any', parse_mode='Markdown').to_json()
     assert obj == dic
 
 
-def test_InputMediaAnimation():
+def test_input_media_animation():
     dic = r'{"type": "animation", "media": "any", "caption": "any", "parse_mode": "Markdown", "width": 40, "height": 40, "duration": 5}'
     obj = types.InputMediaAnimation(media='any', thumb=None, caption='any',
                                     parse_mode='Markdown', width=40, height=40, duration=5).to_json()
     assert obj == dic
 
 
-def test_InputMediaDocument():
+def test_input_media_document():
     dic = r'{"type": "document", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any"}'
     obj = types.InputMediaDocument(
         media='any', thumb='any', caption='any', parse_mode='Markdown').to_json()
     assert obj == dic
 
 
-def test_InputMediaAudio():
+def test_input_media_audio():
     dic = r'{"type": "audio", "media": "any", "caption": "any", "parse_mode": "Markdown", "duration": 6, "title": "any"}'
     obj = types.InputMediaAudio(media='any', thumb=None, caption='any',
                                 parse_mode='Markdown', duration=6, performer=None, title='any').to_json()
     assert obj == dic
 
 
-def test_InputMediaPhoto():
+def test_input_media_photo():
     dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
     obj = types.InputMediaPhoto(
         media='any', caption='any', parse_mode='Markdown').to_json()
     assert obj == dic
 
 
-def test_InputMediaVideo():
+def test_input_media_video():
     dic = r'{"type": "video", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any", "width": 40, "height": 40, "duration": 4}'
     obj = types.InputMediaVideo(media='any', thumb='any', caption='any', parse_mode='Markdown',
                                 width=40, height=40, duration=4, supports_streaming=None).to_json()
     assert obj == dic
 
 
-def test_InputFile():
+def test_input_file():
     pass
 
 
-def test_Sticker():
+def test_sticker():
     dic = {
         'file_id': 222,
         'file_unique_id': 2323,
@@ -887,15 +896,15 @@ def test_Sticker():
     assert obj.file_unique_id == 2323
     assert obj.width == 30
     assert obj.height == 20
-    assert obj.is_animated == True
-    assert obj.thumb == None
+    assert obj.is_animated is True
+    assert obj.thumb is None
     assert obj.emoji == '🐣'
     assert obj.set_name == 'st'
-    assert obj.mask_position == None
+    assert obj.mask_position is None
     assert obj.file_size == 32
 
 
-def test_StickerSet():
+def test_sticker_set():
     dic = {
         'name': 'stt',
         'title': 'sst',
@@ -914,7 +923,7 @@ def test_StickerSet():
     obj = types.StickerSet.de_json(dic)
     assert obj.name == 'stt'
     assert obj.title == 'sst'
-    assert obj.contains_masks == False
+    assert obj.contains_masks is False
     assert obj.stickers[0].file_id == 222
     assert obj.stickers[0].file_unique_id == 2323
     assert obj.stickers[0].width == 30
@@ -925,7 +934,7 @@ def test_StickerSet():
     assert obj.thumb.file_size == 32
 
 
-def test_MaskPosition():
+def test_mask_position():
     dic = {
         'point': 22,
         'x_shift': 330,
@@ -939,7 +948,7 @@ def test_MaskPosition():
     assert obj.scale == 40
 
 
-def test_InlineQuery():
+def test_inline_query():
     dic = {
         'id': 122,
         'from': {
@@ -960,7 +969,7 @@ def test_InlineQuery():
     obj = types.InlineQuery.de_json(dic)
     assert obj.id == 122
     assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
+    assert obj.from_user.is_bot is False
     assert obj.from_user.first_name == 'Mustafa'
     assert obj.from_user.last_name == 'Asaad'
     assert obj.from_user.username == 'MA24th'
@@ -971,39 +980,39 @@ def test_InlineQuery():
     assert obj.offset == 'all'
 
 
-def test_InlineQueryResult():
+def test_inline_query_result():
     pass
 
 
-def test_InlineQueryResultArticle():
+def test_inline_query_result_article():
     dic = r'{"type": "article", "id": 24, "title": "article", "input_message_content": "any"}'
     obj = types.InlineQueryResultArticle(
         id=24, title='article', input_message_content='any').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultAudio():
+def test_inline_query_result_audio():
     dic = r'{"type": "audio", "id": 24, "audio_url": "url", "title": "audio"}'
     obj = types.InlineQueryResultAudio(
         id=24, audio_url='url', title='audio').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultCachedAudio():
+def test_inline_query_result_cached_audio():
     dic = r'{"type": "audio", "id": 24, "audio_file_id": 12}'
     obj = types.InlineQueryResultCachedAudio(
         type='audio', id=24, audio_file_id=12).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultCachedDocument():
+def test_inline_query_result_cached_document():
     dic = r'{"type": "document", "id": 24, "document_file_id": 12}'
     obj = types.InlineQueryResultCachedDocument(
         type='document', id=24, document_file_id=12).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultCachedGif():
+def test_inline_query_result_cached_gif():
     dic = r'{"type": "gif", "id": 24, "gif_file_id": 12, "title": "giftitle", "caption": "gifcaption", "parse_mode": "Markdown", "input_message_content": "any"}'
     obj = types.InlineQueryResultCachedGif(type='gif', id=24, gif_file_id=12, title='giftitle',
                                            caption='gifcaption', parse_mode='Markdown', reply_markup=None,
@@ -1011,14 +1020,14 @@ def test_InlineQueryResultCachedGif():
     assert obj == dic
 
 
-def test_InlineQueryResultCachedMpeg4Gif():
+def test_inline_query_result_cached_mpeg4gif():
     dic = r'{"type": "mpeg4gif", "id": 24, "mpeg4_file_id": 12}'
     obj = types.InlineQueryResultCachedMpeg4Gif(
         type='mpeg4gif', id=24, mpeg4_file_id=12).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultCachedPhoto():
+def test_inline_query_result_cached_photo():
     dic = r'{"type": "photo", "id": 122, "photo_url": "photourl", "thumb_url": "thumburl", "title": "tiltle", "description": "description", "caption": "caption", "parse_mode": "Markdown", "input_message_content": "any"}'
     obj = types.InlineQueryResultCachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl',
                                              photo_width=30, photo_height=30,
@@ -1028,102 +1037,102 @@ def test_InlineQueryResultCachedPhoto():
     assert obj == dic
 
 
-def test_InlineQueryResultCachedSticker():
+def test_inline_query_result_cached_sticker():
     dic = r'{"type": "sticker", "id": 24, "sticker_file_id": 12}'
     obj = types.InlineQueryResultCachedSticker(
         type='sticker', id=24, sticker_file_id=12).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultCachedVideo():
+def test_inline_query_result_cached_video():
     dic = r'{"type": "video", "id": 24, "video_file_id": 12}'
     obj = types.InlineQueryResultCachedVideo(
         type='video', id=24, video_file_id=12).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultCachedVoice():
+def test_inline_query_result_cached_voice():
     dic = r'{"type": "voice", "id": 24, "voice_file_id": 12}'
     obj = types.InlineQueryResultCachedVoice(
         type='voice', id=24, voice_file_id=12).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultContact():
+def test_inline_query_result_contact():
     dic = r'{"type": "contact", "id": 383324787, "phone_number": "009647815214015", "first_name": "Mustafa"}'
     obj = types.InlineQueryResultContact(
         id=383324787, phone_number='009647815214015', first_name='Mustafa').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultGame():
+def test_inline_query_result_game():
     dic = r'{"type": "game", "id": 24, "game_short_name": "gamename"}'
     obj = types.InlineQueryResultGame(
         id=24, game_short_name='gamename').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultDocument():
+def test_inline_query_result_document():
     dic = r'{"type": "document", "id": 24, "title": "title", "document_url": "durl", "mime_type": "any"}'
     obj = types.InlineQueryResultDocument(
         id=24, title='title', document_url='durl', mime_type='any').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultGif():
+def test_inline_query_result_gif():
     dic = r'{"type": "gif", "id": 24, "gif_url": "gurl", "thumb_url": "any"}'
     obj = types.InlineQueryResultGif(
         id=24, gif_url='gurl', thumb_url='any').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultLocation():
+def test_inline_query_result_location():
     dic = r'{"type": "location", "id": 24, "title": "Baghdad", "latitude": 39, "longitude": 44}'
     obj = types.InlineQueryResultLocation(
         id=24, title='Baghdad', latitude=39, longitude=44).to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultMpeg4Gif():
+def test_inline_query_result_mpeg4gif():
     dic = r'{"type": "mpeg4_gif", "id": 24, "mpeg4_url": "mpurl", "thumb_url": "thurl"}'
     obj = types.InlineQueryResultMpeg4Gif(
         id=24, mpeg4_url='mpurl', thumb_url='thurl').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultPhoto():
+def test_inline_query_result_photo():
     dic = r'{"type": "photo", "id": 24, "photo_url": "phurl", "thumb_url": "thurl"}'
     obj = types.InlineQueryResultPhoto(
         id=24, photo_url='phurl', thumb_url='thurl').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultVenue():
+def test_inline_query_result_venue():
     dic = r'{"type": "venue", "id": 24, "title": "any", "latitude": 29, "longitude": 44, "address": "any"}'
     obj = types.InlineQueryResultVenue(
         id=24, title='any', latitude=29, longitude=44, address='any').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultVideo():
+def test_inline_query_result_video():
     dic = r'{"type": "video", "id": 24, "video_url": "vurl", "mime_type": "mtype", "thumb_url": "thurl", "title": "any"}'
     obj = types.InlineQueryResultVideo(
         id=24, video_url='vurl', mime_type='mtype', thumb_url='thurl', title='any').to_json()
     assert obj == dic
 
 
-def test_InlineQueryResultVoice():
+def test_inline_query_result_voice():
     dic = r'{"type": "voice", "id": 24, "voice_url": "vurl", "title": "any"}'
     obj = types.InlineQueryResultVoice(
         id=24, voice_url='vurl', title='any').to_json()
     assert obj == dic
 
 
-def InputMessageContent():
+def test_input_message_content():
     pass
 
 
-def test_InputContactMessageContent():
+def test_input_contact_message_content():
     dic = {
         'phone_number': '009647815214015',
         'first_name': 'Mustafa',
@@ -1134,7 +1143,7 @@ def test_InputContactMessageContent():
     assert obj == dic
 
 
-def test_InputLocationMessageContent():
+def test_input_location_message_content():
     dic = {
         'latitude': 29,
         'live_period': 15,
@@ -1145,7 +1154,7 @@ def test_InputLocationMessageContent():
     assert obj == dic
 
 
-def test_InputTextMessageContent():
+def test_input_text_message_content():
     dic = {
         'message_text': 'any',
         'parse_mode': 'Markdown',
@@ -1156,7 +1165,7 @@ def test_InputTextMessageContent():
     assert obj == dic
 
 
-def test_InputVenueMessageContent():
+def test_input_venue_message_content():
     dic = {
         'latitude': 29,
         'longitude': 44,
@@ -1170,7 +1179,7 @@ def test_InputVenueMessageContent():
     assert obj == dic
 
 
-def test_ChosenInlineResult():
+def test_chosen_inline_result():
     dic = {
         'result_id': 123456,
         'from': {
@@ -1191,7 +1200,7 @@ def test_ChosenInlineResult():
     obj = types.ChosenInlineResult.de_json(dic)
     assert obj.result_id == 123456
     assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
+    assert obj.from_user.is_bot is False
     assert obj.from_user.first_name == 'Mustafa'
     assert obj.from_user.last_name == 'Asaad'
     assert obj.from_user.username == 'MA24th'
@@ -1202,13 +1211,13 @@ def test_ChosenInlineResult():
     assert obj.inline_message_id == 1233
 
 
-def test_LabeledPrice():
+def test_labeled_price():
     dic = r'{"label": "apple", "amount": 2}'
     obj = types.LabeledPrice(label='apple', amount=2).to_json()
     assert obj == dic
 
 
-def test_Invoice():
+def test_invoice():
     dic = {
         'title': 'any',
         'description': 'dany',
@@ -1224,7 +1233,7 @@ def test_Invoice():
     assert obj.total_amount == 20
 
 
-def test_ShippingAddress():
+def test_shipping_address():
     dic = {
         'country_code': 'iq',
         'state': 'Diyala',
@@ -1238,11 +1247,11 @@ def test_ShippingAddress():
     assert obj.state == 'Diyala'
     assert obj.city == 'Khalis'
     assert obj.street_line1 == 'Kh 32006 44 st'
-    assert obj.street_line2 == None
+    assert obj.street_line2 is None
     assert obj.post_code == 32006
 
 
-def test_OrderInfo():
+def test_order_info():
     dic = {
         'name': 'namey',
         'phone_number': '11223344',
@@ -1268,13 +1277,13 @@ def test_OrderInfo():
     assert obj.shipping_address.post_code == 32006
 
 
-def test_ShippingOption():
+def test_shipping_option():
     dic = r'{"id": 23, "title": "apple", "prices": []}'
     obj = types.ShippingOption(id=23, title='apple').to_json()
     assert obj == dic
 
 
-def test_SuccessfulPayment():
+def test_successful_payment():
     dic = {
         'currency': 'IQD',
         'total_amount': 25000,
@@ -1286,13 +1295,13 @@ def test_SuccessfulPayment():
     assert obj.currency == 'IQD'
     assert obj.total_amount == 25000
     assert obj.invoice_payload == 'trans'
-    assert obj.shipping_option_id == None
-    assert obj.order_info == None
+    assert obj.shipping_option_id is None
+    assert obj.order_info is None
     assert obj.telegram_payment_charge_id == 2232
     assert obj.provider_payment_charge_id == 2333
 
 
-def test_ShippingQuery():
+def test_shipping_query():
     dic = {
         'id': 22,
         'from': {
@@ -1314,7 +1323,7 @@ def test_ShippingQuery():
     obj = types.ShippingQuery.de_json(dic)
     assert obj.id == 22
     assert obj.from_user.id == 383324787
-    assert obj.from_user.is_bot == False
+    assert obj.from_user.is_bot is False
     assert obj.from_user.first_name == 'Mustafa'
     assert obj.from_user.last_name == 'Asaad'
     assert obj.from_user.username == 'MA24th'
@@ -1324,7 +1333,7 @@ def test_ShippingQuery():
     assert obj.shipping_address.post_code == 32006
 
 
-def test_PreCheckoutQuery():
+def test_pre_checkout_query():
     dic = {
         'id': 888,
         'from': {
@@ -1345,11 +1354,11 @@ def test_PreCheckoutQuery():
     assert obj.currency == 'IQD'
     assert obj.total_amount == 25000
     assert obj.invoice_payload == 'abc'
-    assert obj.shipping_option_id == None
-    assert obj.order_info == None
+    assert obj.shipping_option_id is None
+    assert obj.order_info is None
 
 
-def test_PassportData():
+def test_passport_data():
     dic = {
         'EncryptedPassportElement': '12u8kadf',
         'EncryptedCredentials': 'djladjf:dkjfaklj'
@@ -1359,7 +1368,7 @@ def test_PassportData():
     assert obj.credentials == "djladjf:dkjfaklj"
 
 
-def test_PassportFile():
+def test_passport_file():
     dic = {
         'file_id': 44,
         'file_unique_id': 25,
@@ -1373,7 +1382,7 @@ def test_PassportFile():
     assert obj.file_date == 155555
 
 
-def test_EncryptedPassportElement():
+def test_encrypted_passport_element():
     dic = {
         'type': 'passport',
         'data': 'SpyZjzIwdVAAIC',
@@ -1441,7 +1450,7 @@ def test_EncryptedPassportElement():
     assert obj.hash == 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH'
 
 
-def test_EncryptedCredentials():
+def test_encrypted_credentials():
     dic = {
         'data': 'SpyZjzIwdVAAIC',
         'hash': 'AgADAgADqacxG6wpRwABvEB6fpeIcKS4HAIkAATZH',
@@ -1453,7 +1462,7 @@ def test_EncryptedCredentials():
     assert obj.secret == 'secretpwd'
 
 
-def test_PassportElementError():
+def test_passport_element_error():
     dic = {
         'source': 'unspecified',
         'type': 'any',
@@ -1464,10 +1473,10 @@ def test_PassportElementError():
     assert obj.source == 'unspecified'
     assert obj.type == 'any'
     assert obj.element_hash == 'any'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorDataField():
+def test_passport_element_error_data_field():
     dic = {
         'source': 'data',
         'type': 'any',
@@ -1480,10 +1489,10 @@ def test_PassportElementErrorDataField():
     assert obj.type == 'any'
     assert obj.field_name == 'abc'
     assert obj.data_hash == 'any'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorFrontSide():
+def test_passport_element_error_front_side():
     dic = {
         'source': 'front_side',
         'type': 'any',
@@ -1494,10 +1503,10 @@ def test_PassportElementErrorFrontSide():
     assert obj.source == 'front_side'
     assert obj.type == 'any'
     assert obj.file_hash == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorFile():
+def test_passport_element_error_file():
     dic = {
         'source': 'file',
         'type': 'any',
@@ -1508,10 +1517,10 @@ def test_PassportElementErrorFile():
     assert obj.source == 'file'
     assert obj.type == 'any'
     assert obj.file_hash == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorFiles():
+def test_passport_element_error_files():
     dic = {
         'source': 'files',
         'type': 'any',
@@ -1522,10 +1531,10 @@ def test_PassportElementErrorFiles():
     assert obj.source == 'files'
     assert obj.type == 'any'
     assert obj.file_hashes == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorReverseSide():
+def test_passport_element_error_reverse_side():
     dic = {
         'source': 'reverse_side',
         'type': 'any',
@@ -1536,10 +1545,10 @@ def test_PassportElementErrorReverseSide():
     assert obj.source == 'reverse_side'
     assert obj.type == 'any'
     assert obj.file_hash == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorSelfie():
+def test_passport_element_error_selfie():
     dic = {
         'source': 'selfie',
         'type': 'any',
@@ -1550,10 +1559,10 @@ def test_PassportElementErrorSelfie():
     assert obj.source == 'selfie'
     assert obj.type == 'any'
     assert obj.file_hash == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorTranslationFile():
+def test_passport_element_error_translation_file():
     dic = {
         'source': 'translation_file',
         'type': 'any',
@@ -1564,10 +1573,10 @@ def test_PassportElementErrorTranslationFile():
     assert obj.source == 'translation_file'
     assert obj.type == 'any'
     assert obj.file_hash == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorTranslationFiles():
+def test_passport_element_error_translation_files():
     dic = {
         'source': 'translation_files',
         'type': 'any',
@@ -1578,10 +1587,10 @@ def test_PassportElementErrorTranslationFiles():
     assert obj.source == 'translation_files'
     assert obj.type == 'any'
     assert obj.file_hashes == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_PassportElementErrorUnspecified():
+def test_passport_element_error_unspecified():
     dic = {
         'source': 'unspecified',
         'type': 'any',
@@ -1592,10 +1601,10 @@ def test_PassportElementErrorUnspecified():
     assert obj.source == 'unspecified'
     assert obj.type == 'any'
     assert obj.element_hash == 'abc'
-    assert obj.message == None
+    assert obj.message is None
 
 
-def test_Game():
+def test_game():
     dic = {
         'title': 'GameTitle',
         'description': 'GameDescription',
@@ -1656,7 +1665,7 @@ def test_Game():
     assert obj.text_entities[0].length == 22
     assert obj.text_entities[0].url == 'some url'
     assert obj.text_entities[0].user.id == 383324787
-    assert obj.text_entities[0].user.is_bot == False
+    assert obj.text_entities[0].user.is_bot is False
     assert obj.text_entities[0].user.first_name == 'Mustafa'
     assert obj.text_entities[0].user.last_name == 'Asaad'
     assert obj.text_entities[0].user.username == 'MA24th'
@@ -1676,11 +1685,11 @@ def test_Game():
     assert obj.animation.file_size == 64
 
 
-def test_CallbackGame():
+def test_call_back_game():
     pass
 
 
-def test_GameHighScore():
+def test_game_high_score():
     dic = {
         'position': 'player1',
         'user': {
@@ -1696,7 +1705,7 @@ def test_GameHighScore():
     obj = types.GameHighScore.de_json(dic)
     assert obj.position == 'player1'
     assert obj.user.id == 383324787
-    assert obj.user.is_bot == False
+    assert obj.user.is_bot is False
     assert obj.user.first_name == 'Mustafa'
     assert obj.user.last_name == 'Asaad'
     assert obj.user.username == 'MA24th'
