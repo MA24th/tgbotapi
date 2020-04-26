@@ -29,7 +29,7 @@ pip install tgbotapi
 ```bash
 git clone https://github.com/ma24th/tgbotapi.git
 cd tgbotapi
-python setup.py install
+pip install .
 ```
 
 It is generally recommended to use the first option.
