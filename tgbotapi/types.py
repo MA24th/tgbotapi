@@ -906,7 +906,7 @@ class Poll(JsonDeserializable):
 
 
 class Dice(JsonDeserializable):
-    """ This object represents a dice with random value from 1 to 6 """
+    """ This object represents a dice with random value """
 
     def __init__(self, value, emoji):
         self.value = value
@@ -2240,8 +2240,8 @@ class InlineQueryResultGif(JsonSerializable):
         Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    def __init__(self, id, gif_url, gif_width, gif_height, gif_duration, thumb_url, thumb_mime_type, title, caption,
-                 reply_markup, input_message_content):
+    def __init__(self, id, gif_url, gif_width=None, gif_height=None, gif_duration=None, thumb_url=None,
+                 thumb_mime_type=None, title=None, caption=None, reply_markup=None, input_message_content=None):
         self.type = 'gif'
         self.id = id
         self.gif_url = gif_url
@@ -2955,6 +2955,8 @@ class PassportElementError(JsonDeserializable):
         PassportElementErrorTranslationFiles
         PassportElementErrorUnspecified
     """
+    def __init__(self):
+        pass
 
     @classmethod
     def de_json(cls, json_string):
