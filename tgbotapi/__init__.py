@@ -1,7 +1,7 @@
 import threading
 import pickle
 import os
-from .utilities import ThreadPool, logger, WorkerThread, OrEvent, extract_command, async_dec
+from .utils import ThreadPool, logger, WorkerThread, OrEvent, extract_command, async_dec
 from . import methods, types
 import time
 import six

@@ -303,6 +303,7 @@ class Message(JsonDeserializable):
         self.forward_from = None
         self.forward_date = None
         self.reply_to_message = None
+        self.via_bot = None
         self.edit_date = None
         self.media_group_id = None
         self.author_signature = None
@@ -366,6 +367,8 @@ class Message(JsonDeserializable):
             opts['forward_date'] = obj.get('forward_date')
         if 'reply_to_message' in obj:
             opts['reply_to_message'] = Message.de_json(obj['reply_to_message'])
+        if 'via_bot' in obj:
+            opts['via_bot'] = User.de_json(obj['via_bot'])
         if 'edit_date' in obj:
             opts['edit_date'] = obj.get('edit_date')
         if 'media_group_id' in obj:
@@ -2237,19 +2240,20 @@ class InlineQueryResultGif(JsonSerializable):
         Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    def __init__(self, id, gif_url, thumb_url, gif_width=None, gif_height=None, title=None, caption=None,
-                 reply_markup=None, input_message_content=None, gif_duration=None):
+    def __init__(self, id, gif_url, gif_width, gif_height, gif_duration, thumb_url, thumb_mime_type, title, caption,
+                 reply_markup, input_message_content):
         self.type = 'gif'
         self.id = id
         self.gif_url = gif_url
         self.gif_width = gif_width
         self.gif_height = gif_height
+        self.gif_duration = gif_duration
         self.thumb_url = thumb_url
+        self.thumb_mime_type = thumb_mime_type
         self.title = title
         self.caption = caption
         self.reply_markup = reply_markup
         self.input_message_content = input_message_content
-        self.gif_duration = gif_duration
 
     def to_json(self):
         json_dict = {'type': self.type, 'id': self.id,
@@ -2258,6 +2262,12 @@ class InlineQueryResultGif(JsonSerializable):
             json_dict['gif_height'] = self.gif_height
         if self.gif_width:
             json_dict['gif_width'] = self.gif_width
+        if self.gif_duration:
+            json_dict['gif_duration'] = self.gif_duration
+        if self.thumb_url:
+            json_dict['thumb_url'] = self.thumb_url
+        if self.thumb_mime_type:
+            json_dict['thumb_mime_type'] = self.thumb_mime_type
         if self.title:
             json_dict['title'] = self.title
         if self.caption:
@@ -2266,8 +2276,6 @@ class InlineQueryResultGif(JsonSerializable):
             json_dict['reply_markup'] = self.reply_markup.to_dic()
         if self.input_message_content:
             json_dict['input_message_content'] = self.input_message_content.to_dic()
-        if self.gif_duration:
-            json_dict['gif_duration'] = self.gif_duration
         return json.dumps(json_dict)
 
 
