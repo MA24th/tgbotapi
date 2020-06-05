@@ -1,7 +1,7 @@
 import json
 import requests
 from .types import JsonSerializable, InputMedia
-from .utilities import per_thread, logger, is_string
+from .utils import per_thread, logger, is_string
 
 """ Telegram Available methods
     All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 

@@ -986,144 +986,135 @@ def test_inline_query_result():
 
 def test_inline_query_result_article():
     dic = r'{"type": "article", "id": 24, "title": "article", "input_message_content": "any"}'
-    obj = types.InlineQueryResultArticle(
-        id=24, title='article', input_message_content='any').to_json()
+    obj = types.InlineQueryResult().Article(id=24, title='article', input_message_content='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_audio():
     dic = r'{"type": "audio", "id": 24, "audio_url": "url", "title": "audio"}'
-    obj = types.InlineQueryResultAudio(
-        id=24, audio_url='url', title='audio').to_json()
+    obj = types.InlineQueryResult().Audio(id=24, audio_url='url', title='audio').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_audio():
     dic = r'{"type": "audio", "id": 24, "audio_file_id": 12}'
-    obj = types.InlineQueryResultCachedAudio(
-        type='audio', id=24, audio_file_id=12).to_json()
+    obj = types.InlineQueryResult().CachedAudio(type='audio', id=24, audio_file_id=12).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_document():
     dic = r'{"type": "document", "id": 24, "document_file_id": 12}'
-    obj = types.InlineQueryResultCachedDocument(
+    obj = types.InlineQueryResult().CachedDocument(
         type='document', id=24, document_file_id=12).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_gif():
     dic = r'{"type": "gif", "id": 24, "gif_file_id": 12, "title": "giftitle", "caption": "gifcaption", "parse_mode": "Markdown", "input_message_content": "any"}'
-    obj = types.InlineQueryResultCachedGif(type='gif', id=24, gif_file_id=12, title='giftitle',
-                                           caption='gifcaption', parse_mode='Markdown', reply_markup=None,
-                                           input_message_content='any').to_json()
+    obj = types.InlineQueryResult().CachedGif(type='gif', id=24, gif_file_id=12, title='giftitle', caption='gifcaption', parse_mode='Markdown', reply_markup=None, input_message_content='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_mpeg4gif():
     dic = r'{"type": "mpeg4gif", "id": 24, "mpeg4_file_id": 12}'
-    obj = types.InlineQueryResultCachedMpeg4Gif(
+    obj = types.InlineQueryResult().CachedMpeg4Gif(
         type='mpeg4gif', id=24, mpeg4_file_id=12).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_photo():
     dic = r'{"type": "photo", "id": 122, "photo_url": "photourl", "thumb_url": "thumburl", "title": "tiltle", "description": "description", "caption": "caption", "parse_mode": "Markdown", "input_message_content": "any"}'
-    obj = types.InlineQueryResultCachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl',
-                                             photo_width=30, photo_height=30,
-                                             title='tiltle', description='description', caption='caption',
-                                             parse_mode='Markdown', reply_markup=None,
-                                             input_message_content='any').to_json()
+    obj = types.InlineQueryResult().CachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl', photo_width=30, photo_height=30, title='tiltle', description='description', caption='caption', parse_mode='Markdown', reply_markup=None, input_message_content='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_sticker():
     dic = r'{"type": "sticker", "id": 24, "sticker_file_id": 12}'
-    obj = types.InlineQueryResultCachedSticker(
+    obj = types.InlineQueryResult().CachedSticker(
         type='sticker', id=24, sticker_file_id=12).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_video():
     dic = r'{"type": "video", "id": 24, "video_file_id": 12}'
-    obj = types.InlineQueryResultCachedVideo(
+    obj = types.InlineQueryResult().CachedVideo(
         type='video', id=24, video_file_id=12).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_cached_voice():
     dic = r'{"type": "voice", "id": 24, "voice_file_id": 12}'
-    obj = types.InlineQueryResultCachedVoice(
+    obj = types.InlineQueryResult().CachedVoice(
         type='voice', id=24, voice_file_id=12).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_contact():
     dic = r'{"type": "contact", "id": 383324787, "phone_number": "009647815214015", "first_name": "Mustafa"}'
-    obj = types.InlineQueryResultContact(
+    obj = types.InlineQueryResult().Contact(
         id=383324787, phone_number='009647815214015', first_name='Mustafa').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_game():
     dic = r'{"type": "game", "id": 24, "game_short_name": "gamename"}'
-    obj = types.InlineQueryResultGame(
+    obj = types.InlineQueryResult().Game(
         id=24, game_short_name='gamename').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_document():
     dic = r'{"type": "document", "id": 24, "title": "title", "document_url": "durl", "mime_type": "any"}'
-    obj = types.InlineQueryResultDocument(
+    obj = types.InlineQueryResult().Document(
         id=24, title='title', document_url='durl', mime_type='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_gif():
     dic = r'{"type": "gif", "id": 24, "gif_url": "gurl", "thumb_url": "any"}'
-    obj = types.InlineQueryResultGif(
+    obj = types.InlineQueryResult().Gif(
         id=24, gif_url='gurl', thumb_url='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_location():
     dic = r'{"type": "location", "id": 24, "title": "Baghdad", "latitude": 39, "longitude": 44}'
-    obj = types.InlineQueryResultLocation(
+    obj = types.InlineQueryResult().Location(
         id=24, title='Baghdad', latitude=39, longitude=44).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_mpeg4gif():
     dic = r'{"type": "mpeg4_gif", "id": 24, "mpeg4_url": "mpurl", "thumb_url": "thurl"}'
-    obj = types.InlineQueryResultMpeg4Gif(
+    obj = types.InlineQueryResult().Mpeg4Gif(
         id=24, mpeg4_url='mpurl', thumb_url='thurl').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_photo():
     dic = r'{"type": "photo", "id": 24, "photo_url": "phurl", "thumb_url": "thurl"}'
-    obj = types.InlineQueryResultPhoto(
+    obj = types.InlineQueryResult().Photo(
         id=24, photo_url='phurl', thumb_url='thurl').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_venue():
     dic = r'{"type": "venue", "id": 24, "title": "any", "latitude": 29, "longitude": 44, "address": "any"}'
-    obj = types.InlineQueryResultVenue(
+    obj = types.InlineQueryResult().Venue(
         id=24, title='any', latitude=29, longitude=44, address='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_video():
     dic = r'{"type": "video", "id": 24, "video_url": "vurl", "mime_type": "mtype", "thumb_url": "thurl", "title": "any"}'
-    obj = types.InlineQueryResultVideo(
+    obj = types.InlineQueryResult().Video(
         id=24, video_url='vurl', mime_type='mtype', thumb_url='thurl', title='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_voice():
     dic = r'{"type": "voice", "id": 24, "voice_url": "vurl", "title": "any"}'
-    obj = types.InlineQueryResultVoice(
+    obj = types.InlineQueryResult().Voice(
         id=24, voice_url='vurl', title='any').to_json()
     assert obj == dic
 
