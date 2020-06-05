@@ -1,7 +1,11 @@
 # CHANGELOG
 
-## _v4.8_
+## _v4.9_
+- Added the new field via_bot to the Message object. You can now know which bot was used to send a message.
+- Supported video thumbnails for inline GIF and MPEG4 animations.
+- Supported the new basketball animation for the random dice. Choose between different animations (dice, darts, basketball) by specifying the emoji parameter in the method sendDice.
 
+## _v4.8_
 - Add explanations by specifying the parameters explanation and explanation_parse_mode in the method sendPoll.
 - Added the fields explanation and explanation_entities to the Poll object.
 - Supported timed polls that automatically close at a certain date and time. Set up by specifying the parameter open_period or close_date in the method sendPoll.
@@ -10,7 +14,6 @@
 - Added the field emoji to the Dice object.ed the ability to change thumbnails of sticker sets created by the bot using the method setStickerSetThumb.
 
 ## _v4.7_
-
 - Added the method sendDice for sending a dice message, which will have a random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
 - Added the field dice to the Message object.
 - Added the method getMyCommands for getting the current list of the bot's commands.
@@ -21,7 +24,6 @@
 - Added the ability to change thumbnails of sticker sets created by the bot using the method setStickerSetThumb.
 
 ## _v4.0_
-
 - Supported Polls 2.0.
 - Added the ability to send non-anonymous, multiple answer, and quiz-style polls: added the parameters is_anonymous, type, allows_multiple_answers, correct_option_id, is_closed options to the method sendPoll.
 - Added the object KeyboardButtonPollType and the field request_poll to the object KeyboardButton.

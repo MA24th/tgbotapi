@@ -37,13 +37,10 @@ It is generally recommended to use the first option.
 *While the API is production-ready, it is still under development and it has regular updates, do not forget to update it regularly by calling `pip install tgbotapi --upgrade`*
 
 ## ChangeLog
-**_version 4.8.0_**
-- Add explanations by specifying the parameters explanation and explanation_parse_mode in the method sendPoll.
-- Added the fields explanation and explanation_entities to the Poll object.
-- Supported timed polls that automatically close at a certain date and time. Set up by specifying the parameter open_period or close_date in the method sendPoll.
-- Added the fields open_period and close_date to the Poll object.
-- Supported the new darts animation for the dice mini-game. Choose between the default dice animation and darts animation by specifying the parameter emoji in the method sendDice.
-- Added the field emoji to the Dice object.ed the ability to change thumbnails of sticker sets created by the bot using the method setStickerSetThumb.
+**_version 4.9.0_**
+- Added the new field via_bot to the Message object. You can now know which bot was used to send a message.
+- Supported video thumbnails for inline GIF and MPEG4 animations.
+- Supported the new basketball animation for the random dice. Choose between different animations (dice, darts, basketball) by specifying the emoji parameter in the method sendDice.
 
 **_Fixes_**
 
