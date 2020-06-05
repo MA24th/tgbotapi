@@ -2323,20 +2323,22 @@ class InlineQueryResultMpeg4Gif(JsonSerializable):
         Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
     """
 
-    def __init__(self, id, mpeg4_url, thumb_url, mpeg4_width=None, mpeg4_height=None, title=None, caption=None,
-                 parse_mode=None, reply_markup=None, input_message_content=None, mpeg4_duration=None):
+    def __init__(self, id, mpeg4_url, mpeg4_width=None, mpeg4_height=None, mpeg4_duration=None, thumb_url=None,
+                 thumb_mime_type=Nonene, title=None, caption=None, parse_mode=None, reply_markup=None,
+                 input_message_content=None):
         self.type = 'mpeg4_gif'
         self.id = id
         self.mpeg4_url = mpeg4_url
         self.mpeg4_width = mpeg4_width
         self.mpeg4_height = mpeg4_height
+        self.mpeg4_duration = mpeg4_duration
         self.thumb_url = thumb_url
+        self.thumb_mime_type = thumb_mime_type
         self.title = title
         self.caption = caption
         self.parse_mode = parse_mode
         self.reply_markup = reply_markup
         self.input_message_content = input_message_content
-        self.mpeg4_duration = mpeg4_duration
 
     def to_json(self):
         json_dict = {'type': self.type, 'id': self.id,
