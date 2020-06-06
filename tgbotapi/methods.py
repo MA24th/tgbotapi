@@ -547,8 +547,13 @@ def send_media_group(token, proxies, chat_id, media, disable_notification=False,
     method = r'post'
     api_method = r'sendMediaGroup'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
-    media_json, files = _convert_input_media_array(media)
-    params = {'chat_id': chat_id, 'media': media_json}
+
+    if is_string(media):
+        files = None
+        return media
+    else:
+        files = media
+    params = {'chat_id': chat_id, 'media': media}
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -1786,8 +1791,7 @@ def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_option
     files = None
     params = {'shipping_query_id': shipping_query_id, 'ok': ok}
     if shipping_options:
-        params['shipping_options'] = _convert_list_json_serializable(
-            shipping_options)
+        params['shipping_options'] = _convert_list_json_serializable(shipping_options)
     if error_message:
         params['error_message'] = error_message
     return _make_request(method, api_url, api_method, files, params, proxies)
@@ -1938,20 +1942,6 @@ def _convert_input_media(media):
     if isinstance(media, InputMedia):
         return media.convert_input_media()
     return None, None
-
-
-def _convert_input_media_array(array):
-    media = []
-    files = {}
-    for input_media in array:
-        if isinstance(input_media, InputMedia):
-            media_dict = input_media.to_dic()
-            if media_dict['media'].startswith('attach://'):
-                key = media_dict['media'].replace('attach://', '')
-                files[key] = input_media.media
-            media.append(media_dict)
-    return json.dumps(media), files
-
 
 def _no_encode(func):
     def wrapper(key, val):

@@ -305,7 +305,8 @@ def test_audio():
             'file_id': 33,
             'file_unique_id': 22,
             'width': 30,
-            'height': 22
+            'height': 22,
+            'file_size': 12
         }
     }
     obj = types.Audio.de_json(dic)
@@ -320,6 +321,7 @@ def test_audio():
     assert obj.thumb.file_unique_id == 22
     assert obj.thumb.width == 30
     assert obj.thumb.height == 22
+    assert obj.thumb.file_size == 12
 
 
 def test_document():
@@ -393,7 +395,8 @@ def test_animation():
             "file_id": 12,
             "file_unique_id": 22,
             "width": 40,
-            "height": 40},
+            "height": 40,
+            "file_size": 32},
         "file_name": "filename",
         "mime_type": "type",
         "file_size": 64
@@ -408,6 +411,7 @@ def test_animation():
     assert obj.thumb.file_unique_id == 22
     assert obj.thumb.width == 40
     assert obj.thumb.height == 40
+    assert obj.thumb.file_size == 32
     assert obj.file_name == 'filename'
     assert obj.mime_type == 'type'
     assert obj.file_size == 64
@@ -834,45 +838,43 @@ def test_response_parameters():
     assert obj.retry_after == 3232
 
 
-def test_input_media():
-    dic = r'{"type": "any", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
-    obj = types.InputMedia(type='any', media='any',
-                           caption='any', parse_mode='Markdown').to_json()
+# def test_input_media():
+#     dic = r'{"type": "any", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
+#     obj = types.InputMedia(type='any', media='any', caption='any', parse_mode='Markdown').to_json()
+#     assert obj == dic
+
+def test_input_media_photo():
+    dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
+    obj = types.InputMedia().Photo(type='photo', media='any', caption='any', parse_mode='Markdown').to_json()
+    assert obj == dic
+
+
+def test_input_media_video():
+    dic = r'{"type": "video", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown", "width": 40, ' \
+          r'"height": 40, "duration": 4, "supports_streaming": false}'
+    obj = types.InputMedia().Video(type='video', media='any', thumb='any', caption='any', parse_mode='Markdown',
+                                   width=40, height=40, duration=4).to_json()
     assert obj == dic
 
 
 def test_input_media_animation():
-    dic = r'{"type": "animation", "media": "any", "caption": "any", "parse_mode": "Markdown", "width": 40, "height": 40, "duration": 5}'
-    obj = types.InputMediaAnimation(media='any', thumb=None, caption='any',
-                                    parse_mode='Markdown', width=40, height=40, duration=5).to_json()
+    dic = r'{"type": "animation", "media": "any", "thumb": "any", "caption": "abc", "parse_mode": "Markdown", "width": 12, "height": 12, "duration": 5}'
+    obj = types.InputMedia().Animation(type='animation', media='any', thumb='any', caption='abc', parse_mode='Markdown',
+                                       width=12, height=12, duration=5).to_json()
     assert obj == dic
 
 
 def test_input_media_document():
-    dic = r'{"type": "document", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any"}'
-    obj = types.InputMediaDocument(
-        media='any', thumb='any', caption='any', parse_mode='Markdown').to_json()
+    dic = r'{"type": "document", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown"}'
+    obj = types.InputMedia().Document(type='document', media='any', thumb='any', caption='any',
+                                      parse_mode='Markdown').to_json()
     assert obj == dic
 
 
 def test_input_media_audio():
     dic = r'{"type": "audio", "media": "any", "caption": "any", "parse_mode": "Markdown", "duration": 6, "title": "any"}'
-    obj = types.InputMediaAudio(media='any', thumb=None, caption='any',
-                                parse_mode='Markdown', duration=6, performer=None, title='any').to_json()
-    assert obj == dic
-
-
-def test_input_media_photo():
-    dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
-    obj = types.InputMediaPhoto(
-        media='any', caption='any', parse_mode='Markdown').to_json()
-    assert obj == dic
-
-
-def test_input_media_video():
-    dic = r'{"type": "video", "media": "any", "caption": "any", "parse_mode": "Markdown", "thumb": "any", "width": 40, "height": 40, "duration": 4}'
-    obj = types.InputMediaVideo(media='any', thumb='any', caption='any', parse_mode='Markdown',
-                                width=40, height=40, duration=4, supports_streaming=None).to_json()
+    obj = types.InputMedia().Audio(type="audio", media='any', thumb=None, caption='any', parse_mode='Markdown',
+                                   duration=6, performer=None, title='any').to_json()
     assert obj == dic
 
 
@@ -1011,7 +1013,9 @@ def test_inline_query_result_cached_document():
 
 def test_inline_query_result_cached_gif():
     dic = r'{"type": "gif", "id": 24, "gif_file_id": 12, "title": "giftitle", "caption": "gifcaption", "parse_mode": "Markdown", "input_message_content": "any"}'
-    obj = types.InlineQueryResult().CachedGif(type='gif', id=24, gif_file_id=12, title='giftitle', caption='gifcaption', parse_mode='Markdown', reply_markup=None, input_message_content='any').to_json()
+    obj = types.InlineQueryResult().CachedGif(type='gif', id=24, gif_file_id=12, title='giftitle', caption='gifcaption',
+                                              parse_mode='Markdown', reply_markup=None,
+                                              input_message_content='any').to_json()
     assert obj == dic
 
 
@@ -1024,7 +1028,10 @@ def test_inline_query_result_cached_mpeg4gif():
 
 def test_inline_query_result_cached_photo():
     dic = r'{"type": "photo", "id": 122, "photo_url": "photourl", "thumb_url": "thumburl", "title": "tiltle", "description": "description", "caption": "caption", "parse_mode": "Markdown", "input_message_content": "any"}'
-    obj = types.InlineQueryResult().CachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl', photo_width=30, photo_height=30, title='tiltle', description='description', caption='caption', parse_mode='Markdown', reply_markup=None, input_message_content='any').to_json()
+    obj = types.InlineQueryResult().CachedPhoto(type='photo', id=122, photo_url='photourl', thumb_url='thumburl',
+                                                photo_width=30, photo_height=30, title='tiltle',
+                                                description='description', caption='caption', parse_mode='Markdown',
+                                                reply_markup=None, input_message_content='any').to_json()
     assert obj == dic
 
 
@@ -1129,8 +1136,8 @@ def test_input_contact_message_content():
         'first_name': 'Mustafa',
         'last_name': 'Asaad'
     }
-    obj = types.InputContactMessageContent(
-        phone_number='009647815214015', first_name='Mustafa', last_name='Asaad').to_dic()
+    obj = types.InputMessageContent().Contact(phone_number='009647815214015', first_name='Mustafa',
+                                              last_name='Asaad').to_dict()
     assert obj == dic
 
 
@@ -1140,8 +1147,7 @@ def test_input_location_message_content():
         'live_period': 15,
         'longitude': 44
     }
-    obj = types.InputLocationMessageContent(
-        latitude=29, longitude=44, live_period=15).to_dic()
+    obj = types.InputMessageContent().Location(latitude=29, longitude=44, live_period=15).to_dict()
     assert obj == dic
 
 
@@ -1151,8 +1157,8 @@ def test_input_text_message_content():
         'parse_mode': 'Markdown',
         'disable_web_page_preview': True
     }
-    obj = types.InputTextMessageContent(
-        message_text='any', parse_mode='Markdown', disable_web_page_preview=True).to_dic()
+    obj = types.InputMessageContent().Text(message_text='any', parse_mode='Markdown',
+                                           disable_web_page_preview=True).to_dict()
     assert obj == dic
 
 
@@ -1165,8 +1171,8 @@ def test_input_venue_message_content():
         'foursquare_id': 55,
         'foursquare_type': 'any'
     }
-    obj = types.InputVenueMessageContent(
-        latitude=29, longitude=44, title='any', address='ad', foursquare_id=55, foursquare_type='any').to_dic()
+    obj = types.InputMessageContent().Venue(
+        latitude=29, longitude=44, title='any', address='ad', foursquare_id=55, foursquare_type='any').to_dict()
     assert obj == dic
 
 
@@ -1634,7 +1640,8 @@ def test_game():
                 "file_id": 12,
                 "file_unique_id": 22,
                 "width": 40,
-                "height": 40
+                "height": 40,
+                "file_size": 32
             },
             "file_name": "filename",
             "mime_type": "type",
@@ -1671,6 +1678,7 @@ def test_game():
     assert obj.animation.thumb.file_unique_id == 22
     assert obj.animation.thumb.width == 40
     assert obj.animation.thumb.height == 40
+    assert obj.animation.thumb.file_size == 32
     assert obj.animation.file_name == 'filename'
     assert obj.animation.mime_type == 'type'
     assert obj.animation.file_size == 64
