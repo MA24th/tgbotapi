@@ -1,7 +1,7 @@
 import json
 import requests
-from .types import JsonSerializable, InputMedia
-from .utils import per_thread, logger, is_string
+from .types import JsonSerializable
+from .utils import *
 
 """ Telegram Available methods
     All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 
@@ -9,6 +9,26 @@ from .utils import per_thread, logger, is_string
     Or multipart/form-data for passing parameters in Bot API requests.
     On successful call, a JSON-object containing the result will be returned.
 """
+
+
+class ApiException(Exception):
+    """
+    This class represents an Exception thrown when a call to the Telegram API fails.
+    In addition to an informative message, it has a `function_name` and a `result` attribute, which respectively
+    contain the name of the failed function and the returned result that made the function to be considered  as
+    failed.
+    """
+
+    def __init__(self, msg, function_name, result):
+        super(ApiException, self).__init__("A request to the Telegram API was unsuccessful. {0}".format(msg))
+        self.function_name = function_name
+        self.result = result
+
+
+def _convert_markup(markup):
+    if isinstance(markup, JsonSerializable):
+        return markup.to_json()
+    return markup
 
 
 def _get_req_session(reset=False):
@@ -24,8 +44,8 @@ def _make_request(method, api_url, api_method, files, params, proxies):
     :param any files: files content's a data.
     :param dict or None params: Should be a dictionary with key-value pairs.
     :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
-    :return dict result: a JSON dictionary.
-    :rtype: object
+    :return: JSON DICT FORMAT
+    :rtype: dict
     """
     logger.debug("Request: method={0} url={1} params={2} files={3}".format(method, api_url, params, files))
     timeout = 9999
@@ -37,42 +57,25 @@ def _make_request(method, api_url, api_method, files, params, proxies):
                                         cookies=None, files=files, auth=None, timeout=timeout, allow_redirects=True,
                                         proxies=proxies, verify=None, stream=None, cert=None)
     logger.debug("The server returned: '{0}'".format(result.text.encode('utf8')))
-    return _check_result(api_method, result)['result']
-
-
-def _check_result(api_method, result):
-    """
-    Checks whether `result` is a valid API response.
-    A result is considered invalid if:
-        - The server returned an HTTP response code other than 200.
-        - The content of the result is invalid JSON.
-        - The method call was unsuccessful (The JSON 'ok' field equals False).
-
-    :raises ApiException: if one of the above listed cases is applicable.
-    :param str api_method: The name of the method called.
-    :param any result: The returned result of the method request.
-    :return any result_json: a JSON dictionary.
-    """
     if result.status_code != 200:
-        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
-            .format(result.status_code, result.reason, result.text.encode('utf8'))
+        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]'.format(result.status_code, result.reason,
+                                                                               result.text.encode('utf8'))
         raise ApiException(msg, api_method, result)
 
     try:
+
         result_json = result.json()
     except Exception:
-        msg = 'The server returned an invalid JSON response. Response body:\n[{0}]' \
-            .format(result.text.encode('utf8'))
+        msg = 'The server returned an invalid JSON response. Response body:\n[{0}]'.format(result.text.encode('utf8'))
         raise ApiException(msg, api_method, result)
 
     if not result_json['ok']:
-        msg = 'Error code: {0} Description: {1}' \
-            .format(result_json['error_code'], result_json['description'])
+        msg = 'Error code: {0} Description: {1}'.format(result_json['error_code'], result_json['description'])
         raise ApiException(msg, api_method, result)
-    return result_json
+    return result_json['result']
 
 
-def get_updates(token, proxies, offset=None, limit=None, timeout=0, allowed_updates=None):
+def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
     """
     Use this method to receive incoming updates using long polling.
     :type token: str
@@ -80,8 +83,8 @@ def get_updates(token, proxies, offset=None, limit=None, timeout=0, allowed_upda
     :type offset: int or None
     :type limit: int or None
     :type timeout: int or None
-    :type allowed_updates: list or None
-    :rtype: list[tgbotapi.types.Update] or dict
+    :type allowed_updates: list[str] or None
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getUpdates'
@@ -99,13 +102,13 @@ def get_updates(token, proxies, offset=None, limit=None, timeout=0, allowed_upda
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_webhook(token, proxies, url, certificate=None, max_connections=40, allowed_updates=None):
+def set_webhook(token, proxies, url, certificate, max_connections, allowed_updates):
     """
     Use this method to specify a url and receive incoming updates via an outgoing webhook.
     :type token: str
     :type proxies: dict or None
     :type url: str
-    :type certificate: bytearray or None
+    :type certificate: any
     :type max_connections: int
     :type allowed_updates: list or None
     :rtype: dict
@@ -144,7 +147,7 @@ def get_webhook_info(token, proxies):
     Use this method to get current webhook status. 
     :type token: str
     :type proxies: dict or None
-    :rtype: tgbotapi.types.WebhookInfo or dict
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getWebhookInfo'
@@ -169,8 +172,8 @@ def get_me(token, proxies):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_message(token, proxies, chat_id, text, parse_mode=None, disable_web_page_preview=False,
-                 disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
+                 reply_to_message_id, reply_markup):
     """
     Use this method to send text messages. On success, the sent Message is returned.
     :type token: str
@@ -181,8 +184,8 @@ def send_message(token, proxies, chat_id, text, parse_mode=None, disable_web_pag
     :type disable_web_page_preview: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendMessage'
@@ -202,7 +205,7 @@ def send_message(token, proxies, chat_id, text, parse_mode=None, disable_web_pag
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_notification=False):
+def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_notification):
     """
     Use this method to forward messages of any kind.
     :type token: str
@@ -211,7 +214,7 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     :type from_chat_id: int or str
     :type disable_notification: bool
     :type message_id: int
-    :rtype: tgbotapi.types.Message or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'forwardMessage'
@@ -223,21 +226,20 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_photo(token, proxies, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
-               reply_to_message_id=None, reply_markup=None):
+def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_notification, reply_to_message_id,
+               reply_markup):
     """
     Use this method to send photos.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type photo: str or bytearray
+    :type photo: any
     :type caption: str or None
     :type parse_mode: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :return: a Message object.
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendPhoto'
@@ -261,24 +263,24 @@ def send_photo(token, proxies, chat_id, photo, caption=None, parse_mode=None, di
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_audio(token, proxies, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
-               thumb=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
+               disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send audio files.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type audio: str or bytearray
+    :type audio: any
     :type caption: str or None
     :type parse_mode: str or None
     :type duration: int or None
     :type performer: str or None
     :type title: str or None
-    :type thumb: str or bytearray
+    :type thumb: any
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendAudio'
@@ -310,22 +312,21 @@ def send_audio(token, proxies, chat_id, audio, caption=None, parse_mode=None, du
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_document(token, proxies, chat_id, document, thumb=None, caption=None, parse_mode=None,
-                  disable_notification=False,
-                  reply_to_message_id=None, reply_markup=None):
+def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, disable_notification,
+                  reply_to_message_id, reply_markup):
     """
     Use this method to send general files.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type document: str or bytearray
-    :type thumb: str or bytearray or None
+    :type document: any
+    :type thumb: any or None
     :type caption: str or None
     :type parse_mode: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendDocument'
@@ -351,26 +352,25 @@ def send_document(token, proxies, chat_id, document, thumb=None, caption=None, p
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video(token, proxies, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
-               parse_mode=None,
-               supports_streaming=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, supports_streaming,
+               disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send video files.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type video: str or bytearray
+    :type video: any
     :type duration: int or None
     :type width: int or None
     :type height: int or None
-    :type thumb: str or bytearray
+    :type thumb: any
     :type caption: str or None
     :type parse_mode: str or None
     :type supports_streaming: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendVideo'
@@ -404,24 +404,24 @@ def send_video(token, proxies, chat_id, video, duration=None, width=None, height
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_animation(token, proxies, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
-                   parse_mode=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_animation(token, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
+                   disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send animation files.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type animation: str or bytearray
+    :type animation: any
     :type duration: int or None
     :type width: int or None
     :type height: int or None
-    :type thumb: str or bytearray or None
+    :type thumb: any or None
     :type caption: str or None
     :type parse_mode: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendAnimation'
@@ -453,21 +453,21 @@ def send_animation(token, proxies, chat_id, animation, duration=None, width=None
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_voice(token, proxies, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=False,
-               reply_to_message_id=None, reply_markup=None):
+def send_voice(token, proxies, chat_id, voice, caption, parse_mode, duration, disable_notification, reply_to_message_id,
+               reply_markup):
     """
     Use this method to send audio files.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type voice: str or bytearray or None
+    :type voice: any or None
     :type caption: str or None
     :type parse_mode: str or None
     :type duration: int or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendVoice'
@@ -493,21 +493,21 @@ def send_voice(token, proxies, chat_id, voice, caption=None, parse_mode=None, du
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video_note(token, proxies, chat_id, video_note, duration=None, length=None, thumb=None,
-                    disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
+                    reply_to_message_id, reply_markup):
     """
     Use this method to send video messages.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type video_note: str or bytearray or None
+    :type video_note: any or None
     :type duration: int or None
     :type length: int or None
-    :type thumb: str or bytearray or None
+    :type thumb: any or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendVideoNote'
@@ -533,27 +533,26 @@ def send_video_note(token, proxies, chat_id, video_note, duration=None, length=N
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_media_group(token, proxies, chat_id, media, disable_notification=False, reply_to_message_id=None):
+def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id):
     """
     Use this method to send a group of photos or videos as an album.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type media: list[tgbotapi.types.InputMediaPhoto or tgbotapi.types.InputMediaVideo]
+    :type media: dict
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :rtype: tgbotapi.types.Message or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendMediaGroup'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
-
-    if is_string(media):
-        files = None
-        return media
+    files = None
+    params = {'chat_id': chat_id}
+    if not is_string(media):
+        files = {'media': media}
     else:
-        files = media
-    params = {'chat_id': chat_id, 'media': media}
+        params['media'] = media
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -561,8 +560,8 @@ def send_media_group(token, proxies, chat_id, media, disable_notification=False,
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_location(token, proxies, chat_id, latitude, longitude, live_period=None, disable_notification=False,
-                  reply_to_message_id=None, reply_markup=None):
+def send_location(token, proxies, chat_id, latitude, longitude, live_period, disable_notification, reply_to_message_id,
+                  reply_markup):
     """
     Use this method to send point on the map.
     :type token: str
@@ -573,8 +572,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period=None
     :type live_period: int or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendLocation'
@@ -593,8 +592,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period=None
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_live_location(token, proxies, latitude, longitude, chat_id=None, message_id=None,
-                               inline_message_id=None, reply_markup=None):
+def edit_message_live_location(token, proxies, latitude, longitude, chat_id, message_id, inline_message_id,
+                               reply_markup):
     """
     Use this method to edit live location messages.
     :type token: str
@@ -604,8 +603,8 @@ def edit_message_live_location(token, proxies, latitude, longitude, chat_id=None
     :type inline_message_id: int or None
     :type latitude: float
     :type longitude: float
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'editMessageLiveLocation'
@@ -623,8 +622,7 @@ def edit_message_live_location(token, proxies, latitude, longitude, chat_id=None
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def stop_message_live_location(token, proxies, chat_id=None, message_id=None, inline_message_id=None,
-                               reply_markup=None):
+def stop_message_live_location(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
     """
     Use this method to stop updating a live location message before live_period expires.
     :type token: str
@@ -632,8 +630,8 @@ def stop_message_live_location(token, proxies, chat_id=None, message_id=None, in
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'stopMessageLiveLocation'
@@ -651,8 +649,8 @@ def stop_message_live_location(token, proxies, chat_id=None, message_id=None, in
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
-               disable_notification=False, reply_to_message_id=None, reply_markup=None):
+def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
+               disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send information about a venue.
     :type token: str
@@ -666,8 +664,8 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     :type foursquare_type: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendVenue'
@@ -687,9 +685,8 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_contact(token, proxies, chat_id, phone_number, first_name, last_name=None, vcard=None,
-                 disable_notification=False,
-                 reply_to_message_id=None, reply_markup=None):
+def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
+                 reply_to_message_id, reply_markup):
     """
     Use this method to send phone contacts.
     :type token: str
@@ -701,8 +698,8 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name=No
     :type vcard: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendContact'
@@ -723,11 +720,10 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name=No
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, type='regular',
-              allows_multiple_answers=False,
-              correct_option_id=None, explanation=None, explanation_parse_mode=None, open_period=None, close_date=None,
-              is_closed=True, disable_notifications=False, reply_to_message_id=None,
-              reply_markup=None):
+def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
+              correct_option_id,
+              explanation, explanation_parse_mode, open_period, close_date, is_closed, disable_notifications,
+              reply_to_message_id, reply_markup):
     """
     Use this method to send a native poll.
     :type token: str
@@ -746,14 +742,14 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, typ
     :type is_closed: bool
     :type disable_notifications: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendPoll'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
-    params = {'chat_id': chat_id, 'question': question, 'options': _convert_list_json_serializable(options)}
+    params = {'chat_id': chat_id, 'question': question, 'options': options}
     if is_anonymous:
         params['is_anonymous'] = is_anonymous
     if type:
@@ -781,8 +777,7 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous=True, typ
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(token, proxies, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None,
-              reply_markup=None):
+def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send a dice.
     :type token: str
@@ -791,8 +786,8 @@ def send_dice(token, proxies, chat_id, emoji='🎲', disable_notification=False,
     :type emoji: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendDice'
@@ -804,7 +799,7 @@ def send_dice(token, proxies, chat_id, emoji='🎲', disable_notification=False,
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = reply_markup
+        params['reply_markup'] = _convert_markup(reply_markup)
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -825,7 +820,7 @@ def send_chat_action(token, proxies, chat_id, action):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_user_profile_photos(token, proxies, user_id, offset=None, limit=100):
+def get_user_profile_photos(token, proxies, user_id, offset, limit):
     """
     Use this method to get a list of profile pictures for a user.
     :type token: str
@@ -833,7 +828,7 @@ def get_user_profile_photos(token, proxies, user_id, offset=None, limit=100):
     :type user_id: int or str
     :type offset: int or None
     :type limit: int or None
-    :rtype: tgbotapi.types.UserProfilePhotos or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'getUserProfilePhotos'
@@ -853,7 +848,7 @@ def get_file(token, proxies, file_id):
     :type token: str
     :type proxies: dict or None
     :type file_id: str
-    :rtype: tgbotapi.types.File or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'getFile'
@@ -869,7 +864,7 @@ def download_file(token, proxies, file_path):
     :type token: str
     :type proxies: dict or None
     :type file_path: str
-    :rtype: bytearray or str
+    :rtype: any
     """
     api_url = "https://api.telegram.org/file/bot{0}/{1}".format(token, file_path)
     result = _get_req_session().get(api_url, proxies)
@@ -880,7 +875,7 @@ def download_file(token, proxies, file_path):
     return result.content
 
 
-def kick_chat_member(token, proxies, chat_id, user_id, until_date=None):
+def kick_chat_member(token, proxies, chat_id, user_id, until_date):
     """
     Use this method to kick a user from a group, a supergroup or a channel.
     :type token: str
@@ -918,14 +913,14 @@ def unban_chat_member(token, proxies, chat_id, user_id):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_date=None):
+def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_date):
     """
     Use this method to restrict a user in a supergroup.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
-    :type permissions: tgbotapi.types.ChatPermissions
+    :type permissions: dict
     :type until_date: int or None
     :rtype: dict
     """
@@ -939,9 +934,9 @@ def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_da
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def promote_chat_member(token, proxies, chat_id, user_id, can_change_info=None, can_post_messages=None,
-                        can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
-                        can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
+def promote_chat_member(token, proxies, chat_id, user_id, can_change_info, can_post_messages, can_edit_messages,
+                        can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages,
+                        can_promote_members):
     """
     Use this method to promote or demote a user in a supergroup or a channel.
     :type token: str
@@ -1006,7 +1001,7 @@ def set_chat_permissions(token, proxies, chat_id, permissions):
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type permissions: tgbotapi.types.ChatPermissions
+    :type permissions: dict
     :rtype: dict
     """
     method = r'post'
@@ -1039,7 +1034,7 @@ def set_chat_photo(token, proxies, chat_id, photo):
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type photo: bytearray
+    :type photo: any
     :rtype: dict
     """
     method = r'post'
@@ -1087,7 +1082,7 @@ def set_chat_title(token, proxies, chat_id, title):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_description(token, proxies, chat_id, description=None):
+def set_chat_description(token, proxies, chat_id, description):
     """
     Use this method to change the description of a group, a supergroup or a channel.
     :type token: str
@@ -1106,7 +1101,7 @@ def set_chat_description(token, proxies, chat_id, description=None):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def pin_chat_message(token, proxies, chat_id, message_id, disable_notification=False):
+def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
     """
     Use this method to pin a message in a group, a supergroup, or a channel.
     :type token: str
@@ -1164,7 +1159,7 @@ def get_chat(token, proxies, chat_id):
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :rtype: tgbotapi.types.Chat or dict
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getChat'
@@ -1181,7 +1176,7 @@ def get_chat_administrators(token, proxies, chat_id):
     :type proxies: dict or None
     :type chat_id: int or str
     :return: an Array of ChatMember object.
-    :rtype: list[tgbotapi.types.ChatMember]
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getChatAdministrators'
@@ -1214,7 +1209,7 @@ def get_chat_member(token, proxies, chat_id, user_id):
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
-    :rtype: tgbotapi.types.ChatMember or dict
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getChatMember'
@@ -1257,7 +1252,7 @@ def delete_chat_sticker_set(token, proxies, chat_id):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_callback_query(token, proxies, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
+def answer_callback_query(token, proxies, callback_query_id, text, show_alert, url, cache_time):
     """
     Use this method to send answers to callback queries sent from inline keyboards.
     :type token: str
@@ -1290,7 +1285,7 @@ def set_my_commands(token, proxies, commands):
     Use this method to change the list of the bot's commands.
     :type token: str
     :type proxies: dict or None
-    :type commands: list[tgbotapi.types.BotCommand]
+    :type commands: list[dict]
     :rtype: dict
     """
     method = r'post'
@@ -1306,7 +1301,7 @@ def get_my_commands(token, proxies):
     Use this method to get the current list of the bot's commands.
     :type token: str
     :type proxies: dict or None
-    :rtype: list[tgbotapi.types.BotCommand] or dict
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getMyCommands'
@@ -1316,9 +1311,9 @@ def get_my_commands(token, proxies):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-# Updating messages
-def edit_message_text(token, proxies, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
-                      disable_web_page_preview=False, reply_markup=None):
+def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode,
+                      disable_web_page_preview,
+                      reply_markup):
     """
     Use this method to edit text and game messages.
     :type token: str
@@ -1329,8 +1324,8 @@ def edit_message_text(token, proxies, text, chat_id=None, message_id=None, inlin
     :type text: str
     :type parse_mode: str or None
     :type disable_web_page_preview: bool
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'editMessageText'
@@ -1352,8 +1347,7 @@ def edit_message_text(token, proxies, text, chat_id=None, message_id=None, inlin
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_caption(token, proxies, caption, chat_id=None, message_id=None, inline_message_id=None,
-                         parse_mode=None, reply_markup=None):
+def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, reply_markup):
     """
     Use this method to edit captions of messages.
     :type token: str
@@ -1363,8 +1357,8 @@ def edit_message_caption(token, proxies, caption, chat_id=None, message_id=None,
     :type inline_message_id: str or None
     :type caption: str or None
     :type parse_mode: str or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'editMessageCaption'
@@ -1384,7 +1378,7 @@ def edit_message_caption(token, proxies, caption, chat_id=None, message_id=None,
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_media(token, proxies, media, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+def edit_message_media(token, proxies, media, chat_id, message_id, inline_message_id, reply_markup):
     """
     Use this method to edit animation, audio, document, photo, or video messages.
     :type token: str
@@ -1392,15 +1386,19 @@ def edit_message_media(token, proxies, media, chat_id=None, message_id=None, inl
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: str or None
-    :type media: tgbotapi.InputMedia
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None:
-    :rtype: tgbotapi.types.Message or dict
+    :type media: dict
+    :type reply_markup: dict or None:
+    :rtype: dict
     """
     method = r'post'
     api_method = r'editMessageMedia'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
-    media_json, files = _convert_input_media(media)
-    params = {'media': media_json}
+    files = None
+    params = {}
+    if not is_string(media):
+        files = {'media': media}
+    else:
+        params = {'media': media}
     if chat_id:
         params['chat_id'] = chat_id
     if message_id:
@@ -1412,7 +1410,7 @@ def edit_message_media(token, proxies, media, chat_id=None, message_id=None, inl
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_reply_markup(token, proxies, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
+def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
     """
     Use this method to edit only the reply markup of messages.
     :type token: str
@@ -1420,8 +1418,8 @@ def edit_message_reply_markup(token, proxies, chat_id=None, message_id=None, inl
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: str or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'editMessageReplyMarkup'
@@ -1439,15 +1437,15 @@ def edit_message_reply_markup(token, proxies, chat_id=None, message_id=None, inl
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def stop_poll(token, proxies, chat_id, message_id, reply_markup=None):
+def stop_poll(token, proxies, chat_id, message_id, reply_markup):
     """
     Use this method to stop a poll which was sent by the bot.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Poll or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'stopPoll'
@@ -1461,14 +1459,7 @@ def stop_poll(token, proxies, chat_id, message_id, reply_markup=None):
 
 def delete_message(token, proxies, chat_id, message_id):
     """
-    Use this method to delete a message, including service messages, with the following limitations:
-        - A message can only be deleted if it was sent less than 48 hours ago.
-        - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
-        - Bots can delete outgoing messages in private chats, groups, and supergroups.
-        - Bots can delete incoming messages in private chats.
-        - Bots granted can_post_messages permissions can delete outgoing messages in channels.
-        - If the bot is an administrator of a group, it can delete any message there.
-        - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+    Use this method to delete a message, including service messages.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1483,18 +1474,18 @@ def delete_message(token, proxies, chat_id, message_id):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_sticker(token, proxies, chat_id, sticker, disable_notification=False, reply_to_message_id=None,
-                 reply_markup=None):
+def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
+                 reply_markup):
     """
     Use this method to send static .WEBP or animated .TGS stickers.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type sticker: str or bytearray
+    :type sticker: any
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or tgbotapi.types.ReplyKeyboardMarkup or tgbotapi.types.ReplyKeyboardRemove or tgbotapi.types.ForceReply or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendSticker'
@@ -1520,7 +1511,7 @@ def get_sticker_set(token, proxies, name):
     :type token: str
     :type proxies: dict or None
     :type name: str
-    :rtype: tgbotapi.types.StickerSet or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'getStickerSet'
@@ -1536,8 +1527,8 @@ def upload_sticker_file(token, proxies, user_id, png_sticker):
     :type token: str
     :type proxies: dict or None
     :type user_id: int
-    :type png_sticker: bytearray
-    :rtype: tgbotapi.types.File or dict
+    :type png_sticker: any
+    :rtype: dict
     """
     method = r'post'
     api_method = r'uploadStickerFile'
@@ -1547,8 +1538,8 @@ def upload_sticker_file(token, proxies, user_id, png_sticker):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=False,
-                           mask_position=None):
+def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks,
+                           mask_position):
     """
     Use this method to create a new sticker set owned by a user.
     :type token: str
@@ -1556,11 +1547,11 @@ def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tg
     :type user_id: int
     :type name: str
     :type title: str
-    :type png_sticker: str or bytearray or None
-    :type tgs_sticker: str or bytearray or None
+    :type png_sticker: any or None
+    :type tgs_sticker: any or None
     :type emojis: str
     :type contains_masks: bool
-    :type mask_position: tgbotapi.types.MaskPosition
+    :type mask_position: dict
     :rtype: dict
     """
     method = r'post'
@@ -1577,21 +1568,21 @@ def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tg
     if contains_masks:
         params['contains_masks'] = contains_masks
     if mask_position:
-        params['mask_position'] = mask_position.to_json()
+        params['mask_position'] = mask_position
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_sticker=None, mask_position=False):
+def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_sticker, mask_position):
     """
     Use this method to add a new sticker to a set created by the bot.
     :type token: str
     :type proxies: dict or None
     :type user_id: int
     :type name: str
-    :type png_sticker: str or bytearray or None
-    :type tgs_sticker: str or bytearray or None
+    :type png_sticker: any or None
+    :type tgs_sticker: any or None
     :type emojis: str
-    :type mask_position: tgbotapi.types.MaskPosition
+    :type mask_position: dict
     :rtype: dict
     """
     method = r'post'
@@ -1606,7 +1597,7 @@ def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_s
     if not is_string(tgs_sticker):
         files = {'tgs_sticker': tgs_sticker}
     if mask_position:
-        params['mask_position'] = mask_position.to_json()
+        params['mask_position'] = mask_position
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1643,14 +1634,14 @@ def delete_sticker_from_set(token, proxies, sticker):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_sticker_set_thumb(token, proxies, name, user_id, thumb=None):
+def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
     """
     Use this method to set the thumbnail of a sticker set.
     :type token: str
     :type proxies: dict or None
     :type name: str
     :type user_id: int
-    :type thumb: str or bytearray or None
+    :type thumb: any or None
     :rtype: dict
     """
     method = r'post'
@@ -1663,14 +1654,14 @@ def set_sticker_set_thumb(token, proxies, name, user_id, thumb=None):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_inline_query(token, proxies, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
-                        switch_pm_text=None, switch_pm_parameter=None):
+def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text,
+                        switch_pm_parameter):
     """
     Use this method to send answers to an inline query.
     :type token: str
     :type proxies: dict or None
     :type inline_query_id: str
-    :type results: list[tgbotapi.types.InlineQueryResult]
+    :type results: list[dict]
     :type cache_time: int or None
     :type is_personal: bool
     :type next_offset: str or None
@@ -1682,7 +1673,7 @@ def answer_inline_query(token, proxies, inline_query_id, results, cache_time=300
     api_method = r'answerInlineQuery'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
-    params = {'inline_query_id': inline_query_id, 'results': _convert_list_json_serializable(results)}
+    params = {'inline_query_id': inline_query_id, 'results': results}
     if cache_time is not None:
         params['cache_time'] = cache_time
     if is_personal:
@@ -1696,13 +1687,11 @@ def answer_inline_query(token, proxies, inline_query_id, results, cache_time=300
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-# Payments (https://core.telegram.org/bots/api#payments)
 def send_invoice(token, proxies, chat_id, title, description, payload, provider_token, start_parameter, currency,
                  prices,
-                 provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
-                 need_name=False, need_phone_number=False, need_email=False, need_shipping_address=False,
-                 send_phone_number_to_provider=False, send_email_to_provider=False, is_flexible=False,
-                 disable_notification=False, reply_to_message_id=None, reply_markup=None):
+                 provider_data, photo_url, photo_size, photo_width, photo_height, need_name, need_phone_number,
+                 need_email, need_shipping_address, send_phone_number_to_provider, send_email_to_provider, is_flexible,
+                 disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send invoices. On success, the sent Message is returned.
     :type token: str
@@ -1729,8 +1718,8 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     :type is_flexible: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
-    :type reply_markup: tgbotapi.types.InlineKeyboardMarkup or None
-    :rtype: tgbotapi.types.Message or dict
+    :type reply_markup: dict or None
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendInvoice'
@@ -1738,7 +1727,7 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     files = None
     params = {'chat_id': chat_id, 'title': title, 'description': description, 'payload': payload,
               'provider_token': provider_token, 'start_parameter': start_parameter, 'currency': currency,
-              'prices': _convert_list_json_serializable(prices)}
+              'prices': prices}
     if provider_data:
         params['provider_data'] = provider_data
     if photo_url:
@@ -1772,11 +1761,9 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_options=None, error_message=None):
+def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_options, error_message):
     """
-    Use this method to reply to shipping queries,
-    If you sent an invoice requesting a shipping address and the parameter is_flexible was specified,
-    the Bot API will send an Update with a shipping_query field to the bot.
+    Use this method to reply to shipping queries.
     :type token: str
     :type proxies: dict or None
     :type shipping_query_id: str
@@ -1791,13 +1778,13 @@ def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_option
     files = None
     params = {'shipping_query_id': shipping_query_id, 'ok': ok}
     if shipping_options:
-        params['shipping_options'] = _convert_list_json_serializable(shipping_options)
+        params['shipping_options'] = shipping_options
     if error_message:
         params['error_message'] = error_message
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_message=None):
+def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_message):
     """
     Use this method to respond to such pre-checkout queries.
     :type token: str
@@ -1823,7 +1810,7 @@ def set_passport_data_errors(token, proxies, user_id, errors):
     :type token: str
     :type proxies: dict or None
     :type user_id: int
-    :type errors: list[tgbotapi.types.PassportElementError]
+    :type errors: list[dict]
     :rtype: dict
     """
     method = r'post'
@@ -1834,8 +1821,8 @@ def set_passport_data_errors(token, proxies, user_id, errors):
     return _make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_game(token, proxies, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
-              reply_markup=None):
+def send_game(token, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
+              reply_markup):
     """
     Use this method to send a game.
     :type token: str
@@ -1845,7 +1832,7 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification=Fal
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type reply_markup: dict or None
-    :rtype: tgbotapi.types.Message or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'sendGame'
@@ -1862,9 +1849,9 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification=Fal
 
 
 # https://core.telegram.org/bots/api#setgamescore
-def set_game_score(token, proxies, user_id, score, force=False, disable_edit_message=False, chat_id=None,
-                   message_id=None,
-                   inline_message_id=None):
+def set_game_score(token, proxies, user_id, score, force, disable_edit_message, chat_id,
+                   message_id,
+                   inline_message_id):
     """
     Use this method to set the score of the specified user in a game.
     :type token: str
@@ -1876,7 +1863,7 @@ def set_game_score(token, proxies, user_id, score, force=False, disable_edit_mes
     :type chat_id: int
     :type message_id: int or None
     :type inline_message_id: str or None
-    :rtype: tgbotapi.types.Message or dict
+    :rtype: dict
     """
     method = r'post'
     api_method = r'setGameScore'
@@ -1897,7 +1884,7 @@ def set_game_score(token, proxies, user_id, score, force=False, disable_edit_mes
 
 
 # https://core.telegram.org/bots/api#getgamehighscores
-def get_game_high_scores(token, proxies, user_id, chat_id=None, message_id=None, inline_message_id=None):
+def get_game_high_scores(token, proxies, user_id, chat_id, message_id, inline_message_id):
     """
     Use this method to get data for high score tables.
     :type token: str
@@ -1906,7 +1893,7 @@ def get_game_high_scores(token, proxies, user_id, chat_id=None, message_id=None,
     :type chat_id: int or None
     :type message_id: int or None
     :type inline_message_id: str or None
-    :rtype: list[tgbotapi.types.GameHighScore] or dict
+    :rtype: dict
     """
     method = r'get'
     api_method = r'getGameHighScores'
@@ -1920,49 +1907,3 @@ def get_game_high_scores(token, proxies, user_id, chat_id=None, message_id=None,
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     return _make_request(method, api_url, api_method, files, params, proxies)
-
-
-def _convert_list_json_serializable(results):
-    ret = ''
-    for r in results:
-        if isinstance(r, JsonSerializable):
-            ret = ret + r.to_json() + ','
-    if len(ret) > 0:
-        ret = ret[:-1]
-    return '[' + ret + ']'
-
-
-def _convert_markup(markup):
-    if isinstance(markup, JsonSerializable):
-        return markup.to_json()
-    return markup
-
-
-def _convert_input_media(media):
-    if isinstance(media, InputMedia):
-        return media.convert_input_media()
-    return None, None
-
-def _no_encode(func):
-    def wrapper(key, val):
-        if key == 'filename':
-            return u'{0}={1}'.format(key, val)
-        else:
-            return func(key, val)
-
-    return wrapper
-
-
-class ApiException(Exception):
-    """
-    This class represents an Exception thrown when a call to the Telegram API fails.
-    In addition to an informative message, it has a `function_name` and a `result` attribute, which respectively
-    contain the name of the failed function and the returned result that made the function to be considered  as
-    failed.
-    """
-
-    def __init__(self, msg, function_name, result):
-        super(ApiException, self).__init__(
-            "A request to the Telegram API was unsuccessful. {0}".format(msg))
-        self.function_name = function_name
-        self.result = result

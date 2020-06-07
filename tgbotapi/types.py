@@ -271,7 +271,7 @@ class User(JsonDeserializable):
 class Chat(JsonDeserializable):
     """ This object represents a chat """
 
-    def __init__(self, id, type, title, username, first_name, last_name, photo, description, invite_link, 
+    def __init__(self, id, type, title, username, first_name, last_name, photo, description, invite_link,
                  pinned_message, permissions, slow_mode_delay, sticker_set_name, can_set_sticker_set):
         """
         :param int id:
@@ -1034,12 +1034,11 @@ class ReplyKeyboardMarkup(JsonSerializable):
     """
 
     def __init__(self, resize_keyboard=None, one_time_keyboard=None, selective=None, row_width=3):
+        self.keyboard = []
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard
         self.selective = selective
         self.row_width = row_width
-
-        self.keyboard = []
 
     def add(self, *args):
         """
@@ -1083,7 +1082,7 @@ class ReplyKeyboardMarkup(JsonSerializable):
         self.keyboard.append(btn_array)
         return self
 
-    def to_json(self):
+    def to_dict(self):
         """
         Converts this object to its json representation following the Telegram API guidelines described here:
         https://core.telegram.org/bots/api#replykeyboardmarkup
@@ -1092,14 +1091,14 @@ class ReplyKeyboardMarkup(JsonSerializable):
         obj = {'keyboard': self.keyboard}
         if self.one_time_keyboard:
             obj['one_time_keyboard'] = True
-
         if self.resize_keyboard:
             obj['resize_keyboard'] = True
-
         if self.selective:
             obj['selective'] = True
+        return obj
 
-        return json.dumps(obj)
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
 
 class KeyboardButton(Dictionaryable, JsonSerializable):
@@ -1237,9 +1236,6 @@ class InlineKeyboardButton(JsonSerializable):
         self.callback_game = callback_game
         self.pay = pay
 
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
     def to_dict(self):
         obj = {'text': self.text}
         if self.url:
@@ -1258,6 +1254,9 @@ class InlineKeyboardButton(JsonSerializable):
             obj['login_url'] = self.login_url
         return obj
 
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
 
 class LoginUrl(JsonSerializable):
     """ 
@@ -1271,9 +1270,6 @@ class LoginUrl(JsonSerializable):
         self.bot_username = bot_username
         self.request_write_access = request_write_access
 
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
     def to_dict(self):
         obj = {'url': self.url}
         if self.forward_text:
@@ -1283,6 +1279,9 @@ class LoginUrl(JsonSerializable):
         if self.request_write_access:
             obj['request_write_access'] = self.request_write_access
         return obj
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
 
 class CallbackQuery(JsonDeserializable):
@@ -1599,7 +1598,8 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaAnimation(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, width=None, height=None, duration=None):
+        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, width=None, height=None,
+                     duration=None):
             self.type = type
             self.media = media
             self.thumb = thumb
