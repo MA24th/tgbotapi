@@ -539,7 +539,7 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type media: dict
+    :type media: list
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :rtype: dict

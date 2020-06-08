@@ -175,11 +175,11 @@ class TBot:
         new_edited_messages = []
         new_channel_posts = []
         new_edited_channel_posts = []
-        new_inline_querys = []
+        new_inline_queries = []
         new_chosen_inline_results = []
-        new_callback_querys = []
-        new_shipping_querys = []
-        new_pre_checkout_querys = []
+        new_callback_queries = []
+        new_shipping_queries = []
+        new_pre_checkout_queries = []
         new_poll = []
         new_poll_answer = []
 
@@ -195,15 +195,15 @@ class TBot:
             if update.edited_channel_post:
                 new_edited_channel_posts.append(update.edited_channel_post)
             if update.inline_query:
-                new_inline_querys.append(update.inline_query)
+                new_inline_queries.append(update.inline_query)
             if update.chosen_inline_result:
                 new_chosen_inline_results.append(update.chosen_inline_result)
             if update.callback_query:
-                new_callback_querys.append(update.callback_query)
+                new_callback_queries.append(update.callback_query)
             if update.shipping_query:
-                new_shipping_querys.append(update.shipping_query)
+                new_shipping_queries.append(update.shipping_query)
             if update.pre_checkout_query:
-                new_pre_checkout_querys.append(update.pre_checkout_query)
+                new_pre_checkout_queries.append(update.pre_checkout_query)
             if update.poll:
                 new_poll.append(update.poll)
             if update.poll_answer:
@@ -218,16 +218,16 @@ class TBot:
             self.__process_new_channel_posts(new_channel_posts)
         if len(new_edited_channel_posts) > 0:
             self.__process_new_edited_channel_posts(new_edited_channel_posts)
-        if len(new_inline_querys) > 0:
-            self.__process_new_inline_query(new_inline_querys)
+        if len(new_inline_queries) > 0:
+            self.__process_new_inline_query(new_inline_queries)
         if len(new_chosen_inline_results) > 0:
             self.__process_new_chosen_inline_query(new_chosen_inline_results)
-        if len(new_callback_querys) > 0:
-            self.__process_new_callback_query(new_callback_querys)
-        if len(new_pre_checkout_querys) > 0:
-            self.__process_new_pre_checkout_query(new_pre_checkout_querys)
-        if len(new_shipping_querys) > 0:
-            self.__process_new_shipping_query(new_shipping_querys)
+        if len(new_callback_queries) > 0:
+            self.__process_new_callback_query(new_callback_queries)
+        if len(new_pre_checkout_queries) > 0:
+            self.__process_new_pre_checkout_query(new_pre_checkout_queries)
+        if len(new_shipping_queries) > 0:
+            self.__process_new_shipping_query(new_shipping_queries)
         if len(new_poll) > 0:
             self.__process_new_poll(new_poll)
         if len(new_poll_answer) > 0:
@@ -250,24 +250,24 @@ class TBot:
         self._notify_command_handlers(
             self.__edited_channel_post_handlers, edited_channel_post)
 
-    def __process_new_inline_query(self, new_inline_querys):
-        self._notify_command_handlers(self.__inline_query_handlers, new_inline_querys)
+    def __process_new_inline_query(self, new_inline_queries):
+        self._notify_command_handlers(self.__inline_query_handlers, new_inline_queries)
 
-    def __process_new_chosen_inline_query(self, new_chosen_inline_querys):
+    def __process_new_chosen_inline_query(self, new_chosen_inline_queries):
         self._notify_command_handlers(
-            self.__chosen_inline_handlers, new_chosen_inline_querys)
+            self.__chosen_inline_handlers, new_chosen_inline_queries)
 
-    def __process_new_callback_query(self, new_callback_querys):
+    def __process_new_callback_query(self, new_callback_queries):
         self._notify_command_handlers(
-            self.__callback_query_handlers, new_callback_querys)
+            self.__callback_query_handlers, new_callback_queries)
 
-    def __process_new_shipping_query(self, new_shipping_querys):
+    def __process_new_shipping_query(self, new_shipping_queries):
         self._notify_command_handlers(
-            self.__shipping_query_handlers, new_shipping_querys)
+            self.__shipping_query_handlers, new_shipping_queries)
 
-    def __process_new_pre_checkout_query(self, pre_checkout_querys):
+    def __process_new_pre_checkout_query(self, pre_checkout_queries):
         self._notify_command_handlers(
-            self.__pre_checkout_query_handlers, pre_checkout_querys)
+            self.__pre_checkout_query_handlers, pre_checkout_queries)
 
     def __process_new_poll(self, poll):
         self._notify_command_handlers(self.__poll_handlers, poll)
@@ -416,7 +416,7 @@ class TBot:
         """
         Use this method to get current webhook status.
         :return: a WebhookInfo object, otherwise an object with the url field empty.
-        :rtype: dict
+        :rtype: types.WebhookInfo
         """
         return types.WebhookInfo.de_json(methods.get_webhook_info(self.__token, self.__proxies))
 
@@ -444,8 +444,7 @@ class TBot:
         """
         return types.Message.de_json(
             methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, disable_web_page_preview,
-                                 disable_notification,
-                                 reply_to_message_id, reply_markup))
+                                 disable_notification, reply_to_message_id, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
         """
@@ -656,7 +655,7 @@ class TBot:
         :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
-        :param types.InlineKeyboardMarkup reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param dict reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object, otherwise True.
         :rtype: types.Message
         """
@@ -670,7 +669,7 @@ class TBot:
         :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
         :param int or None message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
         :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
-        :param types.InlineKeyboardMarkup reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
+        :param dict reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object, otherwise True.
         :rtype: types.Message
         """
@@ -832,7 +831,7 @@ class TBot:
         Use this method to restrict a user in a supergroup.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
-        :param types.ChatPermissions permissions: New user permissions must be ChatPermissions object.
+        :param dict permissions: New user permissions must be ChatPermissions object.
         :param int or None until_date: 	Date when restrictions will be lifted for the user, unix time.
         :return: True On success.
         :rtype: dict
@@ -877,7 +876,7 @@ class TBot:
         """
         Use this method to set default chat permissions for all members.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param types.ChatPermissions permissions: New default chat permissions must be a ChatPermissions object
+        :param dict permissions: New default chat permissions must be a ChatPermissions object
         :return: True on success.
         :rtype: dict
         """

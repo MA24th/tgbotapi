@@ -1757,9 +1757,9 @@ class StickerSet(JsonDeserializable):
         return cls(name, title, contains_masks, stickers, thumb)
 
     @classmethod
-    def parse_stickers(cls, objs):
+    def parse_stickers(cls, obj):
         stickers = []
-        for sticker in objs:
+        for sticker in obj:
             stickers.append(Sticker.de_json(sticker))
         return stickers
 
@@ -2985,17 +2985,17 @@ class EncryptedPassportElement(JsonDeserializable):
         return cls(type, data, phone_number, files, front_side, reverse_side, selfie, translation, hash)
 
     @classmethod
-    def parse_files(cls, objs):
+    def parse_files(cls, obj):
         files = []
-        for x in objs:
+        for x in obj:
             file = PassportFile.de_json(x)
             files.append(file)
         return files
 
     @classmethod
-    def parse_translation(cls, objs):
+    def parse_translation(cls, obj):
         translations = []
-        for x in objs:
+        for x in obj:
             translation = PassportFile.de_json(x)
             translations.append(translation)
         return translations
@@ -3283,16 +3283,16 @@ class Game(JsonDeserializable):
         return cls(title, description, photo, text, text_entities, animation)
 
     @classmethod
-    def parse_photo(cls, objs):
+    def parse_photo(cls, obj):
         photos = []
-        for x in objs:
+        for x in obj:
             photos.append(PhotoSize.de_json(x))
         return photos
 
     @classmethod
-    def parse_entities(cls, objs):
+    def parse_entities(cls, obj):
         entities = []
-        for x in objs:
+        for x in obj:
             entities.append(MessageEntity.de_json(x))
         return entities
 
