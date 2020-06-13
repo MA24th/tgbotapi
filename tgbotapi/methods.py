@@ -1,7 +1,5 @@
-import json
-import requests
-from .types import JsonSerializable
 from .utils import *
+import json
 
 """ Telegram Available methods
     All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 
@@ -9,70 +7,6 @@ from .utils import *
     Or multipart/form-data for passing parameters in Bot API requests.
     On successful call, a JSON-object containing the result will be returned.
 """
-
-
-class ApiException(Exception):
-    """
-    This class represents an Exception thrown when a call to the Telegram API fails.
-    In addition to an informative message, it has a `function_name` and a `result` attribute, which respectively
-    contain the name of the failed function and the returned result that made the function to be considered  as
-    failed.
-    """
-
-    def __init__(self, msg, function_name, result):
-        super(ApiException, self).__init__("A request to the Telegram API was unsuccessful. {0}".format(msg))
-        self.function_name = function_name
-        self.result = result
-
-
-def _convert_markup(markup):
-    if isinstance(markup, JsonSerializable):
-        return markup.to_json()
-    return markup
-
-
-def _get_req_session(reset=False):
-    return per_thread('req_session', lambda: requests.session(), reset)
-
-
-def _make_request(method, api_url, api_method, files, params, proxies):
-    """
-    Makes a request to the Telegram API.
-    :param str method: HTTP method ['get', 'post'].
-    :param str api_url: telegram api url for api_method.
-    :param str api_method: Name of the API method to be called. (E.g. 'getUpdates').
-    :param any files: files content's a data.
-    :param dict or None params: Should be a dictionary with key-value pairs.
-    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
-    :return: JSON DICT FORMAT
-    :rtype: dict
-    """
-    logger.debug("Request: method={0} url={1} params={2} files={3}".format(method, api_url, params, files))
-    timeout = 9999
-    if params:
-        if 'timeout' in params:
-            timeout = params['timeout'] + 10
-
-    result = _get_req_session().request(method, api_url, params, data=None, headers=None,
-                                        cookies=None, files=files, auth=None, timeout=timeout, allow_redirects=True,
-                                        proxies=proxies, verify=None, stream=None, cert=None)
-    logger.debug("The server returned: '{0}'".format(result.text.encode('utf8')))
-    if result.status_code != 200:
-        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]'.format(result.status_code, result.reason,
-                                                                               result.text.encode('utf8'))
-        raise ApiException(msg, api_method, result)
-
-    try:
-
-        result_json = result.json()
-    except Exception:
-        msg = 'The server returned an invalid JSON response. Response body:\n[{0}]'.format(result.text.encode('utf8'))
-        raise ApiException(msg, api_method, result)
-
-    if not result_json['ok']:
-        msg = 'Error code: {0} Description: {1}'.format(result_json['error_code'], result_json['description'])
-        raise ApiException(msg, api_method, result)
-    return result_json['result']
 
 
 def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
@@ -99,7 +33,7 @@ def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
         params['timeout'] = timeout
     if allowed_updates:
         params['allowed_updates'] = json.dumps(allowed_updates)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_webhook(token, proxies, url, certificate, max_connections, allowed_updates):
@@ -124,7 +58,7 @@ def set_webhook(token, proxies, url, certificate, max_connections, allowed_updat
         params['max_connections'] = max_connections
     if allowed_updates:
         params['allowed_updates'] = json.dumps(allowed_updates)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def delete_webhook(token, proxies):
@@ -139,7 +73,7 @@ def delete_webhook(token, proxies):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_webhook_info(token, proxies):
@@ -154,7 +88,7 @@ def get_webhook_info(token, proxies):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_me(token, proxies):
@@ -169,7 +103,7 @@ def get_me(token, proxies):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
@@ -201,8 +135,8 @@ def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_pre
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_notification):
@@ -223,7 +157,7 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
     if disable_notification:
         params['disable_notification'] = disable_notification
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_notification, reply_to_message_id,
@@ -259,8 +193,8 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_noti
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
@@ -308,8 +242,8 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, pe
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, disable_notification,
@@ -348,8 +282,8 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, supports_streaming,
@@ -400,8 +334,8 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_animation(token, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
@@ -449,8 +383,8 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_voice(token, proxies, chat_id, voice, caption, parse_mode, duration, disable_notification, reply_to_message_id,
@@ -489,8 +423,8 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, duration, di
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
@@ -529,8 +463,8 @@ def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id):
@@ -557,7 +491,7 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_location(token, proxies, chat_id, latitude, longitude, live_period, disable_notification, reply_to_message_id,
@@ -588,8 +522,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, dis
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def edit_message_live_location(token, proxies, latitude, longitude, chat_id, message_id, inline_message_id,
@@ -618,8 +552,8 @@ def edit_message_live_location(token, proxies, latitude, longitude, chat_id, mes
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def stop_message_live_location(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
@@ -645,8 +579,8 @@ def stop_message_live_location(token, proxies, chat_id, message_id, inline_messa
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
@@ -681,8 +615,8 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
@@ -716,8 +650,8 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
@@ -773,8 +707,8 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, reply_markup):
@@ -799,8 +733,8 @@ def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_mes
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_chat_action(token, proxies, chat_id, action):
@@ -817,7 +751,7 @@ def send_chat_action(token, proxies, chat_id, action):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'action': action}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_user_profile_photos(token, proxies, user_id, offset, limit):
@@ -839,7 +773,7 @@ def get_user_profile_photos(token, proxies, user_id, offset, limit):
         params['offset'] = offset
     if limit:
         params['limit'] = limit
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_file(token, proxies, file_id):
@@ -855,7 +789,7 @@ def get_file(token, proxies, file_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'file_id': file_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def download_file(token, proxies, file_path):
@@ -867,7 +801,7 @@ def download_file(token, proxies, file_path):
     :rtype: any
     """
     api_url = "https://api.telegram.org/file/bot{0}/{1}".format(token, file_path)
-    result = _get_req_session().get(api_url, proxies)
+    result = get_req_session().get(api_url, proxies)
     if result.status_code != 200:
         msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
             .format(result.status_code, result.reason, result.text)
@@ -893,7 +827,7 @@ def kick_chat_member(token, proxies, chat_id, user_id, until_date):
     params = {'chat_id': chat_id, 'user_id': user_id}
     if until_date:
         params['until_date'] = until_date
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def unban_chat_member(token, proxies, chat_id, user_id):
@@ -910,7 +844,7 @@ def unban_chat_member(token, proxies, chat_id, user_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_date):
@@ -931,7 +865,7 @@ def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_da
     params = {'chat_id': chat_id, 'user_id': user_id, 'permissions': permissions}
     if until_date:
         params['until_date'] = until_date
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def promote_chat_member(token, proxies, chat_id, user_id, can_change_info, can_post_messages, can_edit_messages,
@@ -974,7 +908,7 @@ def promote_chat_member(token, proxies, chat_id, user_id, can_change_info, can_p
         params['can_pin_messages'] = can_pin_messages
     if can_promote_members:
         params['can_promote_members'] = can_promote_members
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_chat_administrator_custom_title(token, proxies, chat_id, user_id, custom_title):
@@ -992,7 +926,7 @@ def set_chat_administrator_custom_title(token, proxies, chat_id, user_id, custom
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id, 'custom_title': custom_title}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_chat_permissions(token, proxies, chat_id, permissions):
@@ -1009,7 +943,7 @@ def set_chat_permissions(token, proxies, chat_id, permissions):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'permissions': permissions}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def export_chat_invite_link(token, proxies, chat_id):
@@ -1025,7 +959,7 @@ def export_chat_invite_link(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_chat_photo(token, proxies, chat_id, photo):
@@ -1046,7 +980,7 @@ def set_chat_photo(token, proxies, chat_id, photo):
         files = {'photo': photo}
     else:
         params['photo'] = photo
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def delete_chat_photo(token, proxies, chat_id):
@@ -1062,7 +996,7 @@ def delete_chat_photo(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_chat_title(token, proxies, chat_id, title):
@@ -1079,7 +1013,7 @@ def set_chat_title(token, proxies, chat_id, title):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'title': title}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_chat_description(token, proxies, chat_id, description):
@@ -1098,7 +1032,7 @@ def set_chat_description(token, proxies, chat_id, description):
     params = {'chat_id': chat_id}
     if description:
         params['description'] = description
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
@@ -1118,7 +1052,7 @@ def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
     params = {'chat_id': chat_id, 'message_id': message_id}
     if disable_notification:
         params['disable_notification'] = disable_notification
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def unpin_chat_message(token, proxies, chat_id):
@@ -1134,7 +1068,7 @@ def unpin_chat_message(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def leave_chat(token, proxies, chat_id):
@@ -1150,7 +1084,7 @@ def leave_chat(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_chat(token, proxies, chat_id):
@@ -1166,7 +1100,7 @@ def get_chat(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_chat_administrators(token, proxies, chat_id):
@@ -1183,7 +1117,7 @@ def get_chat_administrators(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_chat_members_count(token, proxies, chat_id):
@@ -1199,7 +1133,7 @@ def get_chat_members_count(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_chat_member(token, proxies, chat_id, user_id):
@@ -1216,7 +1150,7 @@ def get_chat_member(token, proxies, chat_id, user_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_chat_sticker_set(token, proxies, chat_id, sticker_set_name):
@@ -1233,7 +1167,7 @@ def set_chat_sticker_set(token, proxies, chat_id, sticker_set_name):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'sticker_set_name': sticker_set_name}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def delete_chat_sticker_set(token, proxies, chat_id):
@@ -1249,7 +1183,7 @@ def delete_chat_sticker_set(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def answer_callback_query(token, proxies, callback_query_id, text, show_alert, url, cache_time):
@@ -1277,7 +1211,7 @@ def answer_callback_query(token, proxies, callback_query_id, text, show_alert, u
         params['url'] = url
     if cache_time is not None:
         params['cache_time'] = cache_time
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_my_commands(token, proxies, commands):
@@ -1293,7 +1227,7 @@ def set_my_commands(token, proxies, commands):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'commands': commands}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_my_commands(token, proxies):
@@ -1308,7 +1242,7 @@ def get_my_commands(token, proxies):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = None
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode,
@@ -1343,8 +1277,8 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
     if disable_web_page_preview:
         params['disable_web_page_preview'] = disable_web_page_preview
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, reply_markup):
@@ -1374,8 +1308,8 @@ def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_me
     if parse_mode:
         params['parse_mode'] = parse_mode
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def edit_message_media(token, proxies, media, chat_id, message_id, inline_message_id, reply_markup):
@@ -1406,8 +1340,8 @@ def edit_message_media(token, proxies, media, chat_id, message_id, inline_messag
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
@@ -1433,8 +1367,8 @@ def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_messag
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def stop_poll(token, proxies, chat_id, message_id, reply_markup):
@@ -1453,8 +1387,8 @@ def stop_poll(token, proxies, chat_id, message_id, reply_markup):
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def delete_message(token, proxies, chat_id, message_id):
@@ -1471,7 +1405,7 @@ def delete_message(token, proxies, chat_id, message_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
@@ -1501,8 +1435,8 @@ def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_t
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def get_sticker_set(token, proxies, name):
@@ -1518,7 +1452,7 @@ def get_sticker_set(token, proxies, name):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'name': name}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def upload_sticker_file(token, proxies, user_id, png_sticker):
@@ -1535,7 +1469,7 @@ def upload_sticker_file(token, proxies, user_id, png_sticker):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = {'png_sticker': png_sticker}
     params = {'user_id': user_id}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks,
@@ -1569,7 +1503,7 @@ def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tg
         params['contains_masks'] = contains_masks
     if mask_position:
         params['mask_position'] = mask_position
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_sticker, mask_position):
@@ -1598,7 +1532,7 @@ def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_s
         files = {'tgs_sticker': tgs_sticker}
     if mask_position:
         params['mask_position'] = mask_position
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_sticker_position_in_set(token, proxies, sticker, position):
@@ -1615,7 +1549,7 @@ def set_sticker_position_in_set(token, proxies, sticker, position):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'sticker': sticker, 'position': position}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def delete_sticker_from_set(token, proxies, sticker):
@@ -1631,7 +1565,7 @@ def delete_sticker_from_set(token, proxies, sticker):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'sticker': sticker}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
@@ -1651,7 +1585,7 @@ def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
     params = {'name': name, 'user_id': user_id}
     if thumb:
         params['thumb'] = thumb
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text,
@@ -1684,7 +1618,7 @@ def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is
         params['switch_pm_text'] = switch_pm_text
     if switch_pm_parameter:
         params['switch_pm_parameter'] = switch_pm_parameter
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_invoice(token, proxies, chat_id, title, description, payload, provider_token, start_parameter, currency,
@@ -1757,8 +1691,8 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_options, error_message):
@@ -1781,7 +1715,7 @@ def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_option
         params['shipping_options'] = shipping_options
     if error_message:
         params['error_message'] = error_message
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_message):
@@ -1801,7 +1735,7 @@ def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_m
     params = {'pre_checkout_query_id': pre_checkout_query_id, 'ok': ok}
     if error_message:
         params['error_message'] = error_message
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def set_passport_data_errors(token, proxies, user_id, errors):
@@ -1818,7 +1752,7 @@ def set_passport_data_errors(token, proxies, user_id, errors):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'user_id': user_id, 'errors': errors}
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_game(token, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
@@ -1844,8 +1778,8 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification, re
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if reply_markup:
-        params['reply_markup'] = _convert_markup(reply_markup)
-    return _make_request(method, api_url, api_method, files, params, proxies)
+        params['reply_markup'] = convert_markup(reply_markup)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 # https://core.telegram.org/bots/api#setgamescore
@@ -1880,7 +1814,7 @@ def set_game_score(token, proxies, user_id, score, force, disable_edit_message, 
         params['inline_message_id'] = inline_message_id
     if disable_edit_message:
         params['disable_edit_message'] = disable_edit_message
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)
 
 
 # https://core.telegram.org/bots/api#getgamehighscores
@@ -1906,4 +1840,4 @@ def get_game_high_scores(token, proxies, user_id, chat_id, message_id, inline_me
         params['message_id'] = message_id
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
-    return _make_request(method, api_url, api_method, files, params, proxies)
+    return make_request(method, api_url, api_method, files, params, proxies)

@@ -1,20 +1,11 @@
-import random
-import re
-import string
-import sys
+from .logger import logger
+from .extra import ApiException
+import queue as q
 import threading
 import traceback
+import requests
+import sys
 import six
-import logging
-from six import string_types
-import queue as Queue
-
-logger = logging.getLogger('TgBotAPI')
-formatter = logging.Formatter('%(asctime)s (%(filename)s:%(lineno)d %(threadName)s)\n%(levelname)s - %(name)s: "%(message)s"')
-console_output_handler = logging.StreamHandler(sys.stderr)
-console_output_handler.setFormatter(formatter)
-logger.addHandler(console_output_handler)
-logger.setLevel(logging.ERROR)
 
 thread_local = threading.local()
 
@@ -27,7 +18,7 @@ class WorkerThread(threading.Thread):
             name = "WorkerThread{0}".format(self.__class__.count + 1)
             self.__class__.count += 1
         if not queue:
-            queue = Queue.Queue()
+            queue = q.Queue()
 
         threading.Thread.__init__(self, name=name)
         self.queue = queue
@@ -51,16 +42,16 @@ class WorkerThread(threading.Thread):
                 self.received_task_event.clear()
                 self.done_event.clear()
                 self.exception_event.clear()
-                logger.debug("Received task")
+                logger.info("TASK RECEIVED")
                 self.received_task_event.set()
 
                 task(*args, **kwargs)
-                logger.debug("Task complete")
+                logger.info("TASK COMPLETE")
                 self.done_event.set()
-            except Queue.Empty:
+            except q.Empty:
                 pass
             except Exception as e:
-                logger.error(type(e).__name__ + " occurred, args=" +
+                logger.error(type(e).__name__ + " OCCURRED, ARGS=" +
                              str(e.args) + "\n" + traceback.format_exc())
                 self.exc_info = sys.exc_info()
                 self.exception_event.set()
@@ -87,7 +78,7 @@ class WorkerThread(threading.Thread):
 class ThreadPool:
 
     def __init__(self, num_threads=2):
-        self.tasks = Queue.Queue()
+        self.tasks = q.Queue()
         self.workers = [WorkerThread(self.on_exception, self.tasks)
                         for _ in range(num_threads)]
         self.num_threads = num_threads
@@ -153,50 +144,6 @@ def async_dec():
     return decorator
 
 
-def is_string(var):
-    return isinstance(var, string_types)
-
-
-def is_command(text):
-    """
-    Checks if `text` is a command. Telegram chat commands start with the '/' character.
-    :param text: Text to check.
-    :return: True if `text` is a command, else False.
-    """
-    return text.startswith('/')
-
-
-def extract_command(text):
-    """
-    Extracts the command from `text` (minus the '/') if `text` is a command (see is_command).
-    If `text` is not a command, this function returns None.
-
-    Examples:
-    extract_command('/help'): 'help'
-    extract_command('/help@BotName'): 'help'
-    extract_command('/search black eyed peas'): 'search'
-    extract_command('Good day to you'): None
-
-    :param text: String to extract the command from
-    :return: the command if `text` is a command (according to is_command), else None.
-    """
-    return text.split()[0].split('@')[0][1:] if is_command(text) else None
-
-
-def split_string(text, chars_per_string):
-    """
-    Splits one string into multiple strings, with a maximum amount of `chars_per_string` characters per string.
-    This is very useful for splitting one giant message into multiples.
-
-    :param text: The text to split
-    :param chars_per_string: The number of characters per line the text is split into.
-    :return: The splitted text as a list of strings.
-    """
-    return [text[i:i + chars_per_string] for i in range(0, len(text), chars_per_string)]
-
-# CREDITS TO http://stackoverflow.com/questions/12317940#answer-12320352
-
-
 def or_set(self):
     self._set()
     self.changed()
@@ -215,43 +162,26 @@ def orify(e, changed_callback):
     e.clear = lambda: or_clear(e)
 
 
-def OrEvent(*events):
-    or_event = threading.Event()
+def events_handler(*events):
+    event = threading.Event()
 
     def changed():
         bools = [e.is_set() for e in events]
         if any(bools):
-            or_event.set()
+            event.set()
         else:
-            or_event.clear()
+            event.clear()
 
     def busy_wait():
-        while not or_event.is_set():
-            or_event._wait(3)
+        while not event.is_set():
+            event._wait(3)
 
     for e in events:
         orify(e, changed)
-    or_event._wait = or_event.wait
-    or_event.wait = busy_wait
+    event._wait = event.wait
+    event.wait = busy_wait
     changed()
-    return or_event
-
-
-def extract_arguments(text):
-    """
-    Returns the argument after the command.
-
-    Examples:
-    extract_arguments("/get name"): 'name'
-    extract_arguments("/get"): ''
-    extract_arguments("/get@botName name"): 'name'
-
-    :param text: String to extract the arguments from a command
-    :return: the arguments if `text` is a command (according to is_command), else None.
-    """
-    regexp = re.compile(r"/\w*(@\w*)*\s*([\s\S]*)", re.IGNORECASE)
-    result = regexp.match(text)
-    return result.group(2) if is_command(text) else None
+    return event
 
 
 def per_thread(key, construct_value, reset=False):
@@ -262,5 +192,47 @@ def per_thread(key, construct_value, reset=False):
     return getattr(thread_local, key)
 
 
-def generate_random_token():
-    return ''.join(random.sample(string.ascii_letters, 16))
+def get_req_session(reset=False):
+    return per_thread('req_session', lambda: requests.session(), reset)
+
+
+def make_request(method, api_url, api_method, files, params, proxies):
+    """
+    Makes a request to the Telegram API.
+    :param str method: HTTP method ['get', 'post'].
+    :param str api_url: telegram api url for api_method.
+    :param str api_method: Name of the API method to be called. (E.g. 'getUpdates').
+    :param any files: files content's a data.
+    :param dict or None params: Should be a dictionary with key-value pairs.
+    :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
+    :return: JSON DICT FORMAT
+    :rtype: dict
+    """
+    logger.info(f"REQUEST MAKE: {method.upper()}.{api_method}")
+    logger.debug("Request: method={0} url={1} params={2} files={3}".format(method, api_url, params, files))
+    timeout = 9999
+    if params:
+        if 'timeout' in params:
+            timeout = params['timeout'] + 10
+
+    result = get_req_session().request(method, api_url, params, data=None, headers=None,
+                                        cookies=None, files=files, auth=None, timeout=timeout, allow_redirects=True,
+                                        proxies=proxies, verify=None, stream=None, cert=None)
+    logger.info("REQUEST DONE!")
+    logger.debug("The server returned: '{0}'".format(result.text.encode('utf8')))
+    if result.status_code != 200:
+        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]'.format(result.status_code, result.reason,
+                                                                               result.text.encode('utf8'))
+        raise ApiException(msg, api_method, result)
+
+    try:
+
+        result_json = result.json()
+    except Exception:
+        msg = 'The server returned an invalid JSON response. Response body:\n[{0}]'.format(result.text.encode('utf8'))
+        raise ApiException(msg, api_method, result)
+
+    if not result_json['ok']:
+        msg = 'Error code: {0} Description: {1}'.format(result_json['error_code'], result_json['description'])
+        raise ApiException(msg, api_method, result)
+    return result_json['result']

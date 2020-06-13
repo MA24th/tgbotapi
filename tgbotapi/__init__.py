@@ -1,15 +1,19 @@
 import threading
 import pickle
-import os
-from .utils import ThreadPool, logger, WorkerThread, OrEvent, extract_command, async_dec
-from . import methods, types
 import time
 import six
+import os
 import re
+from . import utils
+from . import methods
+from . import types
 
 """
 Module : tgbotapi
 """
+
+logger = utils.logger
+async_dec = utils.async_dec
 
 
 class Handler:
@@ -89,8 +93,6 @@ class TBot:
         :param bool skip_pending:
         :param int num_threads:
         :param dict or None proxies:
-        :return: a Tbot object.
-        :rtype: TBot
         """
 
         self.__token = token
@@ -98,7 +100,7 @@ class TBot:
         self.__threaded = threaded
         self.__skip_pending = skip_pending
         if self.__threaded:
-            self.__worker_pool = ThreadPool(num_threads=num_threads)
+            self.__worker_pool = utils.ThreadPool(num_threads=num_threads)
 
         self.__update_listener = []
         self.__stop_polling = threading.Event()
@@ -135,9 +137,9 @@ class TBot:
         :return: An Array of Update objects.
         :rtype: list[types.Update]
         """
-        json_updates = methods.get_updates(self.__token, self.__proxies, offset, limit, timeout, allowed_updates)
+        objs = methods.get_updates(self.__token, self.__proxies, offset, limit, timeout, allowed_updates)
         updates = []
-        for x in json_updates:
+        for x in objs:
             updates.append(types.Update.de_json(x))
         return updates
 
@@ -164,10 +166,11 @@ class TBot:
         :raises ApiException when a call has failed.
         """
         if self.__skip_pending:
-            logger.debug('Skipped {0} pending messages'.format(
+            logger.info('SKIPPED {0} PENDING MESSAGES'.format(
                 self.__skip_updates()))
             self.__skip_pending = False
-        updates = self.get_updates(offset=(self.__last_update_id + 1), timeout=timeout)
+        updates = self.get_updates(
+            offset=(self.__last_update_id + 1), timeout=timeout)
         self.__process_new_updates(updates)
 
     def __process_new_updates(self, updates):
@@ -180,8 +183,8 @@ class TBot:
         new_callback_queries = []
         new_shipping_queries = []
         new_pre_checkout_queries = []
-        new_poll = []
-        new_poll_answer = []
+        new_polls = []
+        new_poll_answers = []
 
         for update in updates:
             if update.update_id > self.__last_update_id:
@@ -205,11 +208,11 @@ class TBot:
             if update.pre_checkout_query:
                 new_pre_checkout_queries.append(update.pre_checkout_query)
             if update.poll:
-                new_poll.append(update.poll)
+                new_polls.append(update.poll)
             if update.poll_answer:
-                new_poll_answer.append(update.poll_answer)
+                new_poll_answers.append(update.poll_answer)
 
-        logger.debug('Received {0} new updates'.format(len(updates)))
+        logger.info('RECEIVED {0} NEW UPDATES'.format(len(updates)))
         if len(new_messages) > 0:
             self.__process_new_messages(new_messages)
         if len(new_edited_messages) > 0:
@@ -228,10 +231,10 @@ class TBot:
             self.__process_new_pre_checkout_query(new_pre_checkout_queries)
         if len(new_shipping_queries) > 0:
             self.__process_new_shipping_query(new_shipping_queries)
-        if len(new_poll) > 0:
-            self.__process_new_poll(new_poll)
-        if len(new_poll_answer) > 0:
-            self.__process_new_poll_answer(new_poll_answer)
+        if len(new_polls) > 0:
+            self.__process_new_poll(new_polls)
+        if len(new_poll_answers) > 0:
+            self.__process_new_poll_answer(new_poll_answers)
 
     def __process_new_messages(self, new_messages):
         self._notify_next_handlers(new_messages)
@@ -244,14 +247,16 @@ class TBot:
             self.__edited_message_handlers, edited_message)
 
     def __process_new_channel_posts(self, channel_post):
-        self._notify_command_handlers(self.__channel_post_handlers, channel_post)
+        self._notify_command_handlers(
+            self.__channel_post_handlers, channel_post)
 
     def __process_new_edited_channel_posts(self, edited_channel_post):
         self._notify_command_handlers(
             self.__edited_channel_post_handlers, edited_channel_post)
 
     def __process_new_inline_query(self, new_inline_queries):
-        self._notify_command_handlers(self.__inline_query_handlers, new_inline_queries)
+        self._notify_command_handlers(
+            self.__inline_query_handlers, new_inline_queries)
 
     def __process_new_chosen_inline_query(self, new_chosen_inline_queries):
         self._notify_command_handlers(
@@ -286,7 +291,7 @@ class TBot:
             except ConnectionError or ConnectionAbortedError or ConnectionRefusedError or ConnectionResetError:
                 time.sleep(timeout)
                 pass
-        logger.info("Break infinity polling")
+        logger.info("BREAK INFINITY POLLING")
 
     def polling(self, none_stop=False, interval=0, timeout=20):
         """
@@ -307,16 +312,12 @@ class TBot:
             self.__non_threaded_polling(none_stop, interval, timeout)
 
     def __threaded_polling(self, none_stop=False, interval=0, timeout=3):
-        logger.info('Started polling.')
+        logger.info('STARTED POLLING')
         self.__stop_polling.clear()
         error_interval = 0.25
-
-        polling_thread = WorkerThread(name="PollingThread")
-        or_event = OrEvent(
-            polling_thread.done_event,
-            polling_thread.exception_event,
-            self.__worker_pool.exception_event
-        )
+        polling_thread = utils.WorkerThread(name="PollingThread")
+        or_event = utils.events_handler(polling_thread.done_event, polling_thread.exception_event,
+                                        self.__worker_pool.exception_event)
 
         while not self.__stop_polling.wait(interval):
             or_event.clear()
@@ -333,7 +334,7 @@ class TBot:
                 logger.error(e)
                 if not none_stop:
                     self.__stop_polling.set()
-                    logger.info("Exception occurred. Stopping.")
+                    logger.info("Exception Occurred, STOPPING")
                 else:
                     polling_thread.clear_exceptions()
                     self.__worker_pool.clear_exceptions()
@@ -342,15 +343,15 @@ class TBot:
                     time.sleep(error_interval)
                     error_interval *= 2
             except KeyboardInterrupt:
-                logger.info("KeyboardInterrupt received.")
+                logger.info("KeyboardInterrupt Occurred, STOPPING")
                 self.__stop_polling.set()
                 break
 
         polling_thread.stop()
-        logger.info('Stopped polling.')
+        logger.info('STOPPED POLLING')
 
     def __non_threaded_polling(self, none_stop=False, interval=0, timeout=3):
-        logger.info('Started polling.')
+        logger.info('STARTED POLLING')
         self.__stop_polling.clear()
         error_interval = 0.25
 
@@ -362,18 +363,18 @@ class TBot:
                 logger.error(e)
                 if not none_stop:
                     self.__stop_polling.set()
-                    logger.info("Exception occurred. Stopping.")
+                    logger.info("Exception Occurred, STOPPING")
                 else:
                     logger.info(
                         "Waiting for {0} seconds until retry".format(error_interval))
                     time.sleep(error_interval)
                     error_interval *= 2
             except KeyboardInterrupt:
-                logger.info("KeyboardInterrupt received.")
+                logger.info("KeyboardInterrupt Occurred, STOPPING")
                 self.__stop_polling.set()
                 break
 
-        logger.info('Stopped polling.')
+        logger.info('STOPPED POLLING')
 
     def _exec_task(self, task, *args, **kwargs):
         if self.__threaded:
@@ -975,7 +976,8 @@ class TBot:
         :return: an Array of ChatMember object.
         :rtype: list[types.ChatMember]
         """
-        result = methods.get_chat_administrators(self.__token, self.__proxies, chat_id)
+        result = methods.get_chat_administrators(
+            self.__token, self.__proxies, chat_id)
         ret = []
         for r in result:
             ret.append(types.ChatMember.de_json(r))
@@ -1492,7 +1494,8 @@ class TBot:
                 if reply_mid in self.__reply_handlers.keys():
                     handlers = self.__reply_handlers[reply_mid]
                     for handler in handlers:
-                        self._exec_task(handler["callback"], message, *handler["args"], **handler["kwargs"])
+                        self._exec_task(
+                            handler["callback"], message, *handler["args"], **handler["kwargs"])
                     self.__reply_handlers.pop(reply_mid)
                     if self.__reply_saver is not None:
                         self.__reply_saver.start_save_timer()
@@ -1504,7 +1507,8 @@ class TBot:
         :param delay: Integer: Required, Delay between changes in handlers and saving
         :param filename: Data: Required, Filename of save file
         """
-        self.__next_step_saver = Saver(self.__next_step_handlers, filename, delay)
+        self.__next_step_saver = Saver(
+            self.__next_step_handlers, filename, delay)
 
     def disable_save_next_step_handlers(self):
         """
@@ -1888,7 +1892,8 @@ class TBot:
         """
 
         def decorator(handler):
-            handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
+            handler_dict = self._build_handler_dict(
+                handler, func=func, **kwargs)
             self.__add_poll_handler(handler_dict)
             return handler
 
@@ -1912,7 +1917,8 @@ class TBot:
         """
 
         def decorator(handler):
-            handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
+            handler_dict = self._build_handler_dict(
+                handler, func=func, **kwargs)
             self.__add_poll_answer_handler(handler_dict)
             return handler
 
@@ -1954,7 +1960,7 @@ class TBot:
         test_cases = {
             'content_types': lambda msg: msg.content_type in filter_value,
             'regexp': lambda msg: msg.content_type == 'text' and re.search(filter_value, msg.text, re.IGNORECASE),
-            'commands': lambda msg: msg.content_type == 'text' and extract_command(msg.text) in filter_value,
+            'commands': lambda msg: msg.content_type == 'text' and utils.extract_command(msg.text) in filter_value,
             'func': lambda msg: filter_value(msg)
         }
 
