@@ -8,6 +8,7 @@ The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Frame
 [![PyPI](https://img.shields.io/badge/PyPI-v4.7.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
 [![Telegram Group](https://img.shields.io/badge/Telegram-Group-blue.svg)](https://telegram.me/@grid9x)
 
+Based On [pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI)
 ## Getting Started
 
 This API is tested with:
