@@ -49,10 +49,20 @@ It is generally recommended to use the first option.
 there is no fixes for now.
 
 ## How to
-Goto the [wiki tab](https://github.com/MA24th/tgbotapi/wiki).
+Goto the [Wiki tab](https://github.com/MA24th/tgbotapi/wiki).
 
 ## Support
 
 We now have a Telegram Channel and Chat Group as well!,
 Keep yourself up to date with API changes,
 [join it](https://t.me/GuardBotc).
+
+## Code of Conduct
+
+This project has adopted the [MA24th Open Source Code of Conduct](https://github.com/MA24th/MA24th/blob/main/CODE_OF_CONDUCT.md),
+For more information contact [ma24th@yahoo.com](mailto:ma24th@yahoo.com) with any additional questions or comments.
+
+## License
+
+Copyright (c) MA24th Software. All rights reserved.
+Licensed under the [MIT](LICENSE.txt) license.
