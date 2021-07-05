@@ -48,7 +48,7 @@ It is generally recommended to use the first option.
 
 there is no fixes for now.
 
-## WiKi
+## How to
 Goto the [wiki tab](https://github.com/MA24th/tgbotapi/wiki).
 
 ## Support
