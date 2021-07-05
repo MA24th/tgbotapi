@@ -54,4 +54,4 @@ Goto the [wiki tab](https://github.com/MA24th/tgbotapi/wiki).
 
 We now have a Telegram Channel and Chat Group as well!,
 Keep yourself up to date with API changes,
-[join it](https://t.me/grid9x).
+[join it](https://t.me/guardbotc).
