@@ -55,7 +55,7 @@ further defined and clarified by project maintainers.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at ma24th@yahoo.com. All
+reported by contacting the project team at [email](mailto:ma24th@yahoo.com). All
 complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.
@@ -67,10 +67,10 @@ members of the project's leadership.
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
-available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+This Code of Conduct is adapted for [MA24th Open Source Software](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/),
+For more information [contact me](mailto:ma24th@yahoo.com) with any additional questions or comments.
 
-[homepage]: https://www.contributor-covenant.org
+## License
 
-For answers to common questions about this code of conduct, see
-https://www.contributor-covenant.org/faq
+Copyright (c) MA24th Software. All rights reserved.
+Licensed under the [MIT](https://github.com/MA24th/MA24th/blob/main/LICENSE) license.
