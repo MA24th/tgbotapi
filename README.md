@@ -6,7 +6,7 @@ The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Frame
 ![Python package](https://github.com/MA24th/tgbotapi/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/MA24th/tgbotapi/workflows/Upload%20Python%20Package/badge.svg)
 [![PyPI](https://img.shields.io/badge/PyPI-v4.7.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
-[![Telegram Group](https://img.shields.io/badge/Telegram-Group-blue.svg)](https://telegram.me/@guardbotc)
+[![Telegram Group](https://img.shields.io/badge/Telegram-Group-blue.svg)](https://t.me/GuardBotc)
 [![Discord Server](https://img.shields.io/badge/Discord-Server-blue.svg)](https://discord.gg/g65AqbPK6g)
 
 > Based On [pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI)
@@ -55,4 +55,4 @@ Goto the [wiki tab](https://github.com/MA24th/tgbotapi/wiki).
 
 We now have a Telegram Channel and Chat Group as well!,
 Keep yourself up to date with API changes,
-[join it](https://t.me/@guardbotc).
+[join it](https://t.me/GuardBotc).
