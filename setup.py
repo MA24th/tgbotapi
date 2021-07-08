@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from setuptools import setup, find_packages
 from io import open
+from setuptools import setup, find_packages
 
 
 def read(filename):
