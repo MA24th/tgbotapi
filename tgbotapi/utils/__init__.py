@@ -1,6 +1,6 @@
 from .extra import *
 from .logger import *
-from .tgjson import *
+from .jsonable import *
 from .worker import *
 
 """
