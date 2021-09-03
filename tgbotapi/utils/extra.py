@@ -3,7 +3,7 @@ import random
 import string
 
 from six import string_types
-from .tgjson import JsonSerializable
+from .jsonable import JsonSerializable
 
 
 class ApiException(Exception):
