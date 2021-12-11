@@ -36,15 +36,17 @@ def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_webhook(token, proxies, url, certificate, max_connections, allowed_updates):
+def set_webhook(token, proxies, url, certificate, ip_address, max_connections, allowed_updates, drop_pending_updates):
     """
     Use this method to specify a url and receive incoming updates via an outgoing webhook.
     :type token: str
     :type proxies: dict or None
     :type url: str
     :type certificate: any
+    :type ip_address: str
     :type max_connections: int
     :type allowed_updates: list or None
+    :type drop_pending_updates: bool
     :rtype: dict
     """
     method = r'post'
@@ -54,25 +56,32 @@ def set_webhook(token, proxies, url, certificate, max_connections, allowed_updat
     params = {'url': url if url else ""}
     if certificate:
         files = {'certificate': certificate}
+    if ip_address:
+        params['ip_address'] = ip_address
     if max_connections:
         params['max_connections'] = max_connections
     if allowed_updates:
         params['allowed_updates'] = json.dumps(allowed_updates)
+    if drop_pending_updates:
+        params['drop_pending_updates'] = drop_pending_updates
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_webhook(token, proxies):
+def delete_webhook(token, proxies, drop_pending_updates):
     """
     Use this method to remove webhook integration if you decide to switch back to getUpdates. 
     :type token: str
     :type proxies: dict or None
+    :type drop_pending_updates: bool
     :rtype: dict
     """
     method = r'post'
     api_method = r'deleteWebhook'
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
-    params = None
+    params = {}
+    if drop_pending_updates:
+        params['drop_pending_updates'] = drop_pending_updates
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
