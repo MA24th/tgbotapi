@@ -393,25 +393,28 @@ class TBot:
     def set_update_listener(self, listener):
         self.__update_listener.append(listener)
 
-    def set_webhook(self, url=None, certificate=None, max_connections=40, allowed_updates=None):
+    def set_webhook(self, url=None, certificate=None, ip_address=None, max_connections=40, allowed_updates=None, drop_pending_updates=False):
         """
         Use this method to specify a url and receive incoming updates via an outgoing webhook.
         :param str url: HTTPS url to send updates to. Use an empty string to remove webhook integration.
         :param any or None certificate: Upload your public key [InputFile] certificate so that the root certificate in use can be checked.
+        :param str or None ip_address: The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS.
         :param int max_connections: Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.
         :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive.
+        :param bool drop_pending_updates: Pass True to drop all pending updates.
         :return: True On success.
         :rtype: dict
         """
-        return methods.set_webhook(self.__token, self.__proxies, url, certificate, max_connections, allowed_updates)
+        return methods.set_webhook(self.__token, self.__proxies, url, certificate, ip_address, max_connections, allowed_updates, drop_pending_updates)
 
-    def delete_webhook(self):
+    def delete_webhook(self, drop_pending_updates=False):
         """
         Use this method to remove webhook integration if you decide to switch back to getUpdates.
+        :param bool drop_pending_updates: Pass True to drop all pending updates.
         :return: True on success.
         :rtype: dict
         """
-        return methods.delete_webhook(self.__token, self.__proxies)
+        return methods.delete_webhook(self.__token, self.__proxies, drop_pending_updates)
 
     def get_webhook_info(self):
         """
