@@ -839,13 +839,14 @@ def kick_chat_member(token, proxies, chat_id, user_id, until_date):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unban_chat_member(token, proxies, chat_id, user_id):
+def unban_chat_member(token, proxies, chat_id, user_id, only_if_banned):
     """
     Use this method to unban a previously kicked user in a supergroup or channel.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
+    :type only_if_banned: bool
     :rtype: dict
     """
     method = r'post'
@@ -853,6 +854,8 @@ def unban_chat_member(token, proxies, chat_id, user_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
+    if only_if_banned:
+        params['only_if_banned'] = only_if_banned
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
