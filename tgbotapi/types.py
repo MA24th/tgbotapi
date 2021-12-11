@@ -546,12 +546,13 @@ class Audio(JsonDeserializable):
         This object represents an audio file to be treated as music by the Telegram clients
     """
 
-    def __init__(self, file_id, file_unique_id, duration, performer, title, mime_type, file_size, thumb):
+    def __init__(self, file_id, file_unique_id, duration, performer, title, file_name, mime_type, file_size, thumb):
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.duration = duration
         self.performer = performer
         self.title = title
+        self.file_name = file_name
         self.mime_type = mime_type
         self.file_size = file_size
         self.thumb = thumb
@@ -568,6 +569,9 @@ class Audio(JsonDeserializable):
         title = None
         if 'title' in obj:
             title = obj['title']
+        file_name = None
+        if 'file_name' in obj:
+          file_name = obj['file_name']
         mime_type = None
         if 'mime_type' in obj:
             mime_type = obj['mime_type']
@@ -577,7 +581,7 @@ class Audio(JsonDeserializable):
         thumb = None
         if 'thumb' in obj:
             thumb = PhotoSize.de_json(obj['thumb'])
-        return cls(file_id, file_unique_id, duration, performer, title, mime_type, file_size, thumb)
+        return cls(file_id, file_unique_id, duration, performer, title, file_name, mime_type, file_size, thumb)
 
 
 class Document(JsonDeserializable):
@@ -614,13 +618,14 @@ class Document(JsonDeserializable):
 class Video(JsonDeserializable):
     """ This object represents a video file """
 
-    def __init__(self, file_id, file_unique_id, width, height, duration, thumb=None, mime_type=None, file_size=None):
+    def __init__(self, file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size):
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.width = width
         self.height = height
         self.duration = duration
         self.thumb = thumb
+        self.file_name = file_name
         self.mime_type = mime_type
         self.file_size = file_size
 
@@ -635,13 +640,16 @@ class Video(JsonDeserializable):
         thumb = None
         if 'thumb' in obj:
             thumb = PhotoSize.de_json(obj['thumb'])
+        file_name = None
+        if 'file_name' in obj:
+          file_name = obj['file_name']
         mime_type = None
         if 'mime_type' in obj:
             mime_type = obj['mime_type']
         file_size = None
         if 'file_size' in obj:
             file_size = obj['file_size']
-        return cls(file_id, file_unique_id, width, height, duration, thumb, mime_type, file_size)
+        return cls(file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size)
 
 
 class Animation(JsonDeserializable):
