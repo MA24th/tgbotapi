@@ -505,7 +505,7 @@ class TBot:
                                title, thumb,
                                disable_notification, reply_to_message_id, reply_markup))
 
-    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_notification=False,
+    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_content_type_detection=False, disable_notification=False,
                       reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send general files.
@@ -514,6 +514,7 @@ class TBot:
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param str or None caption: Document caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML.
+        :param bool disable_content_type_detection: Disables automatic server-side content type detection for files uploaded using multipart/form-data.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
@@ -521,7 +522,7 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode,
+            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode, disable_content_type_detection, 
                                   disable_notification,
                                   reply_to_message_id, reply_markup))
 

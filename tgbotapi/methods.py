@@ -255,7 +255,7 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, pe
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, disable_notification,
+def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, disable_content_type_detection,  disable_notification,
                   reply_to_message_id, reply_markup):
     """
     Use this method to send general files.
@@ -266,6 +266,7 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     :type thumb: any or None
     :type caption: str or None
     :type parse_mode: str or None
+    :type disable_content_type_detection: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type reply_markup: dict or None
@@ -286,6 +287,8 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if disable_content_type_detection:
+        params['disable_content_type_detection'] = disable_content_type_detection
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:

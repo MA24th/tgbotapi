@@ -1617,12 +1617,13 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaDocument(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None):
+        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, disable_content_type_detection=True):
             self.type = type
             self.media = media
             self.thumb = thumb
             self.caption = caption
             self.parse_mode = parse_mode
+            self.disable_content_type_detection = disable_content_type_detection
 
         def to_dict(self):
             obj = {'type': self.type, 'media': self.media}
@@ -1632,6 +1633,8 @@ class InputMedia:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.disable_content_type_detection:
+              obj['disable_content_type_detection'] = self.disable_content_type_detection
             return obj
 
         def to_json(self):
