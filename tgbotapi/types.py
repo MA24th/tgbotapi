@@ -89,12 +89,13 @@ class Update(JsonDeserializable):
 class WebhookInfo(JsonDeserializable):
     """ Contains information about the current status of a webhook """
 
-    def __init__(self, url, has_custom_certificate, pending_update_count, last_error_date, last_error_message,
+    def __init__(self, url, has_custom_certificate, pending_update_count, ip_address, last_error_date, last_error_message,
                  max_connections, allowed_updates):
         """
         :param str url:
         :param bool has_custom_certificate:
         :param int pending_update_count:
+        :param str ip_address:
         :param int last_error_date:
         :param str last_error_message:
         :param int max_connections:
@@ -103,6 +104,7 @@ class WebhookInfo(JsonDeserializable):
         self.url = url
         self.has_custom_certificate = has_custom_certificate
         self.pending_update_count = pending_update_count
+        self.ip_address = ip_address
         self.last_error_date = last_error_date
         self.last_error_message = last_error_message
         self.max_connections = max_connections
@@ -118,6 +120,9 @@ class WebhookInfo(JsonDeserializable):
         url = obj['url']
         has_custom_certificate = obj['has_custom_certificate']
         pending_update_count = obj['pending_update_count']
+        ip_address = None
+        if 'ip_address' in obj:
+           ip_address = obj['ip_address']
         last_error_date = None
         if 'last_error_message' in obj:
             last_error_date = obj['last_error_date']
@@ -130,7 +135,7 @@ class WebhookInfo(JsonDeserializable):
         allowed_updates = None
         if 'allowed_updates' in obj:
             allowed_updates = obj['allowed_updates']
-        return cls(url, has_custom_certificate, pending_update_count, last_error_date, last_error_message,
+        return cls(url, has_custom_certificate, pending_update_count, ip_address, last_error_date, last_error_message,
                    max_connections, allowed_updates)
 
 
