@@ -1423,6 +1423,20 @@ class ChatPermissions(JsonDeserializable):
                    can_add_web_page_previews, can_change_info, can_invite_users, can_pin_messages)
 
 
+class ChatLocation(JsonDeserializable):
+  """ Represents a location to which a chat is connected """
+  def __init__(self, location, address):
+    self.location = location
+    self.address = address
+  
+  @classmethod
+  def de_json(cls, obj_type):
+    obj = cls.check_type(obj_type)
+    location = Location.de_json(obj['location'])
+    address = obj['address']
+    return cls(location, address)
+
+
 class BotCommand(JsonDeserializable):
     """ This object represents a bot command """
 
