@@ -956,6 +956,15 @@ class TBot:
         """
         return methods.unpin_chat_message(self.__token, self.__proxies, chat_id, message_id)
 
+    def unpin_all_chat_message(self, chat_id):
+        """
+        Use this method to clear the list of pinned messages in a chat.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :return: True on success.
+        :rtype: dict
+        """
+        return methods.unpin_all_chat_message(self.__token, self.__proxies, chat_id)
+
     def leave_chat(self, chat_id):
         """
         Use this method for your bot to leave a group, supergroup or channel.
