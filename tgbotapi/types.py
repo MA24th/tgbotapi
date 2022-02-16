@@ -802,16 +802,20 @@ class Contact(JsonDeserializable):
 class Location(JsonDeserializable):
     """ This object represents a point on the map """
 
-    def __init__(self, longitude, latitude):
+    def __init__(self, longitude, latitude, live_period):
         self.longitude = longitude
         self.latitude = latitude
+        self.live_period = live_period
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         longitude = obj['longitude']
         latitude = obj['latitude']
-        return cls(longitude, latitude)
+        live_period = None
+        if 'live_period' in obj:
+          live_period = obj['live_period']
+        return cls(longitude, latitude, live_period)
 
 
 class Venue(JsonDeserializable):
