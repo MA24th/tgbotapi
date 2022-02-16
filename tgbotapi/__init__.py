@@ -946,14 +946,15 @@ class TBot:
         """
         return methods.pin_chat_message(self.__token, self.__proxies, chat_id, message_id, disable_notification)
 
-    def unpin_chat_message(self, chat_id):
+    def unpin_chat_message(self, chat_id, message_id=None):
         """
         Use this method to unpin a message in a group, a supergroup, or a channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param str or None message_id: Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
         :return: True on success.
         :rtype: dict
         """
-        return methods.unpin_chat_message(self.__token, self.__proxies, chat_id)
+        return methods.unpin_chat_message(self.__token, self.__proxies, chat_id, message_id)
 
     def leave_chat(self, chat_id):
         """

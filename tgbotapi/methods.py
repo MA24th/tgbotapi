@@ -1070,12 +1070,13 @@ def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unpin_chat_message(token, proxies, chat_id):
+def unpin_chat_message(token, proxies, chat_id, message_id):
     """
     Use this method to unpin a message in a group, a supergroup, or a channel.
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
+    :type message_id: str or None
     :rtype: dict
     """
     method = r'post'
@@ -1083,6 +1084,8 @@ def unpin_chat_message(token, proxies, chat_id):
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id}
+    if message_id:
+        params['message_id'] = message_id
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
