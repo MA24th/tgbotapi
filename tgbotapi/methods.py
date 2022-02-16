@@ -506,7 +506,7 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_location(token, proxies, chat_id, latitude, longitude, live_period, disable_notification, reply_to_message_id,
+def send_location(token, proxies, chat_id, latitude, longitude, live_period, heading, disable_notification, reply_to_message_id,
                   reply_markup):
     """
     Use this method to send point on the map.
@@ -516,6 +516,7 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, dis
     :type latitude: float
     :type longitude: float
     :type live_period: int or None
+    :type heading: int or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type reply_markup: dict or None
@@ -529,6 +530,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, dis
               'latitude': latitude, 'longitude': longitude}
     if live_period:
         params['live_period'] = live_period
+    if heading:
+        params['heading'] = heading
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -538,7 +541,7 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, dis
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_live_location(token, proxies, latitude, longitude, chat_id, message_id, inline_message_id,
+def edit_message_live_location(token, proxies, latitude, longitude, heading, chat_id, message_id, inline_message_id,
                                reply_markup):
     """
     Use this method to edit live location messages.
@@ -549,6 +552,7 @@ def edit_message_live_location(token, proxies, latitude, longitude, chat_id, mes
     :type inline_message_id: int or None
     :type latitude: float
     :type longitude: float
+    :type heading: str or None
     :type reply_markup: dict
     :rtype: dict
     """
@@ -557,6 +561,8 @@ def edit_message_live_location(token, proxies, latitude, longitude, chat_id, mes
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'latitude': latitude, 'longitude': longitude}
+    if heading:
+        params['heading'] = heading
     if chat_id:
         params['chat_id'] = chat_id
     if message_id:

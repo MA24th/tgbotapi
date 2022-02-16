@@ -632,7 +632,7 @@ class TBot:
             ret.append(types.Message.de_json(msg))
         return ret
 
-    def send_location(self, chat_id, latitude, longitude, live_period=None, disable_notification=False,
+    def send_location(self, chat_id, latitude, longitude, live_period=None, heading=None, disable_notification=False,
                       reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send point on the map.
@@ -640,6 +640,7 @@ class TBot:
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
         :param int or None live_period: Period in seconds for which the location will be updated, should be between 60 and 86400.
+        :param str or None heading: For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
@@ -647,11 +648,11 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, live_period,
+            methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, live_period, heading,
                                   disable_notification,
                                   reply_to_message_id, reply_markup))
 
-    def edit_message_live_location(self, latitude, longitude, chat_id=None, message_id=None, inline_message_id=None,
+    def edit_message_live_location(self, latitude, longitude, heading=None, chat_id=None, message_id=None, inline_message_id=None,
                                    reply_markup=None):
         """
         Use this method to edit live location messages.
@@ -660,12 +661,13 @@ class TBot:
         :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
+        :param str or None heading: For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
         :param dict reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object, otherwise True.
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, chat_id, message_id,
+            methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, heading, chat_id, message_id,
                                                inline_message_id, reply_markup))
 
     def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
