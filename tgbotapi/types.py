@@ -200,8 +200,8 @@ class User(JsonDeserializable):
 class Chat(JsonDeserializable):
     """ This object represents a chat """
 
-    def __init__(self, id, type, title, username, first_name, last_name, photo, description, invite_link,
-                 pinned_message, permissions, slow_mode_delay, sticker_set_name, can_set_sticker_set):
+    def __init__(self, id, type, title, username, first_name, last_name, photo, bio, has_private_forwards, description, invite_link,
+                 pinned_message, permissions, slow_mode_delay, message_auto_delete_time, has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location):
         """
         :param int id:
         :param str type:
@@ -210,13 +210,19 @@ class Chat(JsonDeserializable):
         :param str first_name:
         :param str last_name:
         :param ChatPhoto photo:
+        :param str bio:
+        :param bool has_private_forwards:
         :param str description:
         :param str invite_link:
         :param Message pinned_message:
         :param ChatPermissions permissions:
         :param int slow_mode_delay:
+        :param int message_auto_delete_time:
+        :param bool has_protected_content:
         :param str sticker_set_name:
         :param bool can_set_sticker_set:
+        :param str linked_chat_id:
+        :param ChatLocation location:
         """
         self.id = id
         self.type = type
@@ -225,13 +231,19 @@ class Chat(JsonDeserializable):
         self.first_name = first_name
         self.last_name = last_name
         self.photo = photo
+        self.bio = bio
+        self.has_private_forwards = has_private_forwards
         self.description = description
         self.invite_link = invite_link
         self.pinned_message = pinned_message
         self.permissions = permissions
         self.slow_mode_delay = slow_mode_delay
+        self.message_auto_delete_time = message_auto_delete_time
+        self.has_protected_content = has_protected_content
         self.sticker_set_name = sticker_set_name
         self.can_set_sticker_set = can_set_sticker_set
+        self.linked_chat_id = linked_chat_id
+        self.location = location
 
     @classmethod
     def de_json(cls, obj_type):
@@ -257,6 +269,12 @@ class Chat(JsonDeserializable):
         photo = None
         if 'photo' in obj:
             photo = ChatPhoto.de_json(obj['photo'])
+        bio = None
+        if 'bio' in obj:
+            bio = obj['bio']
+        has_private_forwards = None
+        if 'has_private_forwards' in obj:
+          has_private_forwards = obj['has_private_forwards']
         description = None
         if 'description' in obj:
             description = obj['description']
@@ -272,14 +290,27 @@ class Chat(JsonDeserializable):
         slow_mode_delay = None
         if 'slow_mode_delay' in obj:
             slow_mode_delay = obj['slow_mode_delay']
+        message_auto_delete_time = None
+        if 'message_auto_delete_time' the n obj:
+          message_auto_delete_time = obj['message_auto_delete_time']
+        has_protected_content = None
+        if 'has_protected_content' in obj:
+          has_protected_content = obj['has_protected_content']
         sticker_set_name = None
         if 'sticker_set_name' in obj:
             sticker_set_name = obj['sticker_set_name']
         can_set_sticker_set = None
         if 'can_set_sticker_set' in obj:
             can_set_sticker_set = obj['can_set_sticker_set']
-        return cls(id, type, title, username, first_name, last_name, photo, description, invite_link, pinned_message,
-                   permissions, slow_mode_delay, sticker_set_name, can_set_sticker_set)
+        linked_chat_id = None
+        if 'linked_chat_id' in obj:
+            linked_chat_id = obj['linked_chat_id']
+        location = None
+        if 'location' in obj:
+          location = ChatLocation.de_json(obj['location'])
+        return cls(id, type, title, username, first_name, last_name, photo, bio, has_private_forwards, description, invite_link, pinned_message,
+                   permissions, slow_mode_delay,
+                   message_auto_delete_time, has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location)
 
 
 class Message(JsonDeserializable):
