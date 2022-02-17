@@ -360,6 +360,7 @@ class Message(JsonDeserializable):
         self.invoice = None
         self.successful_payment = None
         self.connected_website = None
+        self.proximity_alert_triggered = None
         self.reply_markup = None
         for key in options:
             setattr(self, key, options[key])
@@ -495,6 +496,8 @@ class Message(JsonDeserializable):
         if 'passport_data' in obj:
             opts['passport_data'] = obj['passport_data']
             content_type = 'passport_data'
+        if 'proximity_alert_triggered' in obj:
+            proximity_alert_triggered = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
             content_type = 'reply_markup'
@@ -849,6 +852,22 @@ class Venue(JsonDeserializable):
         if 'foursquare_type' in obj:
             foursquare_type = obj['foursquare_type']
         return cls(location, title, address, foursquare_id, foursquare_type)
+
+
+class ProximityAlertTriggered(JsonDeserializable):
+  """ This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user """
+  def __init__(self, traveler, watcher, distance):
+    self.traveler = traveler
+    self.watcher = watcher
+    self.distance = distance
+    
+  @classmethod
+  def de_json(cls, obj_type):
+    obj = cls.check_type(obj_type)
+    traveler = User.de_json(obj['tarveler'])
+    watcher = User.de_json(obj['watcher'])
+    distance = obj['distance']
+    return cls(traveler, watcher, distance)
 
 
 class PollOption(JsonDeserializable):
