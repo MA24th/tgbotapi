@@ -440,6 +440,14 @@ class TBot:
         """
         return types.User.de_json(methods.log_out(self.__token, self.__proxies))
         
+    def close(self):
+        """
+        Use this method to close the bot instance before moving it from one local server to another.
+        :return: a User object.
+        :rtype: types.User
+        """
+        return types.User.de_json(methods.close(self.__token, self.__proxies))
+        
     def send_message(self, chat_id, text, parse_mode=None, disable_web_page_preview=False, disable_notification=False,
                      reply_to_message_id=None, reply_markup=None):
         """

@@ -130,6 +130,21 @@ def log_out(token, proxies):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def close(token, proxies):
+    """
+    Use this method to close the bot instance before moving it from one local server to another.
+    :type token: str
+    :type proxies: dict or None
+    :rtype: dict
+    """
+    method = r'post'
+    api_method = r'close'
+    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    files = None
+    params = None
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
                  reply_to_message_id, reply_markup):
     """
