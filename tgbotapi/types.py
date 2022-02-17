@@ -291,7 +291,7 @@ class Chat(JsonDeserializable):
         if 'slow_mode_delay' in obj:
             slow_mode_delay = obj['slow_mode_delay']
         message_auto_delete_time = None
-        if 'message_auto_delete_time' the n obj:
+        if 'message_auto_delete_time' in obj:
           message_auto_delete_time = obj['message_auto_delete_time']
         has_protected_content = None
         if 'has_protected_content' in obj:
