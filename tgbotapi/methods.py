@@ -536,7 +536,7 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_location(token, proxies, chat_id, latitude, longitude, live_period, heading, proximity_alert_radius, disable_notification, reply_to_message_id,
+def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading, proximity_alert_radius, disable_notification, reply_to_message_id,
                   reply_markup):
     """
     Use this method to send point on the map.
@@ -545,7 +545,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, hea
     :type chat_id: int or str
     :type latitude: float
     :type longitude: float
-    :type live_period: int or None
+    :type horizontal_accuracy: float or None
+    :type live_period: int or None:
     :type heading: int or None
     :type proximity_alert_radius: int or None
     :type disable_notification: bool
@@ -559,6 +560,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, hea
     files = None
     params = {'chat_id': chat_id,
               'latitude': latitude, 'longitude': longitude}
+    if horizontal_accuracy:
+      params['horizontal_accuracy'] = horizontal_accuracy
     if live_period:
         params['live_period'] = live_period
     if heading:
@@ -574,7 +577,7 @@ def send_location(token, proxies, chat_id, latitude, longitude, live_period, hea
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_live_location(token, proxies, latitude, longitude, heading, proximity_alert_radius, chat_id, message_id, inline_message_id,
+def edit_message_live_location(token, proxies, latitude, longitude, horizontal_accuracy, heading, proximity_alert_radius, chat_id, message_id, inline_message_id,
                                reply_markup):
     """
     Use this method to edit live location messages.
@@ -585,6 +588,7 @@ def edit_message_live_location(token, proxies, latitude, longitude, heading, pro
     :type inline_message_id: int or None
     :type latitude: float
     :type longitude: float
+    :type horizontal_accuracy: float or None
     :type heading: str or None
     :type proximity_alert_radius: int or None
     :type reply_markup: dict
@@ -595,6 +599,8 @@ def edit_message_live_location(token, proxies, latitude, longitude, heading, pro
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'latitude': latitude, 'longitude': longitude}
+    if horizontal_accuracy:
+        params['horizontal_accuracy'] = horizontal_accuracy
     if heading:
         params['heading'] = heading
     if proximity_alert_radius:
