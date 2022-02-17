@@ -802,11 +802,12 @@ class Contact(JsonDeserializable):
 class Location(JsonDeserializable):
     """ This object represents a point on the map """
 
-    def __init__(self, longitude, latitude, live_period, heading):
+    def __init__(self, longitude, latitude, live_period, heading, proximity_alert_radius):
         self.longitude = longitude
         self.latitude = latitude
         self.live_period = live_period
         self.heading = heading
+        self.proximity_alert_radius = proximity_alert_radius
 
     @classmethod
     def de_json(cls, obj_type):
@@ -819,7 +820,9 @@ class Location(JsonDeserializable):
         heading = None
         if 'heading' in obj:
           heading = obj['heading']
-        return cls(longitude, latitude, live_period, heading)
+        if 'proximity_alert_radius' in obj:
+          proximity_alert_radius = obj['proximity_alert_radius']
+        return cls(longitude, latitude, live_period, heading, proximity_alert_radius)
 
 
 class Venue(JsonDeserializable):
@@ -2360,7 +2363,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
         """
 
-        def __init__(self, id, title, latitude, longitude, live_period=None, heading=None, reply_markup=None,
+        def __init__(self, id, title, latitude, longitude, live_period=None, heading=None, proximity_alert_radius=None, reply_markup=None,
                      input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
             self.type = 'location'
             self.id = id
@@ -2369,6 +2372,7 @@ class InlineQueryResult:
             self.longitude = longitude
             self.live_period = live_period
             self.heading = heading
+            self.proximity_alert_radius = proximity_alert_radius
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
             self.thumb_url = thumb_url
@@ -2382,6 +2386,8 @@ class InlineQueryResult:
                 obj['live_period'] = self.live_period
             if self.heading:
                 obj['heading'] = self.heading
+            if self.proximity_alert_radius:
+                obj['proximity_alert_radius'] = self.proximity_alert_radius
             if self.thumb_url:
                 obj['thumb_url'] = self.thumb_url
             if self.thumb_width:
@@ -2642,11 +2648,12 @@ class InputMessageContent:
     class __InputLocationMessageContent(Dictionaryable):
         """ Represents the content of a location message to be sent as the result of an inline query """
 
-        def __init__(self, latitude, longitude, live_period=None, heading=None):
+        def __init__(self, latitude, longitude, live_period=None, heading=None, proximity_alert_radius=None):
             self.latitude = latitude
             self.longitude = longitude
             self.live_period = live_period
             self.heading = heading
+            self.proximity_alert_radius = proximity_alert_radius
 
         def to_dict(self):
             obj = {'latitude': self.latitude, 'longitude': self.longitude}
@@ -2654,6 +2661,8 @@ class InputMessageContent:
                 obj['live_period'] = self.live_period
             if self.heading:
                 obj['heading'] = self.heading
+            if self.proximity_alert_radius:
+                obj['proximity_alert_radius'] = proximity_alert_radius
             return obj
 
     class __InputVenueMessageContent(Dictionaryable):
