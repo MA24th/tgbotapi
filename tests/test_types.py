@@ -865,7 +865,7 @@ def test_input_media_animation():
 
 
 def test_input_media_document():
-    dic = r'{"type": "document", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown"}'
+    dic = r'{"type": "document", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown", "disable_content_type_detection": true}'
     obj = types.InputMedia().Document(type='document', media='any', thumb='any', caption='any',
                                       parse_mode='Markdown').to_json()
     assert obj == dic
