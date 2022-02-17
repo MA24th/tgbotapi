@@ -820,6 +820,7 @@ class Location(JsonDeserializable):
         heading = None
         if 'heading' in obj:
           heading = obj['heading']
+        proximity_alert_radius = None
         if 'proximity_alert_radius' in obj:
           proximity_alert_radius = obj['proximity_alert_radius']
         return cls(longitude, latitude, live_period, heading, proximity_alert_radius)
