@@ -501,7 +501,7 @@ class Message(JsonDeserializable):
             opts['passport_data'] = obj['passport_data']
             content_type = 'passport_data'
         if 'proximity_alert_triggered' in obj:
-            proximity_alert_triggered = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
+            opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
             content_type = 'reply_markup'
