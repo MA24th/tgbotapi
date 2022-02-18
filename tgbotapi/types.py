@@ -316,10 +316,11 @@ class Chat(JsonDeserializable):
 class Message(JsonDeserializable):
     """This object represents a message"""
 
-    def __init__(self, message_id, from_user, date, chat, content_type, options):
+    def __init__(self, content_type, message_id, from_user, sender_chat,date, chat, options):
         self.content_type = content_type
         self.message_id = message_id
         self.from_user = from_user
+        self.sender_chat = sender_chat
         self.date = date
         self.chat = chat
         self.forward_from_chat = None
@@ -372,6 +373,9 @@ class Message(JsonDeserializable):
         from_user = None
         if 'from' in obj:
             from_user = User.de_json(obj['from'])
+        sender_chat = None
+        if 'sender_chat' in obj:
+          sender_chat = Chat.de_json(obj['sender_chat'])
         date = obj['date']
         chat = Chat.de_json(obj['chat'])
         content_type = None
@@ -501,7 +505,7 @@ class Message(JsonDeserializable):
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
             content_type = 'reply_markup'
-        return cls(message_id, from_user, date, chat, content_type, opts)
+        return cls(content_type, message_id, from_user, sender_chat, data, chat, opts)
 
     @classmethod
     def parse_photo(cls, obj):
