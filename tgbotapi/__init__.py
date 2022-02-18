@@ -865,13 +865,14 @@ class TBot:
         """
         return methods.restrict_chat_member(self.__token, self.__proxies, chat_id, user_id, permissions, until_date)
 
-    def promote_chat_member(self, chat_id, user_id, can_change_info=None, can_post_messages=None,
+    def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_change_info=None, can_post_messages=None,
                             can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
                             can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
         """
         Use this method to promote or demote a user in a supergroup or a channel.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
+        :param bool is_anonymous: Pass True, if the administrator's presence in the chat is hidden.
         :param bool can_change_info: Pass True, if the administrator can change chat title, photo and other settings.
         :param bool can_post_messages: Pass True, if the administrator can create channel posts, channels only.
         :param bool can_edit_messages: Pass True, if the administrator can edit messages of other users and can pin messages, channels only.
@@ -883,7 +884,7 @@ class TBot:
         :return: True On success.
         :rtype: dict
         """
-        return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, can_change_info,
+        return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, is_anonymous, can_change_info,
                                            can_post_messages,
                                            can_edit_messages, can_delete_messages, can_invite_users,
                                            can_restrict_members, can_pin_messages, can_promote_members)

@@ -931,7 +931,7 @@ def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_da
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def promote_chat_member(token, proxies, chat_id, user_id, can_change_info, can_post_messages, can_edit_messages,
+def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_change_info, can_post_messages, can_edit_messages,
                         can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages,
                         can_promote_members):
     """
@@ -940,6 +940,7 @@ def promote_chat_member(token, proxies, chat_id, user_id, can_change_info, can_p
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
+    :type is_anonymous: bool
     :type can_change_info: bool
     :type can_post_messages: bool
     :type can_edit_messages: bool
@@ -955,6 +956,8 @@ def promote_chat_member(token, proxies, chat_id, user_id, can_change_info, can_p
     api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
+    if is_anonymous:
+        params['is_anonymous'] = is_anonymous
     if can_change_info:
         params['can_change_info'] = can_change_info
     if can_post_messages:
