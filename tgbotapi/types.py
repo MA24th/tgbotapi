@@ -1367,14 +1367,16 @@ class ChatPhoto(JsonDeserializable):
 class ChatMember(JsonDeserializable):
     """ This object contains information about one member of a chat """
 
-    def __init__(self, user, status, custom_title, until_date, can_be_edited, can_change_info, can_post_messages,
+    def __init__(self, status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info, can_post_messages,
                  can_edit_messages,
                  can_delete_messages, can_invite_users, can_restrict_members, is_member, can_pin_messages,
                  can_promote_members,
                  can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages,
                  can_add_web_page_previews):
-        self.user = user
+        
         self.status = status
+        self.user = user
+        self.is_anonymous = is_anonymous
         self.custom_title = custom_title
         self.until_date = until_date
         self.can_be_edited = can_be_edited
@@ -1396,7 +1398,11 @@ class ChatMember(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
+        status = obj['status']
         user = User.de_json(obj['user'])
+        is_anonymous = None
+        if 'is_anonymous' in obj:
+            is_anonymous = obj['is_anonymous']
         status = obj['status']
         custom_title = None
         if 'custom_title' in obj:
@@ -1449,7 +1455,7 @@ class ChatMember(JsonDeserializable):
         can_add_web_page_previews = None
         if 'can_add_web_page_previews' in obj:
             can_add_web_page_previews = obj['can_add_web_page_previews']
-        return cls(user, status, custom_title, until_date, can_be_edited, can_change_info, can_post_messages,
+        return cls(status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info, can_post_messages,
                    can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members, is_member,
                    can_pin_messages, can_promote_members, can_send_messages, can_send_media_messages,
                    can_send_other_messages, can_add_web_page_previews, can_send_polls)
