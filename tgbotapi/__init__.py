@@ -773,7 +773,7 @@ class TBot:
         """
         Use this method to send a native poll.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
-        :param str question: Poll question, 1-255 characters.
+        :param str question: Poll question, 1-300 characters.
         :param list options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters each.
         :param bool is_anonymous: True, if the poll needs to be anonymous, defaults to True.
         :param str or None type: Poll type, “quiz” or “regular”, defaults to “regular”.
