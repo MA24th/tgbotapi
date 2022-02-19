@@ -1588,11 +1588,12 @@ class InputMedia:
         self.Document = self.__InputMediaDocument
 
     class __InputMediaPhoto(JsonSerializable):
-        def __init__(self, type, media, caption=None, parse_mode=None):
+        def __init__(self, type, media, caption=None, parse_mode=None, caption_entities=None):
             self.type = type
             self.media = media
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
 
         def to_dict(self):
             obj = {'type': self.type, 'media': self.media}
@@ -1600,19 +1601,22 @@ class InputMedia:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             return obj
 
         def to_json(self):
             return json.dumps(self.to_dict())
 
     class __InputMediaVideo(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, width=None, height=None,
+        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None, height=None,
                      duration=None, supports_streaming=False):
             self.type = type
             self.media = media
             self.thumb = thumb
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.width = width
             self.height = height
             self.duration = duration
@@ -1626,6 +1630,8 @@ class InputMedia:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.width:
                 obj['width'] = self.width
             if self.height:
@@ -1639,12 +1645,13 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaAnimation(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, width=None, height=None,
+        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None, height=None,
                      duration=None):
             self.type = type
             self.media = media
             self.thumb = thumb
             self.caption = caption
+            self.caption_entities = caption_entities
             self.parse_mode = parse_mode
             self.width = width
             self.height = height
@@ -1658,6 +1665,8 @@ class InputMedia:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.width:
                 obj['width'] = self.width
             if self.height:
@@ -1670,13 +1679,14 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaAudio(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, width=None, height=None,
+        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None, height=None,
                      duration=None, performer=None, title=None):
             self.type = type
             self.media = media
             self.thumb = thumb
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.width = width
             self.height = height
             self.duration = duration
@@ -1691,6 +1701,8 @@ class InputMedia:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.width:
                 obj['width'] = self.width
             if self.height:
@@ -1707,12 +1719,13 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaDocument(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, disable_content_type_detection=True):
+        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, disable_content_type_detection=True):
             self.type = type
             self.media = media
             self.thumb = thumb
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.disable_content_type_detection = disable_content_type_detection
 
         def to_dict(self):
@@ -1723,6 +1736,8 @@ class InputMedia:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.disable_content_type_detection:
               obj['disable_content_type_detection'] = self.disable_content_type_detection
             return obj
@@ -1947,7 +1962,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
         """
 
-        def __init__(self, id, audio_url, title, caption=None, parse_mode=None, performer=None, audio_duration=None,
+        def __init__(self, id, audio_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None, audio_duration=None,
                      reply_markup=None, input_message_content=None):
             self.type = 'audio'
             self.id = id
@@ -1955,6 +1970,7 @@ class InlineQueryResult:
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities ,= caption_entities
             self.performer = performer
             self.audio_duration = audio_duration
             self.reply_markup = reply_markup
@@ -1967,6 +1983,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.performer:
                 obj['performer'] = self.performer
             if self.audio_duration:
@@ -1983,7 +2001,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
         """
 
-        def __init__(self, type, id, audio_file_id, title=None, description=None, caption=None, parse_mode=None,
+        def __init__(self, type, id, audio_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
                      reply_markup=None, input_message_content=None):
             self.type = type
             self.id = id
@@ -1992,6 +2010,7 @@ class InlineQueryResult:
             self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2006,6 +2025,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2021,7 +2042,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
         """
 
-        def __init__(self, type, id, document_file_id, title=None, description=None, caption=None, parse_mode=None,
+        def __init__(self, type, id, document_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
                      reply_markup=None, input_message_content=None):
             self.type = type
             self.id = id
@@ -2030,6 +2051,7 @@ class InlineQueryResult:
             self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2044,6 +2066,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2059,7 +2083,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
         """
 
-        def __init__(self, type, id, gif_file_id, title=None, caption=None, parse_mode=None, reply_markup=None,
+        def __init__(self, type, id, gif_file_id, title=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
                      input_message_content=None):
             self.type = type
             self.id = id
@@ -2067,6 +2091,7 @@ class InlineQueryResult:
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2079,6 +2104,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2094,7 +2121,7 @@ class InlineQueryResult:
             you can use input_message_content to send a message with the specified content instead of the animation.
         """
 
-        def __init__(self, type, id, mpeg4_file_id, title=None, caption=None, parse_mode=None, reply_markup=None,
+        def __init__(self, type, id, mpeg4_file_id, title=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
                      input_message_content=None):
             self.type = type
             self.id = id
@@ -2102,6 +2129,7 @@ class InlineQueryResult:
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2114,6 +2142,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2129,7 +2159,7 @@ class InlineQueryResult:
         """
 
         def __init__(self, type, id, photo_url, thumb_url, photo_width=None, photo_height=None, title=None,
-                     description=None, caption=None, parse_mode=None, reply_markup=None, input_message_content=None):
+                     description=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None, input_message_content=None):
             self.type = type
             self.id = id
             self.photo_url = photo_url
@@ -2140,6 +2170,7 @@ class InlineQueryResult:
             self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2154,6 +2185,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2194,7 +2227,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
         """
 
-        def __init__(self, type, id, video_file_id, title=None, description=None, caption=None, parse_mode=None,
+        def __init__(self, type, id, video_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
                      reply_markup=None, input_message_content=None):
             self.type = type
             self.id = id
@@ -2203,6 +2236,7 @@ class InlineQueryResult:
             self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2217,6 +2251,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2232,7 +2268,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
         """
 
-        def __init__(self, type, id, voice_file_id, title=None, description=None, caption=None, parse_mode=None,
+        def __init__(self, type, id, voice_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
                      reply_markup=None, input_message_content=None):
             self.type = type
             self.id = id
@@ -2241,6 +2277,7 @@ class InlineQueryResult:
             self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2255,6 +2292,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
@@ -2323,7 +2362,7 @@ class InlineQueryResult:
             Currently, only .PDF and .ZIP files can be sent using this method.
         """
 
-        def __init__(self, id, title, document_url, mime_type, caption=None, parse_mode=None, description=None,
+        def __init__(self, id, title, document_url, mime_type, caption=None, parse_mode=None, caption_entities=None, description=None,
                      reply_markup=None, input_message_content=None, thumb_url=None, thumb_width=None,
                      thumb_height=None):
             self.type = 'document'
@@ -2333,6 +2372,7 @@ class InlineQueryResult:
             self.mime_type = mime_type
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.description = description
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
@@ -2347,6 +2387,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.description:
                 obj['description'] = self.description
             if self.thumb_url:
@@ -2368,7 +2410,7 @@ class InlineQueryResult:
         """
 
         def __init__(self, id, gif_url, gif_width=None, gif_height=None, gif_duration=None, thumb_url=None,
-                     thumb_mime_type=None, title=None, caption=None, reply_markup=None, input_message_content=None):
+                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, reply_markup=None, input_message_content=None):
             self.type = 'gif'
             self.id = id
             self.gif_url = gif_url
@@ -2379,6 +2421,8 @@ class InlineQueryResult:
             self.thumb_mime_type = thumb_mime_type
             self.title = title
             self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2399,6 +2443,10 @@ class InlineQueryResult:
                 obj['title'] = self.title
             if self.caption:
                 obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
             if self.input_message_content:
@@ -2458,7 +2506,7 @@ class InlineQueryResult:
         """
 
         def __init__(self, id, mpeg4_url, mpeg4_width=None, mpeg4_height=None, mpeg4_duration=None, thumb_url=None,
-                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, reply_markup=None,
+                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
                      input_message_content=None):
             self.type = 'mpeg4_gif'
             self.id = id
@@ -2471,6 +2519,7 @@ class InlineQueryResult:
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2487,6 +2536,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
             if self.input_message_content:
@@ -2502,7 +2553,7 @@ class InlineQueryResult:
         """
 
         def __init__(self, id, photo_url, thumb_url, photo_width=None, photo_height=None, title=None,
-                     description=None, caption=None, parse_mode=None, reply_markup=None, input_message_content=None):
+                     description=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None, input_message_content=None):
             self.type = 'photo'
             self.id = id
             self.photo_url = photo_url
@@ -2513,6 +2564,7 @@ class InlineQueryResult:
             self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
@@ -2531,6 +2583,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
             if self.input_message_content:
@@ -2585,7 +2639,7 @@ class InlineQueryResult:
         """
 
         def __init__(self, id, video_url, mime_type, thumb_url, title,
-                     caption=None, parse_mode=None, video_width=None, video_height=None, video_duration=None,
+                     caption=None, parse_mode=None, caption_entities=None, video_width=None, video_height=None, video_duration=None,
                      description=None, reply_markup=None, input_message_content=None):
             self.type = 'video'
             self.id = id
@@ -2598,6 +2652,7 @@ class InlineQueryResult:
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.description = description
             self.input_message_content = input_message_content
             self.reply_markup = reply_markup
@@ -2617,6 +2672,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
             if self.input_message_content:
@@ -2629,7 +2686,7 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
         """
 
-        def __init__(self, id, voice_url, title, caption=None, parse_mode=None, performer=None, voice_duration=None,
+        def __init__(self, id, voice_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None, voice_duration=None,
                      reply_markup=None, input_message_content=None):
             self.type = 'voice'
             self.id = id
@@ -2637,6 +2694,7 @@ class InlineQueryResult:
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.performer = performer
             self.voice_duration = voice_duration
             self.reply_markup = reply_markup
@@ -2649,6 +2707,8 @@ class InlineQueryResult:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.performer:
                 obj['performer'] = self.performer
             if self.voice_duration:
@@ -2683,15 +2743,18 @@ class InputMessageContent:
             Represents the content of a text message to be sent as the result of an inline query.
         """
 
-        def __init__(self, message_text, parse_mode=None, disable_web_page_preview=None):
+        def __init__(self, message_text, parse_mode=None, caption_entities=None, disable_web_page_preview=None):
             self.message_text = message_text
             self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
             self.disable_web_page_preview = disable_web_page_preview
 
         def to_dict(self):
             obj = {'message_text': self.message_text}
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
             if self.disable_web_page_preview:
                 obj['disable_web_page_preview'] = self.disable_web_page_preview
             return obj

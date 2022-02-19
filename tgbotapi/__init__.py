@@ -448,13 +448,14 @@ class TBot:
         """
         return types.User.de_json(methods.close(self.__token, self.__proxies))
         
-    def send_message(self, chat_id, text, parse_mode=None, disable_web_page_preview=False, disable_notification=False,
+    def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False, disable_notification=False,
                      reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send text messages. On success, the sent Message is returned.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_web_page_preview: Disables link previews for links in this message.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
@@ -463,7 +464,7 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, disable_web_page_preview,
+            methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, entities, disable_web_page_preview,
                                  disable_notification, reply_to_message_id, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
@@ -499,7 +500,7 @@ class TBot:
         return types.MessageId.de_json(
             methods.copy_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
                                     
-    def send_photo(self, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
+    def send_photo(self, chat_id, photo, caption=None, parse_mode=None, caption_entities=None, disable_notification=False,
                    reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send photos.
@@ -507,6 +508,7 @@ class TBot:
         :param any photo: Photo [file_id or InputFile] to send.
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
@@ -514,10 +516,10 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, disable_notification,
+            methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
                                reply_to_message_id, reply_markup))
 
-    def send_audio(self, chat_id, audio, caption=None, parse_mode=None, duration=None, performer=None, title=None,
+    def send_audio(self, chat_id, audio, caption=None, parse_mode=None, caption_entities=None, duration=None, performer=None, title=None,
                    thumb=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send audio files.
@@ -525,6 +527,7 @@ class TBot:
         :param any audio: Audio [file_id or InputFile] to send.
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param int or None duration: Duration of the audio in seconds.
         :param str or None performer: Performer.
         :param str or None title: Track Name.
@@ -536,11 +539,11 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, duration, performer,
+            methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer,
                                title, thumb,
                                disable_notification, reply_to_message_id, reply_markup))
 
-    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, disable_content_type_detection=False, disable_notification=False,
+    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, caption_entities=None, disable_content_type_detection=False, disable_notification=False,
                       reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send general files.
@@ -549,6 +552,7 @@ class TBot:
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param str or None caption: Document caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_content_type_detection: Disables automatic server-side content type detection for files uploaded using multipart/form-data.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
@@ -557,12 +561,12 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode, disable_content_type_detection, 
+            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode, caption_entities, disable_content_type_detection, 
                                   disable_notification,
                                   reply_to_message_id, reply_markup))
 
     def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
-                   parse_mode=None, supports_streaming=None, disable_notification=False, reply_to_message_id=None,
+                   parse_mode=None, caption_entities=None, supports_streaming=None, disable_notification=False, reply_to_message_id=None,
                    reply_markup=None):
         """
         Use this method to send video files.
@@ -574,6 +578,7 @@ class TBot:
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param str or None caption: Video caption, 0-1024 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
         :param bool supports_streaming: Pass True, if the uploaded video is suitable for streaming.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
@@ -583,11 +588,11 @@ class TBot:
         """
         return types.Message.de_json(
             methods.send_video(self.__token, self.__proxies, chat_id, video, duration, width, height, thumb, caption,
-                               parse_mode,
+                               parse_mode, caption_entities,
                                supports_streaming, disable_notification, reply_to_message_id, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
-                       parse_mode=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+                       parse_mode=None, caption_entities=None,  disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send animation files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -598,6 +603,7 @@ class TBot:
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param str or None caption: Video caption, 0-1024 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
@@ -608,9 +614,10 @@ class TBot:
             methods.send_animation(self.__token, self.__proxies, chat_id, animation, duration, width, height, thumb,
                                    caption,
                                    parse_mode,
+                                   caption_entities,
                                    disable_notification, reply_to_message_id, reply_markup))
 
-    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, duration=None, disable_notification=False,
+    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, caption_entities=None, duration=None, disable_notification=False,
                    reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send audio files.
@@ -618,6 +625,7 @@ class TBot:
         :param any voice: Audio [file_id or InputFile] to send.
         :param str or None caption: Voice caption, 0-1024 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param int or None duration: Duration of the voice in seconds.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
@@ -626,7 +634,7 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, duration,
+            methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities, duration,
                                disable_notification,
                                reply_to_message_id, reply_markup))
 
@@ -767,7 +775,7 @@ class TBot:
                                  reply_to_message_id, reply_markup))
 
     def send_poll(self, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
-                  correct_option_id=None, explanation=None, explanation_parse_mode=None, open_period=None,
+                  correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities,=None, open_period=None,
                   close_date=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
                   reply_markup=None):
         """
@@ -781,6 +789,7 @@ class TBot:
         :param int or None correct_option_id: 0-based identifier of the correct answer option, required for polls in quiz mode.
         :param str or None explanation: Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll.
         :param str or None explanation_parse_mode: Mode for parsing entities in the explanation.
+        :param list[MessageEntity] or None explanation_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param int or None open_period: Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date.
         :param int or None close_date: Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period.
         :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll preview.
@@ -793,6 +802,7 @@ class TBot:
         return types.Message.de_json(
             methods.send_poll(self.__token, self.__proxies, chat_id, question, options, is_anonymous, type,
                               allows_multiple_answers, correct_option_id, explanation, explanation_parse_mode,
+                              explanation_entities,
                               open_period, close_date, is_closed, disable_notifications, reply_to_message_id,
                               reply_markup))
 
@@ -1108,7 +1118,7 @@ class TBot:
         """
         return methods.get_my_commands(self.__token, self.__proxies)
 
-    def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
+    def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None, entities=None,
                           disable_web_page_preview=False, reply_markup=None):
         """
         Use this method to edit text and game messages.
@@ -1117,6 +1127,7 @@ class TBot:
         :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_web_page_preview: Disables link previews for links in this message
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
@@ -1124,13 +1135,13 @@ class TBot:
         """
         result = methods.edit_message_text(self.__token, self.__proxies, text, chat_id, message_id, inline_message_id,
                                            parse_mode,
-                                           disable_web_page_preview, reply_markup)
+                           entities,                disable_web_page_preview, reply_markup)
         # if edit inline message return is bool not Message.
         if type(result) == bool:
             return result
         return types.Message.de_json(result)
 
-    def edit_message_caption(self, caption, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
+    def edit_message_caption(self, chat_id=None, message_id=None, inline_message_id=None, caption=None, parse_mode=None, caption_entities=None,
                              reply_markup=None):
         """
         Use this method to edit captions of messages.
@@ -1139,12 +1150,15 @@ class TBot:
         :param str or None inline_message_id: Required if chat_id and message_id are not specified. Identifier of the inline message.
         :param str or None caption: New caption of the message, 0-1024 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
+        :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success, otherwise True.
         :rtype: tgbotapi.types.Message or dict
         """
-        result = methods.edit_message_caption(self.__token, self.__proxies, caption, chat_id, message_id,
-                                              inline_message_id, parse_mode,
+        result = methods.edit_message_caption(self.__token, self.__proxies, chat_id, message_id,
+                                              inline_message_id,
+                                              caption, parse_mode,
+                                              caption_entities,
                                               reply_markup)
         if type(result) == bool:
             return result

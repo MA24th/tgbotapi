@@ -145,7 +145,7 @@ def close(token, proxies):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_preview, disable_notification,
+def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_web_page_preview, disable_notification,
                  reply_to_message_id, reply_markup):
     """
     Use this method to send text messages. On success, the sent Message is returned.
@@ -154,6 +154,7 @@ def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_pre
     :type chat_id: int or str
     :type text: str
     :type parse_mode: str or None
+    :type entities: list or None
     :type disable_web_page_preview: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
@@ -167,6 +168,8 @@ def send_message(token, proxies, chat_id, text, parse_mode, disable_web_page_pre
     params = {'chat_id': chat_id, 'text': text}
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if entities:
+        params['entities'] = entities
     if disable_web_page_preview:
         params['disable_web_page_preview'] = disable_web_page_preview
     if disable_notification:
@@ -242,7 +245,7 @@ def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, par
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_notification, reply_to_message_id,
+def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification, reply_to_message_id,
                reply_markup):
     """
     Use this method to send photos.
@@ -252,6 +255,7 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_noti
     :type photo: any
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type reply_markup: dict or None
@@ -270,6 +274,8 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_noti
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -279,7 +285,7 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_noti
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, performer, title, thumb,
+def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer, title, thumb,
                disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send audio files.
@@ -289,6 +295,7 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, pe
     :type audio: any
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type duration: int or None
     :type performer: str or None
     :type title: str or None
@@ -311,6 +318,8 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, pe
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if duration:
         params['duration'] = duration
     if performer:
@@ -328,7 +337,7 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, duration, pe
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, disable_content_type_detection,  disable_notification,
+def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities, disable_content_type_detection,  disable_notification,
                   reply_to_message_id, reply_markup):
     """
     Use this method to send general files.
@@ -339,6 +348,7 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     :type thumb: any or None
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type disable_content_type_detection: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
@@ -360,6 +370,8 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if disable_content_type_detection:
         params['disable_content_type_detection'] = disable_content_type_detection
     if disable_notification:
@@ -371,7 +383,7 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, supports_streaming,
+def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, caption_entities, supports_streaming,
                disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send video files.
@@ -385,6 +397,7 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
     :type thumb: any
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type supports_streaming: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
@@ -412,6 +425,8 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if supports_streaming:
         params['supports_streaming'] = supports_streaming
     if disable_notification:
@@ -424,7 +439,7 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
 
 
 def send_animation(token, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
-                   disable_notification, reply_to_message_id, reply_markup):
+                   caption_entities, disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send animation files.
     :type token: str
@@ -437,6 +452,7 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     :type thumb: any or None
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type reply_markup: dict or None
@@ -463,6 +479,8 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -472,7 +490,7 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_voice(token, proxies, chat_id, voice, caption, parse_mode, duration, disable_notification, reply_to_message_id,
+def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration, disable_notification, reply_to_message_id,
                reply_markup):
     """
     Use this method to send audio files.
@@ -482,6 +500,7 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, duration, di
     :type voice: any or None
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type duration: int or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
@@ -501,6 +520,8 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, duration, di
         params['caption'] = caption
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if duration:
         params['duration'] = duration
     if disable_notification:
@@ -759,7 +780,7 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
 
 def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
               correct_option_id,
-              explanation, explanation_parse_mode, open_period, close_date, is_closed, disable_notifications,
+              explanation, explanation_parse_mode, explanation_entities, open_period, close_date, is_closed, disable_notifications,
               reply_to_message_id, reply_markup):
     """
     Use this method to send a native poll.
@@ -774,6 +795,7 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
     :type correct_option_id: int or None
     :type explanation: str or None
     :type explanation_parse_mode: str or None
+    :type explanation_entities: list or None
     :type open_period: int or None
     :type close_date: int or None
     :type is_closed: bool
@@ -799,6 +821,8 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
         params['explanation'] = explanation
     if explanation_parse_mode:
         params['explanation_parse_mode'] = explanation_parse_mode
+    if explanation_entities:
+        params['explanation_entities'] = explanation_entities
     if open_period:
         params['open_period'] = open_period
     if close_date:
@@ -1372,7 +1396,7 @@ def get_my_commands(token, proxies):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode,
+def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities, 
                       disable_web_page_preview,
                       reply_markup):
     """
@@ -1384,6 +1408,7 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
     :type inline_message_id: str or None
     :type text: str
     :type parse_mode: str or None
+    :type entities: list or None
     :type disable_web_page_preview: bool
     :type reply_markup: dict or None
     :rtype: dict
@@ -1401,6 +1426,8 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
         params['inline_message_id'] = inline_message_id
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if entities:
+        params['entities'] = entities
     if disable_web_page_preview:
         params['disable_web_page_preview'] = disable_web_page_preview
     if reply_markup:
@@ -1408,7 +1435,7 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, reply_markup):
+def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, caption_entities, reply_markup):
     """
     Use this method to edit captions of messages.
     :type token: str
@@ -1418,6 +1445,7 @@ def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_me
     :type inline_message_id: str or None
     :type caption: str or None
     :type parse_mode: str or None
+    :type caption_entities: list or None
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -1434,6 +1462,8 @@ def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_me
         params['inline_message_id'] = inline_message_id
     if parse_mode:
         params['parse_mode'] = parse_mode
+    if caption_entities:
+        params['caption_entities'] = caption_entities
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
