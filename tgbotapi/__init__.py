@@ -775,7 +775,7 @@ class TBot:
                                  reply_to_message_id, reply_markup))
 
     def send_poll(self, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
-                  correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities,=None, open_period=None,
+                  correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities=None, open_period=None,
                   close_date=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
                   reply_markup=None):
         """
