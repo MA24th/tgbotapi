@@ -199,6 +199,49 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
+    """ 
+    Use this method to copy messages of any kind.
+    :type token: str
+    :type proxies: dict or None
+    :type chat_id: int or str
+    :type from_chat_id: int or str
+    :type message_id: int
+    :type caption: str or None
+    :type parse_mode: str or None
+    :type caption_entities: list or None
+    :type disable_notification: bool
+    :type protect_content: bool
+    :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
+    :type reply_markup: list or None
+    :rtype: dict  
+    """
+    method = r'post'
+    api_method = r'copyMessage'
+    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    files = None
+    params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
+    if caption:
+      params['caption'] = caption
+    if parse_mode:
+      params['parse_mode'] = parse_mode
+    if caption_entities:
+      params['caption_entities'] = caption_entities
+    if disable_notification:
+      params['disable_notification'] = disable_notification
+    if protect_content:
+      params['protect_content'] = protect_content
+    if reply_to_message_id:
+      params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+      params['allow_sending_without_reply'] = allow_sending_without_reply
+    if reply_markup:
+      params['reply_markup'] = reply_markup
+    
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def send_photo(token, proxies, chat_id, photo, caption, parse_mode, disable_notification, reply_to_message_id,
                reply_markup):
     """

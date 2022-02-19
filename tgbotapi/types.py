@@ -529,6 +529,20 @@ class Message(JsonDeserializable):
         return users
 
 
+class MessageId(JsonDeserializable):
+  """
+  This object represents a unique message identifier.
+  """
+  def __init__(self, message_id):
+    self.message_id = message_id
+  
+  @classmethod
+  def de_json(cls, obj_type):
+    obj = cls.check_type(obj_type)
+    message_id = obj['message_id']
+    return cls(message_id)
+
+  
 class MessageEntity(JsonDeserializable):
     """ This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc """
 

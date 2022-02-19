@@ -477,9 +477,28 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id,
-                                    disable_notification))
+            methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, disable_notification))
 
+    def copy_message(self, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
+        """
+        Use this method to copy messages of any kind.
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
+        :param int or str from_chat_id: Unique identifier for the chat where the original message was sent.
+        :param int message_id: Message identifier in the chat specified in from_chat_id.
+        :param str or None caption: New caption for media, 0-1024 characters after entities parsing.
+        :param str or None parse_mode: Mode for parsing entities in the new caption.
+        :param list or None caption_entities: A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of parse_mode
+        :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param bool protect_content: Protects the contents of the sent message from forwarding and saving.
+        :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
+        :param object reply_markup: Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+        :return: a MessageId object.
+        :rtype: types.MessageId
+        """
+        return types.MessageId.de_json(
+            methods.copy_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
+                                    
     def send_photo(self, chat_id, photo, caption=None, parse_mode=None, disable_notification=False,
                    reply_to_message_id=None, reply_markup=None):
         """
