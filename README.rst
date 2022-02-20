@@ -38,4 +38,4 @@ Support
 -------
 We now have a Telegram Chat Group as well! 
 Keep yourself up to date with API changes, 
-and join it (https://t.me/grid9x).
+and join it (https://t.me/GuardBotc).
