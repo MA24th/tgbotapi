@@ -449,7 +449,7 @@ class TBot:
         return types.User.de_json(methods.close(self.__token, self.__proxies))
         
     def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False, disable_notification=False,
-                     reply_to_message_id=None, reply_markup=None):
+                     reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send text messages. On success, the sent Message is returned.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -459,13 +459,15 @@ class TBot:
         :param bool disable_web_page_preview: Disables link previews for links in this message.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, entities, disable_web_page_preview,
-                                 disable_notification, reply_to_message_id, reply_markup))
+                                 disable_notification, reply_to_message_id,
+                                 allow_sending_without_reply, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
         """
@@ -501,7 +503,7 @@ class TBot:
             methods.copy_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
                                     
     def send_photo(self, chat_id, photo, caption=None, parse_mode=None, caption_entities=None, disable_notification=False,
-                   reply_to_message_id=None, reply_markup=None):
+                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send photos.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -511,16 +513,17 @@ class TBot:
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
-                               reply_to_message_id, reply_markup))
+                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_audio(self, chat_id, audio, caption=None, parse_mode=None, caption_entities=None, duration=None, performer=None, title=None,
-                   thumb=None, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+                   thumb=None, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send audio files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -534,6 +537,7 @@ class TBot:
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -541,10 +545,10 @@ class TBot:
         return types.Message.de_json(
             methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer,
                                title, thumb,
-                               disable_notification, reply_to_message_id, reply_markup))
+                               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, caption_entities=None, disable_content_type_detection=False, disable_notification=False,
-                      reply_to_message_id=None, reply_markup=None):
+                      reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send general files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -556,6 +560,7 @@ class TBot:
         :param bool disable_content_type_detection: Disables automatic server-side content type detection for files uploaded using multipart/form-data.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -563,11 +568,11 @@ class TBot:
         return types.Message.de_json(
             methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode, caption_entities, disable_content_type_detection, 
                                   disable_notification,
-                                  reply_to_message_id, reply_markup))
+                                  reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
                    parse_mode=None, caption_entities=None, supports_streaming=None, disable_notification=False, reply_to_message_id=None,
-                   reply_markup=None):
+                   allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send video files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -582,6 +587,7 @@ class TBot:
         :param bool supports_streaming: Pass True, if the uploaded video is suitable for streaming.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -589,10 +595,10 @@ class TBot:
         return types.Message.de_json(
             methods.send_video(self.__token, self.__proxies, chat_id, video, duration, width, height, thumb, caption,
                                parse_mode, caption_entities,
-                               supports_streaming, disable_notification, reply_to_message_id, reply_markup))
+                               supports_streaming, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
-                       parse_mode=None, caption_entities=None,  disable_notification=False, reply_to_message_id=None, reply_markup=None):
+                       parse_mode=None, caption_entities=None,  disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send animation files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -606,6 +612,7 @@ class TBot:
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -615,10 +622,10 @@ class TBot:
                                    caption,
                                    parse_mode,
                                    caption_entities,
-                                   disable_notification, reply_to_message_id, reply_markup))
+                                   disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_voice(self, chat_id, voice, caption=None, parse_mode=None, caption_entities=None, duration=None, disable_notification=False,
-                   reply_to_message_id=None, reply_markup=None):
+                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send audio files.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -629,6 +636,7 @@ class TBot:
         :param int or None duration: Duration of the voice in seconds.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -636,10 +644,10 @@ class TBot:
         return types.Message.de_json(
             methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities, duration,
                                disable_notification,
-                               reply_to_message_id, reply_markup))
+                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_video_note(self, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
-                        reply_to_message_id=None, reply_markup=None):
+                        reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send video messages.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -649,6 +657,7 @@ class TBot:
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -656,27 +665,28 @@ class TBot:
         return types.Message.de_json(
             methods.send_video_note(self.__token, self.__proxies, chat_id, video_note, duration, length, thumb,
                                     disable_notification,
-                                    reply_to_message_id, reply_markup))
+                                    reply_to_message_id, allow_sending_without_reply, reply_markup))
 
-    def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None):
+    def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False):
         """
         Use this method to send a group of photos or videos as an album.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param list media: A JSON-serialized array of [InputMediaPhoto or InputMediaVideo] to be sent, must include 2–10 items
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :return: a Messages object.
         :rtype: types.Message
         """
         result = methods.send_media_group(
-            self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id)
+            self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id, allow_sending_without_reply)
         ret = []
         for msg in result:
             ret.append(types.Message.de_json(msg))
         return ret
 
     def send_location(self, chat_id, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None, proximity_alert_radius=None, disable_notification=False,
-                      reply_to_message_id=None, reply_markup=None):
+                      reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send point on the map.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -688,6 +698,7 @@ class TBot:
         :param int or None proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -695,7 +706,7 @@ class TBot:
         return types.Message.de_json(
             methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading, proximity_alert_radius, 
                                   disable_notification,
-                                  reply_to_message_id, reply_markup))
+                                  reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def edit_message_live_location(self, latitude, longitude, horizontal_accuracy=None, heading=None, proximity_alert_radius=None, chat_id=None, message_id=None, inline_message_id=None,
                                    reply_markup=None):
@@ -732,7 +743,7 @@ class TBot:
                                                reply_markup))
 
     def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, google_place_id=None, google_place_type=None,
-                   disable_notification=False, reply_to_message_id=None, reply_markup=None):
+                   disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send information about a venue.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -746,6 +757,7 @@ class TBot:
         :param str or None google_place_type: Google Places type of the venue.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -756,10 +768,10 @@ class TBot:
                                foursquare_type,
                                google_place_id,
                                google_place_type, 
-                               disable_notification, reply_to_message_id, reply_markup))
+                               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
-                     reply_to_message_id=None, reply_markup=None):
+                     reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send phone contacts.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -769,6 +781,7 @@ class TBot:
         :param str or None vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -781,7 +794,7 @@ class TBot:
     def send_poll(self, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
                   correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities=None, open_period=None,
                   close_date=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
-                  reply_markup=None):
+                  allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a native poll.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -799,6 +812,7 @@ class TBot:
         :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll preview.
         :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
@@ -808,22 +822,23 @@ class TBot:
                               allows_multiple_answers, correct_option_id, explanation, explanation_parse_mode,
                               explanation_entities,
                               open_period, close_date, is_closed, disable_notifications, reply_to_message_id,
-                              reply_markup))
+                              allow_sending_without_reply, reply_markup))
 
-    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None, reply_markup=None):
+    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a dice.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str or None emoji: Emoji on which the dice throw animation is based. Currently, must be one of “🎲” or “🎯”, Defaults to “🎲” .
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object.
         :rtype: types.Message
         """
         return types.Message.de_json(
             methods.send_dice(self.__token, self.__proxies, chat_id, emoji, disable_notification, reply_to_message_id,
-                              reply_markup))
+                              allow_sending_without_reply, reply_markup))
 
     def send_chat_action(self, chat_id, action):
         """
@@ -1230,13 +1245,14 @@ class TBot:
         """
         return methods.delete_message(self.__token, self.__proxies, chat_id, message_id)
 
-    def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, reply_markup=None):
+    def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send static .WEBP or animated .TGS stickers.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any sticker: Sticker [file_id or InputFile] to send.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
         :return: a Message object On success.
         :rtype: tgbotapi.types.Message
@@ -1244,7 +1260,7 @@ class TBot:
         return types.Message.de_json(
             methods.send_sticker(self.__token, self.__proxies, chat_id, sticker, disable_notification,
                                  reply_to_message_id,
-                                 reply_markup))
+                                 allow_sending_without_reply, reply_markup))
 
     def get_sticker_set(self, name):
         """
@@ -1351,7 +1367,7 @@ class TBot:
                      provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
                      need_name=False, need_phone_number=False, need_email=False, need_shipping_address=False,
                      send_phone_number_to_provider=False, send_email_to_provider=False, is_flexible=False,
-                     disable_notification=False, reply_to_message_id=None, reply_markup=None):
+                     disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send invoices. On success, the sent Message is returned.
         :param int chat_id: Unique identifier for the target chat or username of the target channel.
@@ -1376,6 +1392,7 @@ class TBot:
         :param is_flexible: Pass True, if the final price depends on the shipping method.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object.
         :rtype: types.Message
@@ -1387,7 +1404,7 @@ class TBot:
                                  need_name, need_phone_number, need_email, need_shipping_address,
                                  send_phone_number_to_provider, send_email_to_provider, is_flexible,
                                  disable_notification,
-                                 reply_to_message_id, reply_markup))
+                                 reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def answer_shipping_query(self, shipping_query_id, ok, shipping_options=None, error_message=None):
         """
@@ -1426,20 +1443,21 @@ class TBot:
         return methods.set_passport_data_errors(self.__token, self.__proxies, user_id, errors)
 
     def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
-                  reply_markup=None):
+                  allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a game.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str game_short_name: Short name of the game, serves as the unique identifier for the game.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
+        :param bool allow_sending_without_reply: Pass True, if the message should be sent even if the specified replied-to message is not found.
         :param dict or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup.
         :return: a Message object On success.
         :rtype: tgbotapi.types.Message
         """
         return types.Message.de_json(
             methods.send_game(self.__token, self.__proxies, chat_id, game_short_name, disable_notification,
-                              reply_to_message_id, reply_markup))
+                              reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
                        inline_message_id=None):

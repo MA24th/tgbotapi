@@ -146,7 +146,7 @@ def close(token, proxies):
 
 
 def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_web_page_preview, disable_notification,
-                 reply_to_message_id, reply_markup):
+                 reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send text messages. On success, the sent Message is returned.
     :type token: str
@@ -158,6 +158,7 @@ def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_we
     :type disable_web_page_preview: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -176,6 +177,8 @@ def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_we
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -245,7 +248,7 @@ def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, par
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification, reply_to_message_id,
+def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply, 
                reply_markup):
     """
     Use this method to send photos.
@@ -258,6 +261,7 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_enti
     :type caption_entities: list or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -280,13 +284,15 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_enti
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer, title, thumb,
-               disable_notification, reply_to_message_id, reply_markup):
+               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send audio files.
     :type token: str
@@ -302,6 +308,7 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_enti
     :type thumb: any
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -332,13 +339,15 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_enti
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities, disable_content_type_detection,  disable_notification,
-                  reply_to_message_id, reply_markup):
+                  reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send general files.
     :type token: str
@@ -352,6 +361,7 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     :type disable_content_type_detection: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -378,13 +388,15 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, caption_entities, supports_streaming,
-               disable_notification, reply_to_message_id, reply_markup):
+               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send video files.
     :type token: str
@@ -401,6 +413,7 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
     :type supports_streaming: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -433,13 +446,15 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_animation(token, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
-                   caption_entities, disable_notification, reply_to_message_id, reply_markup):
+                   caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send animation files.
     :type token: str
@@ -455,6 +470,7 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     :type caption_entities: list or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -485,13 +501,15 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration, disable_notification, reply_to_message_id,
-               reply_markup):
+               allow_sending_without_reply, reply_markup):
     """
     Use this method to send audio files.
     :type token: str
@@ -504,6 +522,7 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_enti
     :type duration: int or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -528,13 +547,15 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_enti
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
-                    reply_to_message_id, reply_markup):
+                    reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send video messages.
     :type token: str
@@ -546,6 +567,7 @@ def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb
     :type thumb: any or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -568,12 +590,14 @@ def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id):
+def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id, allow_sending_without_reply):
     """
     Use this method to send a group of photos or videos as an album.
     :type token: str
@@ -582,6 +606,7 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
     :type media: list
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :rtype: dict
     """
     method = r'post'
@@ -597,11 +622,13 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading, proximity_alert_radius, disable_notification, reply_to_message_id,
-                  reply_markup):
+                  allow_sending_without_reply, reply_markup):
     """
     Use this method to send point on the map.
     :type token: str
@@ -615,6 +642,7 @@ def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accur
     :type proximity_alert_radius: int or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -636,6 +664,8 @@ def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accur
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -708,7 +738,7 @@ def stop_message_live_location(token, proxies, chat_id, message_id, inline_messa
 
 
 def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type,
-               disable_notification, reply_to_message_id, reply_markup):
+               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send information about a venue.
     :type token: str
@@ -724,6 +754,7 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     :type google_place_type: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -744,13 +775,15 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
 def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
-                 reply_to_message_id, reply_markup):
+                 reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send phone contacts.
     :type token: str
@@ -762,6 +795,7 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
     :type vcard: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -779,6 +813,8 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -787,7 +823,7 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
 def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
               correct_option_id,
               explanation, explanation_parse_mode, explanation_entities, open_period, close_date, is_closed, disable_notifications,
-              reply_to_message_id, reply_markup):
+              reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send a native poll.
     :type token: str
@@ -807,6 +843,7 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
     :type is_closed: bool
     :type disable_notifications: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -839,12 +876,14 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
         params['disable_notification'] = disable_notifications
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, reply_markup):
+def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send a dice.
     :type token: str
@@ -853,6 +892,7 @@ def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_mes
     :type emoji: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -865,6 +905,8 @@ def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_mes
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -1572,7 +1614,7 @@ def delete_message(token, proxies, chat_id, message_id):
 
 
 def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
-                 reply_markup):
+                 allow_sending_without_reply, reply_markup):
     """
     Use this method to send static .WEBP or animated .TGS stickers.
     :type token: str
@@ -1581,6 +1623,7 @@ def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_t
     :type sticker: any
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -1597,6 +1640,8 @@ def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_t
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -1788,7 +1833,7 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
                  prices,
                  provider_data, photo_url, photo_size, photo_width, photo_height, need_name, need_phone_number,
                  need_email, need_shipping_address, send_phone_number_to_provider, send_email_to_provider, is_flexible,
-                 disable_notification, reply_to_message_id, reply_markup):
+                 disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send invoices. On success, the sent Message is returned.
     :type token: str
@@ -1815,6 +1860,7 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     :type is_flexible: bool
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -1853,6 +1899,8 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -1919,7 +1967,7 @@ def set_passport_data_errors(token, proxies, user_id, errors):
 
 
 def send_game(token, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
-              reply_markup):
+              allow_sending_without_reply, reply_markup):
     """
     Use this method to send a game.
     :type token: str
@@ -1928,6 +1976,7 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification, re
     :type game_short_name: str
     :type disable_notification: bool
     :type reply_to_message_id: int or None
+    :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
     :rtype: dict
     """
@@ -1940,6 +1989,8 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification, re
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
+    if allow_sending_without_reply:
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
         params['reply_markup'] = convert_markup(reply_markup)
     return make_request(method, api_url, api_method, files, params, proxies)
