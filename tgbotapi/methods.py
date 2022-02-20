@@ -707,7 +707,7 @@ def stop_message_live_location(token, proxies, chat_id, message_id, inline_messa
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
+def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type,
                disable_notification, reply_to_message_id, reply_markup):
     """
     Use this method to send information about a venue.
@@ -720,6 +720,8 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     :type address: str
     :type foursquare_id: str or None
     :type foursquare_type: str or None
+    :type google_place_id: str or None
+    :type google_place_type: str or None
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type reply_markup: dict or None
@@ -734,6 +736,10 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
         params['foursquare_id'] = foursquare_id
     if foursquare_type:
         params['foursquare_type'] = foursquare_type
+    if google_place_id:
+        params['google_place_id'] = google_place_id
+    if google_place_type:
+        params['google_place_type'] = google_place_type
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:

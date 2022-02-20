@@ -854,12 +854,14 @@ class Location(JsonDeserializable):
 class Venue(JsonDeserializable):
     """ This object represents a venue """
 
-    def __init__(self, location, title, address, foursquare_id=None, foursquare_type=None):
+    def __init__(self, location, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type):
         self.location = location
         self.title = title
         self.address = address
         self.foursquare_id = foursquare_id
         self.foursquare_type = foursquare_type
+        self.google_place_id = google_place_id
+        self.google_place_type = google_place_type
 
     @classmethod
     def de_json(cls, obj_type):
@@ -873,6 +875,10 @@ class Venue(JsonDeserializable):
         foursquare_type = None
         if 'foursquare_type' in obj:
             foursquare_type = obj['foursquare_type']
+        if 'google_place_id' in obj:
+            google_place_id = obj['google_place_id']
+        if 'google_place_type' in obj:
+          google_place_type = obj['google_place_type']
         return cls(location, title, address, foursquare_id, foursquare_type)
 
 
@@ -2597,15 +2603,18 @@ class InlineQueryResult:
             Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
         """
 
-        def __init__(self, id, title, latitude, longitude, address, foursquare_id=None, reply_markup=None,
+        def __init__(self, id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, reply_markup=None,
                      input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
             self.type = 'venue'
             self.id = id
-            self.title = title
             self.latitude = latitude
             self.longitude = longitude
+            self.title = title
             self.address = address
             self.foursquare_id = foursquare_id
+            self.foursquare_type = foursquare_type
+            self.google_place_id = google_place_id
+            self.google_place_type = google_place_type
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
             self.thumb_url = thumb_url
@@ -2613,10 +2622,19 @@ class InlineQueryResult:
             self.thumb_height = thumb_height
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id, 'title': self.title, 'latitude': self.latitude,
-                   'longitude': self.longitude, 'address': self.address}
+            obj = {
+              'type': self.type, 'id': self.id, 'latitude': self.latitude,
+                   'longitude': self.longitude,
+                   'title': self.title, 
+                   'address': self.address}
             if self.foursquare_id:
                 obj['foursquare_id'] = self.foursquare_id
+            if self.foursquare_type:
+                obj['foursquare_type'] = self.foursquare_type
+            if self.google_place_id:
+                obj['google_place_id'] = self.google_place_id
+            if self.google_place_type:
+                obj['google_place_type'] = self.google_place_type
             if self.thumb_url:
                 obj['thumb_url'] = self.thumb_url
             if self.thumb_width:
@@ -2785,13 +2803,15 @@ class InputMessageContent:
     class __InputVenueMessageContent(Dictionaryable):
         """ Represents the content of a venue message to be sent as the result of an inline query """
 
-        def __init__(self, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None):
+        def __init__(self, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, google_place_id=None, google_place_type=None):
             self.latitude = latitude
             self.longitude = longitude
             self.title = title
             self.address = address
             self.foursquare_id = foursquare_id
             self.foursquare_type = foursquare_type
+            self.google_place_id = google_place_id
+            self.google_place_type = google_place_type
 
         def to_dict(self):
             obj = {'latitude': self.latitude, 'longitude': self.longitude, 'title': self.title,
@@ -2800,6 +2820,10 @@ class InputMessageContent:
                 obj['foursquare_id'] = self.foursquare_id
             if self.foursquare_type:
                 obj['foursquare_type'] = self.foursquare_type
+            if self.google_place_id:
+                obj['google_place_id'] = self.google_place_type
+            if self.google_place_type:
+                obj['google_place_type'] = self.google_place_type
             return obj
 
     class __InputContactMessageContent(Dictionaryable):

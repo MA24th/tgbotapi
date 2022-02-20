@@ -731,7 +731,7 @@ class TBot:
             methods.stop_message_live_location(self.__token, self.__proxies, chat_id, message_id, inline_message_id,
                                                reply_markup))
 
-    def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
+    def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, google_place_id=None, google_place_type=None,
                    disable_notification=False, reply_to_message_id=None, reply_markup=None):
         """
         Use this method to send information about a venue.
@@ -742,6 +742,8 @@ class TBot:
         :param str address: Address of the venue.
         :param str or None foursquare_id: Foursquare identifier of the venue.
         :param str or None foursquare_type: Foursquare type of the venue, if known.
+        :param str or None google_place_id: Google Places identifier of the venue.
+        :param str or None google_place_type: Google Places type of the venue.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message.
         :param dict or None reply_markup: InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply.
@@ -752,6 +754,8 @@ class TBot:
             methods.send_venue(self.__token, self.__proxies, chat_id, latitude, longitude, title, address,
                                foursquare_id,
                                foursquare_type,
+                               google_place_id,
+                               google_place_type, 
                                disable_notification, reply_to_message_id, reply_markup))
 
     def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,

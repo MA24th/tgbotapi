@@ -494,6 +494,8 @@ def test_venue():
         'address': 'any',
         'foursquare_id': 22,
         'foursquare_type': 'any',
+        "google_place_id": 11,
+        "google_place_type": "atm"
 
     }
     obj = types.Venue.de_json(dic)
@@ -503,6 +505,8 @@ def test_venue():
     assert obj.address == 'any'
     assert obj.foursquare_id == 22
     assert obj.foursquare_type == 'any'
+    assert obj.google_place_id == 11
+    assert obj.google_place_type == 'atm'
 
 
 def test_poll_option():
@@ -1108,7 +1112,7 @@ def test_inline_query_result_photo():
 def test_inline_query_result_venue():
     dic = r'{"type": "venue", "id": 24, "title": "any", "latitude": 29, "longitude": 44, "address": "any"}'
     obj = types.InlineQueryResult().Venue(
-        id=24, title='any', latitude=29, longitude=44, address='any').to_json()
+        id=24, latitude=29, longitude=44, title="any", address='any').to_json()
     assert obj == dic
 
 
