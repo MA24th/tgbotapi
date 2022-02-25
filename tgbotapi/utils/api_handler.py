@@ -1,5 +1,5 @@
 from .logger import logger
-from .extra import ApiException
+from .api_exceptions import ApiException
 import queue as q
 import threading
 import traceback
@@ -42,12 +42,12 @@ class WorkerThread(threading.Thread):
                 self.received_task_event.clear()
                 self.done_event.clear()
                 self.exception_event.clear()
+
                 logger.info("TASK RECEIVED")
                 self.received_task_event.set()
-
                 task(*args, **kwargs)
-                logger.info("TASK COMPLETE")
                 self.done_event.set()
+                logger.info("TASK COMPLETE")
             except q.Empty:
                 pass
             except Exception as e:
@@ -184,7 +184,7 @@ def events_handler(*events):
     return event
 
 
-def per_thread(key, construct_value, reset=False):
+def per_thread(key, construct_value, reset=True):
     if reset or not hasattr(thread_local, key):
         value = construct_value()
         setattr(thread_local, key, value)
@@ -192,13 +192,15 @@ def per_thread(key, construct_value, reset=False):
     return getattr(thread_local, key)
 
 
-def get_req_session(reset=False):
+def get_req_session(reset=True):
     return per_thread('req_session', lambda: requests.session(), reset)
 
 
 def make_request(method, api_url, api_method, files, params, proxies):
     """
     Makes a request to the Telegram API.
+    """
+    """
     :param str method: HTTP method ['get', 'post'].
     :param str api_url: telegram api url for api_method.
     :param str api_method: Name of the API method to be called. (E.g. 'getUpdates').
@@ -208,31 +210,28 @@ def make_request(method, api_url, api_method, files, params, proxies):
     :return: JSON DICT FORMAT
     :rtype: dict
     """
-    logger.info(f"REQUEST MAKE: {method.upper()}.{api_method}")
-    logger.debug("Request: method={0} url={1} params={2} files={3}".format(method, api_url, params, files))
-    timeout = 9999
+    logger.info(f"REQUEST {api_method}")
+    logger.debug(f"REQUEST method={method} url={api_url} params={params} files={files}")
+    timeout = 2.99
     if params:
         if 'timeout' in params:
             timeout = params['timeout'] + 10
 
-    result = get_req_session().request(method, api_url, params, data=None, headers=None,
-                                        cookies=None, files=files, auth=None, timeout=timeout, allow_redirects=True,
-                                        proxies=proxies, verify=None, stream=None, cert=None)
-    logger.info("REQUEST DONE!")
-    logger.debug("The server returned: '{0}'".format(result.text.encode('utf8')))
-    if result.status_code != 200:
-        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]'.format(result.status_code, result.reason,
-                                                                               result.text.encode('utf8'))
-        raise ApiException(msg, api_method, result)
+    resp = get_req_session().request(method, api_url, params, data=None, headers=None, cookies=None, files=files,
+                                     auth=None, timeout=timeout, allow_redirects=True, proxies=proxies, verify=None,
+                                     stream=None, cert=None)
+    logger.debug(f"The Server Returned: '{resp.text.encode('utf8')}'")
+    if resp.status_code != 200:
+        msg = f"The Server Returned HTTP {resp.status_code} {resp.reason}"
+        raise ApiException(msg, api_method, resp)
 
     try:
-
-        result_json = result.json()
+        resp_json = resp.json()
     except Exception:
-        msg = 'The server returned an invalid JSON response. Response body:\n[{0}]'.format(result.text.encode('utf8'))
-        raise ApiException(msg, api_method, result)
+        msg = f"The Server Returned an invalid JSON response. Response body:\n[{resp.text.encode('utf8')}]"
+        raise ApiException(msg, api_method, resp)
 
-    if not result_json['ok']:
-        msg = 'Error code: {0} Description: {1}'.format(result_json['error_code'], result_json['description'])
-        raise ApiException(msg, api_method, result)
-    return result_json['result']
+    if not resp_json['ok']:
+        msg = f"Error code: {resp_json['error_code']} Description: {resp_json['description']}"
+        raise ApiException(msg, api_method, resp)
+    return resp_json['result']

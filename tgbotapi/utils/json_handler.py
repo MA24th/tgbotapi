@@ -75,5 +75,3 @@ class JsonSerializable(object):
         :return: a JSON formatted string.
         """
         raise NotImplementedError
-
-

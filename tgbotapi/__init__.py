@@ -83,8 +83,8 @@ class Saver:
             return handlers
 
 
-class TBot:
-    """ This is TBot Class """
+class Bot:
+    """ This is Bot Class """
 
     def __init__(self, token, threaded=True, skip_pending=False, num_threads=2, proxies=None):
         """
@@ -92,7 +92,7 @@ class TBot:
         :param bool threaded:
         :param bool skip_pending:
         :param int num_threads:
-        :param dict or None proxies:
+        :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy.
         """
 
         self.__token = token
@@ -130,6 +130,8 @@ class TBot:
     def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling.
+        """
+        """
         :param int or None offset: Identifier of the first update to be returned.
         :param int or None limit: Limits the number of updates to be retrieved.
         :param int or None timeout: Timeout in seconds for long polling, Defaults to 0.
@@ -212,7 +214,7 @@ class TBot:
             if update.poll_answer:
                 new_poll_answers.append(update.poll_answer)
 
-        logger.info('RECEIVED {0} NEW UPDATES'.format(len(updates)))
+        logger.info('RECEIVED {0} UPDATES'.format(len(updates)))
         if len(new_messages) > 0:
             self.__process_new_messages(new_messages)
         if len(new_edited_messages) > 0:
@@ -393,7 +395,8 @@ class TBot:
     def set_update_listener(self, listener):
         self.__update_listener.append(listener)
 
-    def set_webhook(self, url=None, certificate=None, ip_address=None, max_connections=40, allowed_updates=None, drop_pending_updates=False):
+    def set_webhook(self, url=None, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
+                    drop_pending_updates=False):
         """
         Use this method to specify a url and receive incoming updates via an outgoing webhook.
         :param str url: HTTPS url to send updates to. Use an empty string to remove webhook integration.
@@ -405,7 +408,8 @@ class TBot:
         :return: True On success.
         :rtype: dict
         """
-        return methods.set_webhook(self.__token, self.__proxies, url, certificate, ip_address, max_connections, allowed_updates, drop_pending_updates)
+        return methods.set_webhook(self.__token, self.__proxies, url, certificate, ip_address, max_connections,
+                                   allowed_updates, drop_pending_updates)
 
     def delete_webhook(self, drop_pending_updates=False):
         """
@@ -439,7 +443,7 @@ class TBot:
         :rtype: types.User
         """
         return types.User.de_json(methods.log_out(self.__token, self.__proxies))
-        
+
     def close(self):
         """
         Use this method to close the bot instance before moving it from one local server to another.
@@ -447,11 +451,14 @@ class TBot:
         :rtype: types.User
         """
         return types.User.de_json(methods.close(self.__token, self.__proxies))
-        
-    def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False, disable_notification=False,
+
+    def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False,
+                     disable_notification=False,
                      reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send text messages. On success, the sent Message is returned.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param str or None parse_mode: Send Markdown or HTML.
@@ -465,13 +472,16 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, entities, disable_web_page_preview,
+            methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, entities,
+                                 disable_web_page_preview,
                                  disable_notification, reply_to_message_id,
                                  allow_sending_without_reply, reply_markup))
 
     def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
         """
         Use this method to forward messages of any kind.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int or str from_chat_id: Unique identifier for the chat where the original message was sent.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -480,11 +490,16 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, disable_notification))
+            methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id,
+                                    disable_notification))
 
-    def copy_message(self, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
+    def copy_message(self, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
+                     disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
+                     reply_markup):
         """
         Use this method to copy messages of any kind.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int or str from_chat_id: Unique identifier for the chat where the original message was sent.
         :param int message_id: Message identifier in the chat specified in from_chat_id.
@@ -500,12 +515,17 @@ class TBot:
         :rtype: types.MessageId
         """
         return types.MessageId.de_json(
-            methods.copy_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
-                                    
-    def send_photo(self, chat_id, photo, caption=None, parse_mode=None, caption_entities=None, disable_notification=False,
+            methods.copy_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, caption, parse_mode,
+                                 caption_entities, disable_notification, protect_content, reply_to_message_id,
+                                 allow_sending_without_reply, reply_markup))
+
+    def send_photo(self, chat_id, photo, caption=None, parse_mode=None, caption_entities=None,
+                   disable_notification=False,
                    reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send photos.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any photo: Photo [file_id or InputFile] to send.
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
@@ -519,13 +539,18 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
+            methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities,
+                               disable_notification,
                                reply_to_message_id, allow_sending_without_reply, reply_markup))
 
-    def send_audio(self, chat_id, audio, caption=None, parse_mode=None, caption_entities=None, duration=None, performer=None, title=None,
-                   thumb=None, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+    def send_audio(self, chat_id, audio, caption=None, parse_mode=None, caption_entities=None, duration=None,
+                   performer=None, title=None,
+                   thumb=None, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
+                   reply_markup=None):
         """
         Use this method to send audio files.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any audio: Audio [file_id or InputFile] to send.
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
@@ -543,14 +568,18 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer,
+            methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities,
+                               duration, performer,
                                title, thumb,
                                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
-    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, caption_entities=None, disable_content_type_detection=False, disable_notification=False,
+    def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, caption_entities=None,
+                      disable_content_type_detection=False, disable_notification=False,
                       reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send general files.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any document: File [file_id or InputFile] to send.
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent.
@@ -566,15 +595,19 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode, caption_entities, disable_content_type_detection, 
+            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode,
+                                  caption_entities, disable_content_type_detection,
                                   disable_notification,
                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
-                   parse_mode=None, caption_entities=None, supports_streaming=None, disable_notification=False, reply_to_message_id=None,
+                   parse_mode=None, caption_entities=None, supports_streaming=None, disable_notification=False,
+                   reply_to_message_id=None,
                    allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send video files.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any video: Video [file_id or InputFile] to send.
         :param int or None duration: Duration of the video in seconds.
@@ -595,12 +628,16 @@ class TBot:
         return types.Message.de_json(
             methods.send_video(self.__token, self.__proxies, chat_id, video, duration, width, height, thumb, caption,
                                parse_mode, caption_entities,
-                               supports_streaming, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
+                               supports_streaming, disable_notification, reply_to_message_id,
+                               allow_sending_without_reply, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
-                       parse_mode=None, caption_entities=None,  disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+                       parse_mode=None, caption_entities=None, disable_notification=False, reply_to_message_id=None,
+                       allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send animation files.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any animation: Animation [file_id or InputFile] to send.
         :param int or None duration: Duration of the animation in seconds.
@@ -622,12 +659,16 @@ class TBot:
                                    caption,
                                    parse_mode,
                                    caption_entities,
-                                   disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
+                                   disable_notification, reply_to_message_id, allow_sending_without_reply,
+                                   reply_markup))
 
-    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, caption_entities=None, duration=None, disable_notification=False,
+    def send_voice(self, chat_id, voice, caption=None, parse_mode=None, caption_entities=None, duration=None,
+                   disable_notification=False,
                    reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send audio files.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any voice: Audio [file_id or InputFile] to send.
         :param str or None caption: Voice caption, 0-1024 characters after entities parsing.
@@ -642,7 +683,8 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities, duration,
+            methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities,
+                               duration,
                                disable_notification,
                                reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -650,6 +692,8 @@ class TBot:
                         reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send video messages.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any video_note: Video note [file_id or InputFile] to send.
         :param int or None duration: Duration of the VideoNote in seconds.
@@ -667,9 +711,12 @@ class TBot:
                                     disable_notification,
                                     reply_to_message_id, allow_sending_without_reply, reply_markup))
 
-    def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False):
+    def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None,
+                         allow_sending_without_reply=False):
         """
         Use this method to send a group of photos or videos as an album.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param list media: A JSON-serialized array of [InputMediaPhoto or InputMediaVideo] to be sent, must include 2–10 items
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -679,16 +726,20 @@ class TBot:
         :rtype: types.Message
         """
         result = methods.send_media_group(
-            self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id, allow_sending_without_reply)
+            self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id,
+            allow_sending_without_reply)
         ret = []
         for msg in result:
             ret.append(types.Message.de_json(msg))
         return ret
 
-    def send_location(self, chat_id, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None, proximity_alert_radius=None, disable_notification=False,
+    def send_location(self, chat_id, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
+                      proximity_alert_radius=None, disable_notification=False,
                       reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send point on the map.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
@@ -704,14 +755,18 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading, proximity_alert_radius, 
+            methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy,
+                                  live_period, heading, proximity_alert_radius,
                                   disable_notification,
                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
 
-    def edit_message_live_location(self, latitude, longitude, horizontal_accuracy=None, heading=None, proximity_alert_radius=None, chat_id=None, message_id=None, inline_message_id=None,
+    def edit_message_live_location(self, latitude, longitude, horizontal_accuracy=None, heading=None,
+                                   proximity_alert_radius=None, chat_id=None, message_id=None, inline_message_id=None,
                                    reply_markup=None):
         """
         Use this method to edit live location messages.
+        """
+        """
         :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
         :param int or None message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
         :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
@@ -725,12 +780,15 @@ class TBot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, horizontal_accuracy, heading, proximity_alert_radius, chat_id, message_id,
+            methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, horizontal_accuracy,
+                                               heading, proximity_alert_radius, chat_id, message_id,
                                                inline_message_id, reply_markup))
 
     def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
         """
         Use this method to stop updating a live location message before live_period expires.
+        """
+        """
         :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat.
         :param int or None message_id: Required if inline_message_id is not specified, Identifier of the message to edit.
         :param str or None inline_message_id: Required if chat_id and message_id are not specified, Identifier of the inline message.
@@ -742,10 +800,14 @@ class TBot:
             methods.stop_message_live_location(self.__token, self.__proxies, chat_id, message_id, inline_message_id,
                                                reply_markup))
 
-    def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, google_place_id=None, google_place_type=None,
-                   disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+    def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
+                   google_place_id=None, google_place_type=None,
+                   disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
+                   reply_markup=None):
         """
         Use this method to send information about a venue.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param float latitude: Latitude of the location.
         :param float longitude: Longitude of the location.
@@ -767,13 +829,15 @@ class TBot:
                                foursquare_id,
                                foursquare_type,
                                google_place_id,
-                               google_place_type, 
+                               google_place_type,
                                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
                      reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send phone contacts.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str phone_number: Contact's phone number.
         :param str first_name: Contact's first name.
@@ -788,15 +852,17 @@ class TBot:
         """
         return types.Message.de_json(
             methods.send_contact(self.__token, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
-                                 disable_notification,
-                                 reply_to_message_id, reply_markup))
+                                 disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_poll(self, chat_id, question, options, is_anonymous=True, type='regular', allows_multiple_answers=False,
-                  correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities=None, open_period=None,
+                  correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities=None,
+                  open_period=None,
                   close_date=None, is_closed=True, disable_notifications=False, reply_to_message_id=None,
                   allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a native poll.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str question: Poll question, 1-300 characters.
         :param list options: A JSON-serialized list of answer options, 2-10 strings 1-100 characters each.
@@ -824,9 +890,12 @@ class TBot:
                               open_period, close_date, is_closed, disable_notifications, reply_to_message_id,
                               allow_sending_without_reply, reply_markup))
 
-    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None,
+                  allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a dice.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str or None emoji: Emoji on which the dice throw animation is based. Currently, must be one of “🎲” or “🎯”, Defaults to “🎲” .
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -843,6 +912,8 @@ class TBot:
     def send_chat_action(self, chat_id, action):
         """
         Use this method when you need to tell the user that something is happening on the bot's side.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str action: Type of action to broadcast.
         :return: True On success.
@@ -853,6 +924,8 @@ class TBot:
     def get_user_profile_photos(self, user_id, offset=None, limit=100):
         """
         Use this method to get a list of profile pictures for a user.
+        """
+        """
         :param int or str user_id: Unique identifier of the target user.
         :param int or None offset: Sequential number of the first photo to be returned. By default, all photos are returned.
         :param int or None limit: Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
@@ -865,6 +938,8 @@ class TBot:
     def get_file(self, file_id):
         """
         Use this method to get basic info about a file and prepare it for downloading.
+        """
+        """
         :param str file_id: File identifier to get info about
         :return: a File object.
         :rtype: types.File
@@ -874,6 +949,8 @@ class TBot:
     def download_file(self, file_path):
         """
         Use this method to download file with specified file_path.
+        """
+        """
         :param str file_path: File path, User https://api.telegram.org/file/bot<token>/<file_path> to get the file.
         :return: any, On success.
         :rtype: bytearray
@@ -883,6 +960,8 @@ class TBot:
     def kick_chat_member(self, chat_id, user_id, until_date=None):
         """
         Use this method to kick a user from a group, a supergroup or a channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :param int or None until_date: Date when the user will be unbanned, unix time.
@@ -894,6 +973,8 @@ class TBot:
     def unban_chat_member(self, chat_id, user_id):
         """
         Use this method to unban a previously kicked user in a supergroup or channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :return: True On success.
@@ -904,6 +985,8 @@ class TBot:
     def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
         Use this method to restrict a user in a supergroup.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :param dict permissions: New user permissions must be ChatPermissions object.
@@ -918,6 +1001,8 @@ class TBot:
                             can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
         """
         Use this method to promote or demote a user in a supergroup or a channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :param bool is_anonymous: Pass True, if the administrator's presence in the chat is hidden.
@@ -932,7 +1017,8 @@ class TBot:
         :return: True On success.
         :rtype: dict
         """
-        return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, is_anonymous, can_change_info,
+        return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, is_anonymous,
+                                           can_change_info,
                                            can_post_messages,
                                            can_edit_messages, can_delete_messages, can_invite_users,
                                            can_restrict_members, can_pin_messages, can_promote_members)
@@ -940,6 +1026,8 @@ class TBot:
     def set_chat_administrator_custom_title(self, chat_id, user_id, custom_title):
         """
         Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :param str custom_title: New custom title for the administrator; 0-16 characters.
@@ -951,6 +1039,8 @@ class TBot:
     def set_chat_permissions(self, chat_id, permissions):
         """
         Use this method to set default chat permissions for all members.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param dict permissions: New default chat permissions must be a ChatPermissions object
         :return: True on success.
@@ -961,6 +1051,8 @@ class TBot:
     def export_chat_invite_link(self, chat_id):
         """
         Use this method to generate a new invite link for a chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: new link as String on success.
         :rtype: dict
@@ -970,6 +1062,8 @@ class TBot:
     def set_chat_photo(self, chat_id, photo):
         """
         Use this method to set a new profile photo for the chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param any photo: Use this method to set a new profile photo for the chat.
         :return: True on success.
@@ -980,6 +1074,8 @@ class TBot:
     def delete_chat_photo(self, chat_id):
         """
         Use this method to delete a chat photo.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         :rtype: dict
@@ -989,6 +1085,8 @@ class TBot:
     def set_chat_title(self, chat_id, title):
         """
         Use this method to change the title of a chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str title: New chat title, 1-255 characters.
         :return: True on success.
@@ -999,6 +1097,8 @@ class TBot:
     def set_chat_description(self, chat_id, description):
         """
         Use this method to change the description of a group, a supergroup or a channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str description: New chat description, 0-255 characters.
         :return: True on success.
@@ -1009,6 +1109,8 @@ class TBot:
     def pin_chat_message(self, chat_id, message_id, disable_notification=False):
         """
         Use this method to pin a message in a group, a supergroup, or a channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int message_id: Identifier of a message to pin.
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound.
@@ -1020,6 +1122,8 @@ class TBot:
     def unpin_chat_message(self, chat_id, message_id=None):
         """
         Use this method to unpin a message in a group, a supergroup, or a channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str or None message_id: Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
         :return: True on success.
@@ -1030,6 +1134,8 @@ class TBot:
     def unpin_all_chat_message(self, chat_id):
         """
         Use this method to clear the list of pinned messages in a chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         :rtype: dict
@@ -1039,6 +1145,8 @@ class TBot:
     def leave_chat(self, chat_id):
         """
         Use this method for your bot to leave a group, supergroup or channel.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True on success.
         :rtype: dict
@@ -1048,6 +1156,8 @@ class TBot:
     def get_chat(self, chat_id):
         """
         Use this method to get up to date information about the chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: a Chat object.
         :rtype: types.Chat
@@ -1057,6 +1167,8 @@ class TBot:
     def get_chat_administrators(self, chat_id):
         """
         Use this method to get a list of administrators in a chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: an Array of ChatMember object.
         :rtype: list[types.ChatMember]
@@ -1071,6 +1183,8 @@ class TBot:
     def get_chat_members_count(self, chat_id):
         """
         Use this method to get the number of members in a chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: Integer On success.
         :rtype: dict
@@ -1080,6 +1194,8 @@ class TBot:
     def get_chat_member(self, chat_id, user_id):
         """
         Use this method to get information about a member of a chat.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param int user_id: Unique identifier of the target user.
         :return: a ChatMember object On success.
@@ -1090,6 +1206,8 @@ class TBot:
     def set_chat_sticker_set(self, chat_id, sticker_set_name):
         """
         Use this method to set a new group sticker set for a supergroup.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
         :return: True On success.
@@ -1100,6 +1218,8 @@ class TBot:
     def delete_chat_sticker_set(self, chat_id):
         """
         Use this method to delete a group sticker set from a supergroup.
+        """
+        """
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
         :return: True On success.
         :rtype: dict
@@ -1109,6 +1229,8 @@ class TBot:
     def answer_callback_query(self, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
         """
         Use this method to send answers to callback queries sent from inline keyboards.
+        """
+        """
         :param str callback_query_id: Unique identifier for the query to be answered.
         :param str or None text: Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
         :param bool show_alert: If true, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
@@ -1137,7 +1259,8 @@ class TBot:
         """
         return methods.get_my_commands(self.__token, self.__proxies)
 
-    def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None, entities=None,
+    def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
+                          entities=None,
                           disable_web_page_preview=False, reply_markup=None):
         """
         Use this method to edit text and game messages.
@@ -1154,13 +1277,14 @@ class TBot:
         """
         result = methods.edit_message_text(self.__token, self.__proxies, text, chat_id, message_id, inline_message_id,
                                            parse_mode,
-                           entities,                disable_web_page_preview, reply_markup)
+                                           entities, disable_web_page_preview, reply_markup)
         # if edit inline message return is bool not Message.
         if type(result) == bool:
             return result
         return types.Message.de_json(result)
 
-    def edit_message_caption(self, chat_id=None, message_id=None, inline_message_id=None, caption=None, parse_mode=None, caption_entities=None,
+    def edit_message_caption(self, chat_id=None, message_id=None, inline_message_id=None, caption=None, parse_mode=None,
+                             caption_entities=None,
                              reply_markup=None):
         """
         Use this method to edit captions of messages.
@@ -1245,7 +1369,8 @@ class TBot:
         """
         return methods.delete_message(self.__token, self.__proxies, chat_id, message_id)
 
-    def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+    def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None,
+                     allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send static .WEBP or animated .TGS stickers.
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel.
@@ -1367,7 +1492,8 @@ class TBot:
                      provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
                      need_name=False, need_phone_number=False, need_email=False, need_shipping_address=False,
                      send_phone_number_to_provider=False, send_email_to_provider=False, is_flexible=False,
-                     disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+                     disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
+                     reply_markup=None):
         """
         Use this method to send invoices. On success, the sent Message is returned.
         :param int chat_id: Unique identifier for the target chat or username of the target channel.
@@ -1682,7 +1808,7 @@ class TBot:
         i = 0
         while i < len(new_messages):
             message = new_messages[i]
-            chat_id = message.chat.id
+            chat_id = message.chat.uid
             was_poped = False
             if chat_id in self.__next_step_handlers.keys():
                 handlers = self.__next_step_handlers.pop(chat_id, None)
@@ -1715,10 +1841,10 @@ class TBot:
         """
         Message handler decorator.
         This decorator can be used to decorate functions that must handle certain types of messages.
-        :param str commands: Bot Commands like (/start, /help).
+        :param str or list commands: Bot Commands like (/start, /help).
         :param str regexp: Sequence of characters that define a search pattern.
-        :param str func: any python function that return True On success like (lambda).
-        :param str content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
+        :param function func: any python function that return True On success like (lambda).
+        :param str or list content_types: This commands' supported content types. Must be a list. Defaults to ['text'].
         :return: filtered Message.
         """
 
@@ -2072,298 +2198,298 @@ class TBot:
                     break
 
 
-class AsyncTBot(TBot):
+class AsyncBot(Bot):
     def __init__(self, *args, **kwargs):
-        TBot.__init__(self, *args, **kwargs)
+        Bot.__init__(self, *args, **kwargs)
 
     @async_dec()
     def enable_save_next_step_handlers(self, delay=120, filename="./.handler-saves/step.save"):
-        return TBot.enable_save_next_step_handlers(self, delay, filename)
+        return Bot.enable_save_next_step_handlers(self, delay, filename)
 
     @async_dec()
     def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
-        return TBot.enable_save_reply_handlers(self, delay, filename)
+        return Bot.enable_save_reply_handlers(self, delay, filename)
 
     @async_dec()
     def disable_save_next_step_handlers(self):
-        return TBot.disable_save_next_step_handlers(self)
+        return Bot.disable_save_next_step_handlers(self)
 
     @async_dec()
     def disable_save_reply_handlers(self):
-        return TBot.disable_save_reply_handlers(self)
+        return Bot.disable_save_reply_handlers(self)
 
     @async_dec()
     def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
-        return TBot.load_next_step_handlers(self, filename, del_file_after_loading)
+        return Bot.load_next_step_handlers(self, filename, del_file_after_loading)
 
     @async_dec()
     def load_reply_handlers(self, filename="./.handler-saves/reply.save", del_file_after_loading=True):
-        return TBot.load_reply_handlers(self, filename, del_file_after_loading)
+        return Bot.load_reply_handlers(self, filename, del_file_after_loading)
 
     @async_dec()
     def get_me(self):
-        return TBot.get_me(self)
+        return Bot.get_me(self)
 
     @async_dec()
     def send_message(self, *args, **kwargs):
-        return TBot.send_message(self, *args, **kwargs)
+        return Bot.send_message(self, *args, **kwargs)
 
     @async_dec()
     def forward_message(self, *args, **kwargs):
-        return TBot.forward_message(self, *args, **kwargs)
+        return Bot.forward_message(self, *args, **kwargs)
 
     @async_dec()
     def send_photo(self, *args, **kwargs):
-        return TBot.send_photo(self, *args, **kwargs)
+        return Bot.send_photo(self, *args, **kwargs)
 
     @async_dec()
     def send_audio(self, *args, **kwargs):
-        return TBot.send_audio(self, *args, **kwargs)
+        return Bot.send_audio(self, *args, **kwargs)
 
     @async_dec()
     def send_document(self, *args, **kwargs):
-        return TBot.send_document(self, *args, **kwargs)
+        return Bot.send_document(self, *args, **kwargs)
 
     @async_dec()
     def send_video(self, *args, **kwargs):
-        return TBot.send_video(self, *args, **kwargs)
+        return Bot.send_video(self, *args, **kwargs)
 
     @async_dec()
     def sen_animation(self, *args, **kwargs):
-        return TBot.send_animation(self, *args, **kwargs)
+        return Bot.send_animation(self, *args, **kwargs)
 
     @async_dec()
     def send_voice(self, *args, **kwargs):
-        return TBot.send_voice(self, *args, **kwargs)
+        return Bot.send_voice(self, *args, **kwargs)
 
     @async_dec()
     def send_video_note(self, *args, **kwargs):
-        return TBot.send_video_note(self, *args, **kwargs)
+        return Bot.send_video_note(self, *args, **kwargs)
 
     @async_dec()
     def send_media_group(self, *args, **kwargs):
-        return TBot.send_media_group(self, *args, **kwargs)
+        return Bot.send_media_group(self, *args, **kwargs)
 
     @async_dec()
     def send_location(self, *args, **kwargs):
-        return TBot.send_location(self, *args, **kwargs)
+        return Bot.send_location(self, *args, **kwargs)
 
     @async_dec()
     def edit_message_live_location(self, *args, **kwargs):
-        return TBot.edit_message_live_location(self, *args, **kwargs)
+        return Bot.edit_message_live_location(self, *args, **kwargs)
 
     @async_dec()
     def stop_message_live_location(self, *args, **kwargs):
-        return TBot.stop_message_live_location(self, *args, **kwargs)
+        return Bot.stop_message_live_location(self, *args, **kwargs)
 
     @async_dec()
     def send_venue(self, *args, **kwargs):
-        return TBot.send_venue(self, *args, **kwargs)
+        return Bot.send_venue(self, *args, **kwargs)
 
     @async_dec()
     def send_contact(self, *args, **kwargs):
-        return TBot.send_contact(self, *args, **kwargs)
+        return Bot.send_contact(self, *args, **kwargs)
 
     @async_dec()
     def send_poll(self, *args, **kwargs):
-        return TBot.send_poll(self, *args, **kwargs)
+        return Bot.send_poll(self, *args, **kwargs)
 
     @async_dec()
     def send_dice(self, *args, **kwargs):
-        return TBot.send_dice(self, *args, **kwargs)
+        return Bot.send_dice(self, *args, **kwargs)
 
     @async_dec()
     def send_chat_action(self, *args, **kwargs):
-        return TBot.send_chat_action(self, *args, **kwargs)
+        return Bot.send_chat_action(self, *args, **kwargs)
 
     @async_dec()
     def get_user_profile_photos(self, *args, **kwargs):
-        return TBot.get_user_profile_photos(self, *args, **kwargs)
+        return Bot.get_user_profile_photos(self, *args, **kwargs)
 
     @async_dec()
     def get_file(self, *args):
-        return TBot.get_file(self, *args)
+        return Bot.get_file(self, *args)
 
     @async_dec()
     def download_file(self, *args):
-        return TBot.download_file(self, *args)
+        return Bot.download_file(self, *args)
 
     @async_dec()
     def kick_chat_member(self, *args, **kwargs):
-        return TBot.kick_chat_member(self, *args, **kwargs)
+        return Bot.kick_chat_member(self, *args, **kwargs)
 
     @async_dec()
     def unban_chat_member(self, *args):
-        return TBot.unban_chat_member(self, *args)
+        return Bot.unban_chat_member(self, *args)
 
     @async_dec()
     def restrict_chat_member(self, *args, **kwargs):
-        return TBot.restrict_chat_member(self, *args, **kwargs)
+        return Bot.restrict_chat_member(self, *args, **kwargs)
 
     @async_dec()
     def promote_chat_member(self, *args, **kwargs):
-        return TBot.promote_chat_member(self, *args, **kwargs)
+        return Bot.promote_chat_member(self, *args, **kwargs)
 
     @async_dec()
     def set_chat_permissions(self, *args, **kwargs):
-        return TBot.set_chat_permissions(self, *args, **kwargs)
+        return Bot.set_chat_permissions(self, *args, **kwargs)
 
     @async_dec()
     def export_chat_invite_link(self, *args):
-        return TBot.export_chat_invite_link(self, *args)
+        return Bot.export_chat_invite_link(self, *args)
 
     @async_dec()
     def set_chat_photo(self, *args):
-        return TBot.set_chat_photo(self, *args)
+        return Bot.set_chat_photo(self, *args)
 
     @async_dec()
     def delete_chat_photo(self, *args):
-        return TBot.delete_chat_photo(self, *args)
+        return Bot.delete_chat_photo(self, *args)
 
     @async_dec()
     def set_chat_title(self, *args):
-        return TBot.set_chat_title(self, *args)
+        return Bot.set_chat_title(self, *args)
 
     @async_dec()
     def set_chat_description(self, *args):
-        return TBot.set_chat_description(self, *args)
+        return Bot.set_chat_description(self, *args)
 
     @async_dec()
     def pin_chat_message(self, *args, **kwargs):
-        return TBot.pin_chat_message(self, *args, **kwargs)
+        return Bot.pin_chat_message(self, *args, **kwargs)
 
     @async_dec()
     def unpin_chat_message(self, *args):
-        return TBot.unpin_chat_message(self, *args)
+        return Bot.unpin_chat_message(self, *args)
 
     @async_dec()
     def leave_chat(self, *args):
-        return TBot.leave_chat(self, *args)
+        return Bot.leave_chat(self, *args)
 
     @async_dec()
     def get_chat(self, *args):
-        return TBot.get_chat(self, *args)
+        return Bot.get_chat(self, *args)
 
     @async_dec()
     def get_chat_administrators(self, *args):
-        return TBot.get_chat_administrators(self, *args)
+        return Bot.get_chat_administrators(self, *args)
 
     @async_dec()
     def get_chat_members_count(self, *args):
-        return TBot.get_chat_members_count(self, *args)
+        return Bot.get_chat_members_count(self, *args)
 
     @async_dec()
     def send_sticker(self, *args, **kwargs):
-        return TBot.send_sticker(self, *args, **kwargs)
+        return Bot.send_sticker(self, *args, **kwargs)
 
     @async_dec()
     def get_chat_member(self, *args):
-        return TBot.get_chat_member(self, *args)
+        return Bot.get_chat_member(self, *args)
 
     @async_dec()
     def set_chat_sticker_set(self, *args):
-        return TBot.set_chat_sticker_set(self, *args)
+        return Bot.set_chat_sticker_set(self, *args)
 
     @async_dec()
     def delete_chat_sticker_set(self, *args):
-        return TBot.delete_chat_sticker_set(self, *args)
+        return Bot.delete_chat_sticker_set(self, *args)
 
     @async_dec()
     def answer_callback_query(self, *args, **kwargs):
-        return TBot.answer_callback_query(self, *args, **kwargs)
+        return Bot.answer_callback_query(self, *args, **kwargs)
 
     @async_dec()
     def set_my_commands(self, *args):
-        return TBot.set_my_commands(self, *args)
+        return Bot.set_my_commands(self, *args)
 
     @async_dec()
     def get_my_commands(self):
-        return TBot.get_my_commands(self)
+        return Bot.get_my_commands(self)
 
     @async_dec()
     def edit_message_text(self, *args, **kwargs):
-        return TBot.edit_message_text(self, *args, **kwargs)
+        return Bot.edit_message_text(self, *args, **kwargs)
 
     @async_dec()
     def edit_message_caption(self, *args, **kwargs):
-        return TBot.edit_message_caption(self, *args, **kwargs)
+        return Bot.edit_message_caption(self, *args, **kwargs)
 
     @async_dec()
     def edit_message_media(self, *args, **kwargs):
-        return TBot.edit_message_media(self, *args, **kwargs)
+        return Bot.edit_message_media(self, *args, **kwargs)
 
     @async_dec()
     def edit_message_reply_markup(self, *args, **kwargs):
-        return TBot.edit_message_reply_markup(self, *args, **kwargs)
+        return Bot.edit_message_reply_markup(self, *args, **kwargs)
 
     @async_dec()
     def stop_poll(self, *args, **kwargs):
-        return TBot.stop_poll(self, *args, **kwargs)
+        return Bot.stop_poll(self, *args, **kwargs)
 
     @async_dec()
     def delete_message(self, *args):
-        return TBot.delete_message(self, *args)
+        return Bot.delete_message(self, *args)
 
     @async_dec()
     def send_sticker(self, *args, **kwargs):
-        return TBot.send_sticker(self, *args, **kwargs)
+        return Bot.send_sticker(self, *args, **kwargs)
 
     @async_dec()
     def get_sticker_set(self, *args, **kwargs):
-        return TBot.get_sticker_set(self, *args, **kwargs)
+        return Bot.get_sticker_set(self, *args, **kwargs)
 
     @async_dec()
     def upload_sticker_file(self, *args, **kwargs):
-        return TBot.upload_sticker_file(self, *args, **kwargs)
+        return Bot.upload_sticker_file(self, *args, **kwargs)
 
     @async_dec()
     def create_new_sticker_set(self, *args, **kwargs):
-        return TBot.create_new_sticker_set(self, *args, **kwargs)
+        return Bot.create_new_sticker_set(self, *args, **kwargs)
 
     @async_dec()
     def add_sticker_to_set(self, *args, **kwargs):
-        return TBot.add_sticker_to_set(self, *args, **kwargs)
+        return Bot.add_sticker_to_set(self, *args, **kwargs)
 
     @async_dec()
     def set_sticker_position_in_set(self, *args, **kwargs):
-        return TBot.set_sticker_position_in_set(self, *args, **kwargs)
+        return Bot.set_sticker_position_in_set(self, *args, **kwargs)
 
     @async_dec()
     def delete_sticker_from_set(self, *args, **kwargs):
-        return TBot.delete_sticker_from_set(self, *args, **kwargs)
+        return Bot.delete_sticker_from_set(self, *args, **kwargs)
 
     @async_dec()
     def set_sticker_set_thumb(self, *args, **kwargs):
-        return TBot.set_sticker_set_thumb(self, *args, **kwargs)
+        return Bot.set_sticker_set_thumb(self, *args, **kwargs)
 
     @async_dec()
     def answer_inline_query(self, *args, **kwargs):
-        return TBot.answer_inline_query(self, *args, **kwargs)
+        return Bot.answer_inline_query(self, *args, **kwargs)
 
     @async_dec()
     def send_invoice(self, *args, **kwargs):
-        return TBot.send_invoice(self, *args, **kwargs)
+        return Bot.send_invoice(self, *args, **kwargs)
 
     @async_dec()
     def answer_shipping_query(self, *args, **kwargs):
-        return TBot.answer_shipping_query(self, *args, **kwargs)
+        return Bot.answer_shipping_query(self, *args, **kwargs)
 
     @async_dec()
     def answer_pre_checkout_query(self, *args, **kwargs):
-        return TBot.answer_pre_checkout_query(self, *args, **kwargs)
+        return Bot.answer_pre_checkout_query(self, *args, **kwargs)
 
     @async_dec()
     def set_passport_data_errors(self, *args, **kwargs):
-        return TBot.set_passport_data_errors(self, *args, **kwargs)
+        return Bot.set_passport_data_errors(self, *args, **kwargs)
 
     @async_dec()
     def send_game(self, *args, **kwargs):
-        return TBot.send_game(self, *args, **kwargs)
+        return Bot.send_game(self, *args, **kwargs)
 
     @async_dec()
     def set_game_score(self, *args, **kwargs):
-        return TBot.set_game_score(self, *args, **kwargs)
+        return Bot.set_game_score(self, *args, **kwargs)
 
     @async_dec()
     def get_game_high_scores(self, *args, **kwargs):
-        return TBot.get_game_high_scores(self, *args, **kwargs)
+        return Bot.get_game_high_scores(self, *args, **kwargs)

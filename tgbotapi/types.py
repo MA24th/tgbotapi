@@ -3,19 +3,18 @@ import json
 
 """ Telegram Available types
     All types used in the Bot API responses are represented as JSON-objects.
-    It is safe to use 32-bit signed integers for storing all Integer fields unless otherwise noted.
 """
 
 
 class Update(JsonDeserializable):
     """ 
-    This object represents an incoming update
+    This object represents an incoming update.
+    At most one of the optional parameters can be present in any given update.
     """
 
     def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                  chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer):
         """
-        :param int update_id:
         :param Message message:
         :param Message edited_message:
         :param Message channel_post:
@@ -66,7 +65,8 @@ class Update(JsonDeserializable):
             inline_query = InlineQuery.de_json(obj['inline_query'])
         chosen_inline_result = None
         if 'chosen_inline_result' in obj:
-            chosen_inline_result = ChosenInlineResult.de_json(obj['chosen_inline_result'])
+            chosen_inline_result = ChosenInlineResult.de_json(
+                obj['chosen_inline_result'])
         callback_query = None
         if 'callback_query' in obj:
             callback_query = CallbackQuery.de_json(obj['callback_query'])
@@ -75,7 +75,8 @@ class Update(JsonDeserializable):
             shipping_query = ShippingQuery.de_json(obj['shipping_query'])
         pre_checkout_query = None
         if 'pre_checkout_query' in obj:
-            pre_checkout_query = PreCheckoutQuery.de_json(obj['pre_checkout_query'])
+            pre_checkout_query = PreCheckoutQuery.de_json(
+                obj['pre_checkout_query'])
         poll = None
         if 'poll' in obj:
             poll = Poll.de_json(obj['poll'])
@@ -89,8 +90,8 @@ class Update(JsonDeserializable):
 class WebhookInfo(JsonDeserializable):
     """ Contains information about the current status of a webhook """
 
-    def __init__(self, url, has_custom_certificate, pending_update_count, ip_address, last_error_date, last_error_message,
-                 max_connections, allowed_updates):
+    def __init__(self, url, has_custom_certificate, pending_update_count, ip_address, last_error_date,
+                 last_error_message, max_connections, allowed_updates):
         """
         :param str url:
         :param bool has_custom_certificate:
@@ -122,7 +123,7 @@ class WebhookInfo(JsonDeserializable):
         pending_update_count = obj['pending_update_count']
         ip_address = None
         if 'ip_address' in obj:
-           ip_address = obj['ip_address']
+            ip_address = obj['ip_address']
         last_error_date = None
         if 'last_error_message' in obj:
             last_error_date = obj['last_error_date']
@@ -140,12 +141,12 @@ class WebhookInfo(JsonDeserializable):
 
 
 class User(JsonDeserializable):
-    """ This object represents a Telegram user or bot """
 
-    def __init__(self, id, is_bot, first_name, last_name, username, language_code, can_join_groups,
+    def __init__(self, uid, is_bot, first_name, last_name, username, language_code, can_join_groups,
                  can_read_all_group_messages, supports_inline_queries):
-        """
-        :param int id:
+        """ 
+        This object represents a Telegram user or bot 
+        :param int uid:
         :param bool is_bot:
         :param str first_name:
         :param str last_name:
@@ -155,7 +156,7 @@ class User(JsonDeserializable):
         :param bool can_read_all_group_messages:
         :param bool supports_inline_queries:
         """
-        self.id = id
+        self.uid = uid
         self.is_bot = is_bot
         self.first_name = first_name
         self.username = username
@@ -172,7 +173,7 @@ class User(JsonDeserializable):
         :return: dict
         """
         obj = cls.check_type(obj_type)
-        id = obj['id']
+        uid = obj['id']
         is_bot = obj['is_bot']
         first_name = obj['first_name']
         last_name = None
@@ -193,18 +194,18 @@ class User(JsonDeserializable):
         supports_inline_queries = None
         if 'supports_inline_queries' in obj:
             supports_inline_queries = obj['supports_inline_queries']
-        return cls(id, is_bot, first_name, last_name, username, language_code, can_join_groups,
+        return cls(uid, is_bot, first_name, last_name, username, language_code, can_join_groups,
                    can_read_all_group_messages, supports_inline_queries)
 
 
 class Chat(JsonDeserializable):
-    """ This object represents a chat """
-
-    def __init__(self, id, type, title, username, first_name, last_name, photo, bio, has_private_forwards, description, invite_link,
-                 pinned_message, permissions, slow_mode_delay, message_auto_delete_time, has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location):
-        """
-        :param int id:
-        :param str type:
+    def __init__(self, uid, ttype, title, username, first_name, last_name, photo, bio, has_private_forwards, 
+                 description, invite_link, pinned_message, permissions, slow_mode_delay, message_auto_delete_time,
+                 has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location):
+        """  
+        This object represents a chat 
+        :param int uid:
+        :param str ttype:
         :param str title:
         :param str username:
         :param str first_name:
@@ -224,8 +225,8 @@ class Chat(JsonDeserializable):
         :param str linked_chat_id:
         :param ChatLocation location:
         """
-        self.id = id
-        self.type = type
+        self.uid = uid
+        self.ttype = ttype
         self.title = title
         self.username = username
         self.first_name = first_name
@@ -252,8 +253,8 @@ class Chat(JsonDeserializable):
         :return: dict
         """
         obj = cls.check_type(obj_type)
-        id = obj['id']
-        type = obj['type']
+        uid = obj['id']
+        ttype = obj['type']
         title = None
         if 'title' in obj:
             title = obj['title']
@@ -274,7 +275,7 @@ class Chat(JsonDeserializable):
             bio = obj['bio']
         has_private_forwards = None
         if 'has_private_forwards' in obj:
-          has_private_forwards = obj['has_private_forwards']
+            has_private_forwards = obj['has_private_forwards']
         description = None
         if 'description' in obj:
             description = obj['description']
@@ -292,10 +293,10 @@ class Chat(JsonDeserializable):
             slow_mode_delay = obj['slow_mode_delay']
         message_auto_delete_time = None
         if 'message_auto_delete_time' in obj:
-          message_auto_delete_time = obj['message_auto_delete_time']
+            message_auto_delete_time = obj['message_auto_delete_time']
         has_protected_content = None
         if 'has_protected_content' in obj:
-          has_protected_content = obj['has_protected_content']
+            has_protected_content = obj['has_protected_content']
         sticker_set_name = None
         if 'sticker_set_name' in obj:
             sticker_set_name = obj['sticker_set_name']
@@ -307,16 +308,16 @@ class Chat(JsonDeserializable):
             linked_chat_id = obj['linked_chat_id']
         location = None
         if 'location' in obj:
-          location = ChatLocation.de_json(obj['location'])
-        return cls(id, type, title, username, first_name, last_name, photo, bio, has_private_forwards, description, invite_link, pinned_message,
-                   permissions, slow_mode_delay,
-                   message_auto_delete_time, has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location)
+            location = ChatLocation.de_json(obj['location'])
+        return cls(uid, ttype, title, username, first_name, last_name, photo, bio, has_private_forwards, description,
+                   invite_link, pinned_message, permissions, slow_mode_delay, message_auto_delete_time,
+                   has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location)
 
 
 class Message(JsonDeserializable):
     """This object represents a message"""
 
-    def __init__(self, content_type, message_id, from_user, sender_chat,date, chat, options):
+    def __init__(self, content_type, message_id, from_user, sender_chat, date, chat, options):
         self.content_type = content_type
         self.message_id = message_id
         self.from_user = from_user
@@ -375,7 +376,7 @@ class Message(JsonDeserializable):
             from_user = User.de_json(obj['from'])
         sender_chat = None
         if 'sender_chat' in obj:
-          sender_chat = Chat.de_json(obj['sender_chat'])
+            sender_chat = Chat.de_json(obj['sender_chat'])
         date = obj['date']
         chat = Chat.de_json(obj['chat'])
         content_type = None
@@ -455,7 +456,8 @@ class Message(JsonDeserializable):
             opts['dice'] = Dice.de_json(obj['dice'])
             content_type = 'dice'
         if 'new_chat_members' in obj:
-            opts['new_chat_members'] = Message.parse_users(obj['new_chat_members'])
+            opts['new_chat_members'] = Message.parse_users(
+                obj['new_chat_members'])
             content_type = 'new_chat_members'
         if 'left_chat_member' in obj:
             opts['left_chat_member'] = User.de_json(obj['left_chat_member'])
@@ -501,11 +503,12 @@ class Message(JsonDeserializable):
             opts['passport_data'] = obj['passport_data']
             content_type = 'passport_data'
         if 'proximity_alert_triggered' in obj:
-            opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
+            opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(
+                obj['proximity_alert_triggered'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
             content_type = 'reply_markup'
-        return cls(content_type, message_id, from_user, sender_chat, data, chat, opts)
+        return cls(content_type, message_id, from_user, sender_chat, date, chat, opts)
 
     @classmethod
     def parse_photo(cls, obj):
@@ -530,24 +533,25 @@ class Message(JsonDeserializable):
 
 
 class MessageId(JsonDeserializable):
-  """
-  This object represents a unique message identifier.
-  """
-  def __init__(self, message_id):
-    self.message_id = message_id
-  
-  @classmethod
-  def de_json(cls, obj_type):
-    obj = cls.check_type(obj_type)
-    message_id = obj['message_id']
-    return cls(message_id)
+    """
+    This object represents a unique message identifier.
+    """
 
-  
+    def __init__(self, message_id):
+        self.message_id = message_id
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        message_id = obj['message_id']
+        return cls(message_id)
+
+
 class MessageEntity(JsonDeserializable):
     """ This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc """
 
-    def __init__(self, type, offset, length, url=None, user=None, language=None):
-        self.type = type
+    def __init__(self, ttype, offset, length, url=None, user=None, language=None):
+        self.ttype = ttype
         self.offset = offset
         self.length = length
         self.url = url
@@ -557,7 +561,7 @@ class MessageEntity(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        type = obj['type']
+        ttype = obj['type']
         offset = obj['offset']
         length = obj['length']
         url = None
@@ -569,7 +573,7 @@ class MessageEntity(JsonDeserializable):
         language = None
         if 'language' in obj:
             language = obj['language']
-        return cls(type, offset, length, url, user, language)
+        return cls(ttype, offset, length, url, user, language)
 
 
 class PhotoSize(JsonDeserializable):
@@ -623,7 +627,7 @@ class Audio(JsonDeserializable):
             title = obj['title']
         file_name = None
         if 'file_name' in obj:
-          file_name = obj['file_name']
+            file_name = obj['file_name']
         mime_type = None
         if 'mime_type' in obj:
             mime_type = obj['mime_type']
@@ -637,7 +641,7 @@ class Audio(JsonDeserializable):
 
 
 class Document(JsonDeserializable):
-    """ This object represents a general file (as opposed to photos, voice messages and audio files) """
+    """ This object represents a general file """
 
     def __init__(self, file_id, file_unique_id, thumb=None, file_name=None, mime_type=None, file_size=None):
         self.file_id = file_id
@@ -694,7 +698,7 @@ class Video(JsonDeserializable):
             thumb = PhotoSize.de_json(obj['thumb'])
         file_name = None
         if 'file_name' in obj:
-          file_name = obj['file_name']
+            file_name = obj['file_name']
         mime_type = None
         if 'mime_type' in obj:
             mime_type = obj['mime_type']
@@ -838,16 +842,16 @@ class Location(JsonDeserializable):
         latitude = obj['latitude']
         horizontal_accuracy = None
         if 'horizontal_accuracy' in obj:
-          horizontal_accuracy = obj['horizontal_accuracy']
+            horizontal_accuracy = obj['horizontal_accuracy']
         live_period = None
         if 'live_period' in obj:
-          live_period = obj['live_period']
+            live_period = obj['live_period']
         heading = None
         if 'heading' in obj:
-          heading = obj['heading']
+            heading = obj['heading']
         proximity_alert_radius = None
         if 'proximity_alert_radius' in obj:
-          proximity_alert_radius = obj['proximity_alert_radius']
+            proximity_alert_radius = obj['proximity_alert_radius']
         return cls(longitude, latitude, horizontal_accuracy, live_period, heading, proximity_alert_radius)
 
 
@@ -875,27 +879,33 @@ class Venue(JsonDeserializable):
         foursquare_type = None
         if 'foursquare_type' in obj:
             foursquare_type = obj['foursquare_type']
+        google_place_id = None
         if 'google_place_id' in obj:
             google_place_id = obj['google_place_id']
+        google_place_type = None
         if 'google_place_type' in obj:
-          google_place_type = obj['google_place_type']
-        return cls(location, title, address, foursquare_id, foursquare_type)
+            google_place_type = obj['google_place_type']
+        return cls(location, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type)
 
 
 class ProximityAlertTriggered(JsonDeserializable):
-  """ This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user """
-  def __init__(self, traveler, watcher, distance):
-    self.traveler = traveler
-    self.watcher = watcher
-    self.distance = distance
-    
-  @classmethod
-  def de_json(cls, obj_type):
-    obj = cls.check_type(obj_type)
-    traveler = User.de_json(obj['tarveler'])
-    watcher = User.de_json(obj['watcher'])
-    distance = obj['distance']
-    return cls(traveler, watcher, distance)
+    """
+    This object represents the content of a service message,
+    sent whenever a user in the chat triggers a proximity alert set by another user
+    """
+
+    def __init__(self, traveler, watcher, distance):
+        self.traveler = traveler
+        self.watcher = watcher
+        self.distance = distance
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        traveler = User.de_json(obj['tarveler'])
+        watcher = User.de_json(obj['watcher'])
+        distance = obj['distance']
+        return cls(traveler, watcher, distance)
 
 
 class PollOption(JsonDeserializable):
@@ -935,15 +945,16 @@ class PollAnswer(JsonDeserializable):
 class Poll(JsonDeserializable):
     """ This object contains information about a poll """
 
-    def __init__(self, id, question, options, total_voter_count, is_closed, is_anonymous, type, allows_multiple_answers,
-                 correct_option_id, explanation, explanation_entities, open_period, close_date):
-        self.id = id
+    def __init__(self, uid, question, options, total_voter_count, is_closed, is_anonymous, ttype, 
+                 allows_multiple_answers, correct_option_id, explanation, explanation_entities, open_period, 
+                 close_date):
+        self.uid = uid
         self.question = question
         self.options = options
         self.total_voter_count = total_voter_count
         self.is_closed = is_closed
         self.is_anonymous = is_anonymous
-        self.type = type
+        self.ttype = ttype
         self.allows_multiple_answers = allows_multiple_answers
         self.correct_option_id = correct_option_id
         self.explanation = explanation
@@ -954,13 +965,13 @@ class Poll(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        id = obj['id']
+        uid = obj['id']
         question = obj['question']
         options = Poll.parse_options(obj['options'])
         total_voter_count = obj['total_voter_count']
         is_closed = obj['is_closed']
         is_anonymous = obj['is_anonymous']
-        type = obj['type']
+        ttype = obj['type']
         allows_multiple_answers = obj['allows_multiple_answers']
         correct_option_id = None
         if 'correct_option_id' in obj:
@@ -970,14 +981,15 @@ class Poll(JsonDeserializable):
             explanation = obj['explanation']
         explanation_entities = None
         if 'explanation_entities' in obj:
-            explanation_entities = Poll.parse_explanation_entities(obj['explanation_entities'])
+            explanation_entities = Poll.parse_explanation_entities(
+                obj['explanation_entities'])
         open_period = None
         if 'open_period' in obj:
             open_period = obj['open_period']
         close_date = None
         if 'close_date' in obj:
             close_date = obj['close_date']
-        return cls(id, question, options, total_voter_count, is_closed, is_anonymous, type, allows_multiple_answers,
+        return cls(uid, question, options, total_voter_count, is_closed, is_anonymous, ttype, allows_multiple_answers,
                    correct_option_id, explanation, explanation_entities, open_period, close_date)
 
     @classmethod
@@ -1158,18 +1170,18 @@ class KeyboardButton(Dictionaryable, JsonSerializable):
 
 class KeyboardButtonPollType(JsonDeserializable):
     """
-        This object represents type of a poll,
+        This object represents ttype of poll,
         which is allowed to be created and sent when the corresponding button is pressed
     """
 
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, ttype):
+        self.ttype = ttype
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        type = obj['type']
-        return cls(type)
+        ttype = obj['type']
+        return cls(ttype)
 
 
 class ReplyKeyboardRemove(JsonSerializable):
@@ -1177,7 +1189,8 @@ class ReplyKeyboardRemove(JsonSerializable):
     Upon receiving a message with this object, 
     Telegram clients will remove the current custom keyboard and display the default letter-keyboard,
     By default, custom keyboards are displayed until a new keyboard is sent by a bot,
-    An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup).
+    An exception is made for one-time keyboards that are hidden immediately after the user presses a button
+    (see ReplyKeyboardMarkup).
     """
 
     def __init__(self, selective=None):
@@ -1316,10 +1329,10 @@ class CallbackQuery(JsonDeserializable):
         This object represents an incoming callback query from a callback button in an inline keyboard
     """
 
-    def __init__(self, id, from_user, data, chat_instance, message=None, inline_message_id=None, game_short_name=None):
+    def __init__(self, uid, from_user, data, chat_instance, message=None, inline_message_id=None, game_short_name=None):
         self.game_short_name = game_short_name
         self.chat_instance = chat_instance
-        self.id = id
+        self.uid = uid
         self.from_user = from_user
         self.message = message
         self.data = data
@@ -1328,7 +1341,7 @@ class CallbackQuery(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        id = obj['id']
+        uid = obj['id']
         from_user = User.de_json(obj['from'])
         message = None
         if 'message' in obj:
@@ -1343,7 +1356,7 @@ class CallbackQuery(JsonDeserializable):
         game_short_name = None
         if 'game_short_name' in obj:
             game_short_name = obj['game_short_name']
-        return cls(id, from_user, data, chat_instance, message, inline_message_id, game_short_name)
+        return cls(uid, from_user, data, chat_instance, message, inline_message_id, game_short_name)
 
 
 class ForceReply(JsonSerializable):
@@ -1387,13 +1400,11 @@ class ChatPhoto(JsonDeserializable):
 class ChatMember(JsonDeserializable):
     """ This object contains information about one member of a chat """
 
-    def __init__(self, status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info, can_post_messages,
-                 can_edit_messages,
-                 can_delete_messages, can_invite_users, can_restrict_members, is_member, can_pin_messages,
-                 can_promote_members,
-                 can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages,
-                 can_add_web_page_previews):
-        
+    def __init__(self, status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info,
+                 can_post_messages, can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members,
+                 is_member, can_pin_messages, can_promote_members, can_send_messages, can_send_media_messages,
+                 can_send_polls, can_send_other_messages, can_add_web_page_previews):
+
         self.status = status
         self.user = user
         self.is_anonymous = is_anonymous
@@ -1423,7 +1434,6 @@ class ChatMember(JsonDeserializable):
         is_anonymous = None
         if 'is_anonymous' in obj:
             is_anonymous = obj['is_anonymous']
-        status = obj['status']
         custom_title = None
         if 'custom_title' in obj:
             custom_title = obj['custom_title']
@@ -1475,9 +1485,9 @@ class ChatMember(JsonDeserializable):
         can_add_web_page_previews = None
         if 'can_add_web_page_previews' in obj:
             can_add_web_page_previews = obj['can_add_web_page_previews']
-        return cls(status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info, can_post_messages,
-                   can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members, is_member,
-                   can_pin_messages, can_promote_members, can_send_messages, can_send_media_messages,
+        return cls(status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info,
+                   can_post_messages, can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members,
+                   is_member, can_pin_messages, can_promote_members, can_send_messages, can_send_media_messages,
                    can_send_other_messages, can_add_web_page_previews, can_send_polls)
 
 
@@ -1528,17 +1538,18 @@ class ChatPermissions(JsonDeserializable):
 
 
 class ChatLocation(JsonDeserializable):
-  """ Represents a location to which a chat is connected """
-  def __init__(self, location, address):
-    self.location = location
-    self.address = address
-  
-  @classmethod
-  def de_json(cls, obj_type):
-    obj = cls.check_type(obj_type)
-    location = Location.de_json(obj['location'])
-    address = obj['address']
-    return cls(location, address)
+    """ Represents a location to which a chat is connected """
+
+    def __init__(self, location, address):
+        self.location = location
+        self.address = address
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        location = Location.de_json(obj['location'])
+        address = obj['address']
+        return cls(location, address)
 
 
 class BotCommand(JsonDeserializable):
@@ -1594,15 +1605,15 @@ class InputMedia:
         self.Document = self.__InputMediaDocument
 
     class __InputMediaPhoto(JsonSerializable):
-        def __init__(self, type, media, caption=None, parse_mode=None, caption_entities=None):
-            self.type = type
+        def __init__(self, ttype, media, caption=None, parse_mode=None, caption_entities=None):
+            self.ttype = ttype
             self.media = media
             self.caption = caption
             self.parse_mode = parse_mode
             self.caption_entities = caption_entities
 
         def to_dict(self):
-            obj = {'type': self.type, 'media': self.media}
+            obj = {'type': self.ttype, 'media': self.media}
             if self.caption:
                 obj['caption'] = self.caption
             if self.parse_mode:
@@ -1615,9 +1626,9 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaVideo(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None, height=None,
-                     duration=None, supports_streaming=False):
-            self.type = type
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
+                     height=None, duration=None, supports_streaming=False):
+            self.ttype = ttype
             self.media = media
             self.thumb = thumb
             self.caption = caption
@@ -1629,7 +1640,7 @@ class InputMedia:
             self.supports_streaming = supports_streaming
 
         def to_dict(self):
-            obj = {'type': self.type, 'media': self.media}
+            obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
             if self.caption:
@@ -1651,9 +1662,9 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaAnimation(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None, height=None,
-                     duration=None):
-            self.type = type
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
+                     height=None, duration=None):
+            self.ttype = ttype
             self.media = media
             self.thumb = thumb
             self.caption = caption
@@ -1664,7 +1675,7 @@ class InputMedia:
             self.duration = duration
 
         def to_dict(self):
-            obj = {'type': self.type, 'media': self.media}
+            obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
             if self.caption:
@@ -1685,9 +1696,9 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaAudio(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None, height=None,
-                     duration=None, performer=None, title=None):
-            self.type = type
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
+                     height=None, duration=None, performer=None, title=None):
+            self.ttype = ttype
             self.media = media
             self.thumb = thumb
             self.caption = caption
@@ -1700,7 +1711,7 @@ class InputMedia:
             self.title = title
 
         def to_dict(self):
-            obj = {'type': self.type, 'media': self.media}
+            obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
             if self.caption:
@@ -1725,8 +1736,9 @@ class InputMedia:
             return json.dumps(self.to_dict())
 
     class __InputMediaDocument(JsonSerializable):
-        def __init__(self, type, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, disable_content_type_detection=True):
-            self.type = type
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None,
+                     disable_content_type_detection=True):
+            self.ttype = ttype
             self.media = media
             self.thumb = thumb
             self.caption = caption
@@ -1735,7 +1747,7 @@ class InputMedia:
             self.disable_content_type_detection = disable_content_type_detection
 
         def to_dict(self):
-            obj = {'type': self.type, 'media': self.media}
+            obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
             if self.caption:
@@ -1745,7 +1757,7 @@ class InputMedia:
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
             if self.disable_content_type_detection:
-              obj['disable_content_type_detection'] = self.disable_content_type_detection
+                obj['disable_content_type_detection'] = self.disable_content_type_detection
             return obj
 
         def to_json(self):
@@ -1861,8 +1873,8 @@ class InlineQuery(JsonDeserializable):
     your bot could return some default or trending results.
     """
 
-    def __init__(self, id, from_user, location, query, offset):
-        self.id = id
+    def __init__(self, uid, from_user, location, query, offset):
+        self.uid = uid
         self.from_user = from_user
         self.location = location
         self.query = query
@@ -1871,14 +1883,14 @@ class InlineQuery(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        id = obj['id']
+        uid = obj['id']
         from_user = User.de_json(obj['from'])
         location = None
         if 'location' in obj:
             location = Location.de_json(obj['location'])
         query = obj['query']
         offset = obj['offset']
-        return cls(id, from_user, location, query, offset)
+        return cls(uid, from_user, location, query, offset)
 
 
 class InlineQueryResult:
@@ -1929,10 +1941,10 @@ class InlineQueryResult:
         self.Voice = self.__InlineQueryResultVoice
 
     class __InlineQueryResultArticle(JsonSerializable):
-        def __init__(self, id, title, input_message_content, reply_markup=None, url=None,
+        def __init__(self, uid, title, input_message_content, reply_markup=None, url=None,
                      hide_url=None, description=None, thumb_url=None, thumb_width=None, thumb_height=None):
-            self.type = 'article'
-            self.id = id
+            self.ttype = 'article'
+            self.uid = uid
             self.title = title
             self.input_message_content = input_message_content
             self.reply_markup = reply_markup
@@ -1944,7 +1956,7 @@ class InlineQueryResult:
             self.thumb_height = thumb_height
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id, 'title': self.title,
+            obj = {'type': self.ttype, 'id': self.uid, 'title': self.title,
                    'input_message_content': self.input_message_content}
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
@@ -1965,25 +1977,26 @@ class InlineQueryResult:
     class __InlineQueryResultAudio(JsonSerializable):
         """ Represents a link to an MP3 audio file.
             By default, this audio file will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
+            Alternatively, you can use input_message_content to send a message with the specified
+            content instead of the audio.
         """
 
-        def __init__(self, id, audio_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None, audio_duration=None,
-                     reply_markup=None, input_message_content=None):
-            self.type = 'audio'
-            self.id = id
+        def __init__(self, uid, audio_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None,
+                     audio_duration=None, reply_markup=None, input_message_content=None):
+            self.ttype = 'audio'
+            self.uid = uid
             self.audio_url = audio_url
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
-            self.caption_entities ,= caption_entities
+            self.caption_entities = caption_entities
             self.performer = performer
             self.audio_duration = audio_duration
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'audio_url': self.audio_url, 'title': self.title}
             if self.caption:
                 obj['caption'] = self.caption
@@ -2004,13 +2017,14 @@ class InlineQueryResult:
     class __InlineQueryResultCachedAudio(JsonSerializable):
         """ Represents a link to an MP3 audio file stored on the Telegram servers.
             By default, this audio file will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
+            Alternatively, you can use input_message_content to send a message with the specified
+            content instead of the audio.
         """
 
-        def __init__(self, type, id, audio_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
-                     reply_markup=None, input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, audio_file_id, title=None, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.audio_file_id = audio_file_id
             self.title = title
             self.description = description
@@ -2021,7 +2035,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'audio_file_id': self.audio_file_id}
             if self.title:
                 obj['title'] = self.title
@@ -2045,13 +2059,14 @@ class InlineQueryResult:
     class __InlineQueryResultCachedDocument(JsonSerializable):
         """ Represents a link to a file stored on the Telegram servers.
             By default, this file will be sent by the user with an optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
+            Alternatively, you can use input_message_content to send a message with the specified
+            content instead of the file.
         """
 
-        def __init__(self, type, id, document_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
-                     reply_markup=None, input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, document_file_id, title=None, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.document_file_id = document_file_id
             self.title = title
             self.description = description
@@ -2062,7 +2077,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'document_file_id': self.document_file_id}
             if self.title:
                 obj['title'] = self.title
@@ -2086,13 +2101,14 @@ class InlineQueryResult:
     class __InlineQueryResultCachedGif(JsonSerializable):
         """ Represents a link to an animated GIF file stored on the Telegram servers.
             By default, this animated GIF file will be sent by the user with an optional caption.
-            Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
+            Alternatively, you can use input_message_content to send a message with specified content instead of
+            the animation.
         """
 
-        def __init__(self, type, id, gif_file_id, title=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
-                     input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, gif_file_id, title=None, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.gif_file_id = gif_file_id
             self.title = title
             self.caption = caption
@@ -2102,7 +2118,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'gif_file_id': self.gif_file_id}
             if self.title:
                 obj['title'] = self.title
@@ -2122,15 +2138,15 @@ class InlineQueryResult:
             return json.dumps(self.to_dict())
 
     class __InlineQueryResultCachedMpeg4Gif(JsonSerializable):
-        """ Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers.
+        """ Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers
             By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively,
             you can use input_message_content to send a message with the specified content instead of the animation.
         """
 
-        def __init__(self, type, id, mpeg4_file_id, title=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
-                     input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, mpeg4_file_id, title=None, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.mpeg4_file_id = mpeg4_file_id
             self.title = title
             self.caption = caption
@@ -2140,7 +2156,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'mpeg4_file_id': self.mpeg4_file_id}
             if self.title:
                 obj['title'] = self.title
@@ -2161,13 +2177,15 @@ class InlineQueryResult:
 
     class __InlineQueryResultCachedPhoto(JsonSerializable):
         """ Represents a link to a photo. By default, this photo will be sent by the user with optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the photo.
         """
 
-        def __init__(self, type, id, photo_url, thumb_url, photo_width=None, photo_height=None, title=None,
-                     description=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None, input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, photo_url, thumb_url, photo_width=None, photo_height=None, title=None,
+                     description=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
+                     input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.photo_url = photo_url
             self.thumb_url = thumb_url
             self.photo_width = photo_width
@@ -2181,7 +2199,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'photo_url': self.photo_url, 'thumb_url': self.thumb_url}
             if self.title:
                 obj['title'] = self.title
@@ -2205,18 +2223,19 @@ class InlineQueryResult:
     class __InlineQueryResultCachedSticker(JsonSerializable):
         """ Represents a link to a sticker stored on the Telegram servers.
             By default, this sticker will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the sticker.
         """
 
-        def __init__(self, type, id, sticker_file_id, reply_markup=None, input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, sticker_file_id, reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.sticker_file_id = sticker_file_id
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'sticker_file_id': self.sticker_file_id}
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup
@@ -2230,13 +2249,14 @@ class InlineQueryResult:
     class __InlineQueryResultCachedVideo(JsonSerializable):
         """ Represents a link to a video file stored on the Telegram servers.
             By default, this video file will be sent by the user with an optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the video.
         """
 
-        def __init__(self, type, id, video_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
-                     reply_markup=None, input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, video_file_id, title=None, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.video_file_id = video_file_id
             self.title = title
             self.description = description
@@ -2247,7 +2267,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'video_file_id': self.video_file_id}
             if self.title:
                 obj['title'] = self.title
@@ -2271,13 +2291,14 @@ class InlineQueryResult:
     class __InlineQueryResultCachedVoice(JsonSerializable):
         """ Represents a link to a voice message stored on the Telegram servers.
             By default, this voice message will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the voice message.
         """
 
-        def __init__(self, type, id, voice_file_id, title=None, description=None, caption=None, parse_mode=None, caption_entities=None,
-                     reply_markup=None, input_message_content=None):
-            self.type = type
-            self.id = id
+        def __init__(self, ttype, uid, voice_file_id, title=None, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            self.ttype = ttype
+            self.uid = uid
             self.voice_file_id = voice_file_id
             self.title = title
             self.description = description
@@ -2288,7 +2309,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_dict(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'voice_file_id': self.voice_file_id}
             if self.title:
                 obj['title'] = self.title
@@ -2312,13 +2333,14 @@ class InlineQueryResult:
     class __InlineQueryResultContact(JsonSerializable):
         """ Represents a contact with a phone number.
             By default, this contact will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the contact.
         """
 
-        def __init__(self, id, phone_number, first_name, last_name=None, reply_markup=None,
+        def __init__(self, uid, phone_number, first_name, last_name=None, reply_markup=None,
                      input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
-            self.type = 'contact'
-            self.id = id
+            self.ttype = 'contact'
+            self.uid = uid
             self.phone_number = phone_number
             self.first_name = first_name
             self.last_name = last_name
@@ -2329,7 +2351,7 @@ class InlineQueryResult:
             self.thumb_height = thumb_height
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'phone_number': self.phone_number, 'first_name': self.first_name}
             if self.last_name:
                 obj['last_name'] = self.last_name
@@ -2348,14 +2370,14 @@ class InlineQueryResult:
     class __InlineQueryResultGame(JsonSerializable):
         """ Represents a Game """
 
-        def __init__(self, id, game_short_name, reply_markup=None):
-            self.type = 'game'
-            self.id = id
+        def __init__(self, uid, game_short_name, reply_markup=None):
+            self.ttype = 'game'
+            self.uid = uid
             self.game_short_name = game_short_name
             self.reply_markup = reply_markup
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'game_short_name': self.game_short_name}
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
@@ -2364,15 +2386,16 @@ class InlineQueryResult:
     class __InlineQueryResultDocument(JsonSerializable):
         """ Represents a link to a file.
             By default, this file will be sent by the user with an optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the file.
             Currently, only .PDF and .ZIP files can be sent using this method.
         """
 
-        def __init__(self, id, title, document_url, mime_type, caption=None, parse_mode=None, caption_entities=None, description=None,
-                     reply_markup=None, input_message_content=None, thumb_url=None, thumb_width=None,
+        def __init__(self, uid, title, document_url, mime_type, caption=None, parse_mode=None, caption_entities=None,
+                     description=None, reply_markup=None, input_message_content=None, thumb_url=None, thumb_width=None,
                      thumb_height=None):
-            self.type = 'document'
-            self.id = id
+            self.ttype = 'document'
+            self.uid = uid
             self.title = title
             self.document_url = document_url
             self.mime_type = mime_type
@@ -2387,7 +2410,7 @@ class InlineQueryResult:
             self.thumb_height = thumb_height
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id, 'title': self.title, 'document_url': self.document_url,
+            obj = {'type': self.ttype, 'id': self.uid, 'title': self.title, 'document_url': self.document_url,
                    'mime_type': self.mime_type}
             if self.caption:
                 obj['caption'] = self.caption
@@ -2412,13 +2435,15 @@ class InlineQueryResult:
     class __InlineQueryResultGif(JsonSerializable):
         """ Represents a link to an animated GIF file.
             By default, this animated GIF file will be sent by the user with optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the animation.
         """
 
-        def __init__(self, id, gif_url, gif_width=None, gif_height=None, gif_duration=None, thumb_url=None,
-                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, reply_markup=None, input_message_content=None):
-            self.type = 'gif'
-            self.id = id
+        def __init__(self, uid, gif_url, gif_width=None, gif_height=None, gif_duration=None, thumb_url=None,
+                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            self.ttype = 'gif'
+            self.uid = uid
             self.gif_url = gif_url
             self.gif_width = gif_width
             self.gif_height = gif_height
@@ -2433,7 +2458,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'gif_url': self.gif_url, 'thumb_url': self.thumb_url}
             if self.gif_height:
                 obj['gif_height'] = self.gif_height
@@ -2462,13 +2487,15 @@ class InlineQueryResult:
     class __InlineQueryResultLocation(JsonSerializable):
         """ Represents a location on a map.
             By default, the location will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the location.
         """
 
-        def __init__(self, id, title, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None, proximity_alert_radius=None, reply_markup=None,
-                     input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
-            self.type = 'location'
-            self.id = id
+        def __init__(self, uid, title, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
+                     proximity_alert_radius=None, reply_markup=None, input_message_content=None, thumb_url=None,
+                     thumb_width=None, thumb_height=None):
+            self.ttype = 'location'
+            self.uid = uid
             self.title = title
             self.latitude = latitude
             self.longitude = longitude
@@ -2483,7 +2510,7 @@ class InlineQueryResult:
             self.thumb_height = thumb_height
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id, 'title': self.title,
+            obj = {'type': self.ttype, 'id': self.uid, 'title': self.title,
                    'latitude': self.latitude, 'longitude': self.longitude}
             if self.horizontal_accuracy:
                 obj['horizontal_accuracy'] = self.horizontal_accuracy
@@ -2508,14 +2535,15 @@ class InlineQueryResult:
     class __InlineQueryResultMpeg4Gif(JsonSerializable):
         """ Represents a link to a video animation (H.264/MPEG-4 AVC video without sound).
             By default, this animated MPEG-4 file will be sent by the user with optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the animation.
         """
 
-        def __init__(self, id, mpeg4_url, mpeg4_width=None, mpeg4_height=None, mpeg4_duration=None, thumb_url=None,
-                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
-                     input_message_content=None):
-            self.type = 'mpeg4_gif'
-            self.id = id
+        def __init__(self, uid, mpeg4_url, mpeg4_width=None, mpeg4_height=None, mpeg4_duration=None, thumb_url=None,
+                     thumb_mime_type=None, title=None, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            self.ttype = 'mpeg4_gif'
+            self.uid = uid
             self.mpeg4_url = mpeg4_url
             self.mpeg4_width = mpeg4_width
             self.mpeg4_height = mpeg4_height
@@ -2530,7 +2558,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'mpeg4_url': self.mpeg4_url, 'thumb_url': self.thumb_url}
             if self.mpeg4_width:
                 obj['mpeg4_width'] = self.mpeg4_width
@@ -2555,13 +2583,15 @@ class InlineQueryResult:
     class __InlineQueryResultPhoto(JsonSerializable):
         """ Represents a link to a photo.
             By default, this photo will be sent by the user with optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the photo.
         """
 
-        def __init__(self, id, photo_url, thumb_url, photo_width=None, photo_height=None, title=None,
-                     description=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None, input_message_content=None):
-            self.type = 'photo'
-            self.id = id
+        def __init__(self, uid, photo_url, thumb_url, photo_width=None, photo_height=None, title=None, description=None,
+                     caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
+                     input_message_content=None):
+            self.ttype = 'photo'
+            self.uid = uid
             self.photo_url = photo_url
             self.photo_width = photo_width
             self.photo_height = photo_height
@@ -2575,7 +2605,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'photo_url': self.photo_url, 'thumb_url': self.thumb_url}
             if self.photo_width:
                 obj['photo_width'] = self.photo_width
@@ -2600,13 +2630,15 @@ class InlineQueryResult:
     class __InlineQueryResultVenue(JsonSerializable):
         """ Represents a venue.
             By default, the venue will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the venue.
         """
 
-        def __init__(self, id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, reply_markup=None,
-                     input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
-            self.type = 'venue'
-            self.id = id
+        def __init__(self, uid, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
+                     google_place_id=None, google_place_type=None, reply_markup=None, input_message_content=None,
+                     thumb_url=None, thumb_width=None, thumb_height=None):
+            self.ttype = 'venue'
+            self.uid = uid
             self.latitude = latitude
             self.longitude = longitude
             self.title = title
@@ -2623,10 +2655,10 @@ class InlineQueryResult:
 
         def to_json(self):
             obj = {
-              'type': self.type, 'id': self.id, 'latitude': self.latitude,
-                   'longitude': self.longitude,
-                   'title': self.title, 
-                   'address': self.address}
+                'type': self.ttype, 'id': self.uid, 'latitude': self.latitude,
+                'longitude': self.longitude,
+                'title': self.title,
+                'address': self.address}
             if self.foursquare_id:
                 obj['foursquare_id'] = self.foursquare_id
             if self.foursquare_type:
@@ -2650,17 +2682,18 @@ class InlineQueryResult:
     class __InlineQueryResultVideo(JsonSerializable):
         """ Represents a link to a page containing an embedded video player or a video file.
             By default, this video file will be sent by the user with an optional caption.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
+            Alternatively,
+            you can use input_message_content to send a message with the specified content instead of the video.
 
             If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube),
             you must replace its content using input_message_content.
         """
 
-        def __init__(self, id, video_url, mime_type, thumb_url, title,
-                     caption=None, parse_mode=None, caption_entities=None, video_width=None, video_height=None, video_duration=None,
-                     description=None, reply_markup=None, input_message_content=None):
-            self.type = 'video'
-            self.id = id
+        def __init__(self, uid, video_url, mime_type, thumb_url, title,
+                     caption=None, parse_mode=None, caption_entities=None, video_width=None, video_height=None,
+                     video_duration=None, description=None, reply_markup=None, input_message_content=None):
+            self.ttype = 'video'
+            self.uid = uid
             self.video_url = video_url
             self.mime_type = mime_type
             self.video_width = video_width
@@ -2676,7 +2709,7 @@ class InlineQueryResult:
             self.reply_markup = reply_markup
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id, 'video_url': self.video_url, 'mime_type': self.mime_type,
+            obj = {'type': self.ttype, 'id': self.uid, 'video_url': self.video_url, 'mime_type': self.mime_type,
                    'thumb_url': self.thumb_url, 'title': self.title}
             if self.video_width:
                 obj['video_width'] = self.video_width
@@ -2701,13 +2734,15 @@ class InlineQueryResult:
     class __InlineQueryResultVoice(JsonSerializable):
         """ Represents a link to a voice recording in an .ogg container encoded with OPUS.
             By default, this voice recording will be sent by the user.
-            Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
+            Alternatively,
+            you can use input_message_content to send a message with the specified
+            content instead of the voice message.
         """
 
-        def __init__(self, id, voice_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None, voice_duration=None,
-                     reply_markup=None, input_message_content=None):
-            self.type = 'voice'
-            self.id = id
+        def __init__(self, uid, voice_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None,
+                     voice_duration=None, reply_markup=None, input_message_content=None):
+            self.ttype = 'voice'
+            self.uid = uid
             self.voice_url = voice_url
             self.title = title
             self.caption = caption
@@ -2719,7 +2754,7 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_json(self):
-            obj = {'type': self.type, 'id': self.id,
+            obj = {'type': self.ttype, 'id': self.uid,
                    'voice_url': self.voice_url, 'title': self.title}
             if self.caption:
                 obj['caption'] = self.caption
@@ -2780,7 +2815,8 @@ class InputMessageContent:
     class __InputLocationMessageContent(Dictionaryable):
         """ Represents the content of a location message to be sent as the result of an inline query """
 
-        def __init__(self, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None, proximity_alert_radius=None):
+        def __init__(self, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
+                     proximity_alert_radius=None):
             self.latitude = latitude
             self.longitude = longitude
             self.horizontal_accuracy = horizontal_accuracy
@@ -2797,13 +2833,14 @@ class InputMessageContent:
             if self.heading:
                 obj['heading'] = self.heading
             if self.proximity_alert_radius:
-                obj['proximity_alert_radius'] = proximity_alert_radius
+                obj['proximity_alert_radius'] = self.proximity_alert_radius
             return obj
 
     class __InputVenueMessageContent(Dictionaryable):
         """ Represents the content of a venue message to be sent as the result of an inline query """
 
-        def __init__(self, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None, google_place_id=None, google_place_type=None):
+        def __init__(self, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
+                     google_place_id=None, google_place_type=None):
             self.latitude = latitude
             self.longitude = longitude
             self.title = title
@@ -2953,8 +2990,8 @@ class OrderInfo(JsonDeserializable):
 class ShippingOption(JsonSerializable):
     """ This object represents one shipping option """
 
-    def __init__(self, id, title):
-        self.id = id
+    def __init__(self, uid, title):
+        self.uid = uid
         self.title = title
         self.prices = []
 
@@ -2972,7 +3009,7 @@ class ShippingOption(JsonSerializable):
         for p in self.prices:
             price_list.append(p.to_dict())
         obj = json.dumps(
-            {'id': self.id, 'title': self.title, 'prices': price_list})
+            {'id': self.uid, 'title': self.title, 'prices': price_list})
         return obj
 
 
@@ -3010,8 +3047,8 @@ class SuccessfulPayment(JsonDeserializable):
 class ShippingQuery(JsonDeserializable):
     """ This object contains information about an incoming shipping query """
 
-    def __init__(self, id, from_user, invoice_payload, shipping_address):
-        self.id = id
+    def __init__(self, uid, from_user, invoice_payload, shipping_address):
+        self.uid = uid
         self.from_user = from_user
         self.invoice_payload = invoice_payload
         self.shipping_address = shipping_address
@@ -3019,18 +3056,18 @@ class ShippingQuery(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        id = obj['id']
+        uid = obj['id']
         from_user = User.de_json(obj['from'])
         invoice_payload = obj['invoice_payload']
         shipping_address = ShippingAddress.de_json(obj['shipping_address'])
-        return cls(id, from_user, invoice_payload, shipping_address)
+        return cls(uid, from_user, invoice_payload, shipping_address)
 
 
 class PreCheckoutQuery(JsonDeserializable):
     """ This object contains information about an incoming pre-checkout query """
 
-    def __init__(self, id, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info):
-        self.id = id
+    def __init__(self, uid, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info):
+        self.uid = uid
         self.from_user = from_user
         self.currency = currency
         self.total_amount = total_amount
@@ -3041,7 +3078,7 @@ class PreCheckoutQuery(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        id = obj['id']
+        uid = obj['id']
         from_user = User.de_json(obj['from'])
         currency = obj['currency']
         total_amount = obj['total_amount']
@@ -3052,7 +3089,7 @@ class PreCheckoutQuery(JsonDeserializable):
         order_info = None
         if 'order_info' in obj:
             order_info = OrderInfo.de_json(obj['order_info'])
-        return cls(id, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info)
+        return cls(uid, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info)
 
 
 class PassportData(JsonDeserializable):
@@ -3093,8 +3130,8 @@ class PassportFile(JsonDeserializable):
 class EncryptedPassportElement(JsonDeserializable):
     """ Contains information about documents or other Telegram Passport elements shared with the bot by the user """
 
-    def __init__(self, type, data, phone_number, files, front_side, reverse_side, selfie, translation, hash):
-        self.type = type
+    def __init__(self, ttype, data, phone_number, files, front_side, reverse_side, selfie, translation, hashes):
+        self.ttype = ttype
         self.data = data
         self.phone_number = phone_number
         self.files = files
@@ -3102,12 +3139,12 @@ class EncryptedPassportElement(JsonDeserializable):
         self.reverse_side = reverse_side
         self.selfie = selfie
         self.translation = translation
-        self.hash = hash
+        self.hashes = hashes
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        type = obj['type']
+        ttype = obj['type']
         data = None
         if 'data' in obj:
             data = obj['data']
@@ -3130,8 +3167,8 @@ class EncryptedPassportElement(JsonDeserializable):
         if 'translation' in obj:
             translation = EncryptedPassportElement.parse_translation(
                 obj['translation'])
-        hash = obj['hash']
-        return cls(type, data, phone_number, files, front_side, reverse_side, selfie, translation, hash)
+        hashes = obj['hash']
+        return cls(ttype, data, phone_number, files, front_side, reverse_side, selfie, translation, hashes)
 
     @classmethod
     def parse_files(cls, obj):
@@ -3151,21 +3188,24 @@ class EncryptedPassportElement(JsonDeserializable):
 
 
 class EncryptedCredentials(JsonDeserializable):
-    """Contains data required for decrypting and authenticating EncryptedPassportElement. 
-    See the Telegram Passport Documentation for a complete description of the data decryption and authentication processes."""
+    """
+    Contains data required for decrypting and authenticating EncryptedPassportElement.
+    See the Telegram Passport Documentation for a complete description of the data decryption and
+    authentication processes.
+    """
 
-    def __init__(self, data, hash, secret):
+    def __init__(self, data, hashes, secret):
         self.data = data
-        self.hash = hash
+        self.hashes = hashes
         self.secret = secret
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         data = obj['data']
-        hash = obj['hash']
+        hashes = obj['hash']
         secret = obj['secret']
-        return cls(data, hash, secret)
+        return cls(data, hashes, secret)
 
 
 class PassportElementError(JsonDeserializable):
@@ -3219,9 +3259,9 @@ class PassportElementErrorDataField(JsonDeserializable):
     """ Represents an issue in one of the data fields that was provided by the user. 
     The error is considered resolved when the field's value changes """
 
-    def __init__(self, source, type, field_name, data_hash, message):
+    def __init__(self, source, ttype, field_name, data_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.field_name = field_name
         self.data_hash = data_hash
         self.message = message
@@ -3230,11 +3270,11 @@ class PassportElementErrorDataField(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be data
-        type = obj['type']
+        ttype = obj['type']
         field_name = obj['field_name']
         data_hash = obj['data_hash']
         message = obj['message']
-        return cls(source, type, field_name, data_hash, message)
+        return cls(source, ttype, field_name, data_hash, message)
 
 
 class PassportElementErrorFrontSide(JsonDeserializable):
@@ -3242,9 +3282,9 @@ class PassportElementErrorFrontSide(JsonDeserializable):
     The error is considered resolved when the file with the front side of the document changes.
     """
 
-    def __init__(self, source, type, file_hash, message):
+    def __init__(self, source, ttype, file_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hash = file_hash
         self.message = message
 
@@ -3252,10 +3292,10 @@ class PassportElementErrorFrontSide(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be front_side
-        type = obj['type']
+        ttype = obj['type']
         file_hash = obj['file_hash']
         message = obj['message']
-        return cls(source, type, file_hash, message)
+        return cls(source, ttype, file_hash, message)
 
 
 class PassportElementErrorFile(JsonDeserializable):
@@ -3263,20 +3303,20 @@ class PassportElementErrorFile(JsonDeserializable):
     The error is considered resolved when the file with the document scan changes.
     """
 
-    def __init__(self, source, type, file_hash, message):
+    def __init__(self, source, ttype, file_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hash = file_hash
         self.message = message
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be file
-        type = obj['type']
+        source = obj['source']  # Error source, must be filed
+        ttype = obj['type']
         file_hash = obj['file_hash']
         message = obj['message']
-        return cls(source, type, file_hash, message)
+        return cls(source, ttype, file_hash, message)
 
 
 class PassportElementErrorFiles(JsonDeserializable):
@@ -3284,9 +3324,9 @@ class PassportElementErrorFiles(JsonDeserializable):
     The error is considered resolved when the list of files containing the scans changes.
     """
 
-    def __init__(self, source, type, file_hashes, message):
+    def __init__(self, source, ttype, file_hashes, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hashes = file_hashes
         self.message = message
 
@@ -3294,10 +3334,10 @@ class PassportElementErrorFiles(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be files
-        type = obj['type']
+        ttype = obj['type']
         file_hashes = obj['file_hashes']
         message = obj['message']
-        return cls(source, type, file_hashes, message)
+        return cls(source, ttype, file_hashes, message)
 
 
 class PassportElementErrorReverseSide(JsonDeserializable):
@@ -3305,9 +3345,9 @@ class PassportElementErrorReverseSide(JsonDeserializable):
     The error is considered resolved when the file with reverse side of the document changes.
     """
 
-    def __init__(self, source, type, file_hash, message):
+    def __init__(self, source, ttype, file_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hash = file_hash
         self.message = message
 
@@ -3315,10 +3355,10 @@ class PassportElementErrorReverseSide(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be reverse_side
-        type = obj['type']
+        ttype = obj['type']
         file_hash = obj['file_hash']
         message = obj['message']
-        return cls(source, type, file_hash, message)
+        return cls(source, ttype, file_hash, message)
 
 
 class PassportElementErrorSelfie(JsonDeserializable):
@@ -3326,9 +3366,9 @@ class PassportElementErrorSelfie(JsonDeserializable):
     The error is considered resolved when the file with the selfie changes.
     """
 
-    def __init__(self, source, type, file_hash, message):
+    def __init__(self, source, ttype, file_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hash = file_hash
         self.message = message
 
@@ -3336,10 +3376,10 @@ class PassportElementErrorSelfie(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be selfie
-        type = obj['type']
+        ttype = obj['type']
         file_hash = obj['file_hash']
         message = obj['message']
-        return cls(source, type, file_hash, message)
+        return cls(source, ttype, file_hash, message)
 
 
 class PassportElementErrorTranslationFile(JsonDeserializable):
@@ -3347,9 +3387,9 @@ class PassportElementErrorTranslationFile(JsonDeserializable):
     The error is considered resolved when the file changes.
     """
 
-    def __init__(self, source, type, file_hash, message):
+    def __init__(self, source, ttype, file_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hash = file_hash
         self.message = message
 
@@ -3357,10 +3397,10 @@ class PassportElementErrorTranslationFile(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be translation_file
-        type = obj['type']
+        ttype = obj['type']
         file_hash = obj['file_hash']
         message = obj['message']
-        return cls(source, type, file_hash, message)
+        return cls(source, ttype, file_hash, message)
 
 
 class PassportElementErrorTranslationFiles(JsonDeserializable):
@@ -3368,9 +3408,9 @@ class PassportElementErrorTranslationFiles(JsonDeserializable):
     The error is considered resolved when a file with the document translation change.
     """
 
-    def __init__(self, source, type, file_hashes, message):
+    def __init__(self, source, ttype, file_hashes, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.file_hashes = file_hashes
         self.message = message
 
@@ -3378,10 +3418,10 @@ class PassportElementErrorTranslationFiles(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be translation_files
-        type = obj['type']
+        ttype = obj['type']
         file_hashes = obj['file_hashes']
         message = obj['message']
-        return cls(source, type, file_hashes, message)
+        return cls(source, ttype, file_hashes, message)
 
 
 class PassportElementErrorUnspecified(JsonDeserializable):
@@ -3389,9 +3429,9 @@ class PassportElementErrorUnspecified(JsonDeserializable):
     The error is considered resolved when new data is added.
     """
 
-    def __init__(self, source, type, element_hash, message):
+    def __init__(self, source, ttype, element_hash, message):
         self.source = source
-        self.type = type
+        self.ttype = ttype
         self.element_hash = element_hash
         self.message = message
 
@@ -3399,14 +3439,17 @@ class PassportElementErrorUnspecified(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         source = obj['source']  # Error source, must be unspecified
-        type = obj['type']
+        ttype = obj['type']
         element_hash = obj['element_hash']
         message = obj['message']
-        return cls(source, type, element_hash, message)
+        return cls(source, ttype, element_hash, message)
 
 
 class Game(JsonDeserializable):
-    """ This object represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers """
+    """
+    This object represents a game.
+    Use BotFather to create and edit games, their short names will act as unique identifiers
+    """
 
     def __init__(self, title, description, photo, text=None, text_entities=None, animation=None):
         self.title = title
@@ -3452,7 +3495,7 @@ class CallbackGame:
 
 
 class GameHighScore(JsonDeserializable):
-    """ This object represents one row of the high scores table for a game """
+    """ This object represents one row of the high scores' table for a game """
 
     def __init__(self, position, user, score):
         self.position = position
