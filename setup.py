@@ -25,6 +25,7 @@ setup(name='tgbotapi',
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',
                    'Programming Language :: Python :: 3.8',
+                   'Programming Language :: Python :: 3.9',
                    'Environment :: Console',
                    'License :: OSI Approved :: GNU General Public License v2 (GPLv2)']
       )
