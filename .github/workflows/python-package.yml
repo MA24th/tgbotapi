@@ -35,4 +35,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest -vvv test/test_types.py
+        pytest -vvv tests/test_types.py
