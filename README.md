@@ -114,7 +114,7 @@ there is no fixes for now.
 For more explanation goto [Wiki Tab](https://github.com/MA24th/tgbotapi/wiki).
 
 
-## How to contribute
+## How to Contribute
 - You must follow [Contributing](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/CONTRIBUTING.md) Guidelines.
 - We are committed to providing a friendly community, for more experience read [Code Of Conduct](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/CODE_OF_CONDUCT.md).
 
