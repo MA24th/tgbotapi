@@ -11,7 +11,7 @@ import json
 
 def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
     """
-    Use this method to receive incoming updates using long polling.
+    Use this method to receive incoming updates using long polling
     :type token: str
     :type proxies: dict or None
     :type offset: int or None
@@ -38,7 +38,7 @@ def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
 
 def set_webhook(token, proxies, url, certificate, ip_address, max_connections, allowed_updates, drop_pending_updates):
     """
-    Use this method to specify a url and receive incoming updates via an outgoing webhook.
+    Use this method to specify an url and receive incoming updates via an outgoing webhook
     :type token: str
     :type proxies: dict or None
     :type url: str
@@ -102,7 +102,7 @@ def get_webhook_info(token, proxies):
 
 def get_me(token, proxies):
     """
-    A simple method for testing your bot's auth token. 
+    A simple method for testing your bots auth token
     :type token: str
     :type proxies: dict or None
     :rtype: dict
@@ -117,7 +117,7 @@ def get_me(token, proxies):
 
 def log_out(token, proxies):
     """
-    Use this method to log out from the cloud Bot API server before launching the bot locally.
+    Use this method to log out from the cloud Bot API server before launching the bot locally
     :type token: str
     :type proxies: dict or None
     :rtype: dict
@@ -132,7 +132,7 @@ def log_out(token, proxies):
 
 def close(token, proxies):
     """
-    Use this method to close the bot instance before moving it from one local server to another.
+    Use this method to close the bot instance before moving it from one local server to another
     :type token: str
     :type proxies: dict or None
     :rtype: dict
@@ -148,7 +148,7 @@ def close(token, proxies):
 def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_web_page_preview, disable_notification,
                  reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send text messages. On success, the sent Message is returned.
+    Use this method to send text messages. On success, send Message is returned
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -186,7 +186,7 @@ def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_we
 
 def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_notification):
     """
-    Use this method to forward messages of any kind.
+    Use this method to forward messages of any kind
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -205,9 +205,10 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
+def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
+                 disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """ 
-    Use this method to copy messages of any kind.
+    Use this method to copy messages of any kind
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -229,29 +230,30 @@ def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, par
     files = None
     params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
     if caption:
-      params['caption'] = caption
+        params['caption'] = caption
     if parse_mode:
-      params['parse_mode'] = parse_mode
+        params['parse_mode'] = parse_mode
     if caption_entities:
-      params['caption_entities'] = caption_entities
+        params['caption_entities'] = caption_entities
     if disable_notification:
-      params['disable_notification'] = disable_notification
+        params['disable_notification'] = disable_notification
     if protect_content:
-      params['protect_content'] = protect_content
+        params['protect_content'] = protect_content
     if reply_to_message_id:
-      params['reply_to_message_id'] = reply_to_message_id
+        params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
-      params['allow_sending_without_reply'] = allow_sending_without_reply
+        params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-      params['reply_markup'] = reply_markup
-    
+        params['reply_markup'] = reply_markup
+
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply, 
+def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
+               reply_to_message_id, allow_sending_without_reply,
                reply_markup):
     """
-    Use this method to send photos.
+    Use this method to send photos
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -294,7 +296,7 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_enti
 def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer, title, thumb,
                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send audio files.
+    Use this method to send audio files
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -346,10 +348,11 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_enti
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities, disable_content_type_detection,  disable_notification,
+def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities,
+                  disable_content_type_detection, disable_notification,
                   reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send general files.
+    Use this method to send general files
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -395,10 +398,11 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, caption_entities, supports_streaming,
+def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, caption_entities,
+               supports_streaming,
                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send video files.
+    Use this method to send video files
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -454,9 +458,10 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
 
 
 def send_animation(token, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
-                   caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+                   caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply,
+                   reply_markup):
     """
-    Use this method to send animation files.
+    Use this method to send animation files
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -508,10 +513,11 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration, disable_notification, reply_to_message_id,
+def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration, disable_notification,
+               reply_to_message_id,
                allow_sending_without_reply, reply_markup):
     """
-    Use this method to send audio files.
+    Use this method to send audio files
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -557,7 +563,7 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_enti
 def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
                     reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send video messages.
+    Use this method to send video messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -597,9 +603,10 @@ def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id, allow_sending_without_reply):
+def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id,
+                     allow_sending_without_reply):
     """
-    Use this method to send a group of photos or videos as an album.
+    Use this method to send a group of photos or videos as an album
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -627,10 +634,11 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading, proximity_alert_radius, disable_notification, reply_to_message_id,
+def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading,
+                  proximity_alert_radius, disable_notification, reply_to_message_id,
                   allow_sending_without_reply, reply_markup):
     """
-    Use this method to send point on the map.
+    Use this method to send point on the map
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -653,7 +661,7 @@ def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accur
     params = {'chat_id': chat_id,
               'latitude': latitude, 'longitude': longitude}
     if horizontal_accuracy:
-      params['horizontal_accuracy'] = horizontal_accuracy
+        params['horizontal_accuracy'] = horizontal_accuracy
     if live_period:
         params['live_period'] = live_period
     if heading:
@@ -671,10 +679,11 @@ def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accur
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_live_location(token, proxies, latitude, longitude, horizontal_accuracy, heading, proximity_alert_radius, chat_id, message_id, inline_message_id,
+def edit_message_live_location(token, proxies, latitude, longitude, horizontal_accuracy, heading,
+                               proximity_alert_radius, chat_id, message_id, inline_message_id,
                                reply_markup):
     """
-    Use this method to edit live location messages.
+    Use this method to edit live location messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -685,7 +694,7 @@ def edit_message_live_location(token, proxies, latitude, longitude, horizontal_a
     :type horizontal_accuracy: float or None
     :type heading: str or None
     :type proximity_alert_radius: int or None
-    :type reply_markup: dict
+    :type reply_markup: dict or None
     :rtype: dict
     """
     method = r'post'
@@ -712,7 +721,7 @@ def edit_message_live_location(token, proxies, latitude, longitude, horizontal_a
 
 def stop_message_live_location(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
     """
-    Use this method to stop updating a live location message before live_period expires.
+    Use this method to stop updating a live location message before live_period expires
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -737,10 +746,11 @@ def stop_message_live_location(token, proxies, chat_id, message_id, inline_messa
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type,
+def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
+               google_place_id, google_place_type,
                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send information about a venue.
+    Use this method to send information about a venue
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -785,7 +795,7 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
 def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
                  reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send phone contacts.
+    Use this method to send phone contacts
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or
@@ -820,19 +830,20 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, allows_multiple_answers,
+def send_poll(token, proxies, chat_id, question, options, is_anonymous, ttype, allows_multiple_answers,
               correct_option_id,
-              explanation, explanation_parse_mode, explanation_entities, open_period, close_date, is_closed, disable_notifications,
+              explanation, explanation_parse_mode, explanation_entities, open_period, close_date, is_closed,
+              disable_notifications,
               reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send a native poll.
+    Use this method to send a native poll
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type question: str
     :type options: list
     :type is_anonymous: bool
-    :type type: str or None
+    :type ttype: str or None
     :type allows_multiple_answers: bool
     :type correct_option_id: int or None
     :type explanation: str or None
@@ -854,8 +865,8 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
     params = {'chat_id': chat_id, 'question': question, 'options': options}
     if is_anonymous:
         params['is_anonymous'] = is_anonymous
-    if type:
-        params['type'] = type
+    if ttype:
+        params['type'] = ttype
     if allows_multiple_answers:
         params['allows_multiple_answers'] = allows_multiple_answers
     if correct_option_id:
@@ -883,9 +894,10 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, type, al
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, allow_sending_without_reply,
+              reply_markup):
     """
-    Use this method to send a dice.
+    Use this method to send a dice
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -914,7 +926,7 @@ def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_mes
 
 def send_chat_action(token, proxies, chat_id, action):
     """
-    Use this method when you need to tell the user that something is happening on the bot's side.
+    Use this method when you need to tell the user that something is happening on the bots side
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -931,7 +943,7 @@ def send_chat_action(token, proxies, chat_id, action):
 
 def get_user_profile_photos(token, proxies, user_id, offset, limit):
     """
-    Use this method to get a list of profile pictures for a user.
+    Use this method to get a list of profile pictures for a user
     :type token: str
     :type proxies: dict or None
     :type user_id: int or str
@@ -953,7 +965,7 @@ def get_user_profile_photos(token, proxies, user_id, offset, limit):
 
 def get_file(token, proxies, file_id):
     """
-    Use this method to get basic info about a file and prepare it for downloading.
+    Use this method to get basic info about a file and prepare it for downloading
     :type token: str
     :type proxies: dict or None
     :type file_id: str
@@ -969,7 +981,7 @@ def get_file(token, proxies, file_id):
 
 def download_file(token, proxies, file_path):
     """
-    Use this method to download file with specified file_path.
+    Use this method to download file with specified file_path
     :type token: str
     :type proxies: dict or None
     :type file_path: str
@@ -986,7 +998,7 @@ def download_file(token, proxies, file_path):
 
 def kick_chat_member(token, proxies, chat_id, user_id, until_date):
     """
-    Use this method to kick a user from a group, a supergroup or a channel.
+    Use this method to kick a user from a group, a supergroup or a channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1007,7 +1019,7 @@ def kick_chat_member(token, proxies, chat_id, user_id, until_date):
 
 def unban_chat_member(token, proxies, chat_id, user_id, only_if_banned):
     """
-    Use this method to unban a previously kicked user in a supergroup or channel.
+    Use this method to unban a previously kicked user in a supergroup or channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1027,7 +1039,7 @@ def unban_chat_member(token, proxies, chat_id, user_id, only_if_banned):
 
 def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_date):
     """
-    Use this method to restrict a user in a supergroup.
+    Use this method to restrict a user in a supergroup
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1046,11 +1058,12 @@ def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_da
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_change_info, can_post_messages, can_edit_messages,
+def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_change_info, can_post_messages,
+                        can_edit_messages,
                         can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages,
                         can_promote_members):
     """
-    Use this method to promote or demote a user in a supergroup or a channel.
+    Use this method to promote or demote a user in a supergroup or a channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1094,7 +1107,7 @@ def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_chan
 
 def set_chat_administrator_custom_title(token, proxies, chat_id, user_id, custom_title):
     """
-    Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
+    Use this method to set a custom title for an administrator in a supergroup promoted by the bot
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1112,7 +1125,7 @@ def set_chat_administrator_custom_title(token, proxies, chat_id, user_id, custom
 
 def set_chat_permissions(token, proxies, chat_id, permissions):
     """
-    Use this method to set default chat permissions for all members.
+    Use this method to set default chat permissions for all members
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1129,7 +1142,7 @@ def set_chat_permissions(token, proxies, chat_id, permissions):
 
 def export_chat_invite_link(token, proxies, chat_id):
     """
-    Use this method to generate a new invite link for a chat.
+    Use this method to generate a new invite link for a chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1145,7 +1158,7 @@ def export_chat_invite_link(token, proxies, chat_id):
 
 def set_chat_photo(token, proxies, chat_id, photo):
     """
-    Use this method to set a new profile photo for the chat.
+    Use this method to set a new profile photo for the chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1166,7 +1179,7 @@ def set_chat_photo(token, proxies, chat_id, photo):
 
 def delete_chat_photo(token, proxies, chat_id):
     """
-    Use this method to delete a chat photo.
+    Use this method to delete a chat photo
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1182,7 +1195,7 @@ def delete_chat_photo(token, proxies, chat_id):
 
 def set_chat_title(token, proxies, chat_id, title):
     """
-    Use this method to change the title of a chat.
+    Use this method to change the title of a chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1199,7 +1212,7 @@ def set_chat_title(token, proxies, chat_id, title):
 
 def set_chat_description(token, proxies, chat_id, description):
     """
-    Use this method to change the description of a group, a supergroup or a channel.
+    Use this method to change the description of a group, a supergroup or a channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1218,7 +1231,7 @@ def set_chat_description(token, proxies, chat_id, description):
 
 def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
     """
-    Use this method to pin a message in a group, a supergroup, or a channel.
+    Use this method to pin a message in a group, a supergroup, or a channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1238,7 +1251,7 @@ def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
 
 def unpin_chat_message(token, proxies, chat_id, message_id):
     """
-    Use this method to unpin a message in a group, a supergroup, or a channel.
+    Use this method to unpin a message in a group, a supergroup, or a channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1254,9 +1267,10 @@ def unpin_chat_message(token, proxies, chat_id, message_id):
         params['message_id'] = message_id
     return make_request(method, api_url, api_method, files, params, proxies)
 
+
 def unpin_all_chat_message(token, proxies, chat_id):
     """
-    Use this method to clear the list of pinned messages in a chat.
+    Use this method to clear the list of pinned messages in a chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1268,11 +1282,11 @@ def unpin_all_chat_message(token, proxies, chat_id):
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
-    
-    
+
+
 def leave_chat(token, proxies, chat_id):
     """
-    Use this method for your bot to leave a group, supergroup or channel.
+    Use this method for your bot to leave a group, supergroup or channel
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1288,7 +1302,7 @@ def leave_chat(token, proxies, chat_id):
 
 def get_chat(token, proxies, chat_id):
     """
-    Use this method to get up to date information about the chat.
+    Use this method to get up-to-date information about the chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1304,7 +1318,7 @@ def get_chat(token, proxies, chat_id):
 
 def get_chat_administrators(token, proxies, chat_id):
     """
-    Use this method to get a list of administrators in a chat.
+    Use this method to get a list of administrators in a chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1321,7 +1335,7 @@ def get_chat_administrators(token, proxies, chat_id):
 
 def get_chat_members_count(token, proxies, chat_id):
     """
-    Use this method to get the number of members in a chat.
+    Use this method to get the number of members in a chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1337,7 +1351,7 @@ def get_chat_members_count(token, proxies, chat_id):
 
 def get_chat_member(token, proxies, chat_id, user_id):
     """
-    Use this method to get information about a member of a chat.
+    Use this method to get information about a member of a chat
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1354,7 +1368,7 @@ def get_chat_member(token, proxies, chat_id, user_id):
 
 def set_chat_sticker_set(token, proxies, chat_id, sticker_set_name):
     """
-    Use this method to set a new group sticker set for a supergroup.
+    Use this method to set a new group sticker set for a supergroup
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1371,7 +1385,7 @@ def set_chat_sticker_set(token, proxies, chat_id, sticker_set_name):
 
 def delete_chat_sticker_set(token, proxies, chat_id):
     """
-    Use this method to delete a group sticker set from a supergroup.
+    Use this method to delete a group sticker set from a supergroup
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1387,7 +1401,7 @@ def delete_chat_sticker_set(token, proxies, chat_id):
 
 def answer_callback_query(token, proxies, callback_query_id, text, show_alert, url, cache_time):
     """
-    Use this method to send answers to callback queries sent from inline keyboards.
+    Use this method to send answers to callback queries sent from inline keyboards
     :type token: str
     :type proxies: dict or None
     :type callback_query_id: str
@@ -1415,7 +1429,7 @@ def answer_callback_query(token, proxies, callback_query_id, text, show_alert, u
 
 def set_my_commands(token, proxies, commands):
     """
-    Use this method to change the list of the bot's commands.
+    Use this method to change the list of the bots commands
     :type token: str
     :type proxies: dict or None
     :type commands: list[dict]
@@ -1431,7 +1445,7 @@ def set_my_commands(token, proxies, commands):
 
 def get_my_commands(token, proxies):
     """
-    Use this method to get the current list of the bot's commands.
+    Use this method to get the current list of the bots commands
     :type token: str
     :type proxies: dict or None
     :rtype: dict
@@ -1444,11 +1458,11 @@ def get_my_commands(token, proxies):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities, 
+def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities,
                       disable_web_page_preview,
                       reply_markup):
     """
-    Use this method to edit text and game messages.
+    Use this method to edit text and game messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1483,9 +1497,10 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, caption_entities, reply_markup):
+def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, caption_entities,
+                         reply_markup):
     """
-    Use this method to edit captions of messages.
+    Use this method to edit captions of messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1519,7 +1534,7 @@ def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_me
 
 def edit_message_media(token, proxies, media, chat_id, message_id, inline_message_id, reply_markup):
     """
-    Use this method to edit animation, audio, document, photo, or video messages.
+    Use this method to edit animation, audio, document, photo, or video messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1551,7 +1566,7 @@ def edit_message_media(token, proxies, media, chat_id, message_id, inline_messag
 
 def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
     """
-    Use this method to edit only the reply markup of messages.
+    Use this method to edit only the reply markup of messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1578,7 +1593,7 @@ def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_messag
 
 def stop_poll(token, proxies, chat_id, message_id, reply_markup):
     """
-    Use this method to stop a poll which was sent by the bot.
+    Use this method to stop a poll which was sent by the bot
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1598,7 +1613,7 @@ def stop_poll(token, proxies, chat_id, message_id, reply_markup):
 
 def delete_message(token, proxies, chat_id, message_id):
     """
-    Use this method to delete a message, including service messages.
+    Use this method to delete a message, including service messages
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1616,7 +1631,7 @@ def delete_message(token, proxies, chat_id, message_id):
 def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
                  allow_sending_without_reply, reply_markup):
     """
-    Use this method to send static .WEBP or animated .TGS stickers.
+    Use this method to send static .WEBP or animated .TGS stickers
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -1649,7 +1664,7 @@ def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_t
 
 def get_sticker_set(token, proxies, name):
     """
-    Use this method to get a sticker set.
+    Use this method to get a sticker set
     :type token: str
     :type proxies: dict or None
     :type name: str
@@ -1665,7 +1680,7 @@ def get_sticker_set(token, proxies, name):
 
 def upload_sticker_file(token, proxies, user_id, png_sticker):
     """
-    Use this method to upload a .PNG file with a sticker.
+    Use this method to upload a .PNG file with a sticker
     :type token: str
     :type proxies: dict or None
     :type user_id: int
@@ -1683,7 +1698,7 @@ def upload_sticker_file(token, proxies, user_id, png_sticker):
 def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks,
                            mask_position):
     """
-    Use this method to create a new sticker set owned by a user.
+    Use this method to create a new sticker set owned by a user
     :type token: str
     :type proxies: dict or None
     :type user_id: int
@@ -1716,7 +1731,7 @@ def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tg
 
 def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_sticker, mask_position):
     """
-    Use this method to add a new sticker to a set created by the bot.
+    Use this method to add a new sticker to a set created by the bot
     :type token: str
     :type proxies: dict or None
     :type user_id: int
@@ -1745,7 +1760,7 @@ def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_s
 
 def set_sticker_position_in_set(token, proxies, sticker, position):
     """
-    Use this method to move a sticker in a set created by the bot to a specific position.
+    Use this method to move a sticker in a set created by the bot to a specific position
     :type token: str
     :type proxies: dict or None
     :type sticker: str
@@ -1762,7 +1777,7 @@ def set_sticker_position_in_set(token, proxies, sticker, position):
 
 def delete_sticker_from_set(token, proxies, sticker):
     """
-    Use this method to delete a sticker from a set created by the bot.
+    Use this method to delete a sticker from a set created by the bot
     :type token: str
     :type proxies: dict or None
     :type sticker: str
@@ -1778,7 +1793,7 @@ def delete_sticker_from_set(token, proxies, sticker):
 
 def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
     """
-    Use this method to set the thumbnail of a sticker set.
+    Use this method to set the thumbnail of a sticker set
     :type token: str
     :type proxies: dict or None
     :type name: str
@@ -1799,7 +1814,7 @@ def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
 def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text,
                         switch_pm_parameter):
     """
-    Use this method to send answers to an inline query.
+    Use this method to send answers to an inline query
     :type token: str
     :type proxies: dict or None
     :type inline_query_id: str
@@ -1835,7 +1850,7 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
                  need_email, need_shipping_address, send_phone_number_to_provider, send_email_to_provider, is_flexible,
                  disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
-    Use this method to send invoices. On success, the sent Message is returned.
+    Use this method to send invoices. On success, the sent Message is returned
     :type token: str
     :type proxies: dict or None
     :type chat_id: int
@@ -1908,7 +1923,7 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
 
 def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_options, error_message):
     """
-    Use this method to reply to shipping queries.
+    Use this method to reply to shipping queries
     :type token: str
     :type proxies: dict or None
     :type shipping_query_id: str
@@ -1931,7 +1946,7 @@ def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_option
 
 def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_message):
     """
-    Use this method to respond to such pre-checkout queries.
+    Use this method to respond to such pre-checkout queries
     :type token: str
     :type proxies: dict or None
     :type pre_checkout_query_id: str
@@ -1951,7 +1966,7 @@ def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_m
 
 def set_passport_data_errors(token, proxies, user_id, errors):
     """
-    Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason.
+    Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason
     :type token: str
     :type proxies: dict or None
     :type user_id: int
@@ -1969,7 +1984,7 @@ def set_passport_data_errors(token, proxies, user_id, errors):
 def send_game(token, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
               allow_sending_without_reply, reply_markup):
     """
-    Use this method to send a game.
+    Use this method to send a game
     :type token: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -2001,7 +2016,7 @@ def set_game_score(token, proxies, user_id, score, force, disable_edit_message, 
                    message_id,
                    inline_message_id):
     """
-    Use this method to set the score of the specified user in a game.
+    Use this method to set the score of the specified user in a game
     :type token: str
     :type proxies: dict or None
     :type user_id: int
@@ -2034,7 +2049,7 @@ def set_game_score(token, proxies, user_id, score, force, disable_edit_message, 
 # https://core.telegram.org/bots/api#getgamehighscores
 def get_game_high_scores(token, proxies, user_id, chat_id, message_id, inline_message_id):
     """
-    Use this method to get data for high score tables.
+    Use this method to get data for high score tables
     :type token: str
     :type proxies: dict or None
     :type user_id: int
