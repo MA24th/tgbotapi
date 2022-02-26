@@ -4,8 +4,10 @@ from tgbotapi import logger
 from tgbotapi import Bot as Bt
 
 logger.setLevel(logging.DEBUG)
-bot = Bt(token=os.getenv("BOT_TOKEN"), threaded=True, skip_pending=False, num_threads=2, proxies=None)
+bot = Bt(based_url="https://api.telegram.org/bot"+ os.getenv("BOT_TOKEN"), threaded=True, skip_pending=False,
+         num_threads=2, proxies=None)
 
+print(bot.get_webhook_info())
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(msg):

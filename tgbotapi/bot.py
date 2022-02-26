@@ -80,17 +80,17 @@ class Saver:
 
 class Bot:
 
-    def __init__(self, token, threaded=True, skip_pending=False, num_threads=2, proxies=None):
+    def __init__(self, based_url, threaded=True, skip_pending=False, num_threads=2, proxies=None):
         """
         Use this class to create bot instance
-        :param str token: Required, The bots API token
+        :param str based_url: Required, The API url with Bot token
         :param bool threaded: Enable Threading
         :param bool skip_pending: Skip Old Updates
         :param int num_threads: Number of thread to process incoming tasks, default 2
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
 
-        self.__token = token
+        self.__based_url = based_url
         self.__proxies = proxies
         self.__threaded = threaded
         self.__skip_pending = skip_pending
@@ -132,9 +132,9 @@ class Bot:
         :return: An Array of Update objects
         :rtype: list[types.Update]
         """
-        objs = methods.get_updates(self.__token, self.__proxies, offset, limit, timeout, allowed_updates)
+        resp = methods.get_updates(self.__based_url, self.__proxies, offset, limit, timeout, allowed_updates)
         updates = []
-        for x in objs:
+        for x in resp:
             updates.append(types.Update.de_json(x))
         return updates
 
@@ -395,21 +395,21 @@ class Bot:
         :param str or None ip_address: The fixed IP address which will be used to send webhook requests
         :param int max_connections: Maximum allowed number of simultaneous HTTPS connections to the webhook for update
         :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive
-        :param bool drop_pending_updates: Pass True to drop all pending updates.
+        :param bool drop_pending_updates: Pass True to drop all pending updates
         :return: True On success
         :rtype: bool
         """
-        return methods.set_webhook(self.__token, self.__proxies, url, certificate, ip_address, max_connections,
+        return methods.set_webhook(self.__based_url, self.__proxies, url, certificate, ip_address, max_connections,
                                    allowed_updates, drop_pending_updates)
 
     def delete_webhook(self, drop_pending_updates=False):
         """
         Use this method to remove webhook integration if you decide to switch back to getUpdates
-        :param bool drop_pending_updates: Pass True to drop all pending updates.
+        :param bool drop_pending_updates: Pass True to drop all pending updates
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_webhook(self.__token, self.__proxies, drop_pending_updates)
+        return methods.delete_webhook(self.__based_url, self.__proxies, drop_pending_updates)
 
     def get_webhook_info(self):
         """
@@ -417,7 +417,7 @@ class Bot:
         :return: a WebhookInfo object, otherwise an object with the url field empty
         :rtype: types.WebhookInfo
         """
-        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__token, self.__proxies))
+        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__based_url, self.__proxies))
 
     def get_me(self):
         """
@@ -425,23 +425,23 @@ class Bot:
         :return: a User object
         :rtype: types.User
         """
-        return types.User.de_json(methods.get_me(self.__token, self.__proxies))
+        return types.User.de_json(methods.get_me(self.__based_url, self.__proxies))
 
     def log_out(self):
         """
         Use this method to log out from the cloud Bot API server before launching the bot locally
-        :return: a User object
-        :rtype: types.User
+        :return: True on success
+        :rtype: bool
         """
-        return types.User.de_json(methods.log_out(self.__token, self.__proxies))
+        return methods.log_out(self.__based_url, self.__proxies)
 
     def close(self):
         """
         Use this method to close the bot instance before moving it from one local server to another
-        :return: a User object
-        :rtype: types.User
+        :return: True on success
+        :rtype: bool
         """
-        return types.User.de_json(methods.close(self.__token, self.__proxies))
+        return types.User.de_json(methods.close(self.__based_url, self.__proxies))
 
     def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False,
                      disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
@@ -461,7 +461,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_message(self.__token, self.__proxies, chat_id, text, parse_mode, entities,
+            methods.send_message(self.__based_url, self.__proxies, chat_id, text, parse_mode, entities,
                                  disable_web_page_preview,
                                  disable_notification, reply_to_message_id,
                                  allow_sending_without_reply, reply_markup))
@@ -477,7 +477,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.forward_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id,
+            methods.forward_message(self.__based_url, self.__proxies, chat_id, from_chat_id, message_id,
                                     disable_notification))
 
     def copy_message(self, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
@@ -496,13 +496,13 @@ class Bot:
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
-        :return: a MessageId object.
+        :return: a MessageId object
         :rtype: types.MessageId
         """
         return types.MessageId.de_json(
-            methods.copy_message(self.__token, self.__proxies, chat_id, from_chat_id, message_id, caption, parse_mode,
-                                 caption_entities, disable_notification, protect_content, reply_to_message_id,
-                                 allow_sending_without_reply, reply_markup))
+            methods.copy_message(self.__based_url, self.__proxies, chat_id, from_chat_id, message_id, caption,
+                                 parse_mode, caption_entities, disable_notification, protect_content,
+                                 reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_photo(self, chat_id, photo, caption=None, parse_mode=None, caption_entities=None,
                    disable_notification=False,
@@ -510,7 +510,7 @@ class Bot:
         """
         Use this method to send photos
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any photo: Photo [file_id or InputFile] to send
+        :param bytes or str photo: Photo [file_id or InputFile] to send
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -522,7 +522,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_photo(self.__token, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities,
+            methods.send_photo(self.__based_url, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities,
                                disable_notification,
                                reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -533,7 +533,7 @@ class Bot:
         """
         Use this method to send audio files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any audio: Audio [file_id or InputFile] to send
+        :param bytes or str audio: Audio [file_id or InputFile] to send
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -549,7 +549,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_audio(self.__token, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities,
+            methods.send_audio(self.__based_url, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities,
                                duration, performer,
                                title, thumb,
                                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
@@ -560,7 +560,7 @@ class Bot:
         """
         Use this method to send general files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any document: File [file_id or InputFile] to send
+        :param bytes or str document: File [file_id or InputFile] to send
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent
         :param str or None caption: Document caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
@@ -574,7 +574,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_document(self.__token, self.__proxies, chat_id, document, thumb, caption, parse_mode,
+            methods.send_document(self.__based_url, self.__proxies, chat_id, document, thumb, caption, parse_mode,
                                   caption_entities, disable_content_type_detection,
                                   disable_notification,
                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
@@ -586,7 +586,7 @@ class Bot:
         """
         Use this method to send video files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any video: Video [file_id or InputFile] to send
+        :param bytes or str video: Video [file_id or InputFile] to send
         :param int or None duration: Duration of the video in seconds
         :param int or None width: Video width
         :param int or None height: Video height
@@ -603,10 +603,9 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_video(self.__token, self.__proxies, chat_id, video, duration, width, height, thumb, caption,
-                               parse_mode, caption_entities,
-                               supports_streaming, disable_notification, reply_to_message_id,
-                               allow_sending_without_reply, reply_markup))
+            methods.send_video(self.__based_url, self.__proxies, chat_id, video, duration, width, height, thumb,
+                               caption, parse_mode, caption_entities, supports_streaming, disable_notification,
+                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
                        parse_mode=None, caption_entities=None, disable_notification=False, reply_to_message_id=None,
@@ -614,7 +613,7 @@ class Bot:
         """
         Use this method to send animation files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any animation: Animation [file_id or InputFile] to send
+        :param bytes or str animation: Animation [file_id or InputFile] to send
         :param int or None duration: Duration of the animation in seconds
         :param int or None width: Animation width
         :param int or None height: Animation height
@@ -630,7 +629,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_animation(self.__token, self.__proxies, chat_id, animation, duration, width, height, thumb,
+            methods.send_animation(self.__based_url, self.__proxies, chat_id, animation, duration, width, height, thumb,
                                    caption,
                                    parse_mode,
                                    caption_entities,
@@ -643,7 +642,7 @@ class Bot:
         """
         Use this method to send audio files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any voice: Audio [file_id or InputFile] to send
+        :param bytes or str voice: Audio [file_id or InputFile] to send
         :param str or None caption: Voice caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -656,7 +655,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_voice(self.__token, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities,
+            methods.send_voice(self.__based_url, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities,
                                duration,
                                disable_notification,
                                reply_to_message_id, allow_sending_without_reply, reply_markup))
@@ -666,10 +665,10 @@ class Bot:
         """
         Use this method to send video messages
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param int or bytes video_note: Video note [file_id or InputFile] to send
+        :param bytes or str video_note: Video note [file_id or InputFile] to send
         :param int or None duration: Duration of the VideoNote in seconds
         :param int or None length: Video width and height, i.e. diameter of the video message
-        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent
+        :param bytes or str thumb: Thumbnail [file_id or InputFile] of the file sent
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
@@ -678,7 +677,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_video_note(self.__token, self.__proxies, chat_id, video_note, duration, length, thumb,
+            methods.send_video_note(self.__based_url, self.__proxies, chat_id, video_note, duration, length, thumb,
                                     disable_notification,
                                     reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -687,20 +686,21 @@ class Bot:
         """
         Use this method to send a group of photos or videos as an album
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param list media: A JSON-serialized array of [InputMediaPhoto or InputMediaVideo], must include 2–10 items
+        :param list[types.InputMedia] media: A JSON-serialized array describing messages to be sent,
+                                             must include 2-10 items
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
-        :return: a Messages object.
-        :rtype: types.Message
+        :return: On success, an array of Messages that were sent is returned
+        :rtype: list[types.Message]
         """
-        result = methods.send_media_group(
-            self.__token, self.__proxies, chat_id, media, disable_notification, reply_to_message_id,
+        resp = methods.send_media_group(
+            self.__based_url, self.__proxies, chat_id, media, disable_notification, reply_to_message_id,
             allow_sending_without_reply)
-        ret = []
-        for msg in result:
-            ret.append(types.Message.de_json(msg))
-        return ret
+        result = []
+        for x in resp:
+            result.append(types.Message.de_json(x))
+        return result
 
     def send_location(self, chat_id, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
                       proximity_alert_radius=None, disable_notification=False,
@@ -722,7 +722,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_location(self.__token, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy,
+            methods.send_location(self.__based_url, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy,
                                   live_period, heading, proximity_alert_radius,
                                   disable_notification,
                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
@@ -732,8 +732,8 @@ class Bot:
                                    reply_markup=None):
         """
         Use this method to edit live location messages
-        :param int or str chat_id: Required if inline_message_id is not specified,Unique identifier for the target chat
-        :param int or None message_id: Required if inline_message_id is not specified,Identifier of the message to edit
+        :param int or str chat_id: Required if inline_message_id is not specified, Unique identifier for the target chat
+        :param int or None message_id: Required if inline_message_id is not specified, Identifier of the message to edit
         :param str or None inline_message_id: Required if chat_id and message_id are not specified
         :param float latitude: Latitude of the location
         :param float longitude: Longitude of the location
@@ -742,12 +742,14 @@ class Bot:
         :param int or None proximity_alert_radius: a maximum distance proximity alerts about approaching another member
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object, otherwise True
-        :rtype: types.Message
+        :rtype: types.Message or bool
         """
-        return types.Message.de_json(
-            methods.edit_message_live_location(self.__token, self.__proxies, latitude, longitude, horizontal_accuracy,
-                                               heading, proximity_alert_radius, chat_id, message_id,
-                                               inline_message_id, reply_markup))
+        result = methods.edit_message_live_location(self.__based_url, self.__proxies, latitude, longitude,
+                                                    horizontal_accuracy, heading, proximity_alert_radius, chat_id,
+                                                    message_id, inline_message_id, reply_markup)
+        if type(result) is bool:
+            return result
+        return types.Message.de_json(result)
 
     def stop_message_live_location(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
         """
@@ -757,11 +759,13 @@ class Bot:
         :param str or None inline_message_id: Required if chat_id and message_id are not specified
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object, otherwise True
-        :rtype: types.Message
+        :rtype: types.Message or bool
         """
-        return types.Message.de_json(
-            methods.stop_message_live_location(self.__token, self.__proxies, chat_id, message_id, inline_message_id,
-                                               reply_markup))
+        result = methods.stop_message_live_location(self.__based_url, self.__proxies, chat_id, message_id,
+                                                    inline_message_id, reply_markup)
+        if type(result) is bool:
+            return result
+        return types.Message.de_json(result)
 
     def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
                    google_place_id=None, google_place_type=None,
@@ -786,7 +790,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_venue(self.__token, self.__proxies, chat_id, latitude, longitude, title, address,
+            methods.send_venue(self.__based_url, self.__proxies, chat_id, latitude, longitude, title, address,
                                foursquare_id,
                                foursquare_type,
                                google_place_id,
@@ -810,7 +814,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_contact(self.__token, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
+            methods.send_contact(self.__based_url, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
                                  disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_poll(self, chat_id, question, options, is_anonymous=True, ttype='regular', allows_multiple_answers=False,
@@ -848,7 +852,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_poll(self.__token, self.__proxies, chat_id, question, options, is_anonymous, ttype,
+            methods.send_poll(self.__based_url, self.__proxies, chat_id, question, options, is_anonymous, ttype,
                               allows_multiple_answers, correct_option_id, explanation, explanation_parse_mode,
                               explanation_entities,
                               open_period, close_date, is_closed, disable_notifications, reply_to_message_id,
@@ -859,7 +863,9 @@ class Bot:
         """
         Use this method to send a dice
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param str or None emoji: Emoji on which the dice throw animation is based
+        :param str or None emoji: Emoji on which the dice throw animation is based. Currently, must be one of
+                                  “🎲”, “🎯”, “🏀”, “⚽”, “🎳”, or “🎰”. Dice can have values 1-6 for “🎲”, “🎯” and
+                                  “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
@@ -868,8 +874,8 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_dice(self.__token, self.__proxies, chat_id, emoji, disable_notification, reply_to_message_id,
-                              allow_sending_without_reply, reply_markup))
+            methods.send_dice(self.__based_url, self.__proxies, chat_id, emoji, disable_notification,
+                              reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_chat_action(self, chat_id, action):
         """
@@ -877,9 +883,9 @@ class Bot:
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param str action: Type of action to broadcast
         :return: True On success
-        :rtype: types.Message
+        :rtype: bool
         """
-        return methods.send_chat_action(self.__token, self.__proxies, chat_id, action)
+        return methods.send_chat_action(self.__based_url, self.__proxies, chat_id, action)
 
     def get_user_profile_photos(self, user_id, offset=None, limit=100):
         """
@@ -893,7 +899,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.UserProfilePhotos.de_json(
-            methods.get_user_profile_photos(self.__token, self.__proxies, user_id, offset, limit))
+            methods.get_user_profile_photos(self.__based_url, self.__proxies, user_id, offset, limit))
 
     def get_file(self, file_id):
         """
@@ -902,7 +908,7 @@ class Bot:
         :return: a File object
         :rtype: types.File
         """
-        return types.File.de_json(methods.get_file(self.__token, self.__proxies, file_id))
+        return types.File.de_json(methods.get_file(self.__based_url, self.__proxies, file_id))
 
     def kick_chat_member(self, chat_id, user_id, until_date=None):
         """
@@ -913,7 +919,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.kick_chat_member(self.__token, self.__proxies, chat_id, user_id, until_date)
+        return methods.kick_chat_member(self.__based_url, self.__proxies, chat_id, user_id, until_date)
 
     def unban_chat_member(self, chat_id, user_id, only_if_banned=False):
         """
@@ -924,7 +930,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.unban_chat_member(self.__token, self.__proxies, chat_id, user_id, only_if_banned)
+        return methods.unban_chat_member(self.__based_url, self.__proxies, chat_id, user_id, only_if_banned)
 
     def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
@@ -936,7 +942,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.restrict_chat_member(self.__token, self.__proxies, chat_id, user_id, permissions, until_date)
+        return methods.restrict_chat_member(self.__based_url, self.__proxies, chat_id, user_id, permissions, until_date)
 
     def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_change_info=None, can_post_messages=None,
                             can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
@@ -960,7 +966,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.promote_chat_member(self.__token, self.__proxies, chat_id, user_id, is_anonymous,
+        return methods.promote_chat_member(self.__based_url, self.__proxies, chat_id, user_id, is_anonymous,
                                            can_change_info,
                                            can_post_messages,
                                            can_edit_messages, can_delete_messages, can_invite_users,
@@ -975,7 +981,8 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_administrator_custom_title(self.__token, self.__proxies, chat_id, user_id, custom_title)
+        return methods.set_chat_administrator_custom_title(self.__based_url, self.__proxies, chat_id, user_id,
+                                                           custom_title)
 
     def set_chat_permissions(self, chat_id, permissions):
         """
@@ -985,7 +992,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_permissions(self.__token, self.__proxies, chat_id, permissions)
+        return methods.set_chat_permissions(self.__based_url, self.__proxies, chat_id, permissions)
 
     def export_chat_invite_link(self, chat_id):
         """
@@ -994,17 +1001,17 @@ class Bot:
         :return: new link as String on success
         :rtype: str
         """
-        return methods.export_chat_invite_link(self.__token, self.__proxies, chat_id)
+        return methods.export_chat_invite_link(self.__based_url, self.__proxies, chat_id)
 
     def set_chat_photo(self, chat_id, photo):
         """
         Use this method to set a new profile photo for the chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any photo: Use this method to set a new profile photo for the chat
+        :param bytes photo: Use this method to set a new profile photo for the chat
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_photo(self.__token, self.__proxies, chat_id, photo)
+        return methods.set_chat_photo(self.__based_url, self.__proxies, chat_id, photo)
 
     def delete_chat_photo(self, chat_id):
         """
@@ -1013,7 +1020,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_chat_photo(self.__token, self.__proxies, chat_id)
+        return methods.delete_chat_photo(self.__based_url, self.__proxies, chat_id)
 
     def set_chat_title(self, chat_id, title):
         """
@@ -1023,7 +1030,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_title(self.__token, self.__proxies, chat_id, title)
+        return methods.set_chat_title(self.__based_url, self.__proxies, chat_id, title)
 
     def set_chat_description(self, chat_id, description):
         """
@@ -1033,7 +1040,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_description(self.__token, self.__proxies, chat_id, description)
+        return methods.set_chat_description(self.__based_url, self.__proxies, chat_id, description)
 
     def pin_chat_message(self, chat_id, message_id, disable_notification=False):
         """
@@ -1044,7 +1051,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.pin_chat_message(self.__token, self.__proxies, chat_id, message_id, disable_notification)
+        return methods.pin_chat_message(self.__based_url, self.__proxies, chat_id, message_id, disable_notification)
 
     def unpin_chat_message(self, chat_id, message_id=None):
         """
@@ -1055,7 +1062,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.unpin_chat_message(self.__token, self.__proxies, chat_id, message_id)
+        return methods.unpin_chat_message(self.__based_url, self.__proxies, chat_id, message_id)
 
     def unpin_all_chat_message(self, chat_id):
         """
@@ -1064,41 +1071,35 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.unpin_all_chat_message(self.__token, self.__proxies, chat_id)
+        return methods.unpin_all_chat_message(self.__based_url, self.__proxies, chat_id)
 
     def leave_chat(self, chat_id):
         """
-        Use this method for your bot to leave a group, supergroup or channel.
-        """
-        """
+        Use this method for your bot to leave a group, supergroup or channel
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :return: True On success
         :rtype: bool
         """
-        return methods.leave_chat(self.__token, self.__proxies, chat_id)
+        return methods.leave_chat(self.__based_url, self.__proxies, chat_id)
 
     def get_chat(self, chat_id):
         """
-        Use this method to get up-to-date information about the chat.
-        """
-        """
+        Use this method to get up-to-date information about the chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :return: a Chat object.
+        :return: a Chat object
         :rtype: types.Chat
         """
-        return types.Chat.de_json(methods.get_chat(self.__token, self.__proxies, chat_id))
+        return types.Chat.de_json(methods.get_chat(self.__based_url, self.__proxies, chat_id))
 
     def get_chat_administrators(self, chat_id):
         """
-        Use this method to get a list of administrators in a chat.
-        """
-        """
+        Use this method to get a list of administrators in a chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :return: an Array of ChatMember object.
+        :return: an Array of ChatMember object
         :rtype: list[types.ChatMember]
         """
         result = methods.get_chat_administrators(
-            self.__token, self.__proxies, chat_id)
+            self.__based_url, self.__proxies, chat_id)
         ret = []
         for r in result:
             ret.append(types.ChatMember.de_json(r))
@@ -1106,49 +1107,41 @@ class Bot:
 
     def get_chat_members_count(self, chat_id):
         """
-        Use this method to get the number of members in a chat.
-        """
-        """
+        Use this method to get the number of members in a chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :return: Integer On success.
-        :rtype: bool
+        :return: Integer On success
+        :rtype: int
         """
-        return methods.get_chat_members_count(self.__token, self.__proxies, chat_id)
+        return methods.get_chat_members_count(self.__based_url, self.__proxies, chat_id)
 
     def get_chat_member(self, chat_id, user_id):
         """
-        Use this method to get information about a member of a chat.
-        """
-        """
+        Use this method to get information about a member of a chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param int user_id: Unique identifier of the target user.
-        :return: a ChatMember object On success.
+        :param int user_id: Unique identifier of the target user
+        :return: a ChatMember object On success
         :rtype: types.ChatMember
         """
-        return types.ChatMember.de_json(methods.get_chat_member(self.__token, self.__proxies, chat_id, user_id))
+        return types.ChatMember.de_json(methods.get_chat_member(self.__based_url, self.__proxies, chat_id, user_id))
 
     def set_chat_sticker_set(self, chat_id, sticker_set_name):
         """
-        Use this method to set a new group sticker set for a supergroup.
-        """
-        """
+        Use this method to set a new group sticker set for a supergroup
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param str sticker_set_name: Name of the sticker set to be set as the group sticker set.
+        :param str sticker_set_name: Name of the sticker set to be set as the group sticker set
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_sticker_set(self.__token, self.__proxies, chat_id, sticker_set_name)
+        return methods.set_chat_sticker_set(self.__based_url, self.__proxies, chat_id, sticker_set_name)
 
     def delete_chat_sticker_set(self, chat_id):
         """
-        Use this method to delete a group sticker set from a supergroup.
-        """
-        """
+        Use this method to delete a group sticker set from a supergroup
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_chat_sticker_set(self.__token, self.__proxies, chat_id)
+        return methods.delete_chat_sticker_set(self.__based_url, self.__proxies, chat_id)
 
     def answer_callback_query(self, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
         """
@@ -1164,29 +1157,33 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.answer_callback_query(self.__token, self.__proxies, callback_query_id, text, show_alert, url,
+        return methods.answer_callback_query(self.__based_url, self.__proxies, callback_query_id, text, show_alert, url,
                                              cache_time)
 
     def set_my_commands(self, commands):
         """
         Use this method to change the list of the bots commands
-        :param list commands: A JSON-serialized list of bot commands to be set as the list of the bots commands
+        :param list[types.BotCommand] commands: A JSON-serialized list of bot commands to be set as the list of
+                                                 the bots commands
         :return: True On success
         :rtype: bool
         """
-        return methods.set_my_commands(self.__token, self.__proxies, commands)
+        return methods.set_my_commands(self.__based_url, self.__proxies, commands)
 
     def get_my_commands(self):
         """
         Use this method to get the current list of the bots commands.
-        :return: Array of BotCommand On success.
-        :rtype: tgbotapi.types.BotCommand
+        :return: Array of BotCommand On success
+        :rtype: list[tgbotapi.types.BotCommand]
         """
-        return methods.get_my_commands(self.__token, self.__proxies)
+        resp = methods.get_my_commands(self.__based_url, self.__proxies)
+        result = []
+        for x in resp:
+            result.append(types.BotCommand.de_json(x))
+        return result
 
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
-                          entities=None,
-                          disable_web_page_preview=False, reply_markup=None):
+                          entities=None, disable_web_page_preview=False, reply_markup=None):
         """
         Use this method to edit text and game messages
         :param int or str chat_id: Required if inline_message_id is not specified,Unique identifier for the target chat
@@ -1198,13 +1195,12 @@ class Bot:
         :param bool disable_web_page_preview: Disables link previews for links in this message
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object On success, otherwise True
-        :rtype: types.Message or True
+        :rtype: types.Message or bool
         """
-        result = methods.edit_message_text(self.__token, self.__proxies, text, chat_id, message_id, inline_message_id,
-                                           parse_mode,
-                                           entities, disable_web_page_preview, reply_markup)
-        # if edit inline message return is bool not Message.
-        if type(result) == bool:
+        result = methods.edit_message_text(self.__based_url, self.__proxies, text, chat_id, message_id,
+                                           inline_message_id, parse_mode, entities, disable_web_page_preview,
+                                           reply_markup)
+        if type(result) is bool:
             return result
         return types.Message.de_json(result)
 
@@ -1221,14 +1217,14 @@ class Bot:
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object On success, otherwise True
-        :rtype: tgbotapi.types.Message or dict
+        :rtype: types.Message or bool
         """
-        result = methods.edit_message_caption(self.__token, self.__proxies, chat_id, message_id,
+        result = methods.edit_message_caption(self.__based_url, self.__proxies, chat_id, message_id,
                                               inline_message_id,
                                               caption, parse_mode,
                                               caption_entities,
                                               reply_markup)
-        if type(result) == bool:
+        if type(result) is bool:
             return result
         return types.Message.de_json(result)
 
@@ -1241,12 +1237,11 @@ class Bot:
         :param any media: A JSON-serialized object for a new media content of the message must be InputMedia
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object On success, otherwise True
-        :rtype: types.Message or True
+        :rtype: types.Message or bool
         """
         result = methods.edit_message_media(
-            self.__token, self.__proxies, media, chat_id, message_id, inline_message_id, reply_markup)
-        # if edit inline message return is bool not Message.
-        if type(result) == bool:
+            self.__based_url, self.__proxies, media, chat_id, message_id, inline_message_id, reply_markup)
+        if type(result) is bool:
             return result
         return types.Message.de_json(result)
 
@@ -1258,11 +1253,11 @@ class Bot:
         :param str or None inline_message_id: Required if chat_id and message_id are not specified
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object On success, otherwise True
-        :rtype: types.Message or True
+        :rtype: types.Message or bool
         """
         result = methods.edit_message_reply_markup(
-            self.__token, self.__proxies, chat_id, message_id, inline_message_id, reply_markup)
-        if type(result) == bool:
+            self.__based_url, self.__proxies, chat_id, message_id, inline_message_id, reply_markup)
+        if type(result) is bool:
             return result
         return types.Message.de_json(result)
 
@@ -1273,9 +1268,10 @@ class Bot:
         :param int or None message_id: Identifier of the original message with the poll
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Poll object On success
-        :rtype: tgbotapi.types.Poll
+        :rtype: types.Poll
         """
-        return types.Poll.de_json(methods.stop_poll(self.__token, self.__proxies, chat_id, message_id, reply_markup))
+        return types.Poll.de_json(methods.stop_poll(self.__based_url, self.__proxies, chat_id, message_id,
+                                                    reply_markup))
 
     def delete_message(self, chat_id, message_id):
         """
@@ -1292,7 +1288,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_message(self.__token, self.__proxies, chat_id, message_id)
+        return methods.delete_message(self.__based_url, self.__proxies, chat_id, message_id)
 
     def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None,
                      allow_sending_without_reply=False, reply_markup=None):
@@ -1305,10 +1301,10 @@ class Bot:
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
         :return: a Message object On success
-        :rtype: tgbotapi.types.Message
+        :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_sticker(self.__token, self.__proxies, chat_id, sticker, disable_notification,
+            methods.send_sticker(self.__based_url, self.__proxies, chat_id, sticker, disable_notification,
                                  reply_to_message_id,
                                  allow_sending_without_reply, reply_markup))
 
@@ -1317,19 +1313,19 @@ class Bot:
         Use this method to get a sticker set
         :param str name:  Name of the sticker set
         :return: a StickerSet object On success
-        :rtype: tgbotapi.types.StickerSet
+        :rtype: types.StickerSet
         """
-        return types.StickerSet.de_json(methods.get_sticker_set(self.__token, self.__proxies, name))
+        return types.StickerSet.de_json(methods.get_sticker_set(self.__based_url, self.__proxies, name))
 
     def upload_sticker_file(self, user_id, png_sticker):
         """
         Use this method to upload a .PNG file with a sticker
         :param int user_id: Unique identifier of the target user
-        :param any png_sticker: Png image with the sticker
+        :param bytes or str png_sticker: Png image with the sticker
         :return: a File object On success
         :rtype: types.File
         """
-        return types.File.de_json(methods.upload_sticker_file(self.__token, self.__proxies, user_id, png_sticker))
+        return types.File.de_json(methods.upload_sticker_file(self.__based_url, self.__proxies, user_id, png_sticker))
 
     def create_new_sticker_set(self, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
                                mask_position=False):
@@ -1346,7 +1342,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.create_new_sticker_set(self.__token, self.__proxies, user_id, name, title, png_sticker,
+        return methods.create_new_sticker_set(self.__based_url, self.__proxies, user_id, name, title, png_sticker,
                                               tgs_sticker, emojis,
                                               contains_masks, mask_position)
 
@@ -1362,8 +1358,8 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.add_sticker_to_set(self.__token, self.__proxies, user_id, name, png_sticker, tgs_sticker, emojis,
-                                          mask_position)
+        return methods.add_sticker_to_set(self.__based_url, self.__proxies, user_id, name, png_sticker, tgs_sticker,
+                                          emojis, mask_position)
 
     def set_sticker_position_in_set(self, sticker, position):
         """
@@ -1373,7 +1369,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_sticker_position_in_set(self.__token, self.__proxies, sticker, position)
+        return methods.set_sticker_position_in_set(self.__based_url, self.__proxies, sticker, position)
 
     def delete_sticker_from_set(self, sticker):
         """
@@ -1382,7 +1378,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_sticker_from_set(self.__token, self.__proxies, sticker)
+        return methods.delete_sticker_from_set(self.__based_url, self.__proxies, sticker)
 
     def set_sticker_set_thumb(self, name, user_id, thumb=None):
         """
@@ -1393,7 +1389,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_sticker_set_thumb(self.__token, self.__proxies, name, user_id, thumb)
+        return methods.set_sticker_set_thumb(self.__based_url, self.__proxies, name, user_id, thumb)
 
     def answer_inline_query(self, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
                             switch_pm_text=None, switch_pm_parameter=None):
@@ -1409,7 +1405,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.answer_inline_query(self.__token, self.__proxies, inline_query_id, results, cache_time,
+        return methods.answer_inline_query(self.__based_url, self.__proxies, inline_query_id, results, cache_time,
                                            is_personal, next_offset,
                                            switch_pm_text, switch_pm_parameter)
 
@@ -1449,7 +1445,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_invoice(self.__token, self.__proxies, chat_id, title, description, payload, provider_token,
+            methods.send_invoice(self.__based_url, self.__proxies, chat_id, title, description, payload, provider_token,
                                  start_parameter,
                                  currency, prices, provider_data, photo_url, photo_size, photo_width, photo_height,
                                  need_name, need_phone_number, need_email, need_shipping_address,
@@ -1464,12 +1460,13 @@ class Bot:
         the Bot API will send an Update with a shipping_query field to the bot
         :param str shipping_query_id: Unique identifier for the query to be answered
         :param bool ok: Delivery to the specified address is possible and False if there are any problems
-        :param list or None shipping_options: Required ok is True,A JSON-serialized array of available shipping options
+        :param list[types.ShippingOption] or None shipping_options: Required ok is True,
+                                                                   A JSON-serialized array of available shipping options
         :param str or None error_message: Required if ok is False. Error message in human-readable
         :return: True, On success
         :rtype: bool
         """
-        return methods.answer_shipping_query(self.__token, self.__proxies, shipping_query_id, ok, shipping_options,
+        return methods.answer_shipping_query(self.__based_url, self.__proxies, shipping_query_id, ok, shipping_options,
                                              error_message)
 
     def answer_pre_checkout_query(self, pre_checkout_query_id, ok, error_message=None):
@@ -1481,17 +1478,19 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.answer_pre_checkout_query(self.__token, self.__proxies, pre_checkout_query_id, ok, error_message)
+        return methods.answer_pre_checkout_query(self.__based_url, self.__proxies, pre_checkout_query_id, ok,
+                                                 error_message)
 
     def set_passport_data_errors(self, user_id, errors):
         """
         Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason
         :param int user_id: Unique identifier of the target user
-        :param list errors: A JSON-serialized array of [PassportElementError] describing the errors
+        :param list[types.PassportElementError] errors: A JSON-serialized array of [PassportElementError]
+                                                        describing the errors
         :return: True On success
         :rtype: bool
         """
-        return methods.set_passport_data_errors(self.__token, self.__proxies, user_id, errors)
+        return methods.set_passport_data_errors(self.__based_url, self.__proxies, user_id, errors)
 
     def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
                   allow_sending_without_reply=False, reply_markup=None):
@@ -1504,10 +1503,10 @@ class Bot:
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param dict or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object On success
-        :rtype: tgbotapi.types.Message
+        :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_game(self.__token, self.__proxies, chat_id, game_short_name, disable_notification,
+            methods.send_game(self.__based_url, self.__proxies, chat_id, game_short_name, disable_notification,
                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
@@ -1522,12 +1521,12 @@ class Bot:
         :param int or None message_id: Required if inline_message_id is not specified,Identifier of the message to edit
         :param str or None inline_message_id: Required if chat_id and message_id are not specified
         :return: On success a Message object, otherwise returns True
-        :rtype: types.Message or True
+        :rtype: types.Message or bool
         """
-        result = methods.set_game_score(self.__token, self.__proxies, user_id, score, force, disable_edit_message,
+        result = methods.set_game_score(self.__based_url, self.__proxies, user_id, score, force, disable_edit_message,
                                         chat_id, message_id,
                                         inline_message_id)
-        if type(result) == bool:
+        if type(result) is bool:
             return result
         return types.Message.de_json(result)
 
@@ -1539,14 +1538,14 @@ class Bot:
         :param int or None message_id: Required if inline_message_id is not specified,Identifier of the message to edit
         :param str or None inline_message_id: Required if chat_id and message_id are not specified
         :return: an Array of GameHighScore objects
-        :rtype: list[tgbotapi.types.GameHighScore]
+        :rtype: list[types.GameHighScore]
         """
-        result = methods.get_game_high_scores(self.__token, self.__proxies, user_id, chat_id, message_id,
+        resp = methods.get_game_high_scores(self.__based_url, self.__proxies, user_id, chat_id, message_id,
                                               inline_message_id)
-        ret = []
-        for r in result:
-            ret.append(types.GameHighScore.de_json(r))
-        return ret
+        result = []
+        for x in resp:
+            result.append(types.GameHighScore.de_json(x))
+        return result
 
     def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
         """

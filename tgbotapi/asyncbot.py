@@ -33,8 +33,27 @@ class AsyncBot(Bot):
         return Bot.load_reply_handlers(self, filename, del_file_after_loading)
 
     @async_dec()
+    def set_webhook(self, *args, **kwargs):
+        return Bot.set_webhook(self, *args, **kwargs)
+
+    @async_dec()
+    def delete_webhook(self, *args, **kwargs):
+        return Bot.delete_webhook(self, *args, **kwargs)
+
+    @async_dec()
+    def get_webhook_info(self):
+        return Bot.get_webhook_info(self)
+
+    @async_dec()
     def get_me(self):
         return Bot.get_me(self)
+
+    @async_dec()
+    def log_out(self):
+        return Bot.log_out(self)
+    @async_dec()
+    def close(self):
+        return Bot.close(self)
 
     @async_dec()
     def send_message(self, *args, **kwargs):
@@ -43,6 +62,10 @@ class AsyncBot(Bot):
     @async_dec()
     def forward_message(self, *args, **kwargs):
         return Bot.forward_message(self, *args, **kwargs)
+
+    @async_dec()
+    def copy_message(self, *args, **kwargs):
+        return Bot.copy_message(self, *args, **kwargs)
 
     @async_dec()
     def send_photo(self, *args, **kwargs):
@@ -133,6 +156,10 @@ class AsyncBot(Bot):
         return Bot.promote_chat_member(self, *args, **kwargs)
 
     @async_dec()
+    def set_chat_administrator_custom_title(self, *args, **kwargs):
+        return Bot.set_chat_administrator_custom_title(self, *args, **kwargs)
+
+    @async_dec()
     def set_chat_permissions(self, *args, **kwargs):
         return Bot.set_chat_permissions(self, *args, **kwargs)
 
@@ -165,6 +192,10 @@ class AsyncBot(Bot):
         return Bot.unpin_chat_message(self, *args)
 
     @async_dec()
+    def unpin_all_chat_message(self, *args):
+        return Bot.unpin_all_chat_message(self, *args)
+
+    @async_dec()
     def leave_chat(self, *args):
         return Bot.leave_chat(self, *args)
 
@@ -179,10 +210,6 @@ class AsyncBot(Bot):
     @async_dec()
     def get_chat_members_count(self, *args):
         return Bot.get_chat_members_count(self, *args)
-
-    @async_dec()
-    def send_sticker(self, *args, **kwargs):
-        return Bot.send_sticker(self, *args, **kwargs)
 
     @async_dec()
     def get_chat_member(self, *args):

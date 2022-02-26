@@ -9,10 +9,10 @@ import json
 """
 
 
-def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
+def get_updates(based_url, proxies, offset, limit, timeout, allowed_updates):
     """
     Use this method to receive incoming updates using long polling
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type offset: int or None
     :type limit: int or None
@@ -22,7 +22,7 @@ def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
     """
     method = r'get'
     api_method = r'getUpdates'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {}
     if offset:
@@ -36,10 +36,11 @@ def get_updates(token, proxies, offset, limit, timeout, allowed_updates):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_webhook(token, proxies, url, certificate, ip_address, max_connections, allowed_updates, drop_pending_updates):
+def set_webhook(based_url, proxies, url, certificate, ip_address, max_connections, allowed_updates,
+                drop_pending_updates):
     """
     Use this method to specify an url and receive incoming updates via an outgoing webhook
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type url: str
     :type certificate: any
@@ -51,7 +52,7 @@ def set_webhook(token, proxies, url, certificate, ip_address, max_connections, a
     """
     method = r'post'
     api_method = r'setWebhook'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'url': url if url else ""}
     if certificate:
@@ -67,17 +68,17 @@ def set_webhook(token, proxies, url, certificate, ip_address, max_connections, a
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_webhook(token, proxies, drop_pending_updates):
+def delete_webhook(based_url, proxies, drop_pending_updates):
     """
     Use this method to remove webhook integration if you decide to switch back to getUpdates. 
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type drop_pending_updates: bool
     :rtype: dict
     """
     method = r'post'
     api_method = r'deleteWebhook'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {}
     if drop_pending_updates:
@@ -85,71 +86,71 @@ def delete_webhook(token, proxies, drop_pending_updates):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_webhook_info(token, proxies):
+def get_webhook_info(based_url, proxies):
     """
     Use this method to get current webhook status. 
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :rtype: dict
     """
     method = r'get'
     api_method = r'getWebhookInfo'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = None
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_me(token, proxies):
+def get_me(based_url, proxies):
     """
     A simple method for testing your bots auth token
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :rtype: dict
     """
     method = r'get'
     api_method = r'getMe'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = None
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def log_out(token, proxies):
+def log_out(based_url, proxies):
     """
     Use this method to log out from the cloud Bot API server before launching the bot locally
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :rtype: dict
     """
     method = r'post'
     api_method = r'logOut'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = None
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def close(token, proxies):
+def close(based_url, proxies):
     """
     Use this method to close the bot instance before moving it from one local server to another
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :rtype: dict
     """
     method = r'post'
     api_method = r'close'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = None
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_web_page_preview, disable_notification,
-                 reply_to_message_id, allow_sending_without_reply, reply_markup):
+def send_message(based_url, proxies, chat_id, text, parse_mode, entities, disable_web_page_preview,
+                 disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send text messages. On success, send Message is returned
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type text: str
@@ -164,7 +165,7 @@ def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_we
     """
     method = r'post'
     api_method = r'sendMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'text': text}
     if parse_mode:
@@ -184,10 +185,10 @@ def send_message(token, proxies, chat_id, text, parse_mode, entities, disable_we
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_notification):
+def forward_message(based_url, proxies, chat_id, from_chat_id, message_id, disable_notification):
     """
     Use this method to forward messages of any kind
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type from_chat_id: int or str
@@ -197,7 +198,7 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     """
     method = r'post'
     api_method = r'forwardMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
     if disable_notification:
@@ -205,11 +206,11 @@ def forward_message(token, proxies, chat_id, from_chat_id, message_id, disable_n
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
+def copy_message(based_url, proxies, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
                  disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """ 
     Use this method to copy messages of any kind
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type from_chat_id: int or str
@@ -226,7 +227,7 @@ def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, par
     """
     method = r'post'
     api_method = r'copyMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
     if caption:
@@ -249,15 +250,15 @@ def copy_message(token, proxies, chat_id, from_chat_id, message_id, caption, par
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
+def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
                reply_to_message_id, allow_sending_without_reply,
                reply_markup):
     """
     Use this method to send photos
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type photo: any
+    :type photo: bytes or str
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -269,7 +270,7 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_enti
     """
     method = r'post'
     api_method = r'sendPhoto'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(photo):
@@ -293,14 +294,14 @@ def send_photo(token, proxies, chat_id, photo, caption, parse_mode, caption_enti
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer, title, thumb,
-               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer, title,
+               thumb, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send audio files
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type audio: any
+    :type audio: bytes or str
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -316,7 +317,7 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_enti
     """
     method = r'post'
     api_method = r'sendAudio'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(audio):
@@ -348,15 +349,15 @@ def send_audio(token, proxies, chat_id, audio, caption, parse_mode, caption_enti
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities,
+def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities,
                   disable_content_type_detection, disable_notification,
                   reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send general files
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type document: any
+    :type document: bytes or str
     :type thumb: any or None
     :type caption: str or None
     :type parse_mode: str or None
@@ -370,7 +371,7 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     """
     method = r'post'
     api_method = r'sendDocument'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(document):
@@ -398,15 +399,15 @@ def send_document(token, proxies, chat_id, document, thumb, caption, parse_mode,
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video(token, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode, caption_entities,
-               supports_streaming,
-               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+def send_video(based_url, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode,
+               caption_entities, supports_streaming, disable_notification, reply_to_message_id,
+               allow_sending_without_reply, reply_markup):
     """
     Use this method to send video files
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type video: any
+    :type video: bytes or str
     :type duration: int or None
     :type width: int or None
     :type height: int or None
@@ -423,7 +424,7 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
     """
     method = r'post'
     api_method = r'sendVideo'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(video):
@@ -457,15 +458,15 @@ def send_video(token, proxies, chat_id, video, duration, width, height, thumb, c
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_animation(token, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
+def send_animation(based_url, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
                    caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply,
                    reply_markup):
     """
     Use this method to send animation files
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type animation: any
+    :type animation: bytes or str
     :type duration: int or None
     :type width: int or None
     :type height: int or None
@@ -481,7 +482,7 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     """
     method = r'post'
     api_method = r'sendAnimation'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(animation):
@@ -513,15 +514,14 @@ def send_animation(token, proxies, chat_id, animation, duration, width, height, 
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration, disable_notification,
-               reply_to_message_id,
-               allow_sending_without_reply, reply_markup):
+def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration,
+               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send audio files
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type voice: any or None
+    :type voice: bytes or str
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -534,7 +534,7 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_enti
     """
     method = r'post'
     api_method = r'sendVoice'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     params = {'chat_id': chat_id}
     files = None
     if not is_string(voice):
@@ -560,17 +560,17 @@ def send_voice(token, proxies, chat_id, voice, caption, parse_mode, caption_enti
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
+def send_video_note(based_url, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
                     reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send video messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type video_note: any or None
+    :type video_note: bytes or str
     :type duration: int or None
     :type length: int or None
-    :type thumb: any or None
+    :type thumb: bytes or str
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
@@ -579,7 +579,7 @@ def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb
     """
     method = r'post'
     api_method = r'sendVideoNote'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     params = {'chat_id': chat_id}
     files = None
     if not is_string(video_note):
@@ -603,22 +603,22 @@ def send_video_note(token, proxies, chat_id, video_note, duration, length, thumb
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_media_group(token, proxies, chat_id, media, disable_notification, reply_to_message_id,
+def send_media_group(based_url, proxies, chat_id, media, disable_notification, reply_to_message_id,
                      allow_sending_without_reply):
     """
     Use this method to send a group of photos or videos as an album
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type media: list
     :type disable_notification: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
-    :rtype: dict
+    :rtype: list
     """
     method = r'post'
     api_method = r'sendMediaGroup'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(media):
@@ -634,12 +634,12 @@ def send_media_group(token, proxies, chat_id, media, disable_notification, reply
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading,
+def send_location(based_url, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading,
                   proximity_alert_radius, disable_notification, reply_to_message_id,
                   allow_sending_without_reply, reply_markup):
     """
     Use this method to send point on the map
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type latitude: float
@@ -652,11 +652,11 @@ def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accur
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'sendLocation'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id,
               'latitude': latitude, 'longitude': longitude}
@@ -679,12 +679,12 @@ def send_location(token, proxies, chat_id, latitude, longitude, horizontal_accur
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_live_location(token, proxies, latitude, longitude, horizontal_accuracy, heading,
+def edit_message_live_location(based_url, proxies, latitude, longitude, horizontal_accuracy, heading,
                                proximity_alert_radius, chat_id, message_id, inline_message_id,
                                reply_markup):
     """
     Use this method to edit live location messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
@@ -695,11 +695,11 @@ def edit_message_live_location(token, proxies, latitude, longitude, horizontal_a
     :type heading: str or None
     :type proximity_alert_radius: int or None
     :type reply_markup: dict or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'editMessageLiveLocation'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'latitude': latitude, 'longitude': longitude}
     if horizontal_accuracy:
@@ -719,20 +719,20 @@ def edit_message_live_location(token, proxies, latitude, longitude, horizontal_a
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def stop_message_live_location(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
+def stop_message_live_location(based_url, proxies, chat_id, message_id, inline_message_id, reply_markup):
     """
     Use this method to stop updating a live location message before live_period expires
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: int or None
     :type reply_markup: dict or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'stopMessageLiveLocation'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {}
     if chat_id:
@@ -746,12 +746,12 @@ def stop_message_live_location(token, proxies, chat_id, message_id, inline_messa
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_venue(token, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
+def send_venue(based_url, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
                google_place_id, google_place_type,
                disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send information about a venue
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type latitude: float
@@ -770,7 +770,7 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     """
     method = r'post'
     api_method = r'sendVenue'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'latitude': latitude, 'longitude': longitude, 'title': title, 'address': address}
     if foursquare_id:
@@ -792,11 +792,11 @@ def send_venue(token, proxies, chat_id, latitude, longitude, title, address, fou
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
+def send_contact(based_url, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
                  reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send phone contacts
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or
     :type phone_number: str
@@ -811,7 +811,7 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
     """
     method = r'post'
     api_method = r'sendContact'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id,
               'phone_number': phone_number, 'first_name': first_name}
@@ -830,14 +830,14 @@ def send_contact(token, proxies, chat_id, phone_number, first_name, last_name, v
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_poll(token, proxies, chat_id, question, options, is_anonymous, ttype, allows_multiple_answers,
+def send_poll(based_url, proxies, chat_id, question, options, is_anonymous, ttype, allows_multiple_answers,
               correct_option_id,
               explanation, explanation_parse_mode, explanation_entities, open_period, close_date, is_closed,
               disable_notifications,
               reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send a native poll
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type question: str
@@ -860,7 +860,7 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, ttype, a
     """
     method = r'post'
     api_method = r'sendPoll'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'question': question, 'options': options}
     if is_anonymous:
@@ -894,11 +894,11 @@ def send_poll(token, proxies, chat_id, question, options, is_anonymous, ttype, a
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_message_id, allow_sending_without_reply,
-              reply_markup):
+def send_dice(based_url, proxies, chat_id, emoji, disable_notification, reply_to_message_id,
+              allow_sending_without_reply, reply_markup):
     """
     Use this method to send a dice
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type emoji: str or None
@@ -910,7 +910,7 @@ def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_mes
     """
     method = r'post'
     api_method = r'sendDice'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'emoji': emoji}
     if disable_notification:
@@ -924,27 +924,27 @@ def send_dice(token, proxies, chat_id, emoji, disable_notification, reply_to_mes
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_chat_action(token, proxies, chat_id, action):
+def send_chat_action(based_url, proxies, chat_id, action):
     """
     Use this method when you need to tell the user that something is happening on the bots side
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type action: str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'sendChatAction'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'action': action}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_user_profile_photos(token, proxies, user_id, offset, limit):
+def get_user_profile_photos(based_url, proxies, user_id, offset, limit):
     """
     Use this method to get a list of profile pictures for a user
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int or str
     :type offset: int or None
@@ -953,7 +953,7 @@ def get_user_profile_photos(token, proxies, user_id, offset, limit):
     """
     method = r'post'
     api_method = r'getUserProfilePhotos'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id}
     if offset:
@@ -963,53 +963,36 @@ def get_user_profile_photos(token, proxies, user_id, offset, limit):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_file(token, proxies, file_id):
+def get_file(based_url, proxies, file_id):
     """
     Use this method to get basic info about a file and prepare it for downloading
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type file_id: str
     :rtype: dict
     """
     method = r'post'
     api_method = r'getFile'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'file_id': file_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def download_file(token, proxies, file_path):
-    """
-    Use this method to download file with specified file_path
-    :type token: str
-    :type proxies: dict or None
-    :type file_path: str
-    :rtype: any
-    """
-    api_url = "https://api.telegram.org/file/bot{0}/{1}".format(token, file_path)
-    result = get_req_session().get(api_url, proxies)
-    if result.status_code != 200:
-        msg = 'The server returned HTTP {0} {1}. Response body:\n[{2}]' \
-            .format(result.status_code, result.reason, result.text)
-        raise ApiException(msg, 'Download file', result)
-    return result.content
-
-
-def kick_chat_member(token, proxies, chat_id, user_id, until_date):
+def kick_chat_member(based_url, proxies, chat_id, user_id, until_date):
     """
     Use this method to kick a user from a group, a supergroup or a channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
     :type user_id: int
     :type until_date: int or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = 'kickChatMember'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
     if until_date:
@@ -1017,19 +1000,19 @@ def kick_chat_member(token, proxies, chat_id, user_id, until_date):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unban_chat_member(token, proxies, chat_id, user_id, only_if_banned):
+def unban_chat_member(based_url, proxies, chat_id, user_id, only_if_banned):
     """
     Use this method to unban a previously kicked user in a supergroup or channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
     :type only_if_banned: bool
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = 'unbanChatMember'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
     if only_if_banned:
@@ -1037,20 +1020,20 @@ def unban_chat_member(token, proxies, chat_id, user_id, only_if_banned):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_date):
+def restrict_chat_member(based_url, proxies, chat_id, user_id, permissions, until_date):
     """
     Use this method to restrict a user in a supergroup
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
     :type permissions: dict
     :type until_date: int or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = 'restrictChatMember'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id, 'permissions': permissions}
     if until_date:
@@ -1058,13 +1041,13 @@ def restrict_chat_member(token, proxies, chat_id, user_id, permissions, until_da
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_change_info, can_post_messages,
+def promote_chat_member(based_url, proxies, chat_id, user_id, is_anonymous, can_change_info, can_post_messages,
                         can_edit_messages,
                         can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages,
                         can_promote_members):
     """
     Use this method to promote or demote a user in a supergroup or a channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
@@ -1077,11 +1060,11 @@ def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_chan
     :type can_restrict_members: bool
     :type can_pin_messages: bool
     :type can_promote_members: bool
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = 'promoteChatMember'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
     if is_anonymous:
@@ -1105,69 +1088,69 @@ def promote_chat_member(token, proxies, chat_id, user_id, is_anonymous, can_chan
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_administrator_custom_title(token, proxies, chat_id, user_id, custom_title):
+def set_chat_administrator_custom_title(based_url, proxies, chat_id, user_id, custom_title):
     """
     Use this method to set a custom title for an administrator in a supergroup promoted by the bot
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
     :type custom_title: str\
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setChatAdministratorCustomTitle'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id, 'custom_title': custom_title}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_permissions(token, proxies, chat_id, permissions):
+def set_chat_permissions(based_url, proxies, chat_id, permissions):
     """
     Use this method to set default chat permissions for all members
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type permissions: dict
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setChatPermissions'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'permissions': permissions}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def export_chat_invite_link(token, proxies, chat_id):
+def export_chat_invite_link(based_url, proxies, chat_id):
     """
     Use this method to generate a new invite link for a chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :rtype: dict
+    :rtype: str
     """
     method = r'get'
     api_method = r'exportChatInviteLink'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_photo(token, proxies, chat_id, photo):
+def set_chat_photo(based_url, proxies, chat_id, photo):
     """
     Use this method to set a new profile photo for the chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type photo: any
-    :rtype: dict
+    :type photo: bytes
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setChatPhoto'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(photo):
@@ -1177,51 +1160,51 @@ def set_chat_photo(token, proxies, chat_id, photo):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_chat_photo(token, proxies, chat_id):
+def delete_chat_photo(based_url, proxies, chat_id):
     """
     Use this method to delete a chat photo
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'deleteChatPhoto'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_title(token, proxies, chat_id, title):
+def set_chat_title(based_url, proxies, chat_id, title):
     """
     Use this method to change the title of a chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type title: str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setChatTitle'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'title': title}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_description(token, proxies, chat_id, description):
+def set_chat_description(based_url, proxies, chat_id, description):
     """
     Use this method to change the description of a group, a supergroup or a channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type description: str or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setChatDescription'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if description:
@@ -1229,19 +1212,19 @@ def set_chat_description(token, proxies, chat_id, description):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
+def pin_chat_message(based_url, proxies, chat_id, message_id, disable_notification):
     """
     Use this method to pin a message in a group, a supergroup, or a channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int
     :type disable_notification: bool
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'pinChatMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     if disable_notification:
@@ -1249,18 +1232,18 @@ def pin_chat_message(token, proxies, chat_id, message_id, disable_notification):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unpin_chat_message(token, proxies, chat_id, message_id):
+def unpin_chat_message(based_url, proxies, chat_id, message_id):
     """
     Use this method to unpin a message in a group, a supergroup, or a channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: str or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'unpinChatMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if message_id:
@@ -1268,91 +1251,90 @@ def unpin_chat_message(token, proxies, chat_id, message_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def unpin_all_chat_message(token, proxies, chat_id):
+def unpin_all_chat_message(based_url, proxies, chat_id):
     """
     Use this method to clear the list of pinned messages in a chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'unpinAllChatMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def leave_chat(token, proxies, chat_id):
+def leave_chat(based_url, proxies, chat_id):
     """
     Use this method for your bot to leave a group, supergroup or channel
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :rtype: dict
     """
     method = r'post'
     api_method = r'leaveChat'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat(token, proxies, chat_id):
+def get_chat(based_url, proxies, chat_id):
     """
     Use this method to get up-to-date information about the chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :rtype: dict
     """
     method = r'get'
     api_method = r'getChat'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_administrators(token, proxies, chat_id):
+def get_chat_administrators(based_url, proxies, chat_id):
     """
     Use this method to get a list of administrators in a chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :return: an Array of ChatMember object.
-    :rtype: dict
+    :rtype: list
     """
     method = r'get'
     api_method = r'getChatAdministrators'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_members_count(token, proxies, chat_id):
+def get_chat_members_count(based_url, proxies, chat_id):
     """
     Use this method to get the number of members in a chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :rtype: dict
+    :rtype: int
     """
     method = r'get'
     api_method = r'getChatMembersCount'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_member(token, proxies, chat_id, user_id):
+def get_chat_member(based_url, proxies, chat_id, user_id):
     """
     Use this method to get information about a member of a chat
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
@@ -1360,60 +1342,60 @@ def get_chat_member(token, proxies, chat_id, user_id):
     """
     method = r'get'
     api_method = r'getChatMember'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_chat_sticker_set(token, proxies, chat_id, sticker_set_name):
+def set_chat_sticker_set(based_url, proxies, chat_id, sticker_set_name):
     """
     Use this method to set a new group sticker set for a supergroup
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type sticker_set_name: str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setChatStickerSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'sticker_set_name': sticker_set_name}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_chat_sticker_set(token, proxies, chat_id):
+def delete_chat_sticker_set(based_url, proxies, chat_id):
     """
     Use this method to delete a group sticker set from a supergroup
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'deleteChatStickerSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_callback_query(token, proxies, callback_query_id, text, show_alert, url, cache_time):
+def answer_callback_query(based_url, proxies, callback_query_id, text, show_alert, url, cache_time):
     """
     Use this method to send answers to callback queries sent from inline keyboards
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type callback_query_id: str
     :type text: str or None
     :type show_alert: bool
     :type url: str or None
     :type cache_time: int or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'answerCallbackQuery'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'callback_query_id': callback_query_id}
     if text:
@@ -1427,43 +1409,43 @@ def answer_callback_query(token, proxies, callback_query_id, text, show_alert, u
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_my_commands(token, proxies, commands):
+def set_my_commands(based_url, proxies, commands):
     """
     Use this method to change the list of the bots commands
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
-    :type commands: list[dict]
-    :rtype: dict
+    :type commands: list
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setMyCommands'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'commands': commands}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_my_commands(token, proxies):
+def get_my_commands(based_url, proxies):
     """
     Use this method to get the current list of the bots commands
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
-    :rtype: dict
+    :rtype: list
     """
     method = r'get'
     api_method = r'getMyCommands'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = None
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities,
+def edit_message_text(based_url, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities,
                       disable_web_page_preview,
                       reply_markup):
     """
     Use this method to edit text and game messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
@@ -1473,11 +1455,11 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
     :type entities: list or None
     :type disable_web_page_preview: bool
     :type reply_markup: dict or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'editMessageText'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'text': text}
     if chat_id:
@@ -1497,11 +1479,11 @@ def edit_message_text(token, proxies, text, chat_id, message_id, inline_message_
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_message_id, parse_mode, caption_entities,
-                         reply_markup):
+def edit_message_caption(based_url, proxies, caption, chat_id, message_id, inline_message_id, parse_mode,
+                         caption_entities, reply_markup):
     """
     Use this method to edit captions of messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
@@ -1510,11 +1492,11 @@ def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_me
     :type parse_mode: str or None
     :type caption_entities: list or None
     :type reply_markup: dict or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'editMessageCaption'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'caption': caption}
     if chat_id:
@@ -1532,21 +1514,21 @@ def edit_message_caption(token, proxies, caption, chat_id, message_id, inline_me
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_media(token, proxies, media, chat_id, message_id, inline_message_id, reply_markup):
+def edit_message_media(based_url, proxies, media, chat_id, message_id, inline_message_id, reply_markup):
     """
     Use this method to edit animation, audio, document, photo, or video messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: str or None
     :type media: dict
     :type reply_markup: dict or None:
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'editMessageMedia'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {}
     if not is_string(media):
@@ -1564,20 +1546,20 @@ def edit_message_media(token, proxies, media, chat_id, message_id, inline_messag
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_message_id, reply_markup):
+def edit_message_reply_markup(based_url, proxies, chat_id, message_id, inline_message_id, reply_markup):
     """
     Use this method to edit only the reply markup of messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: str or None
     :type reply_markup: dict or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'editMessageReplyMarkup'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {}
     if chat_id:
@@ -1591,10 +1573,10 @@ def edit_message_reply_markup(token, proxies, chat_id, message_id, inline_messag
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def stop_poll(token, proxies, chat_id, message_id, reply_markup):
+def stop_poll(based_url, proxies, chat_id, message_id, reply_markup):
     """
     Use this method to stop a poll which was sent by the bot
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
@@ -1603,7 +1585,7 @@ def stop_poll(token, proxies, chat_id, message_id, reply_markup):
     """
     method = r'post'
     api_method = r'stopPoll'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     if reply_markup:
@@ -1611,28 +1593,28 @@ def stop_poll(token, proxies, chat_id, message_id, reply_markup):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_message(token, proxies, chat_id, message_id):
+def delete_message(based_url, proxies, chat_id, message_id):
     """
     Use this method to delete a message, including service messages
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type message_id: int or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'deleteMessage'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
+def send_sticker(based_url, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
                  allow_sending_without_reply, reply_markup):
     """
     Use this method to send static .WEBP or animated .TGS stickers
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type sticker: any
@@ -1644,7 +1626,7 @@ def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_t
     """
     method = r'post'
     api_method = r'sendSticker'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
     if not is_string(sticker):
@@ -1662,44 +1644,44 @@ def send_sticker(token, proxies, chat_id, sticker, disable_notification, reply_t
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_sticker_set(token, proxies, name):
+def get_sticker_set(based_url, proxies, name):
     """
     Use this method to get a sticker set
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type name: str
     :rtype: dict
     """
     method = r'post'
     api_method = r'getStickerSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'name': name}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def upload_sticker_file(token, proxies, user_id, png_sticker):
+def upload_sticker_file(based_url, proxies, user_id, png_sticker):
     """
     Use this method to upload a .PNG file with a sticker
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int
-    :type png_sticker: any
+    :type png_sticker: bytes or str
     :rtype: dict
     """
     method = r'post'
     api_method = r'uploadStickerFile'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = {'png_sticker': png_sticker}
     params = {'user_id': user_id}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks,
+def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks,
                            mask_position):
     """
     Use this method to create a new sticker set owned by a user
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int
     :type name: str
@@ -1709,11 +1691,11 @@ def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tg
     :type emojis: str
     :type contains_masks: bool
     :type mask_position: dict
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'createNewStickerSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id, 'name': name, 'title': title, 'emojis': emojis}
     if not is_string(png_sticker):
@@ -1729,10 +1711,10 @@ def create_new_sticker_set(token, proxies, user_id, name, title, png_sticker, tg
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_sticker, mask_position):
+def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, tgs_sticker, mask_position):
     """
     Use this method to add a new sticker to a set created by the bot
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int
     :type name: str
@@ -1740,11 +1722,11 @@ def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_s
     :type tgs_sticker: any or None
     :type emojis: str
     :type mask_position: dict
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'addStickerToSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id, 'name': name, 'emojis': emojis}
     if not is_string(png_sticker):
@@ -1758,52 +1740,52 @@ def add_sticker_to_set(token, proxies, user_id, name, png_sticker, emojis, tgs_s
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_sticker_position_in_set(token, proxies, sticker, position):
+def set_sticker_position_in_set(based_url, proxies, sticker, position):
     """
     Use this method to move a sticker in a set created by the bot to a specific position
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type sticker: str
     :type position: int
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setStickerPositionInSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'sticker': sticker, 'position': position}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def delete_sticker_from_set(token, proxies, sticker):
+def delete_sticker_from_set(based_url, proxies, sticker):
     """
     Use this method to delete a sticker from a set created by the bot
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type sticker: str
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'deleteStickerFromSet'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'sticker': sticker}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
+def set_sticker_set_thumb(based_url, proxies, name, user_id, thumb):
     """
     Use this method to set the thumbnail of a sticker set
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type name: str
     :type user_id: int
     :type thumb: any or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setStickerSetThumb'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'name': name, 'user_id': user_id}
     if thumb:
@@ -1811,11 +1793,11 @@ def set_sticker_set_thumb(token, proxies, name, user_id, thumb):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is_personal, next_offset, switch_pm_text,
-                        switch_pm_parameter):
+def answer_inline_query(based_url, proxies, inline_query_id, results, cache_time, is_personal, next_offset,
+                        switch_pm_text, switch_pm_parameter):
     """
     Use this method to send answers to an inline query
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type inline_query_id: str
     :type results: list[dict]
@@ -1824,11 +1806,11 @@ def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is
     :type next_offset: str or None
     :type switch_pm_text: str or None
     :type switch_pm_parameter: str or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'answerInlineQuery'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'inline_query_id': inline_query_id, 'results': results}
     if cache_time is not None:
@@ -1844,14 +1826,14 @@ def answer_inline_query(token, proxies, inline_query_id, results, cache_time, is
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_invoice(token, proxies, chat_id, title, description, payload, provider_token, start_parameter, currency,
+def send_invoice(based_url, proxies, chat_id, title, description, payload, provider_token, start_parameter, currency,
                  prices,
                  provider_data, photo_url, photo_size, photo_width, photo_height, need_name, need_phone_number,
                  need_email, need_shipping_address, send_phone_number_to_provider, send_email_to_provider, is_flexible,
                  disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send invoices. On success, the sent Message is returned
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int
     :type title: str
@@ -1881,7 +1863,7 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     """
     method = r'post'
     api_method = r'sendInvoice'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'title': title, 'description': description, 'payload': payload,
               'provider_token': provider_token, 'start_parameter': start_parameter, 'currency': currency,
@@ -1921,20 +1903,20 @@ def send_invoice(token, proxies, chat_id, title, description, payload, provider_
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_options, error_message):
+def answer_shipping_query(based_url, proxies, shipping_query_id, ok, shipping_options, error_message):
     """
     Use this method to reply to shipping queries
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type shipping_query_id: str
     :type ok: bool
     :type shipping_options: list or None
     :type error_message: str or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = 'answerShippingQuery'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'shipping_query_id': shipping_query_id, 'ok': ok}
     if shipping_options:
@@ -1944,19 +1926,19 @@ def answer_shipping_query(token, proxies, shipping_query_id, ok, shipping_option
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_message):
+def answer_pre_checkout_query(based_url, proxies, pre_checkout_query_id, ok, error_message):
     """
     Use this method to respond to such pre-checkout queries
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type pre_checkout_query_id: str
     :type ok: bool
     :type error_message: str or None
-    :rtype: dict
+    :rtype: bool
     """
     method = r'post'
     api_method = r'answerPreCheckoutQuery'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'pre_checkout_query_id': pre_checkout_query_id, 'ok': ok}
     if error_message:
@@ -1964,28 +1946,28 @@ def answer_pre_checkout_query(token, proxies, pre_checkout_query_id, ok, error_m
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_passport_data_errors(token, proxies, user_id, errors):
+def set_passport_data_errors(based_url, proxies, user_id, errors):
     """
     Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int
-    :type errors: list[dict]
-    :rtype: dict
+    :type errors: list
+    :rtype: bool
     """
     method = r'post'
     api_method = r'setPassportDataErrors'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id, 'errors': errors}
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_game(token, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
+def send_game(based_url, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
               allow_sending_without_reply, reply_markup):
     """
     Use this method to send a game
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type game_short_name: str
@@ -1997,7 +1979,7 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification, re
     """
     method = r'post'
     api_method = r'sendGame'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'game_short_name': game_short_name}
     if disable_notification:
@@ -2011,13 +1993,12 @@ def send_game(token, proxies, chat_id, game_short_name, disable_notification, re
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-# https://core.telegram.org/bots/api#setgamescore
-def set_game_score(token, proxies, user_id, score, force, disable_edit_message, chat_id,
+def set_game_score(based_url, proxies, user_id, score, force, disable_edit_message, chat_id,
                    message_id,
                    inline_message_id):
     """
     Use this method to set the score of the specified user in a game
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int
     :type score: int
@@ -2026,11 +2007,11 @@ def set_game_score(token, proxies, user_id, score, force, disable_edit_message, 
     :type chat_id: int
     :type message_id: int or None
     :type inline_message_id: str or None
-    :rtype: dict
+    :rtype: dict or bool
     """
     method = r'post'
     api_method = r'setGameScore'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id, 'score': score}
     if force:
@@ -2046,21 +2027,20 @@ def set_game_score(token, proxies, user_id, score, force, disable_edit_message, 
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-# https://core.telegram.org/bots/api#getgamehighscores
-def get_game_high_scores(token, proxies, user_id, chat_id, message_id, inline_message_id):
+def get_game_high_scores(based_url, proxies, user_id, chat_id, message_id, inline_message_id):
     """
     Use this method to get data for high score tables
-    :type token: str
+    :type based_url: str
     :type proxies: dict or None
     :type user_id: int
     :type chat_id: int or None
     :type message_id: int or None
     :type inline_message_id: str or None
-    :rtype: dict
+    :rtype: list
     """
     method = r'get'
     api_method = r'getGameHighScores'
-    api_url = 'https://api.telegram.org/bot{0}/{1}'.format(token, api_method)
+    api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id}
     if chat_id:
