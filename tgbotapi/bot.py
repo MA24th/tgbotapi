@@ -1541,7 +1541,7 @@ class Bot:
         :rtype: list[types.GameHighScore]
         """
         resp = methods.get_game_high_scores(self.__based_url, self.__proxies, user_id, chat_id, message_id,
-                                              inline_message_id)
+                                            inline_message_id)
         result = []
         for x in resp:
             result.append(types.GameHighScore.de_json(x))

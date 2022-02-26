@@ -43,7 +43,7 @@ Then, open the file and create an instance of the TBot class.
 ```python
 import tgbotapi
 
-bot = tgbotapi.Bot("TOKEN")
+bot = tgbotapi.Bot(based_url="https://api.telegram.org/bot"+ "BOT_TOKEN")
 ```
 *Note: Make sure to actually replace TOKEN with your own API token.*
 
@@ -80,7 +80,7 @@ Alright, that's it! Our source file now looks like this:
 ```python
 import tgbotapi
 
-bot = tgbotapi.Bot("TOKEN")
+bot = tgbotapi.Bot(based_url="https://api.telegram.org/bot"+ "BOT_TOKEN")
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(msg):
@@ -101,10 +101,61 @@ bot.polling()
 To start the bot, simply open up a terminal and enter `python echo_bot.py` to run the bot! Test it by sending commands ('/start' and '/help') and arbitrary text messages.
 
 ### ChangeLog
-**_version 4.9.0_**
-- Added the new field via_bot to the Message object. You can now know which bot was used to send a message.
-- Supported video thumbnails for inline GIF and MPEG4 animations.
-- Supported the new basketball animation for the random dice. Choose between different animations (dice, darts, basketball) by specifying the emoji parameter in the method sendDice.
+**_version 5.0_**
+#### Run Your Own Bot API Server
+
+- Bot API source code is now available at telegram-bot-api. You can now run your own Bot API server locally, boosting your bots' performance.
+- Added the method logOut, which can be used to log out from the cloud Bot API server before launching your bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive all updates.
+- Added the method close, which can be used to close the bot instance before moving it from one local server to another.
+
+#### Transfer Bot Ownership
+- You can now use @BotFather to transfer your existing bots to another Telegram account.
+
+#### Webhooks
+- Added the parameter ip_address to the method setWebhook, allowing to bypass DNS resolving and use the specified fixed IP address to send webhook requests.
+- Added the field ip_address to the class WebhookInfo, containing the current IP address used for webhook connections creation.
+- Added the ability to drop all pending updates when changing webhook URL using the parameter drop_pending_updates in the methods setWebhook and deleteWebhook.
+
+#### Working with Groups
+- The getChat request now returns the user's bio for private chats if available.
+- The getChat request now returns the identifier of the linked chat for supergroups and channels, i.e. the discussion group identifier for a channel and vice versa.
+- The getChat request now returns the location to which the supergroup is connected (see Local Groups). Added the class ChatLocation to represent the location.
+- Added the parameter only_if_banned to the method unbanChatMember to allow safe unban.
+
+#### Working with Files
+- Added the field file_name to the classes Audio and Video, containing the name of the original file.
+- Added the ability to disable server-side file content type detection using the parameter disable_content_type_detection in the method sendDocument and the class inputMediaDocument.
+
+#### Multiple Pinned Messages
+- Added the ability to pin messages in private chats.
+- Added the parameter message_id to the method unpinChatMessage to allow unpinning of the specific pinned message.
+- Added the method unpinAllChatMessages, which can be used to unpin all pinned messages in a chat.
+
+#### File Albums
+- Added support for sending and receiving audio and document albums in the method sendMediaGroup.
+
+#### Live Locations
+- Added the field live_period to the class Location, representing a maximum period for which the live location can be updated.
+- Added support for live location heading: added the field heading to the classes Location, InlineQueryResultLocation, InputLocationMessageContent and the parameter heading to the methods sendLocation and editMessageLiveLocation.
+- Added support for proximity alerts in live locations: added the field proximity_alert_radius to the classes Location, InlineQueryResultLocation, InputLocationMessageContent and the parameter proximity_alert_radius to the methods sendLocation and editMessageLiveLocation.
+- Added the type ProximityAlertTriggered and the field proximity_alert_triggered to the class Message.
+- Added possibility to specify the horizontal accuracy of a location. Added the field horizontal_accuracy to the classes Location, InlineQueryResultLocation, InputLocationMessageContent and the parameter horizontal_accuracy to the methods sendLocation and editMessageLiveLocation.
+
+#### Anonymous Admins
+- Added the field sender_chat to the class Message, containing the sender of a message which is a chat (group or channel). For backward compatibility in non-channel chats, the field from in such messages will contain the user 777000 for messages automatically forwarded to the discussion group and the user 1087968824 (@GroupAnonymousBot) for messages from anonymous group administrators.
+- Added the field is_anonymous to the class chatMember, which can be used to distinguish anonymous chat administrators.
+- Added the parameter is_anonymous to the method promoteChatMember, which allows to promote anonymous chat administrators. The bot itself should have the is_anonymous right to do this. Despite the fact that bots can have the is_anonymous right, they will never appear as anonymous in the chat. Bots can use the right only for passing to other administrators.
+- Added the custom title of an anonymous message sender to the class Message as author_signature.
+
+#### And More
+- Added the method copyMessage, which sends a copy of any message.
+- Maximum poll question length increased to 300.
+- Added the ability to manually specify text entities instead of specifying the parse_mode in the classes InputMediaPhoto, InputMediaVideo, InputMediaAnimation, InputMediaAudio, InputMediaDocument, InlineQueryResultPhoto, InlineQueryResultGif, InlineQueryResultMpeg4Gif, InlineQueryResultVideo, InlineQueryResultAudio, InlineQueryResultVoice, InlineQueryResultDocument, InlineQueryResultCachedPhoto, InlineQueryResultCachedGif, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedVideo, InlineQueryResultCachedAudio, InlineQueryResultCachedVoice, InlineQueryResultCachedDocument, InputTextMessageContent and the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendVoice, sendPoll, editMessageText, editMessageCaption.
+- Added the fields google_place_id and google_place_type to the classes Venue, InlineQueryResultVenue, InputVenueMessageContent and the optional parameters google_place_id and google_place_type to the method sendVenue to support Google Places as a venue API provider.
+- Added the field allow_sending_without_reply to the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendSticker, sendVideoNote, sendVoice, sendLocation, sendVenue, sendContact, sendPoll, sendDice, sendInvoice, sendGame, sendMediaGroup to allow sending messages not a as reply if the replied-to message has already been deleted.
+
+#### And Last but not Least
+- Supported the new football and slot machine animations for the random dice. Choose between different animations (dice, darts, basketball, football, slot machine) by specifying the emoji parameter in the method sendDice.
 
 **_Fixes_**
 
