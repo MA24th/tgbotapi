@@ -1,9 +1,6 @@
-from .utils import *
-from .methods import *
-from .types import *
-from .bot import *
-from .asyncbot import *
-
+from .utils import logger
+from .asyncbot import AsyncBot
+from .bot import Bot
 """
 Module: tgbotapi
 """
