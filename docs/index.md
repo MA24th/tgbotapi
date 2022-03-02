@@ -3,7 +3,7 @@
 The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Framework
 
 [![GPLv2 license](https://img.shields.io/badge/LICENSE-GPLv2-red)](https://github.com/ma24th/tgbotapi/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-v4.9.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
+[![PyPI](https://img.shields.io/badge/PyPI-v5.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
 ![Python package](https://github.com/MA24th/tgbotapi/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/MA24th/tgbotapi/workflows/Upload%20Python%20Package/badge.svg)
 
