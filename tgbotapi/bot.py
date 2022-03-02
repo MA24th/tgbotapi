@@ -5,7 +5,6 @@ from . import types
 import time
 import os
 import pickle
-import six
 import re
 
 """ This is Bot submodule """
@@ -89,7 +88,6 @@ class Bot:
         :param int num_threads: Number of thread to process incoming tasks, default 2
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
-
         self.__based_url = based_url
         self.__proxies = proxies
         self.__threaded = threaded
@@ -100,7 +98,6 @@ class Bot:
         self.__update_listener = []
         self.__stop_polling = threading.Event()
         self.__last_update_id = 0
-        self.__exc_info = None
 
         # key: message_id, value: handler list
         self.__reply_handlers = {}
@@ -122,7 +119,7 @@ class Bot:
         self.__poll_handlers = []
         self.__poll_answer_handlers = []
 
-    def get_updates(self, offset=None, limit=None, timeout=0, allowed_updates=None):
+    def get_updates(self, offset=None, limit=100, timeout=0, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling
         :param int or None offset: Identifier of the first update to be returned
@@ -150,23 +147,8 @@ class Bot:
             for update in updates:
                 if update.update_id > self.__last_update_id:
                     self.__last_update_id = update.update_id
-            updates = self.get_updates(
-                offset=self.__last_update_id + 1, timeout=1)
+            updates = self.get_updates(offset=self.__last_update_id + 1, timeout=1)
         return total
-
-    def __retrieve_updates(self, timeout=20):
-        """
-        Retrieves any updates from the Telegram API
-        Registered listeners and applicable message handlers will be notified when a new message arrives
-        :raises ApiException when a call has failed
-        """
-        if self.__skip_pending:
-            utils.logger.info('SKIPPED {0} PENDING MESSAGES'.format(
-                self.__skip_updates()))
-            self.__skip_pending = False
-        updates = self.get_updates(
-            offset=(self.__last_update_id + 1), timeout=timeout)
-        self.__process_new_updates(updates)
 
     def __process_new_updates(self, updates):
         new_messages = []
@@ -207,29 +189,107 @@ class Bot:
             if update.poll_answer:
                 new_poll_answers.append(update.poll_answer)
 
-        utils.logger.info('RECEIVED {0} UPDATES'.format(len(updates)))
-        if len(new_messages) > 0:
-            self.__process_new_messages(new_messages)
-        if len(new_edited_messages) > 0:
-            self.__process_new_edited_messages(new_edited_messages)
-        if len(new_channel_posts) > 0:
-            self.__process_new_channel_posts(new_channel_posts)
-        if len(new_edited_channel_posts) > 0:
-            self.__process_new_edited_channel_posts(new_edited_channel_posts)
-        if len(new_inline_queries) > 0:
-            self.__process_new_inline_query(new_inline_queries)
-        if len(new_chosen_inline_results) > 0:
-            self.__process_new_chosen_inline_query(new_chosen_inline_results)
-        if len(new_callback_queries) > 0:
-            self.__process_new_callback_query(new_callback_queries)
-        if len(new_pre_checkout_queries) > 0:
-            self.__process_new_pre_checkout_query(new_pre_checkout_queries)
-        if len(new_shipping_queries) > 0:
-            self.__process_new_shipping_query(new_shipping_queries)
-        if len(new_polls) > 0:
-            self.__process_new_poll(new_polls)
-        if len(new_poll_answers) > 0:
-            self.__process_new_poll_answer(new_poll_answers)
+        utils.logger.info(f'RECEIVED {len(updates)} UPDATES')
+        if len(updates) > 0:
+            if len(new_messages) > 0:
+                self.__process_new_messages(new_messages)
+            if len(new_edited_messages) > 0:
+                self.__process_new_edited_messages(new_edited_messages)
+            if len(new_channel_posts) > 0:
+                self.__process_new_channel_posts(new_channel_posts)
+            if len(new_edited_channel_posts) > 0:
+                self.__process_new_edited_channel_posts(new_edited_channel_posts)
+            if len(new_inline_queries) > 0:
+                self.__process_new_inline_query(new_inline_queries)
+            if len(new_chosen_inline_results) > 0:
+                self.__process_new_chosen_inline_query(new_chosen_inline_results)
+            if len(new_callback_queries) > 0:
+                self.__process_new_callback_query(new_callback_queries)
+            if len(new_pre_checkout_queries) > 0:
+                self.__process_new_pre_checkout_query(new_pre_checkout_queries)
+            if len(new_shipping_queries) > 0:
+                self.__process_new_shipping_query(new_shipping_queries)
+            if len(new_polls) > 0:
+                self.__process_new_poll(new_polls)
+            if len(new_poll_answers) > 0:
+                self.__process_new_poll_answer(new_poll_answers)
+
+    def __retrieve_updates(self, timeout=20):
+        """
+        Retrieves any updates from the Telegram API
+        Registered listeners and applicable message handlers will be notified when a new message arrives
+        :raises ApiException when a call has failed
+        """
+        if self.__skip_pending:
+            utils.logger.info(f'SKIPPED {self.__skip_updates()} PENDING MESSAGES')
+            self.__skip_pending = False
+        updates = self.get_updates(offset=(self.__last_update_id + 1), timeout=timeout)
+        self.__process_new_updates(updates)
+
+    def _notify_next_handlers(self, new_messages):
+        """
+        Notify Next Handlers of New Messages
+        :param list[types.Message] new_messages:
+        :return:
+        """
+        i = 0
+        while i < len(new_messages):
+            message = new_messages[i]
+            chat_id = message.chat.uid
+            was_pop = False
+            if chat_id in self.__next_step_handlers.keys():
+                handlers = self.__next_step_handlers.pop(chat_id, None)
+                if handlers:
+                    for handler in handlers:
+                        self._exec_task(handler["callback"], message, *handler["args"], **handler["kwargs"])
+                    # removing message that detects with next_step_handler
+                    new_messages.pop(i)
+                    was_pop = True
+                if self.__next_step_saver is not None:
+                    self.__next_step_saver.start_save_timer()
+            if not was_pop:
+                i += 1
+
+    def _notify_reply_handlers(self, new_messages):
+        """
+        Notify handlers of the answers
+        :param any new_messages:
+        :return:
+        """
+        for message in new_messages:
+            if message.reply_to_message is not None:
+                reply_mid = message.reply_to_message.message_id
+                if reply_mid in self.__reply_handlers.keys():
+                    handlers = self.__reply_handlers[reply_mid]
+                    for handler in handlers:
+                        self._exec_task(
+                            handler["callback"], message, *handler["args"], **handler["kwargs"])
+                    self.__reply_handlers.pop(reply_mid)
+                    if self.__reply_saver is not None:
+                        self.__reply_saver.start_save_timer()
+
+    def _exec_task(self, task, *args, **kwargs):
+        if self.__threaded:
+            self.__worker_pool.put(task, *args, **kwargs)
+        else:
+            task(*args, **kwargs)
+
+    def __notify_update(self, new_messages):
+        for listener in self.__update_listener:
+            self._exec_task(listener, new_messages)
+
+    def _notify_command_handlers(self, handlers, new_messages):
+        """
+        Notifies command handlers
+        :param handlers:
+        :param new_messages:
+        :return:
+        """
+        for message in new_messages:
+            for message_handler in handlers:
+                if self._check_update_handler(message_handler, message):
+                    self._exec_task(message_handler['function'], message)
+                    break
 
     def __process_new_messages(self, new_messages):
         self._notify_next_handlers(new_messages)
@@ -238,8 +298,7 @@ class Bot:
         self._notify_command_handlers(self.__message_handlers, new_messages)
 
     def __process_new_edited_messages(self, edited_message):
-        self._notify_command_handlers(
-            self.__edited_message_handlers, edited_message)
+        self._notify_command_handlers(self.__edited_message_handlers, edited_message)
 
     def __process_new_channel_posts(self, channel_post):
         self._notify_command_handlers(
@@ -258,16 +317,13 @@ class Bot:
             self.__chosen_inline_handlers, new_chosen_inline_queries)
 
     def __process_new_callback_query(self, new_callback_queries):
-        self._notify_command_handlers(
-            self.__callback_query_handlers, new_callback_queries)
+        self._notify_command_handlers(self.__callback_query_handlers, new_callback_queries)
 
     def __process_new_shipping_query(self, new_shipping_queries):
-        self._notify_command_handlers(
-            self.__shipping_query_handlers, new_shipping_queries)
+        self._notify_command_handlers(self.__shipping_query_handlers, new_shipping_queries)
 
     def __process_new_pre_checkout_query(self, pre_checkout_queries):
-        self._notify_command_handlers(
-            self.__pre_checkout_query_handlers, pre_checkout_queries)
+        self._notify_command_handlers(self.__pre_checkout_query_handlers, pre_checkout_queries)
 
     def __process_new_poll(self, poll):
         self._notify_command_handlers(self.__poll_handlers, poll)
@@ -275,9 +331,113 @@ class Bot:
     def __process_new_poll_answer(self, poll_answer):
         self._notify_command_handlers(self.__poll_answer_handlers, poll_answer)
 
-    def __notify_update(self, new_messages):
-        for listener in self.__update_listener:
-            self._exec_task(listener, new_messages)
+    @staticmethod
+    def _build_handler_dict(handler, **filters):
+        """
+        Builds a dictionary for a handler
+        :param handler: functions name
+        :param filters: functions filters
+        :return: Return Dictionary type for handlers
+        :rtype: dict
+        """
+        return {
+            'function': handler,
+            'filters': filters
+        }
+
+    def update_handler(self, update_type, chat_type=None, content_type=None, bot_command=None, regexp=None, func=None):
+        """
+        Update handler decorator
+        :param str update_type: At most one of the [message, edited_message, channel_post, inline_query,
+                            chosen_inline_result, callback_query, pre_checkout_query, poll, poll_answer] must be present
+        :param str or list bot_command: Bot Commands like (/start, /help)
+        :param str regexp: Sequence of characters that define a search pattern
+        :param function func: any python function that return True On success like (lambda)
+        :param list[str] content_type: This commands' supported content types. Must be a list. Defaults to ['text']
+        :param list[str] chat_type: list of chat types (private, supergroup, group, channel)
+        :return: filtered Update
+        """
+
+        def decorator(handler):
+            if update_type == 'message':
+                handler_dict = self._build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
+                                                        bot_command=bot_command, regexp=regexp, func=func)
+                self.__message_handlers.append(handler_dict)
+            elif update_type == 'edited_message':
+                handler_dict = self._build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
+                                                        bot_command=bot_command, regexp=regexp, func=func)
+                self.__edited_message_handlers.append(handler_dict)
+            elif update_type == 'channel_post':
+                handler_dict = self._build_handler_dict(handler, content_type=content_type, regexp=regexp, func=func)
+                self.__channel_post_handlers.append(handler_dict)
+            elif update_type == 'edited_channel_post':
+                handler_dict = self._build_handler_dict(handler, content_type=content_type, regexp=regexp, func=func)
+                self.__edited_channel_post_handlers.append(handler_dict)
+            elif update_type == 'inline_query':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__inline_query_handlers.append(handler_dict)
+            elif update_type == 'chosen_inline':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__chosen_inline_handlers.append(handler_dict)
+            elif update_type == 'callback_query':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__callback_query_handlers.append(handler_dict)
+            elif update_type == 'shipping_query':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__shipping_query_handlers.append(handler_dict)
+            elif update_type == 'pre_check_query':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__pre_checkout_query_handlers.append(handler_dict)
+            elif update_type == 'poll':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__poll_handlers.append(handler_dict)
+            elif update_type == 'poll_answer':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__poll_answer_handlers.append(handler_dict)
+            return handler
+
+        return decorator
+
+    def _check_update_handler(self, message_handler, message):
+        """
+        check update handler
+        :param message_handler:
+        :param message:
+        :return:
+        """
+        for filters, filter_value in message_handler['filters'].items():
+            if filter_value is None:
+                continue
+
+            if not self._check_filter(filters, filter_value, message):
+                return False
+
+        return True
+
+    @staticmethod
+    def _check_filter(filters, filter_value, message):
+        """
+        check filters
+        :param filters:
+        :param filter_value:
+        :param message:
+        :return:
+        """
+        print(filters, filter_value)
+        if filters == 'chat_types':
+            return message.chat.ttype in filter_value
+        elif filters == 'regexp':
+            return message.content_type == 'text' and re.search(filter_value, message.text, re.IGNORECASE)
+        elif filters == 'func':
+            return filter_value(message)
+        elif filters == 'bot_command':
+            entity = message.entities
+            if entity:
+                return entity[0].ttype == 'bot_command' and utils.extract_command(message.text) in filter_value
+            else:
+                return False
+        else:
+            return False
 
     def infinity_polling(self, timeout=20, *args, **kwargs):
         while not self.__stop_polling.is_set():
@@ -368,12 +528,6 @@ class Bot:
                 break
 
         utils.logger.info('STOPPED POLLING')
-
-    def _exec_task(self, task, *args, **kwargs):
-        if self.__threaded:
-            self.__worker_pool.put(task, *args, **kwargs)
-        else:
-            task(*args, **kwargs)
 
     def stop_polling(self):
         self.__stop_polling.set()
@@ -1546,561 +1700,3 @@ class Bot:
         for x in resp:
             result.append(types.GameHighScore.de_json(x))
         return result
-
-    def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
-        """
-        Enable saving reply handlers by default saving disable
-        :param delay: Integer: Required, Delay between changes in handlers and saving
-        :param filename: Data: Required, Filename of save file
-        """
-        self.__reply_saver = Saver(self.__reply_handlers, filename, delay)
-
-    def disable_save_reply_handlers(self):
-        """
-        Disable saving next step handlers by default saving disable
-        """
-        self.__reply_saver = None
-
-    def load_reply_handlers(self, filename="./.handler-saves/reply.save", del_file_after_loading=True):
-        """
-        Load reply handlers from save file
-        :param filename: Data: Required, Filename of the file where handlers was saved
-        :param del_file_after_loading: Boolean: Required, Is passed True, after loading save file will be deleted
-        """
-        self.__reply_saver.load_handlers(filename)
-
-    def register_for_reply(self, message, callback, *args, **kwargs):
-        """
-        Registers a callback function to be notified when a reply to `message` arrives
-        Warning: In case `callback` as lambda function, saving reply handlers will not work
-        :param message: The message for which we are awaiting a reply
-        :param callback: The callback function to be called when a reply arrives. Must accept one `message`
-                         parameter, which will contain the replied message
-        """
-        message_id = message.message_id
-        self.register_for_reply_by_message_id(
-            message_id, callback, *args, **kwargs)
-
-    def register_for_reply_by_message_id(self, message_id, callback, *args, **kwargs):
-        """
-        Registers a callback function to be notified when a reply to `message` arrives
-        Warning: In case `callback` as lambda function, saving reply handlers will not work
-        :param message_id: The id of the message for which we are awaiting a reply
-        :param callback: The callback function to be called when a reply arrives. Must accept one `message`
-                         parameter, which will contain the replied message
-        """
-        if message_id in self.__reply_handlers.keys():
-            self.__reply_handlers[message_id].append(
-                Handler(callback, *args, **kwargs))
-        else:
-            self.__reply_handlers[message_id] = [
-                Handler(callback, *args, **kwargs)]
-        if self.__reply_saver is not None:
-            self.__reply_saver.start_save_timer()
-
-    def clear_reply_handlers(self, message):
-        """
-        Clears all callback functions registered by register_for_reply() and register_for_reply_by_message_id()
-        :param message: The message for which we want to clear reply handlers
-        """
-        message_id = message.message_id
-        self.clear_reply_handlers_by_message_id(message_id)
-
-    def clear_reply_handlers_by_message_id(self, message_id):
-        """
-        Clears all callback functions registered by register_for_reply() and register_for_reply_by_message_id()
-        :param message_id: The message id for which we want to clear reply handlers
-        """
-        self.__reply_handlers[message_id] = []
-
-        if self.__reply_saver is not None:
-            self.__reply_saver.start_save_timer()
-
-    def _notify_reply_handlers(self, new_messages):
-        """
-        Notify handlers of the answers
-        :param any new_messages:
-        :return:
-        """
-        for message in new_messages:
-            if message.reply_to_message is not None:
-                reply_mid = message.reply_to_message.message_id
-                if reply_mid in self.__reply_handlers.keys():
-                    handlers = self.__reply_handlers[reply_mid]
-                    for handler in handlers:
-                        self._exec_task(
-                            handler["callback"], message, *handler["args"], **handler["kwargs"])
-                    self.__reply_handlers.pop(reply_mid)
-                    if self.__reply_saver is not None:
-                        self.__reply_saver.start_save_timer()
-
-    def enable_save_next_step_handlers(self, delay=120, filename="./.handler-saves/step.save"):
-        """
-        Enable saving next step handlers by default saving disable
-        :param int delay: Required, Delay between changes in handlers and saving
-        :param bytes filename: Required, Filename of save file
-        """
-        self.__next_step_saver = Saver(
-            self.__next_step_handlers, filename, delay)
-
-    def disable_save_next_step_handlers(self):
-        """
-        Disable saving next step handlers by default saving disable
-        """
-        self.__next_step_saver = None
-
-    def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
-        """
-        Load next step handlers from save file
-        :param bytes filename: Required, Filename of the file where handlers was saved
-        :param bool del_file_after_loading: Required, Is passed True, after loading save file will be deleted
-        """
-        self.__next_step_saver.load_handlers(filename, del_file_after_loading)
-
-    def register_next_step_handler(self, message, callback, *args, **kwargs):
-        """
-        Registers a callback function to be notified when new message arrives after `message`
-        Warning: In case `callback` as lambda function, saving next step handlers will not work
-        :param message: The message for which we want to handle new message in the same chat
-        :param function callback: The callback function which next new message arrives
-        :param str args: Args to pass in callback func
-        :param kwargs: KeyWord Args to pass in callback func
-        """
-        chat_id = message.chat.id
-        self.register_next_step_handler_by_chat_id(
-            chat_id, callback, *args, **kwargs)
-
-    def register_next_step_handler_by_chat_id(self, chat_id, callback, *args, **kwargs):
-        """
-        Registers a callback function to be notified when new message arrives after `message`
-        Warning: In case `callback` as lambda function, saving next step handlers will not work
-        :param int chat_id: The chat for which we want to handle new message
-        :param function callback: The callback function which next new message arrives
-        :param str args: Args to pass in callback func
-        :param kwargs: KeyWord Args to pass in callback func
-        """
-        if chat_id in self.__next_step_handlers.keys():
-            self.__next_step_handlers[chat_id].append(
-                Handler(callback, *args, **kwargs))
-        else:
-            self.__next_step_handlers[chat_id] = [
-                Handler(callback, *args, **kwargs)]
-
-        if self.__next_step_saver is not None:
-            self.__next_step_saver.start_save_timer()
-
-    def clear_step_handler(self, message):
-        """
-        Clears all callback functions registered by register_next_step_handler()
-        :param message: The message for which we want to handle new message after that in same chat.
-        """
-        chat_id = message.chat.id
-        self.clear_step_handler_by_chat_id(chat_id)
-
-    def clear_step_handler_by_chat_id(self, chat_id):
-        """
-        Clears all callback functions registered by register_next_step_handler()
-        :param int chat_id: The chat for which we want to clear next step handlers
-        """
-        self.__next_step_handlers[chat_id] = []
-
-        if self.__next_step_saver is not None:
-            self.__next_step_saver.start_save_timer()
-
-    def _notify_next_handlers(self, new_messages):
-        """
-        Description: TBD
-        :param list[types.Message] new_messages:
-        :return:
-        """
-        i = 0
-        while i < len(new_messages):
-            message = new_messages[i]
-            chat_id = message.chat.uid
-            was_pop = False
-            if chat_id in self.__next_step_handlers.keys():
-                handlers = self.__next_step_handlers.pop(chat_id, None)
-                if handlers:
-                    for handler in handlers:
-                        self._exec_task(
-                            handler["callback"], message, *handler["args"], **handler["kwargs"])
-                    # removing message that detects with next_step_handler
-                    new_messages.pop(i)
-                    was_pop = True
-                if self.__next_step_saver is not None:
-                    self.__next_step_saver.start_save_timer()
-            if not was_pop:
-                i += 1
-
-    @staticmethod
-    def _build_handler_dict(handler, **filters):
-        """
-        Builds a dictionary for a handler
-        :param handler:
-        :param filters:
-        :return:
-        """
-        return {
-            'function': handler,
-            'filters': filters
-        }
-
-    def message_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
-        """
-        Message handler decorator
-        This decorator can be used to decorate functions that must handle certain types of messages
-        :param str or list commands: Bot Commands like (/start, /help)
-        :param str regexp: Sequence of characters that define a search pattern
-        :param function func: any python function that return True On success like (lambda)
-        :param list[str] content_types: This commands' supported content types. Must be a list. Defaults to ['text']
-        :return: filtered Message
-        """
-        if content_types is None:
-            content_types = ['text']
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(handler,
-                                                    commands=commands,
-                                                    regexp=regexp,
-                                                    func=func,
-                                                    content_types=content_types,
-                                                    **kwargs)
-
-            self.__add_message_handler(handler_dict)
-
-            return handler
-
-        return decorator
-
-    def __add_message_handler(self, handler_dict):
-        """
-        Adds a message handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__message_handlers.append(handler_dict)
-
-    def edited_message_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
-        """
-        Edited message handler decorator.
-        This decorator can be used to decorate functions that must handle certain types of edited messages
-        :param str or list[str] commands: Bot Commands like (/start, /help)
-        :param str regexp: Sequence of characters that define a search pattern
-        :param function func: any python function that return True On success like (lambda)
-        :param list[str] content_types: This commands' supported content types. Must be a list. Defaults to ['text']
-        :return: filtered Message.
-        """
-        if content_types is None:
-            content_types = ['text']
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(handler,
-                                                    commands=commands,
-                                                    regexp=regexp,
-                                                    func=func,
-                                                    content_types=content_types,
-                                                    **kwargs)
-            self.__add_edited_message_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_edited_message_handler(self, handler_dict):
-        """
-        Adds the edit message handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__edited_message_handlers.append(handler_dict)
-
-    def channel_post_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
-        """
-        Channel post handler decorator
-        This decorator can be used to decorate functions that must handle certain types of channel post
-        :param str or list[str] commands: Bot Commands like (/start, /help)
-        :param str regexp: Sequence of characters that define a search pattern
-        :param function func: any python function that return True On success like (lambda)
-        :param list[str] content_types: This commands' supported content types. Must be a list. Defaults to ['text']
-        :return: filtered Message.
-        """
-
-        if content_types is None:
-            content_types = ['text']
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(handler,
-                                                    commands=commands,
-                                                    regexp=regexp,
-                                                    func=func,
-                                                    content_types=content_types,
-                                                    **kwargs)
-            self.__add_channel_post_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_channel_post_handler(self, handler_dict):
-        """
-        Adds channel post handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__channel_post_handlers.append(handler_dict)
-
-    def edited_channel_post_handler(self, commands=None, regexp=None, func=None, content_types=None, **kwargs):
-        """
-        Edited channel post handler decorator
-        This decorator can be used to decorate functions that must handle certain types of edited channel post
-        :param str or list[str] commands: Bot Commands like (/start, /help)
-        :param str regexp: Sequence of characters that define a search pattern
-        :param function func: any python function that return True On success like (lambda)
-        :param list[str] content_types: This commands' supported content types. Must be a list. Defaults to ['text']
-        :return: filtered Message
-        """
-
-        if content_types is None:
-            content_types = ['text']
-        if content_types is None:
-            content_types = ["text"]
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(handler,
-                                                    commands=commands,
-                                                    regexp=regexp,
-                                                    func=func,
-                                                    content_types=content_types,
-                                                    **kwargs)
-            self.__add_edited_channel_post_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_edited_channel_post_handler(self, handler_dict):
-        """
-        Adds the edit channel post handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__edited_channel_post_handlers.append(handler_dict)
-
-    def inline_query_handler(self, func, **kwargs):
-        """
-        inline handler decorator
-        This decorator can be used to decorate functions that must handle certain types of inline query
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message.
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_inline_query_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_inline_query_handler(self, handler_dict):
-        """
-        Adds inline call handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__inline_query_handlers.append(handler_dict)
-
-    def chosen_inline_handler(self, func, **kwargs):
-        """
-        Chosen inline handler decorator
-        This decorator can be used to decorate functions that must handle certain types of messages
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message.
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_chosen_inline_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_chosen_inline_handler(self, handler_dict):
-        """
-        Description: TBD
-        :param dict handler_dict:
-        :return:
-        """
-        self.__chosen_inline_handlers.append(handler_dict)
-
-    def callback_query_handler(self, func, **kwargs):
-        """
-        Callback query handler decorator
-        This decorator can be used to decorate functions that must handle certain types of messages
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message.
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_callback_query_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_callback_query_handler(self, handler_dict):
-        """
-        Adds a callback request handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__callback_query_handlers.append(handler_dict)
-
-    def shipping_query_handler(self, func, **kwargs):
-        """
-        shipping query handler decorator
-        This decorator can be used to decorate functions that must handle certain types of messages
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_shipping_query_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_shipping_query_handler(self, handler_dict):
-        """
-        Adds a shipping request handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__shipping_query_handlers.append(handler_dict)
-
-    def pre_checkout_query_handler(self, func, **kwargs):
-        """
-        Pre checkout query handler decorator
-        This decorator can be used to decorate functions that must handle certain types of messages
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_pre_checkout_query_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_pre_checkout_query_handler(self, handler_dict):
-        """
-        Adds a pre-checkout request handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__pre_checkout_query_handlers.append(handler_dict)
-
-    def poll_handler(self, func, **kwargs):
-        """
-        Poll handler decorator
-        This decorator can be used to decorate functions that must handle certain types of poll
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_poll_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_poll_handler(self, handler_dict):
-        """
-        Adds a poll request handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__poll_handlers.append(handler_dict)
-
-    def poll_answer_handler(self, func, **kwargs):
-        """
-        Poll answer handler decorator
-        This decorator can be used to decorate functions that must handle certain types of messages
-        :param function func: any python function that return True On success like (lambda)
-        :param kwargs:
-        :return: filtered Message
-        """
-
-        def decorator(handler):
-            handler_dict = self._build_handler_dict(
-                handler, func=func, **kwargs)
-            self.__add_poll_answer_handler(handler_dict)
-            return handler
-
-        return decorator
-
-    def __add_poll_answer_handler(self, handler_dict):
-        """
-        Adds a poll request handler
-        :param dict handler_dict:
-        :return:
-        """
-        self.__poll_answer_handlers.append(handler_dict)
-
-    def _test_message_handler(self, message_handler, message):
-        """
-        Test message handler
-        :param message_handler:
-        :param message:
-        :return:
-        """
-        for filters, filter_value in six.iteritems(message_handler['filters']):
-            if filter_value is None:
-                continue
-
-            if not self._test_filter(filters, filter_value, message):
-                return False
-
-        return True
-
-    @staticmethod
-    def _test_filter(filters, filter_value, message):
-        """
-        Test filters
-        :param filters:
-        :param filter_value:
-        :param message:
-        :return:
-        """
-        test_cases = {
-            'content_types': lambda msg: msg.content_type in filter_value,
-            'regexp': lambda msg: msg.content_type == 'text' and re.search(filter_value, msg.text, re.IGNORECASE),
-            'commands': lambda msg: msg.content_type == 'text' and utils.extract_command(msg.text) in filter_value,
-            'func': lambda msg: filter_value(msg)
-        }
-
-        return test_cases.get(filters, lambda msg: False)(message)
-
-    def _notify_command_handlers(self, handlers, new_messages):
-        """
-        Notifies command handlers
-        :param handlers:
-        :param new_messages:
-        :return:
-        """
-        for message in new_messages:
-            for message_handler in handlers:
-                if self._test_message_handler(message_handler, message):
-                    self._exec_task(message_handler['function'], message)
-                    break
