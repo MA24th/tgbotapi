@@ -9,30 +9,6 @@ class AsyncBot(Bot):
         Bot.__init__(self, *args, **kwargs)
 
     @async_dec()
-    def enable_save_next_step_handlers(self, delay=120, filename="./.handler-saves/step.save"):
-        return Bot.enable_save_next_step_handlers(self, delay, filename)
-
-    @async_dec()
-    def enable_save_reply_handlers(self, delay=120, filename="./.handler-saves/reply.save"):
-        return Bot.enable_save_reply_handlers(self, delay, filename)
-
-    @async_dec()
-    def disable_save_next_step_handlers(self):
-        return Bot.disable_save_next_step_handlers(self)
-
-    @async_dec()
-    def disable_save_reply_handlers(self):
-        return Bot.disable_save_reply_handlers(self)
-
-    @async_dec()
-    def load_next_step_handlers(self, filename="./.handler-saves/step.save", del_file_after_loading=True):
-        return Bot.load_next_step_handlers(self, filename, del_file_after_loading)
-
-    @async_dec()
-    def load_reply_handlers(self, filename="./.handler-saves/reply.save", del_file_after_loading=True):
-        return Bot.load_reply_handlers(self, filename, del_file_after_loading)
-
-    @async_dec()
     def set_webhook(self, *args, **kwargs):
         return Bot.set_webhook(self, *args, **kwargs)
 
@@ -51,6 +27,7 @@ class AsyncBot(Bot):
     @async_dec()
     def log_out(self):
         return Bot.log_out(self)
+
     @async_dec()
     def close(self):
         return Bot.close(self)
