@@ -118,6 +118,8 @@ class Bot:
         self.__pre_checkout_query_handlers = []
         self.__poll_handlers = []
         self.__poll_answer_handlers = []
+        self.__my_chat_member_handlers = []
+        self.__chat_member_handlers = []
 
     def get_updates(self, offset=None, limit=100, timeout=0, allowed_updates=None):
         """
@@ -162,6 +164,8 @@ class Bot:
         new_pre_checkout_queries = []
         new_polls = []
         new_poll_answers = []
+        new_my_chat_member = []
+        new_chat_member = []
 
         for update in updates:
             if update.update_id > self.__last_update_id:
@@ -188,6 +192,10 @@ class Bot:
                 new_polls.append(update.poll)
             if update.poll_answer:
                 new_poll_answers.append(update.poll_answer)
+            if update.my_chat_member:
+                new_my_chat_member.append(update.my_chat_member)
+            if update.chat_member:
+                new_chat_member.append(update.chat_member)
 
         utils.logger.info(f'RECEIVED {len(updates)} UPDATES')
         if len(updates) > 0:
@@ -213,6 +221,10 @@ class Bot:
                 self.__process_new_poll(new_polls)
             if len(new_poll_answers) > 0:
                 self.__process_new_poll_answer(new_poll_answers)
+            if len(new_my_chat_member) > 0:
+                self.__process_new_my_chat_member(new_my_chat_member)
+            if len(new_chat_member) > 0:
+                self.__process_new_chat_member(new_chat_member)
 
     def __retrieve_updates(self, timeout=20):
         """
@@ -331,6 +343,12 @@ class Bot:
     def __process_new_poll_answer(self, poll_answer):
         self._notify_command_handlers(self.__poll_answer_handlers, poll_answer)
 
+    def __process_new_my_chat_member(self, my_chat_member):
+        self._notify_command_handlers(self.__my_chat_member_handlers, my_chat_member)
+
+    def __process_new_chat_member(self, chat_member):
+        self._notify_command_handlers(self.__chat_member_handlers, chat_member)
+
     @staticmethod
     def _build_handler_dict(handler, **filters):
         """
@@ -394,6 +412,12 @@ class Bot:
             elif update_type == 'poll_answer':
                 handler_dict = self._build_handler_dict(handler, func=func)
                 self.__poll_answer_handlers.append(handler_dict)
+            elif update_type == 'my_chat_member':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__my_chat_member_handlers.append(handler_dict)
+            elif update_type == 'chat_member':
+                handler_dict = self._build_handler_dict(handler, func=func)
+                self.__chat_member_handlers.append(handler_dict)
             return handler
 
         return decorator
@@ -491,8 +515,7 @@ class Bot:
                 else:
                     polling_thread.clear_exceptions()
                     self.__worker_pool.clear_exceptions()
-                    utils.logger.info(
-                        "Waiting for {0} seconds until retry".format(error_interval))
+                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
                     time.sleep(error_interval)
                     error_interval *= 2
             except KeyboardInterrupt:
@@ -518,8 +541,7 @@ class Bot:
                     self.__stop_polling.set()
                     utils.logger.info("Exception Occurred, STOPPING")
                 else:
-                    utils.logger.info(
-                        "Waiting for {0} seconds until retry".format(error_interval))
+                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
                     time.sleep(error_interval)
                     error_interval *= 2
             except KeyboardInterrupt:

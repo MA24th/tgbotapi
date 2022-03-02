@@ -126,7 +126,7 @@ def convert_list_json_serializable(results):
 def no_encode(func):
     def wrapper(key, val):
         if key == 'filename':
-            return u'{0}={1}'.format(key, val)
+            return f'{key}={val}'
         else:
             return func(key, val)
 

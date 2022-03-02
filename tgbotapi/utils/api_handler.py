@@ -15,7 +15,7 @@ class WorkerThread(threading.Thread):
 
     def __init__(self, exception_callback=None, queue=None, name=None):
         if not name:
-            name = "WorkerThread{0}".format(self.__class__.count + 1)
+            name = f"WorkerThread{self.__class__.count + 1}"
             self.__class__.count += 1
         if not queue:
             queue = q.Queue()
@@ -210,8 +210,8 @@ def make_request(method, api_url, api_method, files, params, proxies):
     :return: JSON DICT FORMAT
     :rtype: dict
     """
-    logger.info(f"REQUEST {api_method}")
-    logger.debug(f"REQUEST method={method} url={api_url} params={params} files={files}")
+    logger.info(f"{api_method}")
+    logger.debug(f"{method.upper()} -> {api_url} {params} files={files}")
     timeout = 2.99
     if params:
         if 'timeout' in params:

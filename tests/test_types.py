@@ -802,6 +802,83 @@ def test_chat_member():
     assert obj.can_send_other_messages is True
 
 
+def test_chat_member_updated():
+    dic = {
+        'chat': {"id": -1001184458459,
+                 "type": "channel",
+                 "title": "GRID9",
+                 "username": "grid9x",
+                 "first_name": None,
+                 "last_name": None, },
+        'from': {"id": 383324787,
+                 "is_bot": False,
+                 "first_name": "Mustafa",
+                 "last_name": "Asaad",
+                 "username": "MA24th",
+                 "language_code": "en"},
+        'date': '2022-03-03',
+        'old_chat_member': {'user': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"
+        },
+            'status': 'creator',
+            'custom_title': 'DevOps Lion',
+            'until_date': None,
+            'can_be_edited': False,
+            'can_post_messages': True,
+            'can_edit_messages': True,
+            'can_delete_messages': True,
+            'can_restrict_members': True,
+            'can_promote_members': True,
+            'can_change_info': True,
+            'can_invite_users': True,
+            'can_pin_messages': True,
+            'is_member': True,
+            'can_send_messages': True,
+            'can_send_media_messages': True,
+            'can_send_polls': True,
+            'can_send_other_messages': True,
+            'can_add_web_page_previews': True},
+        'new_chat_member': {'user': {
+            "id": 383324787,
+            "is_bot": False,
+            "first_name": "Mustafa",
+            "last_name": "Asaad",
+            "username": "MA24th",
+            "language_code": "en"
+        },
+            'status': 'creator',
+            'custom_title': 'DevOps Lion',
+            'until_date': None,
+            'can_be_edited': False,
+            'can_post_messages': True,
+            'can_edit_messages': True,
+            'can_delete_messages': True,
+            'can_restrict_members': True,
+            'can_promote_members': True,
+            'can_change_info': True,
+            'can_invite_users': True,
+            'can_pin_messages': True,
+            'is_member': True,
+            'can_send_messages': True,
+            'can_send_media_messages': True,
+            'can_send_polls': True,
+            'can_send_other_messages': True,
+            'can_add_web_page_previews': True
+        },
+        'invite_link': "https://ma24th.github.io/tgbotapi"
+    }
+    obj = types.ChatMemberUpdated.de_json(dic)
+    assert obj.chat.uid == -1001184458459
+    assert obj.from_user.username == 'MA24th'
+    assert obj.old_chat_member.user.uid == 383324787
+    assert obj.old_chat_member.status == 'creator'
+
+
 def test_chat_permissions():
     dic = {
         'can_send_messages': True,

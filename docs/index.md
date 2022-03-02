@@ -24,18 +24,21 @@ $ python setup.py install
 
 It is generally recommended to use the first option.
 
-*While the API is production-ready, it is still under development and it has regular updates, do not forget to update it regularly by calling `pip install tgbotapi --upgrade`*
+*While the API is production-ready, it is still under development and it has regular updates, 
+do not forget to update it regularly by calling `pip install tgbotapi --upgrade`*
 
 ## Writing your first bot
 
 ### Prerequisites
 
-It is presumed that you [have obtained an API token with @BotFather](https://core.telegram.org/bots#botfather). We will call this token `TOKEN`.
-Furthermore, you have basic knowledge of the Python programming language and more importantly [the Telegram Bot API](https://core.telegram.org/bots/api).
+It is presumed that you [have obtained an API token with @BotFather](https://core.telegram.org/bots#botfather). 
+We will call this token `TOKEN`. Furthermore, you have basic knowledge of the Python programming language and more 
+importantly [the Telegram Bot API](https://core.telegram.org/bots/api).
 
 ### A simple echo bot
 
-The Bot class (defined in \__init__.py) encapsulates all API calls in a single class. It provides functions such as `send_xyz` (`send_message`, `send_document` etc.) and several ways to listen for incoming messages.
+The Bot class (defined in \__init__.py) encapsulates all API calls in a single class. 
+It provides functions such as `send_xyz` (`send_message`, `send_document` etc.) and several ways to listen for incoming messages.
 
 Create a file called `echo_bot.py`.
 Then, open the file and create an instance of the TBot class.
@@ -46,21 +49,24 @@ bot = tgbotapi.Bot(based_url="https://api.telegram.org/bot"+ "BOT_TOKEN")
 ```
 *Note: Make sure to actually replace TOKEN with your own API token.*
 
-After that declaration, we need to register some so-called message handlers. Message handlers define filters which a message must pass. If a message passes the filter, the decorated function is called and the incoming message is passed as an argument.
+After that declaration, we need to register some so-called message handlers. 
+Message handlers define filters which a message must pass. If a message passes the filter, 
+the decorated function is called and the incoming message is passed as an argument.
 
-Let's define a message handler which handles incoming `/start` and `/help` commands.
+Let's define a message handler which handles incoming `/start` and `/help` bot_command.
 ```python
-@bot.message_handler(commands=['start', 'help'])
+@bot.update_handler(update_type='message', bot_command=['start', 'help'])
 def send_welcome(msg):
 	bot.send_message(chat_id=msg.chat.uid, text="Howdy, how are you doing?", parse_mode=None, entities=None,
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=msg.message_id,
                      allow_sending_without_reply=True, reply_markup=None)
 ```
-A function which is decorated by a message handler __can have an arbitrary name, however, it must have only one parameter (the message)__.
+A function which is decorated by a update handler __can have an arbitrary name, however, 
+it must have only one parameter (the message)__.
 
 Let's add another handler:
 ```python
-@bot.message_handler(func=lambda message: True)
+@bot.update_handler(update_type='message', func=lambda message: True)
 def echo_all(msg):
     bot.send_message(chat_id=msg.chat.uid, text=msg.text, parse_mode=None, entities=None,
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=None,
@@ -81,14 +87,14 @@ import tgbotapi
 
 bot = tgbotapi.Bot(based_url="https://api.telegram.org/bot"+ "BOT_TOKEN")
 
-@bot.message_handler(commands=['start', 'help'])
+@bot.update_handler(update_type='message', bot_command=['start', 'help'])
 def send_welcome(msg):
     bot.send_message(chat_id=msg.chat.uid, text="Howdy, how are you doing?", parse_mode=None, entities=None,
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=msg.message_id,
                      allow_sending_without_reply=True, reply_markup=None)
 
 
-@bot.message_handler(func=lambda message: True)
+@bot.update_handler(update_type='message',func=lambda message: True)
 def echo_all(msg):
     bot.send_message(chat_id=msg.chat.uid, text=msg.text, parse_mode=None, entities=None,
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=None,
