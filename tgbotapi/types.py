@@ -1344,6 +1344,46 @@ class ChatPhoto(JsonDeserializable):
         return cls(small_file_id, small_file_unique_id, big_file_id, big_file_unique_id)
 
 
+class ChatInviteLink(JsonDeserializable):
+    """
+    Represents an invitation link for a chat
+    """
+    def __init__(self, invite_link, creator, creates_join_request, is_primary, is_revoked, name, expire_date,
+                 member_limit, pending_join_request_count):
+        self.invite_link = invite_link
+        self.creator = creator
+        self.creates_join_request = creates_join_request
+        self.is_primary = is_primary
+        self.is_revoked = is_revoked
+        self.name = name
+        self.expire_date = expire_date
+        self.member_limit = member_limit
+        self.pending_join_request_count = pending_join_request_count
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        invite_link = obj['invite_link']
+        creator = User.de_json(obj['creator'])
+        creates_join_request = obj['creates_join_request']
+        is_primary = obj['is_primary']
+        is_revoked = obj['is_revoked']
+        name = None
+        if 'name' in obj:
+            name = obj['name']
+        expire_date = None
+        if 'expire_date' in obj:
+            expire_date = obj['expire_date']
+        member_limit = None
+        if 'member_limit' in obj:
+            member_limit = obj['member_limit']
+        pending_join_request_count = None
+        if 'pending_join_request_count' in obj:
+            pending_join_request_count = obj['pending_join_request_count']
+        return cls(invite_link, creator, creates_join_request, is_primary, is_revoked, name, expire_date, member_limit,
+                   pending_join_request_count)
+
+
 class ChatMember(JsonDeserializable):
     """
     This object contains information about one member of a chat
@@ -1460,7 +1500,9 @@ class ChatMemberUpdated(JsonDeserializable):
         date = obj['date']
         old_chat_member = ChatMember.de_json(obj['old_chat_member'])
         new_chat_member = ChatMember.de_json(obj['new_chat_member'])
-        invite_link = obj['invite_link']
+        invite_link = None
+        if 'invite_link' in obj:
+            invite_link = ChatInviteLink.de_json(obj['invite_link'])
         return cls(chat, from_user, date, old_chat_member, new_chat_member, invite_link)
 
 

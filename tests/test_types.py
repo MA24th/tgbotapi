@@ -747,6 +747,27 @@ def test_chat_photo():
     assert obj.big_file_unique_id == 444
 
 
+def test_chat_invite_link():
+    dic = {
+        'invite_link': "https://ma24th.github.io/tgbotapi",
+        'creator': {"id": 383324787,
+                    "is_bot": False,
+                    "first_name": "Mustafa",
+                    "last_name": "Asaad",
+                    "username": "MA24th",
+                    "language_code": "en"},
+        'creates_join_request': True,
+        'is_primary': False,
+        'is_revoked': True
+    }
+    obj = types.ChatInviteLink.de_json(dic)
+    assert obj.invite_link == "https://ma24th.github.io/tgbotapi"
+    assert obj.creator.uid == 383324787
+    assert obj.creates_join_request is True
+    assert obj.is_primary is False
+    assert obj.is_revoked is True
+
+
 def test_chat_member():
     dic = {
         'user': {
@@ -870,13 +891,25 @@ def test_chat_member_updated():
             'can_send_other_messages': True,
             'can_add_web_page_previews': True
         },
-        'invite_link': "https://ma24th.github.io/tgbotapi"
+        'invite_link': {
+            'invite_link': "https://ma24th.github.io/tgbotapi",
+            'creator': {"id": 383324787,
+                        "is_bot": False,
+                        "first_name": "Mustafa",
+                        "last_name": "Asaad",
+                        "username": "MA24th",
+                        "language_code": "en"},
+            'creates_join_request': True,
+            'is_primary': False,
+            'is_revoked': True
+        }
     }
     obj = types.ChatMemberUpdated.de_json(dic)
     assert obj.chat.uid == -1001184458459
     assert obj.from_user.username == 'MA24th'
     assert obj.old_chat_member.user.uid == 383324787
     assert obj.old_chat_member.status == 'creator'
+    assert obj.invite_link.creator.uid == 383324787
 
 
 def test_chat_permissions():
