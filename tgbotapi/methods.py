@@ -18,7 +18,7 @@ def get_updates(based_url, proxies, offset, limit, timeout, allowed_updates):
     :type limit: int or None
     :type timeout: int or None
     :type allowed_updates: list[str] or None
-    :rtype: dict
+    :rtype: list
     """
     method = r'get'
     api_method = r'getUpdates'
