@@ -1139,6 +1139,34 @@ def export_chat_invite_link(based_url, proxies, chat_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def create_chat_invite_link(based_url, proxies, chat_id, name, expire_date, member_limit, creates_join_request):
+    """
+    Use this method to create an additional invite link for a chat
+    :type based_url: str
+    :type proxies: list or None
+    :type chat_id: int or str
+    :type name: str or None
+    :type expire_date: int or None
+    :type member_limit: int or None
+    :type creates_join_request: bool
+    :rtype: dict
+    """
+    method = r'post'
+    api_method = r'createChatInviteLink'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'chat_id': chat_id}
+    if name:
+        params['name'] = name
+    if expire_date:
+        params['expire_date'] = expire_date
+    if member_limit:
+        params['member_limit'] = member_limit
+    if creates_join_request:
+        params['creates_join_request'] = creates_join_request
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def set_chat_photo(based_url, proxies, chat_id, photo):
     """
     Use this method to set a new profile photo for the chat
