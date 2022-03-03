@@ -236,34 +236,30 @@ class Bot:
             'filters': filters
         }
 
-    def update_handler(self, update_type=None, chat_type=None, content_type=None, bot_command=None, regexp=None,
-                       func=None):
+    def update_handler(self, update_type=None, chat_type=None, bot_command=None, regexp=None, func=None):
         """
         Update handler decorator
         :param str or None update_type: specify one of allowed_updates to take action
+        :param str or list or None chat_type: list of chat types (private, supergroup, group, channel)
         :param str or list or None bot_command: Bot Commands like (/start, /help)
         :param str or None regexp: Sequence of characters that define a search pattern
         :param function or None func: any python function that return True On success like (lambda)
-        :param list[str] or None content_type: This commands' supported content types. Must be a list. Defaults to ['text']
-        :param list[str] or None chat_type: list of chat types (private, supergroup, group, channel)
-        :return: filtered Update
+        :return: filtered Update`
         """
         def decorator(handler):
             if update_type == 'message':
-                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
-                                                         bot_command=bot_command, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
+                                                         regexp=regexp, func=func)
                 self.__message_handlers.append(handler_dict)
             elif update_type == 'edited_message':
-                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
-                                                         bot_command=bot_command, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
+                                                         regexp=regexp, func=func)
                 self.__edited_message_handlers.append(handler_dict)
             elif update_type == 'channel_post':
-                handler_dict = self.__build_handler_dict(
-                    handler, content_type=content_type, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, regexp=regexp, func=func)
                 self.__channel_post_handlers.append(handler_dict)
             elif update_type == 'edited_channel_post':
-                handler_dict = self.__build_handler_dict(
-                    handler, content_type=content_type, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, regexp=regexp, func=func)
                 self.__edited_channel_post_handlers.append(handler_dict)
             elif update_type == 'inline_query':
                 handler_dict = self.__build_handler_dict(handler, func=func)
@@ -293,8 +289,8 @@ class Bot:
                 handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__chat_member_handlers.append(handler_dict)
             else:
-                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
-                                                         bot_command=bot_command, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
+                                                         regexp=regexp, func=func)
                 self.__message_handlers.append(handler_dict)
             return handler
 
@@ -328,7 +324,7 @@ class Bot:
         if filters == 'chat_types':
             return message.chat.ttype in filter_value
         elif filters == 'regexp':
-            return message.content_type == 'text' and re.search(filter_value, message.text, re.IGNORECASE)
+            return message.text and re.search(filter_value, message.text, re.IGNORECASE)
         elif filters == 'func':
             return filter_value(message)
         elif filters == 'bot_command':

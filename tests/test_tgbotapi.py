@@ -15,6 +15,13 @@ def send_welcome(msg):
                      allow_sending_without_reply=True, reply_markup=None)
 
 
+@bot.update_handler(update_type='message', regexp='hi')
+def send_hi(msg):
+    bot.send_message(chat_id=msg.chat.uid, text=f'Hi 👋, {msg.from_user.first_name}', parse_mode=None, entities=None,
+                     disable_web_page_preview=False, disable_notification=False, reply_to_message_id=None,
+                     allow_sending_without_reply=True, reply_markup=None)
+
+
 @bot.update_handler(update_type='message', func=lambda message: message.text)
 def echo_all(msg):
     bot.send_message(chat_id=msg.chat.uid, text=msg.text, parse_mode=None, entities=None,
