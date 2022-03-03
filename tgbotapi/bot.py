@@ -246,6 +246,7 @@ class Bot:
         :param function or None func: any python function that return True On success like (lambda)
         :return: filtered Update`
         """
+
         def decorator(handler):
             if update_type == 'message':
                 handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
@@ -1066,6 +1067,25 @@ class Bot:
         return types.ChatInviteLink.de_json(methods.create_chat_invite_link(self.__based_url, self.__proxies, chat_id,
                                                                             name, expire_date, member_limit,
                                                                             creates_join_request))
+
+    def edit_chat_invite_link(self, chat_id, invite_link, name=None, expire_date=None, member_limit=None,
+                              creates_join_request=False):
+        """
+        Use this method to create an additional invite link for a chat
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel
+        :param str invite_link: The invite link to edit
+        :param str or None name: Invite link name; 0-32 characters
+        :param int or None expire_date: Point in time (Unix timestamp) when the link will expire
+        :param int or None member_limit: Maximum number of users that can be members of the chat simultaneously after
+                                         joining the chat via this invite link; 1-99999
+        :param bool creates_join_request: True, if users joining the chat via the link need to be approved by chat
+                                          administrators. If True, member_limit can't be specified
+        :return: Returns the new invite link as ChatInviteLink object
+        :rtype: types.ChatInviteLink
+        """
+        return types.ChatInviteLink.de_json(methods.edit_chat_invite_link(self.__based_url, self.__proxies, chat_id,
+                                                                          invite_link, name, expire_date, member_limit,
+                                                                          creates_join_request))
 
     def set_chat_photo(self, chat_id, photo):
         """
