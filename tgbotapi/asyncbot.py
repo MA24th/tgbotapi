@@ -1,7 +1,7 @@
 from .bot import Bot
 from .utils import async_dec
 
-""" This is AsyncBot submodule """
+""" This is AsyncBot module """
 
 
 class AsyncBot(Bot):

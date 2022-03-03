@@ -1,112 +1,35 @@
-from . import utils
-import threading
 from . import methods
 from . import types
+from . import utils
+import threading
 import time
-import os
-import pickle
 import re
 
-""" This is Bot submodule """
-
-
-class Handler:
-    """
-    Class for (next step|reply) handlers
-    """
-
-    def __init__(self, callback, *args, **kwargs):
-        self.callback = callback
-        self.args = args
-        self.kwargs = kwargs
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-
-
-class Saver:
-    """
-    Class for saving (next step|reply) handlers
-    """
-
-    def __init__(self, handlers, filename, delay):
-        self.handlers = handlers
-        self.filename = filename
-        self.delay = delay
-        self.timer = threading.Timer(delay, self.save_handlers)
-
-    def start_save_timer(self):
-        if not self.timer.is_alive():
-            if self.delay <= 0:
-                self.save_handlers()
-            else:
-                self.timer = threading.Timer(self.delay, self.save_handlers)
-                self.timer.start()
-
-    def save_handlers(self):
-        self.dump_handlers(self.handlers, self.filename)
-
-    def load_handlers(self, filename, del_file_after_loading=True):
-        tmp = self.return_load_handlers(
-            filename, del_file_after_loading=del_file_after_loading)
-        if tmp is not None:
-            self.handlers.update(tmp)
-
-    @staticmethod
-    def dump_handlers(handlers, filename, file_mode="wb"):
-        dirs = filename.rsplit('/', maxsplit=1)[0]
-        os.makedirs(dirs, exist_ok=True)
-
-        with open(filename + ".tmp", file_mode) as file:
-            pickle.dump(handlers, file)
-
-        if os.path.isfile(filename):
-            os.remove(filename)
-
-        os.rename(filename + ".tmp", filename)
-
-    @staticmethod
-    def return_load_handlers(filename, del_file_after_loading=True):
-        if os.path.isfile(filename) and os.path.getsize(filename) > 0:
-            with open(filename, "rb") as file:
-                handlers = pickle.load(file)
-
-            if del_file_after_loading:
-                os.remove(filename)
-
-            return handlers
+""" This is Bot module """
 
 
 class Bot:
-
-    def __init__(self, based_url, threaded=True, skip_pending=False, num_threads=2, proxies=None):
+    def __init__(self, based_url, allowed_updates=None, threaded=True, skip_pending=False, num_threads=2, proxies=None):
         """
         Use this class to create bot instance
         :param str based_url: Required, The API url with Bot token
+        :param list[str] or None allowed_updates: specify [“message”, “edited_channel_post”, “callback_query”] to
+                                                 only receive updates of these types
         :param bool threaded: Enable Threading
         :param bool skip_pending: Skip Old Updates
         :param int num_threads: Number of thread to process incoming tasks, default 2
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
+        self.__allowed_updates = allowed_updates
         self.__based_url = based_url
         self.__proxies = proxies
         self.__threaded = threaded
         self.__skip_pending = skip_pending
         if self.__threaded:
             self.__worker_pool = utils.ThreadPool(num_threads=num_threads)
-
-        self.__update_listener = []
         self.__stop_polling = threading.Event()
+
         self.__last_update_id = 0
-
-        # key: message_id, value: handler list
-        self.__reply_handlers = {}
-
-        # key: chat_id, value: handler list
-        self.__next_step_handlers = {}
-        self.__next_step_saver = None
-        self.__reply_saver = None
-
         self.__message_handlers = []
         self.__edited_message_handlers = []
         self.__channel_post_handlers = []
@@ -121,7 +44,7 @@ class Bot:
         self.__my_chat_member_handlers = []
         self.__chat_member_handlers = []
 
-    def get_updates(self, offset=None, limit=100, timeout=0, allowed_updates=None):
+    def __get_updates(self, offset=None, limit=100, timeout=0, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling
         :param int or None offset: Identifier of the first update to be returned
@@ -131,6 +54,8 @@ class Bot:
         :return: An Array of Update objects
         :rtype: list[types.Update]
         """
+        if allowed_updates is None:
+            allowed_updates = self.__allowed_updates
         resp = methods.get_updates(self.__based_url, self.__proxies, offset, limit, timeout, allowed_updates)
         updates = []
         for x in resp:
@@ -143,13 +68,13 @@ class Bot:
         :return: total updates skipped
         """
         total = 0
-        updates = self.get_updates(offset=self.__last_update_id, timeout=1)
+        updates = self.__get_updates(offset=self.__last_update_id, timeout=1)
         while updates:
             total += len(updates)
             for update in updates:
                 if update.update_id > self.__last_update_id:
                     self.__last_update_id = update.update_id
-            updates = self.get_updates(offset=self.__last_update_id + 1, timeout=1)
+            updates = self.__get_updates(offset=self.__last_update_id + 1, timeout=1)
         return total
 
     def __process_new_updates(self, updates):
@@ -235,62 +160,16 @@ class Bot:
         if self.__skip_pending:
             utils.logger.info(f'SKIPPED {self.__skip_updates()} PENDING MESSAGES')
             self.__skip_pending = False
-        updates = self.get_updates(offset=(self.__last_update_id + 1), timeout=timeout)
+        updates = self.__get_updates(offset=(self.__last_update_id + 1), timeout=timeout)
         self.__process_new_updates(updates)
 
-    def _notify_next_handlers(self, new_messages):
-        """
-        Notify Next Handlers of New Messages
-        :param list[types.Message] new_messages:
-        :return:
-        """
-        i = 0
-        while i < len(new_messages):
-            message = new_messages[i]
-            chat_id = message.chat.uid
-            was_pop = False
-            if chat_id in self.__next_step_handlers.keys():
-                handlers = self.__next_step_handlers.pop(chat_id, None)
-                if handlers:
-                    for handler in handlers:
-                        self._exec_task(handler["callback"], message, *handler["args"], **handler["kwargs"])
-                    # removing message that detects with next_step_handler
-                    new_messages.pop(i)
-                    was_pop = True
-                if self.__next_step_saver is not None:
-                    self.__next_step_saver.start_save_timer()
-            if not was_pop:
-                i += 1
-
-    def _notify_reply_handlers(self, new_messages):
-        """
-        Notify handlers of the answers
-        :param any new_messages:
-        :return:
-        """
-        for message in new_messages:
-            if message.reply_to_message is not None:
-                reply_mid = message.reply_to_message.message_id
-                if reply_mid in self.__reply_handlers.keys():
-                    handlers = self.__reply_handlers[reply_mid]
-                    for handler in handlers:
-                        self._exec_task(
-                            handler["callback"], message, *handler["args"], **handler["kwargs"])
-                    self.__reply_handlers.pop(reply_mid)
-                    if self.__reply_saver is not None:
-                        self.__reply_saver.start_save_timer()
-
-    def _exec_task(self, task, *args, **kwargs):
+    def __exec_task(self, task, *args, **kwargs):
         if self.__threaded:
             self.__worker_pool.put(task, *args, **kwargs)
         else:
             task(*args, **kwargs)
 
-    def __notify_update(self, new_messages):
-        for listener in self.__update_listener:
-            self._exec_task(listener, new_messages)
-
-    def _notify_command_handlers(self, handlers, new_messages):
+    def __notify_command_handlers(self, handlers, new_messages):
         """
         Notifies command handlers
         :param handlers:
@@ -299,58 +178,52 @@ class Bot:
         """
         for message in new_messages:
             for message_handler in handlers:
-                if self._check_update_handler(message_handler, message):
-                    self._exec_task(message_handler['function'], message)
+                if self.__check_update_handler(message_handler, message):
+                    self.__exec_task(message_handler['function'], message)
                     break
 
     def __process_new_messages(self, new_messages):
-        self._notify_next_handlers(new_messages)
-        self._notify_reply_handlers(new_messages)
-        self.__notify_update(new_messages)
-        self._notify_command_handlers(self.__message_handlers, new_messages)
+        self.__notify_command_handlers(self.__message_handlers, new_messages)
 
     def __process_new_edited_messages(self, edited_message):
-        self._notify_command_handlers(self.__edited_message_handlers, edited_message)
+        self.__notify_command_handlers(self.__edited_message_handlers, edited_message)
 
     def __process_new_channel_posts(self, channel_post):
-        self._notify_command_handlers(
-            self.__channel_post_handlers, channel_post)
+        self.__notify_command_handlers(self.__channel_post_handlers, channel_post)
 
     def __process_new_edited_channel_posts(self, edited_channel_post):
-        self._notify_command_handlers(
-            self.__edited_channel_post_handlers, edited_channel_post)
+        self.__notify_command_handlers(self.__edited_channel_post_handlers, edited_channel_post)
 
     def __process_new_inline_query(self, new_inline_queries):
-        self._notify_command_handlers(
-            self.__inline_query_handlers, new_inline_queries)
+        self.__notify_command_handlers(self.__inline_query_handlers, new_inline_queries)
 
     def __process_new_chosen_inline_query(self, new_chosen_inline_queries):
-        self._notify_command_handlers(
-            self.__chosen_inline_handlers, new_chosen_inline_queries)
+        self.__notify_command_handlers(self.__chosen_inline_handlers, new_chosen_inline_queries)
 
     def __process_new_callback_query(self, new_callback_queries):
-        self._notify_command_handlers(self.__callback_query_handlers, new_callback_queries)
+        self.__notify_command_handlers(
+            self.__callback_query_handlers, new_callback_queries)
 
     def __process_new_shipping_query(self, new_shipping_queries):
-        self._notify_command_handlers(self.__shipping_query_handlers, new_shipping_queries)
+        self.__notify_command_handlers(self.__shipping_query_handlers, new_shipping_queries)
 
     def __process_new_pre_checkout_query(self, pre_checkout_queries):
-        self._notify_command_handlers(self.__pre_checkout_query_handlers, pre_checkout_queries)
+        self.__notify_command_handlers(self.__pre_checkout_query_handlers, pre_checkout_queries)
 
     def __process_new_poll(self, poll):
-        self._notify_command_handlers(self.__poll_handlers, poll)
+        self.__notify_command_handlers(self.__poll_handlers, poll)
 
     def __process_new_poll_answer(self, poll_answer):
-        self._notify_command_handlers(self.__poll_answer_handlers, poll_answer)
+        self.__notify_command_handlers(self.__poll_answer_handlers, poll_answer)
 
     def __process_new_my_chat_member(self, my_chat_member):
-        self._notify_command_handlers(self.__my_chat_member_handlers, my_chat_member)
+        self.__notify_command_handlers(self.__my_chat_member_handlers, my_chat_member)
 
     def __process_new_chat_member(self, chat_member):
-        self._notify_command_handlers(self.__chat_member_handlers, chat_member)
+        self.__notify_command_handlers(self.__chat_member_handlers, chat_member)
 
     @staticmethod
-    def _build_handler_dict(handler, **filters):
+    def __build_handler_dict(handler, **filters):
         """
         Builds a dictionary for a handler
         :param handler: functions name
@@ -363,66 +236,71 @@ class Bot:
             'filters': filters
         }
 
-    def update_handler(self, update_type, chat_type=None, content_type=None, bot_command=None, regexp=None, func=None):
+    def update_handler(self, update_type=None, chat_type=None, content_type=None, bot_command=None, regexp=None,
+                       func=None):
         """
         Update handler decorator
-        :param str update_type: At most one of the [message, edited_message, channel_post, inline_query,
-                            chosen_inline_result, callback_query, pre_checkout_query, poll, poll_answer] must be present
-        :param str or list bot_command: Bot Commands like (/start, /help)
-        :param str regexp: Sequence of characters that define a search pattern
-        :param function func: any python function that return True On success like (lambda)
-        :param list[str] content_type: This commands' supported content types. Must be a list. Defaults to ['text']
-        :param list[str] chat_type: list of chat types (private, supergroup, group, channel)
+        :param str or None update_type: specify one of allowed_updates to take action
+        :param str or list or None bot_command: Bot Commands like (/start, /help)
+        :param str or None regexp: Sequence of characters that define a search pattern
+        :param function or None func: any python function that return True On success like (lambda)
+        :param list[str] or None content_type: This commands' supported content types. Must be a list. Defaults to ['text']
+        :param list[str] or None chat_type: list of chat types (private, supergroup, group, channel)
         :return: filtered Update
         """
-
         def decorator(handler):
             if update_type == 'message':
-                handler_dict = self._build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
-                                                        bot_command=bot_command, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
+                                                         bot_command=bot_command, regexp=regexp, func=func)
                 self.__message_handlers.append(handler_dict)
             elif update_type == 'edited_message':
-                handler_dict = self._build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
-                                                        bot_command=bot_command, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
+                                                         bot_command=bot_command, regexp=regexp, func=func)
                 self.__edited_message_handlers.append(handler_dict)
             elif update_type == 'channel_post':
-                handler_dict = self._build_handler_dict(handler, content_type=content_type, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(
+                    handler, content_type=content_type, regexp=regexp, func=func)
                 self.__channel_post_handlers.append(handler_dict)
             elif update_type == 'edited_channel_post':
-                handler_dict = self._build_handler_dict(handler, content_type=content_type, regexp=regexp, func=func)
+                handler_dict = self.__build_handler_dict(
+                    handler, content_type=content_type, regexp=regexp, func=func)
                 self.__edited_channel_post_handlers.append(handler_dict)
             elif update_type == 'inline_query':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__inline_query_handlers.append(handler_dict)
             elif update_type == 'chosen_inline':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__chosen_inline_handlers.append(handler_dict)
             elif update_type == 'callback_query':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__callback_query_handlers.append(handler_dict)
             elif update_type == 'shipping_query':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__shipping_query_handlers.append(handler_dict)
             elif update_type == 'pre_check_query':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__pre_checkout_query_handlers.append(handler_dict)
             elif update_type == 'poll':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__poll_handlers.append(handler_dict)
             elif update_type == 'poll_answer':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__poll_answer_handlers.append(handler_dict)
             elif update_type == 'my_chat_member':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__my_chat_member_handlers.append(handler_dict)
             elif update_type == 'chat_member':
-                handler_dict = self._build_handler_dict(handler, func=func)
+                handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__chat_member_handlers.append(handler_dict)
+            else:
+                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, content_type=content_type,
+                                                         bot_command=bot_command, regexp=regexp, func=func)
+                self.__message_handlers.append(handler_dict)
             return handler
 
         return decorator
 
-    def _check_update_handler(self, message_handler, message):
+    def __check_update_handler(self, message_handler, message):
         """
         check update handler
         :param message_handler:
@@ -433,13 +311,13 @@ class Bot:
             if filter_value is None:
                 continue
 
-            if not self._check_filter(filters, filter_value, message):
+            if not self.__check_filter(filters, filter_value, message):
                 return False
 
         return True
 
     @staticmethod
-    def _check_filter(filters, filter_value, message):
+    def __check_filter(filters, filter_value, message):
         """
         check filters
         :param filters:
@@ -447,7 +325,6 @@ class Bot:
         :param message:
         :return:
         """
-        print(filters, filter_value)
         if filters == 'chat_types':
             return message.chat.ttype in filter_value
         elif filters == 'regexp':
@@ -558,9 +435,6 @@ class Bot:
         self.stop_polling()
         if self.__worker_pool:
             self.__worker_pool.close()
-
-    def set_update_listener(self, listener):
-        self.__update_listener.append(listener)
 
     def set_webhook(self, url=None, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
                     drop_pending_updates=False):
