@@ -1,32 +1,32 @@
 # CHANGELOG
 ## _v5.1_
 ### Added two new update types
-Added updates about member status changes in chats, represented by the class ChatMemberUpdated and the fields 
+- Added updates about member status changes in chats, represented by the class ChatMemberUpdated and the fields 
 my_chat_member and chat_member in the Update class. The bot must be an administrator in the chat to receive chat_member 
 updates about other chat members. By default, only my_chat_member updates about the bot itself are received.
 
 ### Improved Invite Links
-Added the class ChatInviteLink, representing an invite link to a chat.
-Added the method createChatInviteLink, which can be used to create new invite links in addition to the primary invite 
+- Added the class ChatInviteLink, representing an invite link to a chat.
+- Added the method createChatInviteLink, which can be used to create new invite links in addition to the primary invite 
 link.
-Added the method editChatInviteLink, which can be used to edit non-primary invite links created by the bot.
-Added the method revokeChatInviteLink, which can be used to revoke invite links created by the bot.
+- Added the method editChatInviteLink, which can be used to edit non-primary invite links created by the bot.
+- Added the method revokeChatInviteLink, which can be used to revoke invite links created by the bot.
 
 ### Voice Chat Info
-Added the type VoiceChatStarted and the field voice_chat_started to the class Message.
-Added the type VoiceChatEnded and the field voice_chat_ended to the class Message.
-Added the type VoiceChatParticipantsInvited and the field voice_chat_participants_invited to the class Message.
-Added the new administrator privilege can_manage_voice_chats to the class ChatMember and parameter 
+- Added the type VoiceChatStarted and the field voice_chat_started to the class Message.
+- Added the type VoiceChatEnded and the field voice_chat_ended to the class Message.
+- Added the type VoiceChatParticipantsInvited and the field voice_chat_participants_invited to the class Message.
+- Added the new administrator privilege can_manage_voice_chats to the class ChatMember and parameter 
 can_manage_voice_chats to the method promoteChatMember. For now, bots can use this privilege only for passing to other 
 administrators.
 
 ### And More
-Added the type MessageAutoDeleteTimerChanged and the field message_auto_delete_timer_changed to the class Message.
-Added the parameter revoke_messages to the method kickChatMember, allowing to delete all messages from a group for the 
+- Added the type MessageAutoDeleteTimerChanged and the field message_auto_delete_timer_changed to the class Message.
+- Added the parameter revoke_messages to the method kickChatMember, allowing to delete all messages from a group for the 
 user who is being removed.
-Added the new administrator privilege can_manage_chat to the class ChatMember and parameter can_manage_chat to the 
+- Added the new administrator privilege can_manage_chat to the class ChatMember and parameter can_manage_chat to the 
 method promoteChatMember. This administrator right is implied by any other administrator privilege.
-Supported the new bowling animation for the random dice. Choose between different animations (dice, darts, basketball, 
+- Supported the new bowling animation for the random dice. Choose between different animations (dice, darts, basketball, 
 football, bowling, slot machine) by specifying the emoji parameter in the method sendDice.
 
 ## _v5.0_
