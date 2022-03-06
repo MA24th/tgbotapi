@@ -1,7 +1,6 @@
 from .utils import *
 import json
 
-
 """ 
     Telegram Available types
     All types used in the Bot API responses are represented as JSON-objects.
@@ -310,6 +309,7 @@ class Message(JsonDeserializable):
         self.successful_payment = None
         self.connected_website = None
         self.proximity_alert_triggered = None
+        self.voice_chat_started = None
         self.reply_markup = None
         for key in options:
             setattr(self, key, options[key])
@@ -419,6 +419,8 @@ class Message(JsonDeserializable):
         if 'proximity_alert_triggered' in obj:
             opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(
                 obj['proximity_alert_triggered'])
+        if 'voice_chat_started' in obj:
+            opts['voice_chat_started'] = VoiceChatStarted.de_json(obj['voice_chat_started'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
         return cls(message_id, from_user, sender_chat, date, chat, opts)
@@ -963,6 +965,20 @@ class Dice(JsonDeserializable):
         return cls(emoji, value)
 
 
+class VoiceChatStarted(JsonDeserializable):
+    """
+    This object represents a service message about a voice chat started in the chat
+    """
+
+    def __init__(self, obj):
+        self.obj = obj
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        return cls(obj)
+
+
 class UserProfilePhotos(JsonDeserializable):
     """
     This object represents one size of a photo or a file / sticker thumbnail
@@ -1348,6 +1364,7 @@ class ChatInviteLink(JsonDeserializable):
     """
     Represents an invitation link for a chat
     """
+
     def __init__(self, invite_link, creator, creates_join_request, is_primary, is_revoked, name, expire_date,
                  member_limit, pending_join_request_count):
         self.invite_link = invite_link
@@ -1484,6 +1501,7 @@ class ChatMemberUpdated(JsonDeserializable):
     """
     This object represents changes in the status of a chat member
     """
+
     def __init__(self, chat, from_user, date, old_chat_member, new_chat_member, invite_link):
         self.chat = chat
         self.from_user = from_user
