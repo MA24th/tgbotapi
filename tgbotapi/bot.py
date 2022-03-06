@@ -994,15 +994,18 @@ class Bot:
         """
         return methods.restrict_chat_member(self.__based_url, self.__proxies, chat_id, user_id, permissions, until_date)
 
-    def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_change_info=False, can_post_messages=False,
-                            can_edit_messages=False, can_delete_messages=False, can_manage_voice_chats=False,
-                            can_invite_users=False, can_restrict_members=False, can_pin_messages=False,
-                            can_promote_members=False):
+    def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_manage_chat=False, can_change_info=False,
+                            can_post_messages=False, can_edit_messages=False, can_delete_messages=False,
+                            can_manage_voice_chats=False, can_invite_users=False, can_restrict_members=False,
+                            can_pin_messages=False, can_promote_members=False):
         """
         Use this method to promote or demote a user in a supergroup or a channel
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param int user_id: Unique identifier of the target user
         :param bool is_anonymous: Pass True, if the administrator's presence in the chat is hidden
+        :param bool can_manage_chat: Pass True, if the administrator can access the chat event log, chat statistics,
+                                     message statistics in channels, see channel members, see anonymous administrators
+                                     in supergroups and ignore slow mode. Implied by any other administrator privilege
         :param bool can_change_info: Pass True, if the administrator can change chat title, photo and other settings
         :param bool can_post_messages: Pass True, if the administrator can create channel posts, channels only
         :param bool can_edit_messages: Pass True, if the administrator can edit messages of other users and
@@ -1019,9 +1022,9 @@ class Bot:
         :rtype: bool
         """
         return methods.promote_chat_member(self.__based_url, self.__proxies, chat_id, user_id, is_anonymous,
-                                           can_change_info, can_post_messages, can_edit_messages, can_delete_messages,
-                                           can_delete_messages, can_invite_users, can_restrict_members,
-                                           can_pin_messages, can_promote_members)
+                                           can_manage_chat, can_change_info, can_post_messages, can_edit_messages,
+                                           can_delete_messages, can_delete_messages, can_invite_users,
+                                           can_restrict_members, can_pin_messages, can_promote_members)
 
     def set_chat_administrator_custom_title(self, chat_id, user_id, custom_title):
         """
