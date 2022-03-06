@@ -3,10 +3,11 @@
 The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Framework
 
 [![GPLv2 license](https://img.shields.io/badge/LICENSE-GPLv2-red)](https://github.com/ma24th/tgbotapi/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-v5.0-yellow.svg)](https://pypi.org/project/tgbotapi/)
+[![PyPI](https://img.shields.io/badge/PyPI-v5.1-yellow.svg)](https://pypi.org/project/tgbotapi/)
 ![Python package](https://github.com/MA24th/tgbotapi/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/MA24th/tgbotapi/workflows/Upload%20Python%20Package/badge.svg)
 
+> Based On [pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI)
 ## How to Use
 ### Installation
 There are two ways to install the framework:
@@ -24,21 +25,18 @@ $ python setup.py install
 
 It is generally recommended to use the first option.
 
-*While the API is production-ready, it is still under development and it has regular updates, 
-do not forget to update it regularly by calling `pip install tgbotapi --upgrade`*
+*While the API is production-ready, it is still under development and it has regular updates, do not forget to update it regularly by calling `pip install tgbotapi --upgrade`*
 
 ## Writing your first bot
 
 ### Prerequisites
 
-It is presumed that you [have obtained an API token with @BotFather](https://core.telegram.org/bots#botfather). 
-We will call this token `TOKEN`. Furthermore, you have basic knowledge of the Python programming language and more 
-importantly [the Telegram Bot API](https://core.telegram.org/bots/api).
+It is presumed that you [have obtained an API token with @BotFather](https://core.telegram.org/bots#botfather). We will call this token `TOKEN`.
+Furthermore, you have basic knowledge of the Python programming language and more importantly [the Telegram Bot API](https://core.telegram.org/bots/api).
 
 ### A simple echo bot
 
-The Bot class (defined in \__init__.py) encapsulates all API calls in a single class. 
-It provides functions such as `send_xyz` (`send_message`, `send_document` etc.) and several ways to listen for incoming messages.
+The Bot class (defined in \__init__.py) encapsulates all API calls in a single class. It provides functions such as `send_xyz` (`send_message`, `send_document` etc.) and several ways to listen for incoming messages.
 
 Create a file called `echo_bot.py`.
 Then, open the file and create an instance of the TBot class.
@@ -49,7 +47,7 @@ bot = tgbotapi.Bot(based_url="https://api.telegram.org/bot"+ "BOT_TOKEN")
 ```
 *Note: Make sure to actually replace TOKEN with your own API token.*
 
-After that declaration, we need to register some so-called message handlers. 
+After that declaration, we need to register some so-called message handlers.
 Message handlers define filters which a message must pass. If a message passes the filter, 
 the decorated function is called and the incoming message is passed as an argument.
 
@@ -61,12 +59,11 @@ def send_welcome(msg):
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=msg.message_id,
                      allow_sending_without_reply=True, reply_markup=None)
 ```
-A function which is decorated by a update handler __can have an arbitrary name, however, 
-it must have only one parameter (the message)__.
+A function which is decorated by a message handler __can have an arbitrary name, however, it must have only one parameter (the message)__.
 
 Let's add another handler:
 ```python
-@bot.update_handler(update_type='message', func=lambda message: True)
+@bot.update_handler(update_type='message', func=lambda message: message.text)
 def echo_all(msg):
     bot.send_message(chat_id=msg.chat.uid, text=msg.text, parse_mode=None, entities=None,
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=None,
@@ -94,7 +91,7 @@ def send_welcome(msg):
                      allow_sending_without_reply=True, reply_markup=None)
 
 
-@bot.update_handler(update_type='message',func=lambda message: True)
+@bot.update_handler(update_type='message', func=lambda message: message.text)
 def echo_all(msg):
     bot.send_message(chat_id=msg.chat.uid, text=msg.text, parse_mode=None, entities=None,
                      disable_web_page_preview=False, disable_notification=False, reply_to_message_id=None,
@@ -106,61 +103,35 @@ bot.polling()
 To start the bot, simply open up a terminal and enter `python echo_bot.py` to run the bot! Test it by sending commands ('/start' and '/help') and arbitrary text messages.
 
 ### ChangeLog
-**_version 5.0_**
-#### Run Your Own Bot API Server
+**_version 5.1_**
+#### Added two new update types
+Added updates about member status changes in chats, represented by the class ChatMemberUpdated and the fields 
+my_chat_member and chat_member in the Update class. The bot must be an administrator in the chat to receive chat_member 
+updates about other chat members. By default, only my_chat_member updates about the bot itself are received.
 
-- Bot API source code is now available at telegram-bot-api. You can now run your own Bot API server locally, boosting your bots' performance.
-- Added the method logOut, which can be used to log out from the cloud Bot API server before launching your bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive all updates.
-- Added the method close, which can be used to close the bot instance before moving it from one local server to another.
+#### Improved Invite Links
+Added the class ChatInviteLink, representing an invite link to a chat.
+Added the method createChatInviteLink, which can be used to create new invite links in addition to the primary invite 
+link.
+Added the method editChatInviteLink, which can be used to edit non-primary invite links created by the bot.
+Added the method revokeChatInviteLink, which can be used to revoke invite links created by the bot.
 
-#### Transfer Bot Ownership
-- You can now use @BotFather to transfer your existing bots to another Telegram account.
-
-#### Webhooks
-- Added the parameter ip_address to the method setWebhook, allowing to bypass DNS resolving and use the specified fixed IP address to send webhook requests.
-- Added the field ip_address to the class WebhookInfo, containing the current IP address used for webhook connections creation.
-- Added the ability to drop all pending updates when changing webhook URL using the parameter drop_pending_updates in the methods setWebhook and deleteWebhook.
-
-#### Working with Groups
-- The getChat request now returns the user's bio for private chats if available.
-- The getChat request now returns the identifier of the linked chat for supergroups and channels, i.e. the discussion group identifier for a channel and vice versa.
-- The getChat request now returns the location to which the supergroup is connected (see Local Groups). Added the class ChatLocation to represent the location.
-- Added the parameter only_if_banned to the method unbanChatMember to allow safe unban.
-
-#### Working with Files
-- Added the field file_name to the classes Audio and Video, containing the name of the original file.
-- Added the ability to disable server-side file content type detection using the parameter disable_content_type_detection in the method sendDocument and the class inputMediaDocument.
-
-#### Multiple Pinned Messages
-- Added the ability to pin messages in private chats.
-- Added the parameter message_id to the method unpinChatMessage to allow unpinning of the specific pinned message.
-- Added the method unpinAllChatMessages, which can be used to unpin all pinned messages in a chat.
-
-#### File Albums
-- Added support for sending and receiving audio and document albums in the method sendMediaGroup.
-
-#### Live Locations
-- Added the field live_period to the class Location, representing a maximum period for which the live location can be updated.
-- Added support for live location heading: added the field heading to the classes Location, InlineQueryResultLocation, InputLocationMessageContent and the parameter heading to the methods sendLocation and editMessageLiveLocation.
-- Added support for proximity alerts in live locations: added the field proximity_alert_radius to the classes Location, InlineQueryResultLocation, InputLocationMessageContent and the parameter proximity_alert_radius to the methods sendLocation and editMessageLiveLocation.
-- Added the type ProximityAlertTriggered and the field proximity_alert_triggered to the class Message.
-- Added possibility to specify the horizontal accuracy of a location. Added the field horizontal_accuracy to the classes Location, InlineQueryResultLocation, InputLocationMessageContent and the parameter horizontal_accuracy to the methods sendLocation and editMessageLiveLocation.
-
-#### Anonymous Admins
-- Added the field sender_chat to the class Message, containing the sender of a message which is a chat (group or channel). For backward compatibility in non-channel chats, the field from in such messages will contain the user 777000 for messages automatically forwarded to the discussion group and the user 1087968824 (@GroupAnonymousBot) for messages from anonymous group administrators.
-- Added the field is_anonymous to the class chatMember, which can be used to distinguish anonymous chat administrators.
-- Added the parameter is_anonymous to the method promoteChatMember, which allows to promote anonymous chat administrators. The bot itself should have the is_anonymous right to do this. Despite the fact that bots can have the is_anonymous right, they will never appear as anonymous in the chat. Bots can use the right only for passing to other administrators.
-- Added the custom title of an anonymous message sender to the class Message as author_signature.
+#### Voice Chat Info
+Added the type VoiceChatStarted and the field voice_chat_started to the class Message.
+Added the type VoiceChatEnded and the field voice_chat_ended to the class Message.
+Added the type VoiceChatParticipantsInvited and the field voice_chat_participants_invited to the class Message.
+Added the new administrator privilege can_manage_voice_chats to the class ChatMember and parameter 
+can_manage_voice_chats to the method promoteChatMember. For now, bots can use this privilege only for passing to other 
+administrators.
 
 #### And More
-- Added the method copyMessage, which sends a copy of any message.
-- Maximum poll question length increased to 300.
-- Added the ability to manually specify text entities instead of specifying the parse_mode in the classes InputMediaPhoto, InputMediaVideo, InputMediaAnimation, InputMediaAudio, InputMediaDocument, InlineQueryResultPhoto, InlineQueryResultGif, InlineQueryResultMpeg4Gif, InlineQueryResultVideo, InlineQueryResultAudio, InlineQueryResultVoice, InlineQueryResultDocument, InlineQueryResultCachedPhoto, InlineQueryResultCachedGif, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedVideo, InlineQueryResultCachedAudio, InlineQueryResultCachedVoice, InlineQueryResultCachedDocument, InputTextMessageContent and the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendVoice, sendPoll, editMessageText, editMessageCaption.
-- Added the fields google_place_id and google_place_type to the classes Venue, InlineQueryResultVenue, InputVenueMessageContent and the optional parameters google_place_id and google_place_type to the method sendVenue to support Google Places as a venue API provider.
-- Added the field allow_sending_without_reply to the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendSticker, sendVideoNote, sendVoice, sendLocation, sendVenue, sendContact, sendPoll, sendDice, sendInvoice, sendGame, sendMediaGroup to allow sending messages not a as reply if the replied-to message has already been deleted.
-
-#### And Last but not Least
-- Supported the new football and slot machine animations for the random dice. Choose between different animations (dice, darts, basketball, football, slot machine) by specifying the emoji parameter in the method sendDice.
+Added the type MessageAutoDeleteTimerChanged and the field message_auto_delete_timer_changed to the class Message.
+Added the parameter revoke_messages to the method kickChatMember, allowing to delete all messages from a group for the 
+user who is being removed.
+Added the new administrator privilege can_manage_chat to the class ChatMember and parameter can_manage_chat to the 
+method promoteChatMember. This administrator right is implied by any other administrator privilege.
+Supported the new bowling animation for the random dice. Choose between different animations (dice, darts, basketball, 
+football, bowling, slot machine) by specifying the emoji parameter in the method sendDice.
 
 **_Fixes_**
 
@@ -170,7 +141,7 @@ there is no fixes for now.
 For more explanation goto [Wiki Tab](https://github.com/MA24th/tgbotapi/wiki).
 
 
-## How to contribute
+## How to Contribute
 - You must follow [Contributing](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/CONTRIBUTING.md) Guidelines.
 - We are committed to providing a friendly community, for more experience read [Code Of Conduct](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/CODE_OF_CONDUCT.md).
 
@@ -181,9 +152,19 @@ discuss bugs and such, Check [Communication](https://github.com/MA24th/MA24th/bl
 
 
 ## Frequently Asked Questions
-You must check [FAQ](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/FAQ.md) before asking questions.
+- How can I distinguish a User and a GroupChat in message.chat?
+>Telegram Bot API supports new type Chat for message.chat.
+Check the ```ttype``` attribute in ```Chat``` object:
+```python
+if message.chat.ttype == "private":
+	# private chat message
 
+if message.chat.ttype == "group":
+	# group chat message
 
+if message.chat.ttype == "supergroup":
+	# supergroup chat message
+```
 ## Attribution
 These Documents are adapted for [MA24th Open Source Software](https://github.com/MA24th/MA24th/blob/main/OpenSource/Software/),
 For more information [contact me](mailto:ma24th@yahoo.com) with any additional questions or comments.
