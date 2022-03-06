@@ -1197,6 +1197,23 @@ def edit_chat_invite_link(based_url, proxies, chat_id, invite_link, name, expire
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def revoke_chat_invite_link(based_url, proxies, chat_id, invite_link, ):
+    """
+    Use this method to revoke an invitation link created by the bot
+    :type based_url: str
+    :type proxies: list or None
+    :type chat_id: int or str
+    :type invite_link: str
+    :rtype: dict
+    """
+    method = r'post'
+    api_method = r'revokeChatInviteLink'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'chat_id': chat_id, 'invite_link': invite_link}
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def set_chat_photo(based_url, proxies, chat_id, photo):
     """
     Use this method to set a new profile photo for the chat

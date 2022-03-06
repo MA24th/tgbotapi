@@ -1087,6 +1087,17 @@ class Bot:
                                                                           invite_link, name, expire_date, member_limit,
                                                                           creates_join_request))
 
+    def revoke_chat_invite_link(self, chat_id, invite_link):
+        """
+        Use this method to revoke an invitation link created by the bot
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel
+        :param str invite_link: The invite link to edit
+        :return: Returns the revoked invite link as ChatInviteLink object
+        :rtype: types.ChatInviteLink
+        """
+        return types.ChatInviteLink.de_json(methods.revoke_chat_invite_link(self.__based_url, self.__proxies, chat_id,
+                                                                            invite_link))
+
     def set_chat_photo(self, chat_id, photo):
         """
         Use this method to set a new profile photo for the chat

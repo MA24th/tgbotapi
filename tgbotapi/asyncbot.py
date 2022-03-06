@@ -153,6 +153,10 @@ class AsyncBot(Bot):
         return Bot.edit_chat_invite_link(self, *args, **kwargs)
 
     @async_dec()
+    def revoke_chat_invite_link(self, *args, **kwargs):
+        return Bot.revoke_chat_invite_link(self, *args, **kwargs)
+
+    @async_dec()
     def set_chat_photo(self, *args):
         return Bot.set_chat_photo(self, *args)
 
