@@ -569,6 +569,12 @@ def test_poll():
     assert obj.correct_option_id == 1
 
 
+def test_message_auto_delete_timer_changed():
+    dic = {'message_auto_delete_time': 111}
+    obj = types.MessageAutoDeleteTimerChanged.de_json(dic)
+    assert obj.message_auto_delete_time == 111
+
+
 def test_voice_chat_started():
     dic = {}
     obj = types.VoiceChatStarted.de_json(dic)

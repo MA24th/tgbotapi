@@ -302,6 +302,7 @@ class Message(JsonDeserializable):
         self.group_chat_created = None
         self.supergroup_chat_created = None
         self.channel_chat_created = None
+        self.message_auto_delete_timer_changed = None
         self.migrate_to_chat_id = None
         self.migrate_from_chat_id = None
         self.pinned_message = None
@@ -404,6 +405,9 @@ class Message(JsonDeserializable):
             opts['supergroup_chat_created'] = obj['supergroup_chat_created']
         if 'channel_chat_created' in obj:
             opts['channel_chat_created'] = obj['channel_chat_created']
+        if 'message_auto_delete_timer_changed' in obj:
+            opts['message_auto_delete_timer_changed'] = MessageAutoDeleteTimerChanged.de_json(
+                obj['message_auto_delete_timer_changed'])
         if 'migrate_to_chat_id' in obj:
             opts['migrate_to_chat_id'] = obj['migrate_to_chat_id']
         if 'migrate_from_chat_id' in obj:
@@ -970,6 +974,20 @@ class Dice(JsonDeserializable):
         emoji = obj['emoji']
         value = obj['value']
         return cls(emoji, value)
+
+
+class MessageAutoDeleteTimerChanged(JsonDeserializable):
+    """
+    This object represents a service message about a change in auto-delete timer settings
+    """
+    def __init__(self, message_auto_delete_time):
+        self.message_auto_delete_time = message_auto_delete_time
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        message_auto_delete_time = obj['message_auto_delete_time']
+        return cls(message_auto_delete_time)
 
 
 class VoiceChatStarted(JsonDeserializable):
