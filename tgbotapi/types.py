@@ -310,6 +310,7 @@ class Message(JsonDeserializable):
         self.connected_website = None
         self.proximity_alert_triggered = None
         self.voice_chat_started = None
+        self.voice_chat_ended = None
         self.reply_markup = None
         for key in options:
             setattr(self, key, options[key])
@@ -421,6 +422,8 @@ class Message(JsonDeserializable):
                 obj['proximity_alert_triggered'])
         if 'voice_chat_started' in obj:
             opts['voice_chat_started'] = VoiceChatStarted.de_json(obj['voice_chat_started'])
+        if 'voice_chat_ended' in obj:
+            opts['voice_chat_ended'] = VoiceChatEnded.de_json(obj['voice_chat_ended'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
         return cls(message_id, from_user, sender_chat, date, chat, opts)
@@ -970,13 +973,31 @@ class VoiceChatStarted(JsonDeserializable):
     This object represents a service message about a voice chat started in the chat
     """
 
-    def __init__(self, obj):
-        self.obj = obj
+    def __init__(self, field):
+        self.field = field
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        return cls(obj)
+        field = None
+        if obj:
+            field = obj
+        return cls(field)
+
+
+class VoiceChatEnded(JsonDeserializable):
+    """
+    This object represents a service message about a voice chat ended in the chat
+    """
+
+    def __init__(self, duration):
+        self.duration = duration
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        duration = obj['duration']
+        return cls(duration)
 
 
 class UserProfilePhotos(JsonDeserializable):

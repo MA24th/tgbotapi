@@ -569,6 +569,18 @@ def test_poll():
     assert obj.correct_option_id == 1
 
 
+def test_voice_chat_started():
+    dic = {}
+    obj = types.VoiceChatStarted.de_json(dic)
+    assert obj.field is None
+
+
+def test_voice_chat_ended():
+    dic = {'duration': 4442}
+    obj = types.VoiceChatEnded.de_json(dic)
+    assert obj.duration == 4442
+
+
 def test_user_profile_photos():
     dic = {
         "total_count": 1,
