@@ -311,6 +311,7 @@ class Message(JsonDeserializable):
         self.proximity_alert_triggered = None
         self.voice_chat_started = None
         self.voice_chat_ended = None
+        self.voice_chat_participants_invited = None
         self.reply_markup = None
         for key in options:
             setattr(self, key, options[key])
@@ -424,6 +425,9 @@ class Message(JsonDeserializable):
             opts['voice_chat_started'] = VoiceChatStarted.de_json(obj['voice_chat_started'])
         if 'voice_chat_ended' in obj:
             opts['voice_chat_ended'] = VoiceChatEnded.de_json(obj['voice_chat_ended'])
+        if 'voice_chat_participants_invited' in obj:
+            opts['voice_chat_participants_invited'] = VoiceChatParticipantsInvited.de_json(
+                obj['voice_chat_participants_invited'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup(obj['reply_markup'])
         return cls(message_id, from_user, sender_chat, date, chat, opts)
@@ -998,6 +1002,30 @@ class VoiceChatEnded(JsonDeserializable):
         obj = cls.check_type(obj_type)
         duration = obj['duration']
         return cls(duration)
+
+
+class VoiceChatParticipantsInvited(JsonDeserializable):
+    """
+    This object represents a service message about new members invited to a voice chat
+    """
+
+    def __init__(self, users):
+        self.users = users
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        users = None
+        if 'users' in obj:
+            users = VoiceChatParticipantsInvited.parse_users(obj['users'])
+        return cls(users)
+
+    @classmethod
+    def parse_users(cls, obj):
+        users = []
+        for x in obj:
+            users.append(User.de_json(x))
+        return users
 
 
 class UserProfilePhotos(JsonDeserializable):

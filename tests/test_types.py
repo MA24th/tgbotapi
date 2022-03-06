@@ -581,6 +581,20 @@ def test_voice_chat_ended():
     assert obj.duration == 4442
 
 
+def test_voice_chat_participants_invited():
+    dic = {'users': [{"id": 952435061,
+                      "is_bot": True,
+                      "first_name": "GuardBot",
+                      "last_name": None,
+                      "username": "@gu9rdbot",
+                      "language_code": 'en',
+                      "can_join_groups": True,
+                      "can_read_all_group_messages": False,
+                      "supports_inline_queries": True}]}
+    obj = types.VoiceChatParticipantsInvited.de_json(dic)
+    assert obj.users[0].is_bot is True
+
+
 def test_user_profile_photos():
     dic = {
         "total_count": 1,
