@@ -979,15 +979,15 @@ def get_file(based_url, proxies, file_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def kick_chat_member(based_url, proxies, chat_id, user_id, until_date):
+def kick_chat_member(based_url, proxies, chat_id, user_id, until_date, revoke_messages):
     """
     Use this method to kick a user from a group, a supergroup or a channel
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
     :type user_id: int
-    :type user_id: int
     :type until_date: int or None
+    :type revoke_messages: bool
     :rtype: bool
     """
     method = r'post'
@@ -997,6 +997,8 @@ def kick_chat_member(based_url, proxies, chat_id, user_id, until_date):
     params = {'chat_id': chat_id, 'user_id': user_id}
     if until_date:
         params['until_date'] = until_date
+    if revoke_messages:
+        params['revoke_messages'] = revoke_messages
     return make_request(method, api_url, api_method, files, params, proxies)
 
 

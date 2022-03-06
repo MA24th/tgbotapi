@@ -957,16 +957,19 @@ class Bot:
         """
         return types.File.de_json(methods.get_file(self.__based_url, self.__proxies, file_id))
 
-    def kick_chat_member(self, chat_id, user_id, until_date=None):
+    def kick_chat_member(self, chat_id, user_id, until_date=None, revoke_messages=False):
         """
         Use this method to kick a user from a group, a supergroup or a channel
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param int user_id: Unique identifier of the target user
         :param int or None until_date: Date when the user will be unbanned, unix time
+        :param bool revoke_messages: Pass True to delete all messages from the chat for the user that is being removed.
+                                    If False, the user will be able to see messages in the group that were sent before
+                                    the user was removed. Always True for supergroups and channels
         :return: True On success
         :rtype: bool
         """
-        return methods.kick_chat_member(self.__based_url, self.__proxies, chat_id, user_id, until_date)
+        return methods.kick_chat_member(self.__based_url, self.__proxies, chat_id, user_id, until_date, revoke_messages)
 
     def unban_chat_member(self, chat_id, user_id, only_if_banned=False):
         """
