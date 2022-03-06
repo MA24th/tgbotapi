@@ -811,6 +811,7 @@ def test_chat_member():
         'can_post_messages': True,
         'can_edit_messages': True,
         'can_delete_messages': True,
+        'can_manage_voice_chats': False,
         'can_restrict_members': True,
         'can_promote_members': True,
         'can_change_info': True,
@@ -837,6 +838,7 @@ def test_chat_member():
     assert obj.can_post_messages is True
     assert obj.can_edit_messages is True
     assert obj.can_delete_messages is True
+    assert obj.can_manage_voice_chats is False
     assert obj.can_restrict_members is True
     assert obj.can_promote_members is True
     assert obj.can_change_info is True

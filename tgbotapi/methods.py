@@ -1042,9 +1042,8 @@ def restrict_chat_member(based_url, proxies, chat_id, user_id, permissions, unti
 
 
 def promote_chat_member(based_url, proxies, chat_id, user_id, is_anonymous, can_change_info, can_post_messages,
-                        can_edit_messages,
-                        can_delete_messages, can_invite_users, can_restrict_members, can_pin_messages,
-                        can_promote_members):
+                        can_edit_messages, can_delete_messages, can_manage_voice_chats, can_invite_users,
+                        can_restrict_members, can_pin_messages, can_promote_members):
     """
     Use this method to promote or demote a user in a supergroup or a channel
     :type based_url: str
@@ -1056,6 +1055,7 @@ def promote_chat_member(based_url, proxies, chat_id, user_id, is_anonymous, can_
     :type can_post_messages: bool
     :type can_edit_messages: bool
     :type can_delete_messages: bool
+    :type can_manage_voice_chats: bool
     :type can_invite_users: bool
     :type can_restrict_members: bool
     :type can_pin_messages: bool
@@ -1075,6 +1075,8 @@ def promote_chat_member(based_url, proxies, chat_id, user_id, is_anonymous, can_
         params['can_post_messages'] = can_post_messages
     if can_edit_messages:
         params['can_edit_messages'] = can_edit_messages
+    if can_manage_voice_chats:
+        params['can_manage_voice_chats'] = can_manage_voice_chats
     if can_delete_messages:
         params['can_delete_messages'] = can_delete_messages
     if can_invite_users:

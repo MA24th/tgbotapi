@@ -991,9 +991,10 @@ class Bot:
         """
         return methods.restrict_chat_member(self.__based_url, self.__proxies, chat_id, user_id, permissions, until_date)
 
-    def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_change_info=None, can_post_messages=None,
-                            can_edit_messages=None, can_delete_messages=None, can_invite_users=None,
-                            can_restrict_members=None, can_pin_messages=None, can_promote_members=None):
+    def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_change_info=False, can_post_messages=False,
+                            can_edit_messages=False, can_delete_messages=False, can_manage_voice_chats=False,
+                            can_invite_users=False, can_restrict_members=False, can_pin_messages=False,
+                            can_promote_members=False):
         """
         Use this method to promote or demote a user in a supergroup or a channel
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -1004,6 +1005,7 @@ class Bot:
         :param bool can_edit_messages: Pass True, if the administrator can edit messages of other users and
                                        can pin messages, channels only
         :param bool can_delete_messages: Pass True, if the administrator can delete messages of other users
+        :param bool can_manage_voice_chats: True, if the administrator can manage voice chats
         :param bool can_invite_users: Pass True, if the administrator can invite new users to the chat
         :param bool can_restrict_members: Pass True, if the administrator can restrict, ban or unban chat members
         :param bool can_pin_messages: Pass True, if the administrator can pin messages, supergroups only
@@ -1014,10 +1016,9 @@ class Bot:
         :rtype: bool
         """
         return methods.promote_chat_member(self.__based_url, self.__proxies, chat_id, user_id, is_anonymous,
-                                           can_change_info,
-                                           can_post_messages,
-                                           can_edit_messages, can_delete_messages, can_invite_users,
-                                           can_restrict_members, can_pin_messages, can_promote_members)
+                                           can_change_info, can_post_messages, can_edit_messages, can_delete_messages,
+                                           can_delete_messages, can_invite_users, can_restrict_members,
+                                           can_pin_messages, can_promote_members)
 
     def set_chat_administrator_custom_title(self, chat_id, user_id, custom_title):
         """

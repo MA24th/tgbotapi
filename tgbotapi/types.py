@@ -1456,9 +1456,9 @@ class ChatMember(JsonDeserializable):
     """
 
     def __init__(self, status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info,
-                 can_post_messages, can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members,
-                 is_member, can_pin_messages, can_promote_members, can_send_messages, can_send_media_messages,
-                 can_send_polls, can_send_other_messages, can_add_web_page_previews):
+                 can_post_messages, can_edit_messages, can_delete_messages, can_manage_voice_chats, can_invite_users,
+                 can_restrict_members, is_member, can_pin_messages, can_promote_members, can_send_messages,
+                 can_send_media_messages, can_send_polls, can_send_other_messages, can_add_web_page_previews):
 
         self.status = status
         self.user = user
@@ -1470,6 +1470,7 @@ class ChatMember(JsonDeserializable):
         self.can_post_messages = can_post_messages
         self.can_edit_messages = can_edit_messages
         self.can_delete_messages = can_delete_messages
+        self.can_manage_voice_chats = can_manage_voice_chats
         self.can_invite_users = can_invite_users
         self.can_restrict_members = can_restrict_members
         self.can_pin_messages = can_pin_messages
@@ -1507,6 +1508,9 @@ class ChatMember(JsonDeserializable):
         can_delete_messages = None
         if 'can_delete_messages' in obj:
             can_delete_messages = obj['can_delete_messages']
+        can_manage_voice_chats = None
+        if 'can_manage_voice_chats' in obj:
+            can_manage_voice_chats = obj['can_manage_voice_chats']
         can_restrict_members = None
         if 'can_restrict_members' in obj:
             can_restrict_members = obj['can_restrict_members']
@@ -1541,9 +1545,9 @@ class ChatMember(JsonDeserializable):
         if 'can_add_web_page_previews' in obj:
             can_add_web_page_previews = obj['can_add_web_page_previews']
         return cls(status, user, is_anonymous, custom_title, until_date, can_be_edited, can_change_info,
-                   can_post_messages, can_edit_messages, can_delete_messages, can_invite_users, can_restrict_members,
-                   is_member, can_pin_messages, can_promote_members, can_send_messages, can_send_media_messages,
-                   can_send_other_messages, can_add_web_page_previews, can_send_polls)
+                   can_post_messages, can_edit_messages, can_delete_messages, can_manage_voice_chats, can_invite_users,
+                   can_restrict_members, is_member, can_pin_messages, can_promote_members, can_send_messages,
+                   can_send_media_messages, can_send_other_messages, can_add_web_page_previews, can_send_polls)
 
 
 class ChatMemberUpdated(JsonDeserializable):
