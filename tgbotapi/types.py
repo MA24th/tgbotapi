@@ -1998,24 +1998,28 @@ class InlineQuery(JsonDeserializable):
     your bot could return some default or trending results.
     """
 
-    def __init__(self, uid, from_user, location, query, offset):
+    def __init__(self, uid, from_user, query, offset, chat_type, location):
         self.uid = uid
         self.from_user = from_user
-        self.location = location
         self.query = query
         self.offset = offset
+        self.chat_type = chat_type
+        self.location = location
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         uid = obj['id']
         from_user = User.de_json(obj['from'])
+        query = obj['query']
+        offset = obj['offset']
+        chat_type = None
+        if 'chat_type' in obj:
+            chat_type = obj['chat_type']
         location = None
         if 'location' in obj:
             location = Location.de_json(obj['location'])
-        query = obj['query']
-        offset = obj['offset']
-        return cls(uid, from_user, location, query, offset)
+        return cls(uid, from_user, query, offset, chat_type, location)
 
 
 class InlineQueryResult:

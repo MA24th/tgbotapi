@@ -1114,12 +1114,13 @@ def test_inline_query():
             "username": "MA24th",
             "language_code": "en"
         },
+        'query': 'abc',
+        'offset': 'all',
+        'chat_type': 'private',
         'location': {
             'latitude': 44,
             'longitude': 29
         },
-        'query': 'abc',
-        'offset': 'all'
     }
     obj = types.InlineQuery.de_json(dic)
     assert obj.uid == 122
@@ -1129,10 +1130,11 @@ def test_inline_query():
     assert obj.from_user.last_name == 'Asaad'
     assert obj.from_user.username == 'MA24th'
     assert obj.from_user.language_code == 'en'
-    assert obj.location.latitude == 44
-    assert obj.location.longitude == 29
     assert obj.query == 'abc'
     assert obj.offset == 'all'
+    assert obj.chat_type == 'private'
+    assert obj.location.latitude == 44
+    assert obj.location.longitude == 29
 
 
 def test_inline_query_result():
