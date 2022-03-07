@@ -575,6 +575,12 @@ def test_message_auto_delete_timer_changed():
     assert obj.message_auto_delete_time == 111
 
 
+def test_voice_chat_scheduled():
+    dic = {'start_date': 38748174}
+    obj = types.VoiceChatScheduled.de_json(dic)
+    assert obj.start_date == 38748174
+
+
 def test_voice_chat_started():
     dic = {}
     obj = types.VoiceChatStarted.de_json(dic)

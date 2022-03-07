@@ -310,6 +310,7 @@ class Message(JsonDeserializable):
         self.successful_payment = None
         self.connected_website = None
         self.proximity_alert_triggered = None
+        self.voice_chat_scheduled = None
         self.voice_chat_started = None
         self.voice_chat_ended = None
         self.voice_chat_participants_invited = None
@@ -425,6 +426,8 @@ class Message(JsonDeserializable):
         if 'proximity_alert_triggered' in obj:
             opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(
                 obj['proximity_alert_triggered'])
+        if 'voice_chat_scheduled' in obj:
+            opts['voice_chat_scheduled'] = VoiceChatScheduled.de_json(obj['voice_chat_scheduled'])
         if 'voice_chat_started' in obj:
             opts['voice_chat_started'] = VoiceChatStarted.de_json(obj['voice_chat_started'])
         if 'voice_chat_ended' in obj:
@@ -989,6 +992,21 @@ class MessageAutoDeleteTimerChanged(JsonDeserializable):
         obj = cls.check_type(obj_type)
         message_auto_delete_time = obj['message_auto_delete_time']
         return cls(message_auto_delete_time)
+
+
+class VoiceChatScheduled(JsonDeserializable):
+    """
+    This object represents a service message about a voice chat scheduled in the chat
+    """
+
+    def __init__(self, start_date):
+        self.start_date = start_date
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        start_date = obj['start_date']
+        return cls(start_date)
 
 
 class VoiceChatStarted(JsonDeserializable):
