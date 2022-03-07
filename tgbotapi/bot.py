@@ -1511,12 +1511,12 @@ class Bot:
                                            is_personal, next_offset,
                                            switch_pm_text, switch_pm_parameter)
 
-    def send_invoice(self, chat_id, title, description, payload, provider_token, start_parameter, currency, prices,
-                     provider_data=None, photo_url=None, photo_size=None, photo_width=None, photo_height=None,
-                     need_name=False, need_phone_number=False, need_email=False, need_shipping_address=False,
-                     send_phone_number_to_provider=False, send_email_to_provider=False, is_flexible=False,
-                     disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
-                     reply_markup=None):
+    def send_invoice(self, chat_id, title, description, payload, provider_token, currency, prices, max_tip_amount=None,
+                     suggested_tip_amounts=None, start_parameter=None, provider_data=None, photo_url=None,
+                     photo_size=None, photo_width=None, photo_height=None, need_name=False, need_phone_number=False,
+                     need_email=False, need_shipping_address=False, send_phone_number_to_provider=False,
+                     send_email_to_provider=False, is_flexible=False, disable_notification=False,
+                     reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send invoices. On success, the sent Message is returned
         :param int chat_id: Unique identifier for the target chat or username of the target channel
@@ -1524,9 +1524,13 @@ class Bot:
         :param str description: Product description, 1-255 characters
         :param str payload: Bot-defined invoice payload, 1-128 bytes
         :param str provider_token: Payments provider token, obtained via Botfather
-        :param str start_parameter: Unique deep-linking parameter
         :param str currency: Three-letter ISO 4217 currency code
-        :param list prices: Price breakdown, a JSON-serialized list of components
+        :param list[types.LabeledPrice] prices: Price breakdown, a JSON-serialized list of components
+        :param int or None max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency
+                                           (integer, not float/double).
+        :param list[int] or None suggested_tip_amounts: A JSON-serialized array of suggested amounts of tips in the
+                                                        smallest units of the currency (integer, not float/double).
+        :param str start_parameter: Unique deep-linking parameter
         :param dict provider_data: JSON-encoded data about the invoice, which will be shared with the payment provider
         :param str photo_url: URL of the product photo for the invoice
         :param int photo_size: Photo Size
@@ -1548,12 +1552,11 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_invoice(self.__based_url, self.__proxies, chat_id, title, description, payload, provider_token,
-                                 start_parameter,
-                                 currency, prices, provider_data, photo_url, photo_size, photo_width, photo_height,
-                                 need_name, need_phone_number, need_email, need_shipping_address,
-                                 send_phone_number_to_provider, send_email_to_provider, is_flexible,
-                                 disable_notification,
-                                 reply_to_message_id, allow_sending_without_reply, reply_markup))
+                                 currency, prices, max_tip_amount, suggested_tip_amounts, start_parameter,
+                                 provider_data, photo_url, photo_size, photo_width, photo_height, need_name,
+                                 need_phone_number, need_email, need_shipping_address, send_phone_number_to_provider,
+                                 send_email_to_provider, is_flexible, disable_notification, reply_to_message_id,
+                                 allow_sending_without_reply, reply_markup))
 
     def answer_shipping_query(self, shipping_query_id, ok, shipping_options=None, error_message=None):
         """

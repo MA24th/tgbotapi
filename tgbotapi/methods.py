@@ -1908,11 +1908,11 @@ def answer_inline_query(based_url, proxies, inline_query_id, results, cache_time
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_invoice(based_url, proxies, chat_id, title, description, payload, provider_token, start_parameter, currency,
-                 prices,
-                 provider_data, photo_url, photo_size, photo_width, photo_height, need_name, need_phone_number,
-                 need_email, need_shipping_address, send_phone_number_to_provider, send_email_to_provider, is_flexible,
-                 disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+def send_invoice(based_url, proxies, chat_id, title, description, payload, provider_token, currency, prices,
+                 max_tip_amount, suggested_tip_amounts,  start_parameter, provider_data, photo_url, photo_size,
+                 photo_width, photo_height, need_name, need_phone_number, need_email, need_shipping_address,
+                 send_phone_number_to_provider, send_email_to_provider, is_flexible, disable_notification,
+                 reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send invoices. On success, the sent Message is returned
     :type based_url: str
@@ -1922,9 +1922,11 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
     :type description: str
     :type payload: str
     :type provider_token: str
-    :type start_parameter: str
     :type currency: str
     :type prices: list
+    :type max_tip_amount: int or None
+    :type suggested_tip_amounts: list[int] or None
+    :type start_parameter: str
     :type provider_data: dict
     :type photo_url: str
     :type photo_size: int
@@ -1947,9 +1949,20 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
     api_method = r'sendInvoice'
     api_url = based_url + '/' + api_method
     files = None
-    params = {'chat_id': chat_id, 'title': title, 'description': description, 'payload': payload,
-              'provider_token': provider_token, 'start_parameter': start_parameter, 'currency': currency,
-              'prices': prices}
+    params = {
+        'chat_id': chat_id,
+        'title': title,
+        'description': description,
+        'payload': payload,
+        'provider_token': provider_token,
+        'currency': currency,
+        'prices': prices}
+    if max_tip_amount:
+        params['max_tip_amount'] = max_tip_amount
+    if suggested_tip_amounts:
+        params['suggested_tip_amounts'] = suggested_tip_amounts
+    if start_parameter:
+        params['start_parameter'] = start_parameter
     if provider_data:
         params['provider_data'] = provider_data
     if photo_url:
@@ -1976,6 +1989,8 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
         params['is_flexible'] = is_flexible
     if disable_notification:
         params['disable_notification'] = disable_notification
+    # if protect_content:
+    #     params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
