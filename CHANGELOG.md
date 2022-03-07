@@ -1,4 +1,20 @@
 # CHANGELOG
+
+## _v5.2_
+- Support for Payments 2.0, see this manual for more details about the Bot Payments API.
+- Added the type InputInvoiceMessageContent to support sending invoices as inline query results.
+- Allowed sending invoices to group, supergroup and channel chats.
+- Added the fields max_tip_amount and suggested_tip_amounts to the method sendInvoice to allow adding optional tips to the
+payment.
+- The parameter start_parameter of the method sendInvoice became optional. If the parameter isn't specified, the invoice 
+can be paid directly from forwarded messages.
+- Added the field chat_type to the class InlineQuery, containing the type of the chat, from which the inline request was 
+sent.
+- Added the type VoiceChatScheduled and the field voice_chat_scheduled to the class Message.
+- Fixed an error in sendChatAction documentation to correctly mention “record_voice” and “upload_voice” instead of 
+“record_audio” and “upload_audio” for related to voice note actions. Old action names will still work for backward 
+compatibility.
+
 ## _v5.1_
 ### Added two new update types
 - Added updates about member status changes in chats, represented by the class ChatMemberUpdated and the fields 
