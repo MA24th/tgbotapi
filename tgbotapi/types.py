@@ -980,6 +980,7 @@ class MessageAutoDeleteTimerChanged(JsonDeserializable):
     """
     This object represents a service message about a change in auto-delete timer settings
     """
+
     def __init__(self, message_auto_delete_time):
         self.message_auto_delete_time = message_auto_delete_time
 
@@ -2867,12 +2868,13 @@ class InlineQueryResult:
 class InputMessageContent:
     """
     This object represents the content of a message to be sent as a result of an inline query. 
-    Telegram clients currently support the following 4 types:
+    Telegram clients currently support the following 5 types:
 
         InputContactMessageContent
         InputLocationMessageContent
         InputTextMessageContent
         InputVenueMessageContent
+        InputInvoiceMessageContent
 
    """
 
@@ -2881,6 +2883,7 @@ class InputMessageContent:
         self.Location = self.__InputLocationMessageContent
         self.Venue = self.__InputVenueMessageContent
         self.Contact = self.__InputContactMessageContent
+        self.Invoice = self.__InputInvoiceMessageContent
 
     class __InputTextMessageContent(Dictionaryable):
         """
@@ -2973,6 +2976,75 @@ class InputMessageContent:
                    'first_name': self.first_name}
             if self.last_name:
                 obj['last_name'] = self.last_name
+            return obj
+
+    class __InputInvoiceMessageContent(Dictionaryable):
+        """
+        Represents the content of an invoice message to be sent as the result of an inline query
+        """
+
+        def __init__(self, title, description, payload, provider_token, currency, prices, max_tip_amount,
+                     suggested_tip_amounts, provider_data, photo_url, photo_size, photo_width, photo_height, need_name,
+                     need_phone_number, need_email, need_shipping_address, send_phone_number_to_provider,
+                     send_email_to_provider, is_flexible):
+            self.title = title
+            self.description = description
+            self.payload = payload
+            self.provider_token = provider_token
+            self.currency = currency
+            self.prices = prices
+            self.max_tip_amount = max_tip_amount
+            self.suggested_tip_amounts = suggested_tip_amounts
+            self.provider_data = provider_data
+            self.photo_url = photo_url
+            self.photo_size = photo_size
+            self.photo_width = photo_width
+            self.photo_height = photo_height
+            self.need_name = need_name
+            self.need_phone_number = need_phone_number
+            self.need_email = need_email
+            self.need_shipping_address = need_shipping_address
+            self.send_phone_number_to_provider = send_phone_number_to_provider
+            self.send_email_to_provider = send_email_to_provider
+            self.is_flexible = is_flexible
+
+        def to_dict(self):
+            obj = {
+                'title': self.title,
+                'description': self.description,
+                'payload': self.payload,
+                'provider_token': self.provider_token,
+                'currency': self.currency,
+                'prices': self.prices
+            }
+            if self.max_tip_amount:
+                obj['max_tip_amount'] = self.max_tip_amount
+            if self.suggested_tip_amounts:
+                obj['suggested_tip_amounts'] = self.suggested_tip_amounts
+            if self.provider_data:
+                obj['provider_data'] = self.provider_data
+            if self.photo_url:
+                obj['photo_url'] = self.photo_url
+            if self.photo_size:
+                obj['photo_size'] = self.photo_size
+            if self.photo_width:
+                obj['photo_width'] = self.photo_width
+            if self.photo_height:
+                obj['photo_height'] = self.photo_height
+            if self.need_name:
+                obj['need_name'] = self.need_name
+            if self.need_phone_number:
+                obj['need_phone_number'] = self.need_phone_number
+            if self.need_email:
+                obj['need_email'] = self.need_email
+            if self.need_shipping_address:
+                obj['need_shipping_address'] = self.need_shipping_address
+            if self.send_phone_number_to_provider:
+                obj['send_phone_number_to_provider'] = self.send_phone_number_to_provider
+            if self.send_email_to_provider:
+                obj['send_email_to_provider'] = self.send_email_to_provider
+            if self.is_flexible:
+                obj['is_flexible'] = self.is_flexible
             return obj
 
 
