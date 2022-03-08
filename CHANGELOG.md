@@ -1,4 +1,11 @@
 # CHANGELOG
+
+## _v5.7_
+Added support for Video Stickers.
+Added the field is_video to the classes Sticker and StickerSet.
+Added the parameter webm_sticker to the methods createNewStickerSet and addStickerToSet.
+
+
 ## _v5.6_
 - Improved support for Protected Content.
 - Added the parameter protect_content to the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendSticker, sendVideoNote, sendVoice, sendLocation, sendVenue, sendContact, sendPoll, sendDice, sendInvoice, sendGame, sendMediaGroup, copyMessage, forwardMessage to allow sending messages with protected content to any chat.

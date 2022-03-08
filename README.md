@@ -3,7 +3,7 @@
 The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Framework
 
 [![GPLv2 license](https://img.shields.io/badge/LICENSE-GPLv2-red)](https://github.com/ma24th/tgbotapi/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-v5.6-yellow.svg)](https://pypi.org/project/tgbotapi/)
+[![PyPI](https://img.shields.io/badge/PyPI-v5.7-yellow.svg)](https://pypi.org/project/tgbotapi/)
 ![Python package](https://github.com/MA24th/tgbotapi/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/MA24th/tgbotapi/workflows/Upload%20Python%20Package/badge.svg)
 
@@ -103,12 +103,10 @@ bot.polling()
 To start the bot, simply open up a terminal and enter `python echo_bot.py` to run the bot! Test it by sending commands ('/start' and '/help') and arbitrary text messages.
 
 ### ChangeLog
-**_version 5.6_**
-- Improved support for Protected Content.
-- Added the parameter protect_content to the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendSticker, sendVideoNote, sendVoice, sendLocation, sendVenue, sendContact, sendPoll, sendDice, sendInvoice, sendGame, sendMediaGroup, copyMessage, forwardMessage to allow sending messages with protected content to any chat.
-- Added support for spoiler entities, which will work in Telegram versions released after December 30, 2021. Older clients will display unsupported message.
-- Added new MessageEntity type “spoiler”.
-- Added the ability to specify spoiler entities using HTML and MarkdownV2 formatting options.
+**_version 5.7_**
+Added support for Video Stickers.
+Added the field is_video to the classes Sticker and StickerSet.
+Added the parameter webm_sticker to the methods createNewStickerSet and addStickerToSet.
 
 **_Fixes_**
 - No Issues until Now

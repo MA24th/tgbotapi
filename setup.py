@@ -9,7 +9,7 @@ def read(filename):
 
 
 setup(name='tgbotapi',
-      version='5.6',
+      version='5.7',
       description='The Ultimate Telegram Bot API Client Framework',
       long_description=read('README.rst'),
       long_description_content_type="text/x-rst",
