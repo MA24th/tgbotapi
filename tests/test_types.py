@@ -990,45 +990,53 @@ def test_bot_commands():
 
 def test_bot_command_scope_default():
     dic = {'type': 'default'}
-    obj = types.BotCommandScope().Default.de_json(dic)
-    assert obj.ttype == 'default'
+    obj = types.BotCommandScope().Default().to_dict()
+    assert obj == dic
 
 
 def test_bot_command_scope_all_private_chats():
     dic = {'type': 'all_private_chats'}
-    obj = types.BotCommandScope().AllPrivateChats.de_json(dic)
-    assert obj.ttype == 'all_private_chats'
+    obj = types.BotCommandScope().AllPrivateChats().to_dict()
+    assert obj == dic
 
 
 def test_bot_command_scope_all_group_chats():
     dic = {'type': 'all_group_chats'}
-    obj = types.BotCommandScope().AllGroupChats.de_json(dic)
-    assert obj.ttype == 'all_group_chats'
+    obj = types.BotCommandScope().AllGroupChats().to_dict()
+    assert obj == dic
 
 
 def test_bot_command_scope_all_chat_administrator():
-    dic = {'type': 'all_chat_administrators', 'chat_id': 4040}
-    obj = types.BotCommandScope().AllChatAdministrators.de_json(dic)
-    assert obj.ttype == 'all_chat_administrators'
-    assert obj.chat_id == 4040
+    dic = {'type': 'all_chat_administrators'}
+    obj = types.BotCommandScope().AllChatAdministrators().to_dict()
+    assert obj == dic
 
 
 def test_bot_command_scope_chat():
-    dic = r'{"type": "chat", "chat_id": 123213}'
-    obj = types.BotCommandScope().Chat(ttype='chat', chat_id=123213).to_json()
+    dic = {"type": "chat", "chat_id": 123213}
+    obj = types.BotCommandScope().Chat(ttype='chat', chat_id=123213).to_dict()
     assert obj == dic
+    obj = types.BotCommandScope().Chat.de_json(dic)
+    assert obj.ttype == 'chat'
+    assert obj.chat_id == 123213
 
 
 def test_bot_command_scope_chat_administrators():
-    dic = r'{"type": "chat_administrators", "chat_id": 123213}'
-    obj = types.BotCommandScope().ChatAdministrators(ttype='chat_administrators', chat_id=123213).to_json()
+    dic = {"type": "chat_administrators", "chat_id": 123213}
+    obj = types.BotCommandScope().ChatAdministrators(ttype='chat_administrators', chat_id=123213).to_dict()
     assert obj == dic
+    obj = types.BotCommandScope().ChatAdministrators.de_json(dic)
+    assert obj.ttype == 'chat_administrators'
+    assert obj.chat_id == 123213
 
 
 def test_bot_command_scope_chat_member():
-    dic = r'{"type": "chat_member", "chat_id": 123213, "user_id": 344233}'
-    obj = types.BotCommandScope().ChatMember(ttype='chat_member', chat_id=123213, user_id=344233).to_json()
+    dic = {"type": "chat_member", "chat_id": 123213, "user_id": 344233}
+    obj = types.BotCommandScope().ChatMember(ttype='chat_member', chat_id=123213, user_id=344233).to_dict()
     assert obj == dic
+    obj = types.BotCommandScope().ChatMember.de_json(dic)
+    assert obj.ttype == 'chat_member'
+    assert obj.chat_id == 123213
 
 
 def test_response_parameters():

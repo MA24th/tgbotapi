@@ -1716,68 +1716,56 @@ class BotCommandScope:
         self.Default = self.__BotCommandScopeDefault
         self.AllPrivateChats = self.__BotCommandScopeAllPrivateChats
         self.AllGroupChats = self.__BotCommandScopeAllGroupChats
-        self.AllChatAdministrators = self.__BotCommandScopeChatAdministrators
+        self.AllChatAdministrators = self.__BotCommandScopeAllChatAdministrators
         self.Chat = self.__BotCommandScopeChat
         self.ChatAdministrators = self.__BotCommandScopeChatAdministrators
         self.ChatMember = self.__BotCommandScopeChatMember
 
-    class __BotCommandScopeDefault(JsonDeserializable):
-        def __init__(self, ttype):
+    class __BotCommandScopeDefault(Dictionaryable):
+        def __init__(self):
             """
             Represents the default scope of bot commands
-            :param str ttype: Scope type, must be default
             """
-            self.ttype = ttype
+            self.ttype = 'default'
 
-        @classmethod
-        def de_json(cls, obj_type):
-            obj = cls.check_type(obj_type)
-            ttype = obj['type']
-            return cls(ttype)
+        def to_dict(self):
+            obj = {'type': self.ttype}
+            return obj
 
-    class __BotCommandScopeAllPrivateChats(JsonDeserializable):
-        def __init__(self, ttype):
+    class __BotCommandScopeAllPrivateChats(Dictionaryable):
+        def __init__(self):
             """
             Represents the scope of bot commands, covering all private chats
-            :param str ttype: Scope type, must be all_private_chats
             """
-            self.ttype = ttype
+            self.ttype = 'all_private_chats'
 
-        @classmethod
-        def de_json(cls, obj_type):
-            obj = cls.check_type(obj_type)
-            ttype = obj['type']
-            return cls(ttype)
+        def to_dict(self):
+            obj = {'type': self.ttype}
+            return obj
 
-    class __BotCommandScopeAllGroupChats(JsonDeserializable):
-        def __init__(self, ttype):
+    class __BotCommandScopeAllGroupChats(Dictionaryable):
+        def __init__(self):
             """
             Represents the scope of bot commands, covering all group and supergroup chats
-            :param str ttype: Scope type, must be all_group_chats
             """
-            self.ttype = ttype
+            self.ttype = 'all_group_chats'
 
-        @classmethod
-        def de_json(cls, obj_type):
-            obj = cls.check_type(obj_type)
-            ttype = obj['type']
-            return cls(ttype)
+        def to_dict(self):
+            obj = {'type': self.ttype}
+            return obj
 
-    class __BotCommandScopeAllChatAdministrators(JsonDeserializable):
-        def __init__(self, ttype):
+    class __BotCommandScopeAllChatAdministrators(Dictionaryable):
+        def __init__(self):
             """
             Represents the scope of bot commands, covering all group and supergroup chat administrators
-            :param str ttype: Scope type, must be all_chat_administrators
             """
-            self.ttype = ttype
+            self.ttype = 'all_chat_administrators'
 
-        @classmethod
-        def de_json(cls, obj_type):
-            obj = cls.check_type(obj_type)
-            ttype = obj['type']
-            return cls(ttype)
+        def to_dict(self):
+            obj = {'type': self.ttype}
+            return obj
 
-    class __BotCommandScopeChat(JsonDeserializable, JsonSerializable):
+    class __BotCommandScopeChat(JsonDeserializable, Dictionaryable):
         def __init__(self, ttype, chat_id):
             """
             Represents the scope of bot commands, covering a specific chat
@@ -1795,11 +1783,11 @@ class BotCommandScope:
             chat_id = obj['chat_id']
             return cls(ttype, chat_id)
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'chat_id': self.chat_id}
-            return json.dumps(obj)
+            return obj
 
-    class __BotCommandScopeChatAdministrators(JsonDeserializable, JsonSerializable):
+    class __BotCommandScopeChatAdministrators(JsonDeserializable, Dictionaryable):
         def __init__(self, ttype, chat_id):
             """
             Represents the scope of bot commands,
@@ -1818,11 +1806,11 @@ class BotCommandScope:
             chat_id = obj['chat_id']
             return cls(ttype, chat_id)
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'chat_id': self.chat_id}
-            return json.dumps(obj)
+            return obj
 
-    class __BotCommandScopeChatMember(JsonDeserializable, JsonSerializable):
+    class __BotCommandScopeChatMember(JsonDeserializable, Dictionaryable):
         def __init__(self, ttype, chat_id, user_id):
             """
             Represents the scope of bot commands,
@@ -1844,9 +1832,9 @@ class BotCommandScope:
             user_id = obj['user_id']
             return cls(ttype, chat_id, user_id)
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'chat_id': self.chat_id, 'user_id': self.user_id}
-            return json.dumps(obj)
+            return obj
 
 
 class ResponseParameters(JsonDeserializable):

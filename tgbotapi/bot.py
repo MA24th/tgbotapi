@@ -1262,15 +1262,20 @@ class Bot:
         return methods.answer_callback_query(self.__based_url, self.__proxies, callback_query_id, text, show_alert, url,
                                              cache_time)
 
-    def set_my_commands(self, commands):
+    def set_my_commands(self, commands, scope=None, language_code=None):
         """
         Use this method to change the list of the bots commands
         :param list[types.BotCommand] commands: A JSON-serialized list of bot commands to be set as the list of
-                                                 the bots commands
+                                                the bots commands
+        :param types.BotCommandScope or None scope: A JSON-serialized object, describing scope of users for which the
+                                                    commands are relevant. Defaults to BotCommandScopeDefault
+        :param str or None language_code: A two-letter ISO 639-1 language code. If empty, commands will be applied to
+                                          all users from the given scope, for whose language there are no dedicated
+                                          commands
         :return: True On success
         :rtype: bool
         """
-        return methods.set_my_commands(self.__based_url, self.__proxies, commands)
+        return methods.set_my_commands(self.__based_url, self.__proxies, commands, scope, language_code)
 
     def get_my_commands(self):
         """

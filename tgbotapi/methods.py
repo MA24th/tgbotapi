@@ -1491,12 +1491,14 @@ def answer_callback_query(based_url, proxies, callback_query_id, text, show_aler
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def set_my_commands(based_url, proxies, commands):
+def set_my_commands(based_url, proxies, commands, scope, language_code):
     """
     Use this method to change the list of the bots commands
     :type based_url: str
     :type proxies: dict or None
     :type commands: list
+    :type scope: dict or None
+    :type language_code: str or None
     :rtype: bool
     """
     method = r'post'
@@ -1504,6 +1506,10 @@ def set_my_commands(based_url, proxies, commands):
     api_url = based_url + '/' + api_method
     files = None
     params = {'commands': commands}
+    if scope:
+        params['scope'] = scope
+    if language_code:
+        params['language_code'] = language_code
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
