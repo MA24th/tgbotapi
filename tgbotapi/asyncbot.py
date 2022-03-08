@@ -157,6 +157,14 @@ class AsyncBot(Bot):
         return Bot.revoke_chat_invite_link(self, *args, **kwargs)
 
     @async_dec()
+    def approve_chat_join_request(self, chat_id, user_id):
+        return Bot.approve_chat_join_request(self, chat_id, user_id)
+
+    @async_dec()
+    def decline_chat_join_request(self, chat_id, user_id):
+        return Bot.decline_chat_join_request(self, chat_id, user_id)
+
+    @async_dec()
     def set_chat_photo(self, *args):
         return Bot.set_chat_photo(self, *args)
 

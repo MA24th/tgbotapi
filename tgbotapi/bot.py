@@ -1117,6 +1117,32 @@ class Bot:
         return types.ChatInviteLink.de_json(methods.revoke_chat_invite_link(self.__based_url, self.__proxies, chat_id,
                                                                             invite_link))
 
+    def approve_chat_join_request(self, chat_id, user_id):
+        """
+        Use this method to approve a chat join request,
+        The bot must be an administrator in the chat for this to work
+        and must have the can_invite_users administrator right
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel
+                                   (in the format @channelusername)
+        :param int user_id: Unique identifier of the target user
+        :return: True on success
+        :rtype: bool
+        """
+        return methods.approve_chat_join_request(self.__based_url, self.__proxies, chat_id, user_id)
+
+    def decline_chat_join_request(self, chat_id, user_id):
+        """
+        Use this method to decline a chat join request,
+        The bot must be an administrator in the chat for this to work
+        and must have the can_invite_users administrator right
+        :param int or str chat_id: Unique identifier for the target chat or username of the target channel
+                                   (in the format @channelusername)
+        :param int user_id: Unique identifier of the target user
+        :return: True on success
+        :rtype: bool
+        """
+        return methods.decline_chat_join_request(self.__based_url, self.__proxies, chat_id, user_id)
+
     def set_chat_photo(self, chat_id, photo):
         """
         Use this method to set a new profile photo for the chat

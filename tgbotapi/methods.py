@@ -1221,6 +1221,41 @@ def revoke_chat_invite_link(based_url, proxies, chat_id, invite_link, ):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def approve_chat_join_request(based_url, proxies, chat_id, user_id):
+    """
+    Use this method to approve a chat join request
+    :type based_url: str
+    :type proxies: dict or None
+    :type chat_id: int or str
+    :type user_id:
+    :rtype: bool
+    """
+    method = r'post'
+    api_method = r'approveChatJoinRequest'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'chat_id': chat_id, 'user_id': user_id}
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
+def decline_chat_join_request(based_url, proxies, chat_id, user_id):
+    """
+    Use this method to decline a chat join request,
+    The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right
+    :type based_url: str
+    :type proxies: dict or None
+    :type chat_id: int or str
+    :type user_id:
+    :rtype: bool
+    """
+    method = r'post'
+    api_method = r'declineChatJoinRequest'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'chat_id': chat_id, 'user_id': user_id}
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def set_chat_photo(based_url, proxies, chat_id, photo):
     """
     Use this method to set a new profile photo for the chat
@@ -1942,7 +1977,7 @@ def answer_inline_query(based_url, proxies, inline_query_id, results, cache_time
 
 
 def send_invoice(based_url, proxies, chat_id, title, description, payload, provider_token, currency, prices,
-                 max_tip_amount, suggested_tip_amounts,  start_parameter, provider_data, photo_url, photo_size,
+                 max_tip_amount, suggested_tip_amounts, start_parameter, provider_data, photo_url, photo_size,
                  photo_width, photo_height, need_name, need_phone_number, need_email, need_shipping_address,
                  send_phone_number_to_provider, send_email_to_provider, is_flexible, disable_notification,
                  reply_to_message_id, allow_sending_without_reply, reply_markup):
