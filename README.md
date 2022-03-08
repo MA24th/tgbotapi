@@ -3,7 +3,7 @@
 The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Framework
 
 [![GPLv2 license](https://img.shields.io/badge/LICENSE-GPLv2-red)](https://github.com/ma24th/tgbotapi/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-v5.4-yellow.svg)](https://pypi.org/project/tgbotapi/)
+[![PyPI](https://img.shields.io/badge/PyPI-v5.5-yellow.svg)](https://pypi.org/project/tgbotapi/)
 ![Python package](https://github.com/MA24th/tgbotapi/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/MA24th/tgbotapi/workflows/Upload%20Python%20Package/badge.svg)
 
@@ -103,13 +103,13 @@ bot.polling()
 To start the bot, simply open up a terminal and enter `python echo_bot.py` to run the bot! Test it by sending commands ('/start' and '/help') and arbitrary text messages.
 
 ### ChangeLog
-**_version 5.4_**
-- Added the the parameter creates_join_request to the methods createChatInviteLink and editChatInviteLink for managing chat invite links that create join requests (read more about this on our blog).
-- Added the fields creates_join_request and pending_join_request_count to the class ChatInviteLink.
-- Added the field name to the class ChatInviteLink and the parameters name to the methods createChatInviteLink and editChatInviteLink for managing invite link names.
-- Added updates about new requests to join the chat, represented by the class ChatJoinRequest and the field chat_join_request in the Update class. The bot must be an administrator in the chat with the can_invite_users administrator right to receive these updates.
-- Added the methods approveChatJoinRequest and declineChatJoinRequest for managing requests to join the chat.
-- Added support for the choose_sticker action in the method sendChatAction.
+**_version 5.5_**
+- Bots are now allowed to contact users who sent a join request to a chat where the bot is an administrator with the can_invite_users administrator right – even if the user never interacted with the bot before.
+- Added support for mentioning users by their ID in inline keyboards. This will only work in Telegram versions released after December 7, 2021. Older clients will display unsupported message.
+- Added the methods banChatSenderChat and unbanChatSenderChat for banning and unbanning channel chats in supergroups and channels.
+- Added the field has_private_forwards to the class Chat for private chats, which can be used to check the possibility of mentioning the user by their ID.
+- Added the field has_protected_content to the classes Chat and Message.
+- Added the field is_automatic_forward to the class Message.
 **_Fixes_**
 - No Issues until Now
 
