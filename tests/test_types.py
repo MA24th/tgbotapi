@@ -683,32 +683,21 @@ def test_reply_keyboard_remove():
 
 
 def test_inline_keyboard_markup():
-    markup = types.InlineKeyboardMarkup(row_width=2)
-    button = types.InlineKeyboardButton
-    markup.add(button(text='bt1', url=None, callback_data=None, switch_inline_query=None,
-                      switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None))
-    markup.add(button(text='bt2', url=None, callback_data=None, switch_inline_query=None,
-                      switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None))
-    markup.add(button(text='bt3', url=None, callback_data=None, switch_inline_query=None,
-                      switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None))
-    obj = markup.to_json()
-    assert obj == r'{"inline_keyboard": [[{"text": "bt1"}], [{"text": "bt2"}], [{"text": "bt3"}]]}'
+    dic = {'inline_keyboard': [[{'text': 'bt1'}]]}
+    bt1 = types.InlineKeyboardButton(text='bt1').to_dict()
+    obj = types.InlineKeyboardMarkup(inline_keyboard=[[bt1]]).to_dict()
+    assert obj == dic
 
 
 def test_inline_keyboard_button():
-    obj = types.InlineKeyboardButton(text='text', url='url', callback_data='callback_data',
-                                     switch_inline_query='switch_inline_query',
-                                     switch_inline_query_current_chat='switch_inline_query_current_chat',
-                                     callback_game='callback_game', pay='pay', login_url='login_url').to_json()
-    assert obj == r'{"text": "text", "url": "url", "callback_data": "callback_data", "switch_inline_query": ' \
-                  r'"switch_inline_query", "switch_inline_query_current_chat": "switch_inline_query_current_chat", ' \
-                  r'"callback_game": "callback_game", "pay": "pay", "login_url": "login_url"}'
+    dic = {'text': 'bt1'}
+    obj = types.InlineKeyboardButton(text='bt1').to_dict()
+    assert obj == dic
 
 
 def test_login_url():
-    dic = r'{"url": "any", "forward_text": "ftext", "bot_username": "gu9rdbot", "request_write_access": true}'
-    obj = types.LoginUrl(url='any', forward_text='ftext',
-                         bot_username='gu9rdbot', request_write_access=True).to_json()
+    dic = {"url": "any", "forward_text": "ftext", "bot_username": "gu9rdbot", "request_write_access": True}
+    obj = types.LoginUrl(url='any', forward_text='ftext', bot_username='gu9rdbot', request_write_access=True).to_dict()
     assert obj == dic
 
 
@@ -1023,43 +1012,32 @@ def test_response_parameters():
 #     assert obj == dic
 
 def test_input_media_photo():
-    dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
-    obj = types.InputMedia().Photo(ttype='photo', media='any', caption='any', parse_mode='Markdown',
-                                   caption_entities=None).to_json()
+    dic = {'type': 'photo', 'media': 'http://example.com/media'}
+    obj = types.InputMedia().Photo(ttype='photo', media='http://example.com/media').to_dict()
     assert obj == dic
 
 
 def test_input_media_video():
-    dic = r'{"type": "video", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown", ' \
-          r'"width": 40, "height": 40, "duration": 4, "supports_streaming": false}'
-    obj = types.InputMedia().Video(ttype='video', media='any', thumb='any', caption='any', parse_mode='Markdown',
-                                   width=40, height=40, duration=4, caption_entities=None, supports_streaming=False
-                                   ).to_json()
+    dic = {'media': 'http://example.com/media', 'type': 'video'}
+    obj = types.InputMedia().Video(ttype='video', media='http://example.com/media').to_dict()
     assert obj == dic
 
 
 def test_input_media_animation():
-    dic = r'{"type": "animation", "media": "any", "thumb": "any", "caption": "abc", "parse_mode": "Markdown", ' \
-          r'"width": 12, "height": 12, "duration": 5}'
-    obj = types.InputMedia().Animation(ttype='animation', media='any', thumb='any', caption='abc',
-                                       parse_mode='Markdown', width=12, height=12, duration=5, caption_entities=None
-                                       ).to_json()
+    dic = {'media': 'http://example.com/media', 'type': 'animation'}
+    obj = types.InputMedia().Animation(ttype='animation', media='http://example.com/media').to_dict()
     assert obj == dic
 
 
 def test_input_media_document():
-    dic = r'{"type": "document", "media": "any"}'
-    obj = types.InputMedia().Document(ttype='document', media='any', thumb=None, caption=None, parse_mode=None,
-                                      caption_entities=None, disable_content_type_detection=False).to_json()
+    dic = {"type": "document", 'media': 'http://example.com/media'}
+    obj = types.InputMedia().Document(ttype='document', media='http://example.com/media').to_dict()
     assert obj == dic
 
 
 def test_input_media_audio():
-    dic = r'{"type": "audio", "media": "any", "caption": "any", "parse_mode": "Markdown", ' \
-          r'"width": 40, "height": 40, "duration": 6, "title": "any"}'
-    obj = types.InputMedia().Audio(ttype="audio", media='any', thumb=None, caption='any', parse_mode='Markdown',
-                                   duration=6, performer=None, title='any', caption_entities=None, width=40, height=40
-                                   ).to_json()
+    dic = {'type': 'audio', 'media': 'http://example.com/media'}
+    obj = types.InputMedia().Audio(ttype="audio", media='http://example.com/media').to_dict()
     assert obj == dic
 
 
@@ -1122,17 +1100,9 @@ def test_sticker_set():
 
 
 def test_mask_position():
-    dic = {
-        'point': 22,
-        'x_shift': 330,
-        'y_shift': 55,
-        'scale': 40
-    }
-    obj = types.MaskPosition.de_json(dic)
-    assert obj.point == 22
-    assert obj.x_shift == 330
-    assert obj.y_shift == 55
-    assert obj.scale == 40
+    dic = {'point': 22, 'x_shift': 330, 'y_shift': 55, 'scale': 40}
+    obj = types.MaskPosition(point=22, x_shift=330, y_shift=55, scale=40).to_dict()
+    assert obj == dic
 
 
 def test_inline_query():
@@ -1381,8 +1351,8 @@ def test_chosen_inline_result():
 
 
 def test_labeled_price():
-    dic = r'{"label": "apple", "amount": 2}'
-    obj = types.LabeledPrice(label='apple', amount=2).to_json()
+    dic = {'label': 'apple', 'amount': 2}
+    obj = types.LabeledPrice(label='apple', amount=2).to_dict()
     assert obj == dic
 
 
@@ -1447,8 +1417,9 @@ def test_order_info():
 
 
 def test_shipping_option():
-    dic = r'{"id": 23, "title": "apple", "prices": []}'
-    obj = types.ShippingOption(uid=23, title='apple').to_json()
+    dic = {'id': '23', 'title': 'apple', 'prices': [{'label': 'ass', 'amount': 9999}]}
+    lp = types.LabeledPrice(label='ass', amount=9999).to_dict()
+    obj = types.ShippingOption(uid="23", title='apple', prices=[lp]).to_dict()
     assert obj == dic
 
 
@@ -1653,7 +1624,7 @@ def test_passport_element_error_data_field():
         'data_hash': 'any',
         'message': None
     }
-    obj = types.PassportElementErrorDataField.de_json(dic)
+    obj = types.PassportElementError().DataField.de_json(dic)
     assert obj.source == 'data'
     assert obj.ttype == 'any'
     assert obj.field_name == 'abc'
@@ -1668,7 +1639,7 @@ def test_passport_element_error_front_side():
         'file_hash': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorFrontSide.de_json(dic)
+    obj = types.PassportElementError().FrontSide.de_json(dic)
     assert obj.source == 'front_side'
     assert obj.ttype == 'any'
     assert obj.file_hash == 'abc'
@@ -1682,7 +1653,7 @@ def test_passport_element_error_file():
         'file_hash': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorFile.de_json(dic)
+    obj = types.PassportElementError().File.de_json(dic)
     assert obj.source == 'file'
     assert obj.ttype == 'any'
     assert obj.file_hash == 'abc'
@@ -1696,7 +1667,7 @@ def test_passport_element_error_files():
         'file_hashes': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorFiles.de_json(dic)
+    obj = types.PassportElementError().Files.de_json(dic)
     assert obj.source == 'files'
     assert obj.ttype == 'any'
     assert obj.file_hashes == 'abc'
@@ -1710,7 +1681,7 @@ def test_passport_element_error_reverse_side():
         'file_hash': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorReverseSide.de_json(dic)
+    obj = types.PassportElementError().ReverseSide.de_json(dic)
     assert obj.source == 'reverse_side'
     assert obj.ttype == 'any'
     assert obj.file_hash == 'abc'
@@ -1724,7 +1695,7 @@ def test_passport_element_error_selfie():
         'file_hash': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorSelfie.de_json(dic)
+    obj = types.PassportElementError().Selfie.de_json(dic)
     assert obj.source == 'selfie'
     assert obj.ttype == 'any'
     assert obj.file_hash == 'abc'
@@ -1738,7 +1709,7 @@ def test_passport_element_error_translation_file():
         'file_hash': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorTranslationFile.de_json(dic)
+    obj = types.PassportElementError().TranslationFile.de_json(dic)
     assert obj.source == 'translation_file'
     assert obj.ttype == 'any'
     assert obj.file_hash == 'abc'
@@ -1752,7 +1723,7 @@ def test_passport_element_error_translation_files():
         'file_hashes': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorTranslationFiles.de_json(dic)
+    obj = types.PassportElementError().TranslationFiles.de_json(dic)
     assert obj.source == 'translation_files'
     assert obj.ttype == 'any'
     assert obj.file_hashes == 'abc'
@@ -1766,7 +1737,7 @@ def test_passport_element_error_unspecified():
         'element_hash': 'abc',
         'message': None
     }
-    obj = types.PassportElementErrorUnspecified.de_json(dic)
+    obj = types.PassportElementError().Unspecified.de_json(dic)
     assert obj.source == 'unspecified'
     assert obj.ttype == 'any'
     assert obj.element_hash == 'abc'

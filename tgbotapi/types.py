@@ -8,13 +8,12 @@ import json
 
 
 class Update(JsonDeserializable):
-    """ 
-    This object represents an incoming update
-    """
-
     def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                  chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer,
                  my_chat_member, chat_member):
+        """
+        This object represents an incoming update
+        """
         self.update_id = update_id
         self.message = message
         self.edited_message = edited_message
@@ -81,12 +80,11 @@ class Update(JsonDeserializable):
 
 
 class WebhookInfo(JsonDeserializable):
-    """
-    Contains information about the current status of a webhook
-    """
-
     def __init__(self, url, has_custom_certificate, pending_update_count, ip_address, last_error_date,
                  last_error_message, max_connections, allowed_updates):
+        """
+        Contains information about the current status of a webhook
+        """
         self.url = url
         self.has_custom_certificate = has_custom_certificate
         self.pending_update_count = pending_update_count
@@ -122,12 +120,11 @@ class WebhookInfo(JsonDeserializable):
 
 
 class User(JsonDeserializable):
-    """
-    This object represents a Telegram user or bot
-    """
-
     def __init__(self, uid, is_bot, first_name, last_name, username, language_code, can_join_groups,
                  can_read_all_group_messages, supports_inline_queries):
+        """
+        This object represents a Telegram user or bot
+        """
         self.uid = uid
         self.is_bot = is_bot
         self.first_name = first_name
@@ -167,13 +164,12 @@ class User(JsonDeserializable):
 
 
 class Chat(JsonDeserializable):
-    """
-    This object represents a chat
-    """
-
     def __init__(self, uid, ttype, title, username, first_name, last_name, photo, bio, has_private_forwards,
                  description, invite_link, pinned_message, permissions, slow_mode_delay, message_auto_delete_time,
                  has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location):
+        """
+        This object represents a chat
+        """
         self.uid = uid
         self.ttype = ttype
         self.title = title
@@ -260,9 +256,10 @@ class Chat(JsonDeserializable):
 
 
 class Message(JsonDeserializable):
-    """This object represents a message"""
-
     def __init__(self, message_id, from_user, sender_chat, date, chat, options):
+        """
+        This object represents a message
+        """
         self.message_id = message_id
         self.from_user = from_user
         self.sender_chat = sender_chat
@@ -460,11 +457,10 @@ class Message(JsonDeserializable):
 
 
 class MessageId(JsonDeserializable):
-    """
-    This object represents a unique message identifier.
-    """
-
     def __init__(self, message_id):
+        """
+        This object represents a unique message identifier.
+        """
         self.message_id = message_id
 
     @classmethod
@@ -474,18 +470,36 @@ class MessageId(JsonDeserializable):
         return cls(message_id)
 
 
-class MessageEntity(JsonDeserializable):
-    """
-    This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc
-    """
-
+class MessageEntity(Dictionaryable, JsonDeserializable):
     def __init__(self, ttype, offset, length, url, user, language):
+        """
+        This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
+        :param str ttype: Type of the entity
+        :param int offset: Offset in UTF-16 code units to the start of the entity
+        :param int length: Length of the entity in UTF-16 code units
+        :param str or None url: Optional. For “text_link” only, url that will be opened after user taps on the text
+        :param User or None user: Optional. For “text_mention” only, the mentioned user
+        :param str or None language: Optional. For “pre” only, the programming language of the entity text
+        """
         self.ttype = ttype
         self.offset = offset
         self.length = length
         self.url = url
         self.user = user
         self.language = language
+
+    def to_dict(self):
+        """
+        :rtype: dict
+        """
+        obj = {'type': self.ttype, 'offset': self.offset, 'length': self.length}
+        if self.url:
+            obj['url'] = self.url
+        if self.user:
+            obj['user'] = self.user
+        if self.language:
+            obj['language'] = self.language
+        return obj
 
     @classmethod
     def de_json(cls, obj_type):
@@ -506,11 +520,10 @@ class MessageEntity(JsonDeserializable):
 
 
 class PhotoSize(JsonDeserializable):
-    """
-    This object represents one size of a photo or a file / sticker thumbnail
-    """
-
     def __init__(self, file_id, file_unique_id, width, height, file_size):
+        """
+        This object represents one size of a photo or a file / sticker thumbnail
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.width = width
@@ -529,11 +542,10 @@ class PhotoSize(JsonDeserializable):
 
 
 class Audio(JsonDeserializable):
-    """
-    This object represents an audio file to be treated as music by the Telegram clients
-    """
-
     def __init__(self, file_id, file_unique_id, duration, performer, title, file_name, mime_type, file_size, thumb):
+        """
+        This object represents an audio file to be treated as music by the Telegram clients
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.duration = duration
@@ -572,11 +584,10 @@ class Audio(JsonDeserializable):
 
 
 class Document(JsonDeserializable):
-    """
-    This object represents a general file
-    """
-
     def __init__(self, file_id, file_unique_id, thumb, file_name, mime_type, file_size):
+        """
+        This object represents a general file
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.thumb = thumb
@@ -605,11 +616,10 @@ class Document(JsonDeserializable):
 
 
 class Video(JsonDeserializable):
-    """
-    This object represents a video file
-    """
-
     def __init__(self, file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size):
+        """
+        This object represents a video file
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.width = width
@@ -644,11 +654,10 @@ class Video(JsonDeserializable):
 
 
 class Animation(JsonDeserializable):
-    """
-    This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound)
-    """
-
     def __init__(self, file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size):
+        """
+        This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound)
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.width = width
@@ -683,11 +692,10 @@ class Animation(JsonDeserializable):
 
 
 class Voice(JsonDeserializable):
-    """
-    This object represents a voice note
-    """
-
     def __init__(self, file_id, file_unique_id, duration, mime_type, file_size):
+        """
+        This object represents a voice note
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.duration = duration
@@ -710,11 +718,10 @@ class Voice(JsonDeserializable):
 
 
 class VideoNote(JsonDeserializable):
-    """
-    This object represents a video message
-    """
-
     def __init__(self, file_id, file_unique_id, length, duration, thumb, file_size):
+        """
+        This object represents a video message
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.length = length
@@ -739,11 +746,10 @@ class VideoNote(JsonDeserializable):
 
 
 class Contact(JsonDeserializable):
-    """
-    This object represents a phone contact
-    """
-
     def __init__(self, phone_number, first_name, last_name, user_id, vcard):
+        """
+        This object represents a phone contact
+        """
         self.phone_number = phone_number
         self.first_name = first_name
         self.last_name = last_name
@@ -768,11 +774,10 @@ class Contact(JsonDeserializable):
 
 
 class Location(JsonDeserializable):
-    """
-    This object represents a point on the map
-    """
-
     def __init__(self, longitude, latitude, horizontal_accuracy, live_period, heading, proximity_alert_radius):
+        """
+        This object represents a point on the map
+        """
         self.longitude = longitude
         self.latitude = latitude
         self.horizontal_accuracy = horizontal_accuracy
@@ -801,11 +806,10 @@ class Location(JsonDeserializable):
 
 
 class Venue(JsonDeserializable):
-    """
-    This object represents a venue
-    """
-
     def __init__(self, location, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type):
+        """
+        This object represents a venue
+        """
         self.location = location
         self.title = title
         self.address = address
@@ -836,12 +840,11 @@ class Venue(JsonDeserializable):
 
 
 class ProximityAlertTriggered(JsonDeserializable):
-    """
-    This object represents the content of a service message,
-    sent whenever a user in the chat triggers a proximity alert set by another user
-    """
-
     def __init__(self, traveler, watcher, distance):
+        """
+        This object represents the content of a service message,
+        sent whenever a user in the chat triggers a proximity alert set by another user
+        """
         self.traveler = traveler
         self.watcher = watcher
         self.distance = distance
@@ -856,11 +859,10 @@ class ProximityAlertTriggered(JsonDeserializable):
 
 
 class PollOption(JsonDeserializable):
-    """
-    This object contains information about one answer option in a poll
-    """
-
     def __init__(self, text, voter_count):
+        """
+        This object contains information about one answer option in a poll
+        """
         self.text = text
         self.voter_count = voter_count
 
@@ -873,11 +875,10 @@ class PollOption(JsonDeserializable):
 
 
 class PollAnswer(JsonDeserializable):
-    """
-    This object represents an answer of a user in a non-anonymous poll
-    """
-
     def __init__(self, poll_id, user, option_ids):
+        """
+        This object represents an answer of a user in a non-anonymous poll
+        """
         self.poll_id = poll_id
         self.user = user
         self.option_ids = option_ids
@@ -894,13 +895,12 @@ class PollAnswer(JsonDeserializable):
 
 
 class Poll(JsonDeserializable):
-    """
-    This object contains information about a poll
-    """
-
     def __init__(self, uid, question, options, total_voter_count, is_closed, is_anonymous, ttype,
                  allows_multiple_answers, correct_option_id, explanation, explanation_entities, open_period,
                  close_date):
+        """
+        This object contains information about a poll
+        """
         self.uid = uid
         self.question = question
         self.options = options
@@ -961,11 +961,10 @@ class Poll(JsonDeserializable):
 
 
 class Dice(JsonDeserializable):
-    """
-    This object represents a dice with random value
-    """
-
     def __init__(self, value, emoji):
+        """
+        This object represents a dice with random value
+        """
         self.value = value
         self.emoji = emoji
 
@@ -978,11 +977,10 @@ class Dice(JsonDeserializable):
 
 
 class MessageAutoDeleteTimerChanged(JsonDeserializable):
-    """
-    This object represents a service message about a change in auto-delete timer settings
-    """
-
     def __init__(self, message_auto_delete_time):
+        """
+        This object represents a service message about a change in auto-delete timer settings
+        """
         self.message_auto_delete_time = message_auto_delete_time
 
     @classmethod
@@ -993,11 +991,10 @@ class MessageAutoDeleteTimerChanged(JsonDeserializable):
 
 
 class VoiceChatScheduled(JsonDeserializable):
-    """
-    This object represents a service message about a voice chat scheduled in the chat
-    """
-
     def __init__(self, start_date):
+        """
+        This object represents a service message about a voice chat scheduled in the chat
+        """
         self.start_date = start_date
 
     @classmethod
@@ -1008,11 +1005,10 @@ class VoiceChatScheduled(JsonDeserializable):
 
 
 class VoiceChatStarted(JsonDeserializable):
-    """
-    This object represents a service message about a voice chat started in the chat
-    """
-
     def __init__(self, field):
+        """
+        This object represents a service message about a voice chat started in the chat
+        """
         self.field = field
 
     @classmethod
@@ -1025,11 +1021,10 @@ class VoiceChatStarted(JsonDeserializable):
 
 
 class VoiceChatEnded(JsonDeserializable):
-    """
-    This object represents a service message about a voice chat ended in the chat
-    """
-
     def __init__(self, duration):
+        """
+        This object represents a service message about a voice chat ended in the chat
+        """
         self.duration = duration
 
     @classmethod
@@ -1040,11 +1035,10 @@ class VoiceChatEnded(JsonDeserializable):
 
 
 class VoiceChatParticipantsInvited(JsonDeserializable):
-    """
-    This object represents a service message about new members invited to a voice chat
-    """
-
     def __init__(self, users):
+        """
+        This object represents a service message about new members invited to a voice chat
+        """
         self.users = users
 
     @classmethod
@@ -1064,11 +1058,10 @@ class VoiceChatParticipantsInvited(JsonDeserializable):
 
 
 class UserProfilePhotos(JsonDeserializable):
-    """
-    This object represents one size of a photo or a file / sticker thumbnail
-    """
-
     def __init__(self, total_count, photos):
+        """
+        This object represents one size of a photo or a file / sticker thumbnail
+        """
         self.total_count = total_count
         self.photos = photos
 
@@ -1086,11 +1079,10 @@ class UserProfilePhotos(JsonDeserializable):
 
 
 class File(JsonDeserializable):
-    """ 
-    This object represents a file ready to be downloaded.
-    """
-
     def __init__(self, file_id, file_unique_id, file_size, file_path):
+        """
+        This object represents a file ready to be downloaded.
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.file_size = file_size
@@ -1173,12 +1165,11 @@ class KeyboardButton(Dictionaryable):
 
 
 class KeyboardButtonPollType(JsonDeserializable):
-    """
-    This object represents ttype of poll,
-    which is allowed to be created and sent when the corresponding button is pressed
-    """
-
     def __init__(self, ttype):
+        """
+        This object represents ttype of poll,
+        which is allowed to be created and sent when the corresponding button is pressed
+        """
         self.ttype = ttype
 
     @classmethod
@@ -1189,15 +1180,13 @@ class KeyboardButtonPollType(JsonDeserializable):
 
 
 class ReplyKeyboardRemove(JsonSerializable):
-    """ 
-    Upon receiving a message with this object, 
-    Telegram clients will remove the current custom keyboard and display the default letter-keyboard,
-    By default, custom keyboards are displayed until a new keyboard is sent by a bot,
-    An exception is made for one-time keyboards that are hidden immediately after the user presses a button
-    (see ReplyKeyboardMarkup).
-    """
-
     def __init__(self, selective):
+        """
+        Upon receiving a message with this object,
+        Telegram clients will remove the current custom keyboard and display the default letter-keyboard,
+        By default, custom keyboards are displayed until a new keyboard is sent by a bot,
+        An exception is made for one-time keyboards that are hidden immediately after the user presses a button
+        """
         self.selective = selective
 
     def to_json(self):
@@ -1207,72 +1196,47 @@ class ReplyKeyboardRemove(JsonSerializable):
         return json.dumps(obj)
 
 
-class InlineKeyboardMarkup(Dictionaryable, JsonSerializable):
-    """
-    This object represents an inline keyboard that appears right next to the message it belongs to
-    """
-
-    def __init__(self, row_width=3):
-        self.row_width = row_width
-
-        self.keyboard = []
-
-    def add(self, *args):
+class InlineKeyboardMarkup(Dictionaryable):
+    def __init__(self, inline_keyboard):
         """
-        This function adds strings to the keyboard, while not exceeding row_width.
-        E.g. ReplyKeyboardMarkup#add("A", "B", "C") yields the json result {keyboard: [["A"], ["B"], ["C"]]}
-        when row_width is set to 1.
-        When row_width is set to 2, the following is the result of this function: {keyboard: [["A", "B"], ["C"]]}
-        See https://core.telegram.org/bots/api#replykeyboardmarkup
-        :param args: KeyboardButton to append to the keyboard
+        This object represents an inline keyboard that appears right next to the message it belongs to
+        :param list[list[dict]] inline_keyboard: Array of button rows, each represented by an Array of
+                                                 InlineKeyboardButton objects
+        :rtype: dict
         """
-        i = 1
-        row = []
-        for button in args:
-            row.append(button.to_dict())
-            if i % self.row_width == 0:
-                self.keyboard.append(row)
-                row = []
-            i += 1
-        if len(row) > 0:
-            self.keyboard.append(row)
-
-    def row(self, *args):
-        """
-        Adds a list of KeyboardButton to the keyboard. This function does not consider row_width.
-        ReplyKeyboardMarkup#row("A")#row("B", "C")#to_json() outputs '{keyboard: [["A"], ["B", "C"]]}'
-        See https://core.telegram.org/bots/api#inlinekeyboardmarkup
-        :param args: strings
-        :return: self, to allow function chaining.
-        """
-        btn_array = []
-        for button in args:
-            btn_array.append(button.to_dict())
-        self.keyboard.append(btn_array)
-        return self
-
-    def to_json(self):
-        """
-        Converts this object to its json representation following the Telegram API guidelines described here:
-        https://core.telegram.org/bots/api#inlinekeyboardmarkup
-        :return:
-        """
-        obj = {'inline_keyboard': self.keyboard}
-        return json.dumps(obj)
+        self.inline_keyboard = inline_keyboard
 
     def to_dict(self):
-        obj = {'inline_keyboard': self.keyboard}
+        obj = {'inline_keyboard': self.inline_keyboard}
         return obj
 
 
-class InlineKeyboardButton(JsonSerializable):
-    """ 
-    This object represents one button of an inline keyboard, 
-    You must use exactly one of the optional fields.
-    """
-
-    def __init__(self, text, url, callback_data, switch_inline_query, switch_inline_query_current_chat, callback_game,
-                 pay, login_url):
+class InlineKeyboardButton(Dictionaryable):
+    def __init__(self, text, url=None, login_url=None, callback_data=None, switch_inline_query=None,
+                 switch_inline_query_current_chat=None, callback_game=None, pay=False):
+        """
+        This object represents one button of an inline keyboard,
+        You must use exactly one of the optional fields
+        :param str text: Label text on the button
+        :param str or None url: Optional. HTTP or tg:// url to be opened when the button is pressed.
+                               Links tg://user?id=<user_id> can be used to mention a user by their ID without using a
+                               username, if this is allowed by their privacy settings
+        :param LoginUrl or None login_url: Optional. An HTTP URL used to automatically authorize the user
+        :param str or None callback_data: Optional. Data to be sent in a callback query to the bot when button is
+                                          pressed, 1-64 bytes
+        :param str or None switch_inline_query: Optional. If set, pressing the button will prompt the user to select one
+                                                of their chats, open that chat and insert the bots username and the
+                                                specified inline query in the input field. Can be empty, in which case
+                                                just the bots' username will be inserted
+        :param str or None switch_inline_query_current_chat: Optional. If set, pressing the button will insert the bots
+                                                             username and the specified inline query in the current
+                                                             chat's input field. Can be empty, in which case only the
+                                                             bots' username will be inserted
+        :param CallbackGame or None callback_game: Optional. Description of the game that will be launched when the user
+                                                   presses the button
+        :param bool pay: Optional. Specify True, to send a Pay button
+        :rtype: dict
+        """
         self.text = text
         self.url = url
         self.login_url = login_url
@@ -1288,29 +1252,32 @@ class InlineKeyboardButton(JsonSerializable):
             obj['url'] = self.url
         if self.callback_data:
             obj['callback_data'] = self.callback_data
-        if self.switch_inline_query is not None:
+        if self.switch_inline_query:
             obj['switch_inline_query'] = self.switch_inline_query
-        if self.switch_inline_query_current_chat is not None:
+        if self.switch_inline_query_current_chat:
             obj['switch_inline_query_current_chat'] = self.switch_inline_query_current_chat
-        if self.callback_game is not None:
+        if self.callback_game:
             obj['callback_game'] = self.callback_game
-        if self.pay is not None:
+        if self.pay:
             obj['pay'] = self.pay
-        if self.login_url is not None:
+        if self.login_url:
             obj['login_url'] = self.login_url
         return obj
 
-    def to_json(self):
-        return json.dumps(self.to_dict())
 
-
-class LoginUrl(JsonSerializable):
-    """ 
-    This object represents a parameter of the inline keyboard button used to automatically authorize a user,
-    Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram.
-    """
-
-    def __init__(self, url, forward_text, bot_username, request_write_access):
+class LoginUrl(Dictionaryable):
+    def __init__(self, url, forward_text=None, bot_username=None, request_write_access=False):
+        """
+        This object represents a parameter of the inline keyboard button used to automatically authorize a user,
+        Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram
+        :param str url: An HTTP URL to be opened with user authorization data added to the query string when the button
+                       is pressed
+        :param str or None forward_text: Optional. New text of the button in forwarded messages
+        :param str or None bot_username: Optional. Username of a bot, which will be used for user authorization
+        :param bool request_write_access: Optional. Pass True to request the permission for your bot to send messages
+                                          to the user
+        :rtype: dict
+        """
         self.url = url
         self.forward_text = forward_text
         self.bot_username = bot_username
@@ -1326,23 +1293,19 @@ class LoginUrl(JsonSerializable):
             obj['request_write_access'] = self.request_write_access
         return obj
 
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
 
 class CallbackQuery(JsonDeserializable):
-    """
-    This object represents an incoming callback query from a callback button in an inline keyboard
-    """
-
     def __init__(self, uid, from_user, data, chat_instance, message, inline_message_id, game_short_name):
-        self.game_short_name = game_short_name
-        self.chat_instance = chat_instance
+        """
+        This object represents an incoming callback query from a callback button in an inline keyboard
+        """
         self.uid = uid
         self.from_user = from_user
         self.message = message
-        self.data = data
         self.inline_message_id = inline_message_id
+        self.chat_instance = chat_instance
+        self.data = data
+        self.game_short_name = game_short_name
 
     @classmethod
     def de_json(cls, obj_type):
@@ -1388,11 +1351,10 @@ class ForceReply(JsonSerializable):
 
 
 class ChatPhoto(JsonDeserializable):
-    """
-    This object represents a chat photo
-    """
-
     def __init__(self, small_file_id, small_file_unique_id, big_file_id, big_file_unique_id):
+        """
+        This object represents a chat photo
+        """
         self.small_file_id = small_file_id
         self.small_file_unique_id = small_file_unique_id
         self.big_file_id = big_file_id
@@ -1409,12 +1371,11 @@ class ChatPhoto(JsonDeserializable):
 
 
 class ChatInviteLink(JsonDeserializable):
-    """
-    Represents an invitation link for a chat
-    """
-
     def __init__(self, invite_link, creator, creates_join_request, is_primary, is_revoked, name, expire_date,
                  member_limit, pending_join_request_count):
+        """
+        Represents an invitation link for a chat
+        """
         self.invite_link = invite_link
         self.creator = creator
         self.creates_join_request = creates_join_request
@@ -1687,11 +1648,10 @@ class ChatMember(JsonDeserializable):
 
 
 class ChatMemberUpdated(JsonDeserializable):
-    """
-    This object represents changes in the status of a chat member
-    """
-
     def __init__(self, chat, from_user, date, old_chat_member, new_chat_member, invite_link):
+        """
+        This object represents changes in the status of a chat member
+        """
         self.chat = chat
         self.from_user = from_user
         self.date = date
@@ -1714,12 +1674,11 @@ class ChatMemberUpdated(JsonDeserializable):
 
 
 class ChatPermissions(JsonDeserializable):
-    """
-    Describes actions that a non-administrator user is allowed to take in a chat
-    """
-
     def __init__(self, can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages,
                  can_add_web_page_previews, can_change_info, can_invite_users, can_pin_messages):
+        """
+        Describes actions that a non-administrator user is allowed to take in a chat
+        """
         self.can_send_messages = can_send_messages
         self.can_send_media_messages = can_send_media_messages
         self.can_send_polls = can_send_polls
@@ -1732,28 +1691,28 @@ class ChatPermissions(JsonDeserializable):
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
-        can_send_messages = None
+        can_send_messages = False
         if 'can_send_messages' in obj:
             can_send_messages = obj['can_send_messages']
-        can_send_media_messages = None
+        can_send_media_messages = False
         if 'can_send_media_messages' in obj:
             can_send_media_messages = obj['can_send_media_messages']
-        can_send_polls = None
+        can_send_polls = False
         if 'can_send_polls' in obj:
             can_send_polls = obj['can_send_polls']
-        can_send_other_messages = None
+        can_send_other_messages = False
         if 'can_send_other_messages' in obj:
             can_send_other_messages = obj['can_send_other_messages']
-        can_add_web_page_previews = None
+        can_add_web_page_previews = False
         if 'can_add_web_page_previews' in obj:
             can_add_web_page_previews = obj['can_add_web_page_previews']
-        can_change_info = None
+        can_change_info = False
         if 'can_change_info' in obj:
             can_change_info = obj['can_change_info']
-        can_invite_users = None
+        can_invite_users = False
         if 'can_invite_users' in obj:
             can_invite_users = obj['can_invite_users']
-        can_pin_messages = None
+        can_pin_messages = False
         if 'can_pin_messages' in obj:
             can_pin_messages = obj['can_pin_messages']
         return cls(can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages,
@@ -1761,11 +1720,10 @@ class ChatPermissions(JsonDeserializable):
 
 
 class ChatLocation(JsonDeserializable):
-    """
-    Represents a location to which a chat is connected
-    """
-
     def __init__(self, location, address):
+        """
+        Represents a location to which a chat is connected
+        """
         self.location = location
         self.address = address
 
@@ -1778,11 +1736,10 @@ class ChatLocation(JsonDeserializable):
 
 
 class BotCommand(JsonDeserializable):
-    """
-    This object represents a bot command
-    """
-
     def __init__(self, command, description):
+        """
+        This object represents a bot command
+        """
         self.command = command
         self.description = description
 
@@ -1933,11 +1890,10 @@ class BotCommandScope:
 
 
 class ResponseParameters(JsonDeserializable):
-    """
-    Contains information about why a request was unsuccessful
-    """
-
     def __init__(self, migrate_to_chat_id, retry_after):
+        """
+        Contains information about why a request was unsuccessful
+        """
         self.migrate_to_chat_id = migrate_to_chat_id
         self.retry_after = retry_after
 
@@ -1971,7 +1927,7 @@ class InputMedia:
         self.Audio = self.__InputMediaAudio
         self.Document = self.__InputMediaDocument
 
-    class __InputMediaPhoto(JsonSerializable):
+    class __InputMediaPhoto(Dictionaryable):
         def __init__(self, ttype, media, caption=None, parse_mode=None, caption_entities=None):
             """
             Represents a photo to be sent
@@ -1985,6 +1941,7 @@ class InputMedia:
             :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
             :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
                                                                  caption, which can be specified instead of parse_mode
+            :rtype: dict
             """
             self.ttype = ttype
             self.media = media
@@ -1992,7 +1949,7 @@ class InputMedia:
             self.parse_mode = parse_mode
             self.caption_entities = caption_entities
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.caption:
                 obj['caption'] = self.caption
@@ -2000,23 +1957,31 @@ class InputMedia:
                 obj['parse_mode'] = self.parse_mode
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
-            return json.dumps(obj)
+            return obj
 
-    class __InputMediaVideo(JsonSerializable):
-        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, width, height, duration,
-                     supports_streaming):
+    class __InputMediaVideo(Dictionaryable):
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
+                     height=None, duration=None, supports_streaming=False):
             """
             Represents a video to be sent
-            :param ttype:
-            :param media:
-            :param thumb:
-            :param caption:
-            :param parse_mode:
-            :param caption_entities:
-            :param width:
-            :param height:
-            :param duration:
-            :param supports_streaming:
+            :param str ttype: Type of the result, must be photo
+            :param str media: File to send. Pass a file_id to send a file that exists on the Telegram servers
+                              (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+                              or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under
+                              <file_attach_name> name
+            :param InputFile or string thumb: Optional. Thumbnail of the file sent; can be ignored if thumbnail
+                                              generation for the file is supported server-side.
+                                              The thumbnail should be in JPEG format and less than 200 kB in size
+            :param str or None caption: Optional. Caption of the video to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param int or None width: Optional. Video width
+            :param int or None height: Optional. Video height
+            :param int or None duration: Optional. Video duration in seconds
+            :param bool supports_streaming: Optional. Pass True, if the uploaded video is suitable for streaming
+            :rtype: dict
             """
             self.ttype = ttype
             self.media = media
@@ -2029,7 +1994,7 @@ class InputMedia:
             self.duration = duration
             self.supports_streaming = supports_streaming
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -2045,22 +2010,32 @@ class InputMedia:
                 obj['height'] = self.height
             if self.duration:
                 obj['duration'] = self.duration
-            obj['supports_streaming'] = self.supports_streaming
-            return json.dumps(obj)
+            if self.supports_streaming:
+                obj['supports_streaming'] = self.supports_streaming
+            return obj
 
-    class __InputMediaAnimation(JsonSerializable):
-        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, width, height, duration):
+    class __InputMediaAnimation(Dictionaryable):
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None,
+                     width=None, height=None, duration=None):
             """
             Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent
-            :param ttype:
-            :param media:
-            :param thumb:
-            :param caption:
-            :param parse_mode:
-            :param caption_entities:
-            :param width:
-            :param height:
-            :param duration:
+            :param str ttype: Type of the result, must be photo
+            :param str media: File to send. Pass a file_id to send a file that exists on the Telegram servers
+                              (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+                              or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under
+                              <file_attach_name> name
+            :param InputFile or string thumb: Optional. Thumbnail of the file sent; can be ignored if thumbnail
+                                              generation for the file is supported server-side.
+                                              The thumbnail should be in JPEG format and less than 200 kB in size
+            :param str or None caption: Optional. Caption of the animation to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param int or None width: Optional. Animation width
+            :param int or None height: Optional. Animation height
+            :param int or None duration: Optional. Animation duration in seconds
+            :rtype: dict
             """
             self.ttype = ttype
             self.media = media
@@ -2072,7 +2047,7 @@ class InputMedia:
             self.height = height
             self.duration = duration
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -2088,24 +2063,30 @@ class InputMedia:
                 obj['height'] = self.height
             if self.duration:
                 obj['duration'] = self.duration
-            return json.dumps(obj)
+            return obj
 
-    class __InputMediaAudio(JsonSerializable):
-        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, width, height, duration,
-                     performer, title):
+    class __InputMediaAudio(Dictionaryable):
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None,
+                     duration=None, performer=None, title=None):
             """
             Represents an audio file to be treated as music to be sent
-            :param ttype:
-            :param media:
-            :param thumb:
-            :param caption:
-            :param parse_mode:
-            :param caption_entities:
-            :param width:
-            :param height:
-            :param duration:
-            :param performer:
-            :param title:
+            :param str ttype: Type of the result, must be photo
+            :param str media: File to send. Pass a file_id to send a file that exists on the Telegram servers
+                              (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+                              or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under
+                              <file_attach_name> name
+            :param InputFile or string thumb: Optional. Thumbnail of the file sent; can be ignored if thumbnail
+                                              generation for the file is supported server-side.
+                                              The thumbnail should be in JPEG format and less than 200 kB in size
+            :param str or None caption: Optional. Caption of the animation to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param int or None duration: Optional. Duration of the audio in seconds
+            :param str or None performer: Optional. Performer of the audio
+            :param str or None title: Optional. Title of the audio
+            :rtype: dict
             """
             self.ttype = ttype
             self.media = media
@@ -2113,13 +2094,11 @@ class InputMedia:
             self.caption = caption
             self.parse_mode = parse_mode
             self.caption_entities = caption_entities
-            self.width = width
-            self.height = height
             self.duration = duration
             self.performer = performer
             self.title = title
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -2129,29 +2108,37 @@ class InputMedia:
                 obj['parse_mode'] = self.parse_mode
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
-            if self.width:
-                obj['width'] = self.width
-            if self.height:
-                obj['height'] = self.height
             if self.duration:
                 obj['duration'] = self.duration
             if self.performer:
                 obj['performer'] = self.performer
             if self.title:
                 obj['title'] = self.title
-            return json.dumps(obj)
+            return obj
 
-    class __InputMediaDocument(JsonSerializable):
-        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, disable_content_type_detection):
+    class __InputMediaDocument(Dictionaryable):
+        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None,
+                     disable_content_type_detection=False):
             """
             Represents a general file to be sent
-            :param ttype:
-            :param media:
-            :param thumb:
-            :param caption:
-            :param parse_mode:
-            :param caption_entities:
-            :param disable_content_type_detection:
+            :param str ttype: Type of the result, must be photo
+            :param str media: File to send. Pass a file_id to send a file that exists on the Telegram servers
+                              (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+                              or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under
+                              <file_attach_name> name
+            :param InputFile or string thumb: Optional. Thumbnail of the file sent; can be ignored if thumbnail
+                                              generation for the file is supported server-side.
+                                              The thumbnail should be in JPEG format and less than 200 kB in size
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param bool disable_content_type_detection: Optional. Disables automatic server-side content type detection
+                                                        for files uploaded using multipart/form-data. Always True,
+                                                        if the document is sent as part of an album
+
+            :rtype: dict
             """
             self.ttype = ttype
             self.media = media
@@ -2161,7 +2148,7 @@ class InputMedia:
             self.caption_entities = caption_entities
             self.disable_content_type_detection = disable_content_type_detection
 
-        def to_json(self):
+        def to_dict(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -2173,22 +2160,24 @@ class InputMedia:
                 obj['caption_entities'] = self.caption_entities
             if self.disable_content_type_detection:
                 obj['disable_content_type_detection'] = self.disable_content_type_detection
-            return json.dumps(obj)
+            return obj
 
 
-# InputFile
-""" This object represents the contents of a file to be uploaded. 
-    Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
-"""
+class InputFile:
+    def __init__(self):
+        """
+        This object represents the contents of a file to be uploaded.
+        Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
+        """
+        pass
 
 
 class Sticker(JsonDeserializable):
-    """
-    This object represents a sticker
-    """
-
     def __init__(self, file_id, file_unique_id, width, height, thumb, emoji, set_name, mask_position, file_size,
                  is_animated):
+        """
+        This object represents a sticker
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.width = width
@@ -2228,11 +2217,10 @@ class Sticker(JsonDeserializable):
 
 
 class StickerSet(JsonDeserializable):
-    """
-    This object represents a sticker set
-    """
-
     def __init__(self, name, title, contains_masks, stickers, thumb):
+        """
+        This object represents a sticker set
+        """
         self.name = name
         self.title = title
         self.contains_masks = contains_masks
@@ -2246,7 +2234,9 @@ class StickerSet(JsonDeserializable):
         title = obj['title']
         contains_masks = obj['contains_masks']
         stickers = StickerSet.parse_stickers(obj['stickers'])
-        thumb = PhotoSize.de_json(obj['thumb'])
+        thumb = None
+        if 'thumb' in obj:
+            thumb = PhotoSize.de_json(obj['thumb'])
         return cls(name, title, contains_masks, stickers, thumb)
 
     @classmethod
@@ -2257,16 +2247,25 @@ class StickerSet(JsonDeserializable):
         return stickers
 
 
-class MaskPosition(JsonDeserializable, JsonSerializable):
-    """
-    This object describes the position on faces where a mask should be placed by default
-    """
-
+class MaskPosition(Dictionaryable, JsonDeserializable):
     def __init__(self, point, x_shift, y_shift, scale):
+        """
+        This object describes the position on faces where a mask should be placed by default
+        :param point: The part of the face relative to which the mask should be placed.
+                      One of “forehead”, “eyes”, “mouth”, or “chin”
+        :param x_shift: Shift by X-axis measured in widths of the mask scaled to the face size, from left to right.
+                        For example, choosing -1.0 will place mask just to the left of the default mask position
+        :param y_shift: Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom.
+                        For example, 1.0 will place the mask just below the default mask position
+        :param scale: Mask scaling coefficient. For example, 2.0 means double size
+        """
         self.point = point
         self.x_shift = x_shift
         self.y_shift = y_shift
         self.scale = scale
+
+    def to_dict(self):
+        return {'point': self.point, 'x_shift': self.x_shift, 'y_shift': self.y_shift, 'scale': self.scale}
 
     @classmethod
     def de_json(cls, obj_type):
@@ -2277,21 +2276,14 @@ class MaskPosition(JsonDeserializable, JsonSerializable):
         scale = obj['scale']
         return cls(point, x_shift, y_shift, scale)
 
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
-    def to_dict(self):
-        return {'point': self.point, 'x_shift': self.x_shift, 'y_shift': self.y_shift, 'scale': self.scale}
-
 
 class InlineQuery(JsonDeserializable):
-    """
-    This object represents an incoming inline query,
-    When the user sends an empty query,
-    your bot could return some default or trending results.
-    """
-
     def __init__(self, uid, from_user, query, offset, chat_type, location):
+        """
+        This object represents an incoming inline query,
+        When the user sends an empty query,
+        your bot could return some default or trending results.
+        """
         self.uid = uid
         self.from_user = from_user
         self.query = query
@@ -3569,11 +3561,10 @@ class InputMessageContent:
 
 
 class ChosenInlineResult(JsonDeserializable):
-    """
-    Represents a result of an inline query that was chosen by the user and sent to their chat partner
-    """
-
     def __init__(self, result_id, from_user, query, location, inline_message_id):
+        """
+        Represents a result of an inline query that was chosen by the user and sent to their chat partner
+        """
         self.result_id = result_id
         self.from_user = from_user
         self.query = query
@@ -3593,28 +3584,26 @@ class ChosenInlineResult(JsonDeserializable):
         return cls(result_id, from_user, query, location, inline_message_id)
 
 
-class LabeledPrice(JsonSerializable):
-    """
-    This object represents a portion of the price for goods or services
-    """
-
+class LabeledPrice(Dictionaryable):
     def __init__(self, label, amount):
+        """
+        This object represents a portion of the price for goods or services
+        :param str label: Portion label
+        :param int amount: Price of the product in the smallest units of the currency integer, not float/double
+        :rtype: dict
+        """
         self.label = label
         self.amount = amount
-
-    def to_json(self):
-        return json.dumps(self.to_dict())
 
     def to_dict(self):
         return {'label': self.label, 'amount': self.amount}
 
 
 class Invoice(JsonDeserializable):
-    """
-    This object contains basic information about an invoice
-    """
-
     def __init__(self, title, description, start_parameter, currency, total_amount):
+        """
+        This object contains basic information about an invoice
+        """
         self.title = title
         self.description = description
         self.start_parameter = start_parameter
@@ -3633,11 +3622,10 @@ class Invoice(JsonDeserializable):
 
 
 class ShippingAddress(JsonDeserializable):
-    """
-    This object represents a shipping address
-    """
-
     def __init__(self, country_code, state, city, street_line1, street_line2, post_code):
+        """
+        This object represents a shipping address
+        """
         self.country_code = country_code
         self.state = state
         self.city = city
@@ -3658,11 +3646,10 @@ class ShippingAddress(JsonDeserializable):
 
 
 class OrderInfo(JsonDeserializable):
-    """
-    This object represents information about an order
-    """
-
     def __init__(self, name, phone_number, email, shipping_address):
+        """
+        This object represents information about an order
+        """
         self.name = name
         self.phone_number = phone_number
         self.email = email
@@ -3686,37 +3673,29 @@ class OrderInfo(JsonDeserializable):
         return cls(name, phone_number, email, shipping_address)
 
 
-class ShippingOption(JsonSerializable):
-    """
-    This object represents one shipping option
-    """
-
-    def __init__(self, uid, title):
+class ShippingOption(Dictionaryable):
+    def __init__(self, uid, title, prices):
+        """
+        This object represents one shipping option
+        :param str uid: Shipping option identifier
+        :param str title: Option title
+        :param list[LabeledPrice] prices: List of price portions
+        :rtype: dict
+        """
         self.uid = uid
         self.title = title
-        self.prices = []
+        self.prices = prices
 
-    def add_price(self, *args):
-        for price in args:
-            self.prices.append(price)
-        return self
-
-    def to_json(self):
-        price_list = []
-        for p in self.prices:
-            price_list.append(p.to_dict())
-        obj = json.dumps(
-            {'id': self.uid, 'title': self.title, 'prices': price_list})
-        return obj
+    def to_dict(self):
+        return {'id': self.uid, 'title': self.title, 'prices': self.prices}
 
 
 class SuccessfulPayment(JsonDeserializable):
-    """
-    This object contains basic information about a successful payment
-    """
-
     def __init__(self, currency, total_amount, invoice_payload, shipping_option_id, order_info,
                  telegram_payment_charge_id, provider_payment_charge_id):
+        """
+        This object contains basic information about a successful payment
+        """
         self.currency = currency
         self.total_amount = total_amount
         self.invoice_payload = invoice_payload
@@ -3744,11 +3723,10 @@ class SuccessfulPayment(JsonDeserializable):
 
 
 class ShippingQuery(JsonDeserializable):
-    """
-    This object contains information about an incoming shipping query
-    """
-
     def __init__(self, uid, from_user, invoice_payload, shipping_address):
+        """
+        This object contains information about an incoming shipping query
+        """
         self.uid = uid
         self.from_user = from_user
         self.invoice_payload = invoice_payload
@@ -3765,11 +3743,10 @@ class ShippingQuery(JsonDeserializable):
 
 
 class PreCheckoutQuery(JsonDeserializable):
-    """
-    This object contains information about an incoming pre-checkout query
-    """
-
     def __init__(self, uid, from_user, currency, total_amount, invoice_payload, shipping_option_id, order_info):
+        """
+        This object contains information about an incoming pre-checkout query
+        """
         self.uid = uid
         self.from_user = from_user
         self.currency = currency
@@ -3796,11 +3773,10 @@ class PreCheckoutQuery(JsonDeserializable):
 
 
 class PassportData(JsonDeserializable):
-    """
-    Contains information about Telegram Passport data shared with the bot by the user
-    """
-
     def __init__(self, data, credentials):
+        """
+        Contains information about Telegram Passport data shared with the bot by the user
+        """
         self.data = data
         self.credentials = credentials
 
@@ -3813,11 +3789,10 @@ class PassportData(JsonDeserializable):
 
 
 class PassportFile(JsonDeserializable):
-    """
-    This object represents a file uploaded to Telegram Passport
-    """
-
     def __init__(self, file_id, file_unique_id, file_size, file_date):
+        """
+        This object represents a file uploaded to Telegram Passport
+        """
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.file_size = file_size
@@ -3834,11 +3809,10 @@ class PassportFile(JsonDeserializable):
 
 
 class EncryptedPassportElement(JsonDeserializable):
-    """
-    Contains information about documents or other Telegram Passport elements shared with the bot by the user
-    """
-
     def __init__(self, ttype, data, phone_number, files, front_side, reverse_side, selfie, translation, hashes):
+        """
+        Contains information about documents or other Telegram Passport elements shared with the bot by the user
+        """
         self.ttype = ttype
         self.data = data
         self.phone_number = phone_number
@@ -3896,13 +3870,12 @@ class EncryptedPassportElement(JsonDeserializable):
 
 
 class EncryptedCredentials(JsonDeserializable):
-    """
-    Contains data required for decrypting and authenticating EncryptedPassportElement.
-    See the Telegram Passport Documentation for a complete description of the data decryption and
-    authentication processes.
-    """
-
     def __init__(self, data, hashes, secret):
+        """
+        Contains data required for decrypting and authenticating EncryptedPassportElement.
+        See the Telegram Passport Documentation for a complete description of the data decryption and
+        authentication processes.
+        """
         self.data = data
         self.hashes = hashes
         self.secret = secret
@@ -3933,7 +3906,15 @@ class PassportElementError(JsonDeserializable):
     """
 
     def __init__(self):
-        pass
+        self.DataField = self.__PassportElementErrorDataField
+        self.FrontSide = self.__PassportElementErrorFrontSide
+        self.ReverseSide = self.__PassportElementErrorReverseSide
+        self.Selfie = self.__PassportElementErrorSelfie
+        self.File = self.__PassportElementErrorFile
+        self.Files = self.__PassportElementErrorFiles
+        self.TranslationFile = self.__PassportElementErrorFile
+        self.TranslationFiles = self.__PassportElementErrorFiles
+        self.Unspecified = self.__PassportElementErrorUnspecified
 
     @classmethod
     def de_json(cls, obj_type):
@@ -3943,224 +3924,205 @@ class PassportElementError(JsonDeserializable):
             source = obj['source']
 
         if source == 'data':
-            return PassportElementErrorDataField.de_json(obj_type)
+            return cls.__PassportElementErrorDataField.de_json(obj_type)
         elif source == 'front_side':
-            return PassportElementErrorFrontSide.de_json(obj_type)
+            return cls.__PassportElementErrorFrontSide.de_json(obj_type)
         elif source == 'reverse_side':
-            return PassportElementErrorReverseSide.de_json(obj_type)
+            return cls.__PassportElementErrorReverseSide.de_json(obj_type)
         elif source == 'selfie':
-            return PassportElementErrorSelfie.de_json(obj_type)
+            return cls.__PassportElementErrorSelfie.de_json(obj_type)
         elif source == 'file_hash':
-            return PassportElementErrorFile.de_json(obj_type)
+            return cls.__PassportElementErrorFile.de_json(obj_type)
         elif source == 'file_hashes':
-            return PassportElementErrorFiles.de_json(obj_type)
+            return cls.__PassportElementErrorFiles.de_json(obj_type)
         elif source == 'translation_files':
-            return PassportElementErrorTranslationFile.de_json(obj_type)
+            return cls.__PassportElementErrorTranslationFile.de_json(obj_type)
         elif source == 'translation_files':
-            return PassportElementErrorTranslationFiles.de_json(obj_type)
+            return cls.__PassportElementErrorTranslationFiles.de_json(obj_type)
         elif source == 'unspecified':
-            return PassportElementErrorUnspecified.de_json(obj_type)
+            return cls.__PassportElementErrorUnspecified.de_json(obj_type)
         else:
             return None
 
+    class __PassportElementErrorDataField(JsonDeserializable):
+        def __init__(self, source, ttype, field_name, data_hash, message):
+            """
+            Represents an issue in one of the data fields that was provided by the user
+            """
+            self.source = source
+            self.ttype = ttype
+            self.field_name = field_name
+            self.data_hash = data_hash
+            self.message = message
 
-class PassportElementErrorDataField(JsonDeserializable):
-    """
-    Represents an issue in one of the data fields that was provided by the user
-    """
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be data
+            ttype = obj['type']
+            field_name = obj['field_name']
+            data_hash = obj['data_hash']
+            message = obj['message']
+            return cls(source, ttype, field_name, data_hash, message)
 
-    def __init__(self, source, ttype, field_name, data_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.field_name = field_name
-        self.data_hash = data_hash
-        self.message = message
+    class __PassportElementErrorFrontSide(JsonDeserializable):
+        def __init__(self, source, ttype, file_hash, message):
+            """
+            Represents an issue with the front side of a document
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hash = file_hash
+            self.message = message
 
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be data
-        ttype = obj['type']
-        field_name = obj['field_name']
-        data_hash = obj['data_hash']
-        message = obj['message']
-        return cls(source, ttype, field_name, data_hash, message)
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be front_side
+            ttype = obj['type']
+            file_hash = obj['file_hash']
+            message = obj['message']
+            return cls(source, ttype, file_hash, message)
 
+    class __PassportElementErrorFile(JsonDeserializable):
+        def __init__(self, source, ttype, file_hash, message):
+            """
+            Represents an issue with a document scan
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hash = file_hash
+            self.message = message
 
-class PassportElementErrorFrontSide(JsonDeserializable):
-    """
-    Represents an issue with the front side of a document
-    """
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be filed
+            ttype = obj['type']
+            file_hash = obj['file_hash']
+            message = obj['message']
+            return cls(source, ttype, file_hash, message)
 
-    def __init__(self, source, ttype, file_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hash = file_hash
-        self.message = message
+    class __PassportElementErrorFiles(JsonDeserializable):
+        def __init__(self, source, ttype, file_hashes, message):
+            """
+            Represents an issue with a list of scans
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hashes = file_hashes
+            self.message = message
 
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be front_side
-        ttype = obj['type']
-        file_hash = obj['file_hash']
-        message = obj['message']
-        return cls(source, ttype, file_hash, message)
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be files
+            ttype = obj['type']
+            file_hashes = obj['file_hashes']
+            message = obj['message']
+            return cls(source, ttype, file_hashes, message)
 
+    class __PassportElementErrorReverseSide(JsonDeserializable):
+        def __init__(self, source, ttype, file_hash, message):
+            """
+            Represents an issue with the reverse side of a document
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hash = file_hash
+            self.message = message
 
-class PassportElementErrorFile(JsonDeserializable):
-    """
-    Represents an issue with a document scan
-    """
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be reverse_side
+            ttype = obj['type']
+            file_hash = obj['file_hash']
+            message = obj['message']
+            return cls(source, ttype, file_hash, message)
 
-    def __init__(self, source, ttype, file_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hash = file_hash
-        self.message = message
+    class __PassportElementErrorSelfie(JsonDeserializable):
+        def __init__(self, source, ttype, file_hash, message):
+            """
+            Represents an issue with the selfie with a document
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hash = file_hash
+            self.message = message
 
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be filed
-        ttype = obj['type']
-        file_hash = obj['file_hash']
-        message = obj['message']
-        return cls(source, ttype, file_hash, message)
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be selfie
+            ttype = obj['type']
+            file_hash = obj['file_hash']
+            message = obj['message']
+            return cls(source, ttype, file_hash, message)
 
+    class __PassportElementErrorTranslationFile(JsonDeserializable):
+        def __init__(self, source, ttype, file_hash, message):
+            """
+            Represents an issue with one of the files that constitute the translation of a document
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hash = file_hash
+            self.message = message
 
-class PassportElementErrorFiles(JsonDeserializable):
-    """
-    Represents an issue with a list of scans
-    """
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be translation_file
+            ttype = obj['type']
+            file_hash = obj['file_hash']
+            message = obj['message']
+            return cls(source, ttype, file_hash, message)
 
-    def __init__(self, source, ttype, file_hashes, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hashes = file_hashes
-        self.message = message
+    class __PassportElementErrorTranslationFiles(JsonDeserializable):
+        def __init__(self, source, ttype, file_hashes, message):
+            """
+            Represents an issue with the translated version of a document
+            """
+            self.source = source
+            self.ttype = ttype
+            self.file_hashes = file_hashes
+            self.message = message
 
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be files
-        ttype = obj['type']
-        file_hashes = obj['file_hashes']
-        message = obj['message']
-        return cls(source, ttype, file_hashes, message)
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be translation_files
+            ttype = obj['type']
+            file_hashes = obj['file_hashes']
+            message = obj['message']
+            return cls(source, ttype, file_hashes, message)
 
+    class __PassportElementErrorUnspecified(JsonDeserializable):
+        def __init__(self, source, ttype, element_hash, message):
+            """
+            Represents an issue in an unspecified place
+            """
+            self.source = source
+            self.ttype = ttype
+            self.element_hash = element_hash
+            self.message = message
 
-class PassportElementErrorReverseSide(JsonDeserializable):
-    """
-    Represents an issue with the reverse side of a document
-    """
-
-    def __init__(self, source, ttype, file_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hash = file_hash
-        self.message = message
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be reverse_side
-        ttype = obj['type']
-        file_hash = obj['file_hash']
-        message = obj['message']
-        return cls(source, ttype, file_hash, message)
-
-
-class PassportElementErrorSelfie(JsonDeserializable):
-    """
-    Represents an issue with the selfie with a document
-    """
-
-    def __init__(self, source, ttype, file_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hash = file_hash
-        self.message = message
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be selfie
-        ttype = obj['type']
-        file_hash = obj['file_hash']
-        message = obj['message']
-        return cls(source, ttype, file_hash, message)
-
-
-class PassportElementErrorTranslationFile(JsonDeserializable):
-    """
-    Represents an issue with one of the files that constitute the translation of a document
-    """
-
-    def __init__(self, source, ttype, file_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hash = file_hash
-        self.message = message
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be translation_file
-        ttype = obj['type']
-        file_hash = obj['file_hash']
-        message = obj['message']
-        return cls(source, ttype, file_hash, message)
-
-
-class PassportElementErrorTranslationFiles(JsonDeserializable):
-    """
-    Represents an issue with the translated version of a document
-    """
-
-    def __init__(self, source, ttype, file_hashes, message):
-        self.source = source
-        self.ttype = ttype
-        self.file_hashes = file_hashes
-        self.message = message
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be translation_files
-        ttype = obj['type']
-        file_hashes = obj['file_hashes']
-        message = obj['message']
-        return cls(source, ttype, file_hashes, message)
-
-
-class PassportElementErrorUnspecified(JsonDeserializable):
-    """
-    Represents an issue in an unspecified place
-    """
-
-    def __init__(self, source, ttype, element_hash, message):
-        self.source = source
-        self.ttype = ttype
-        self.element_hash = element_hash
-        self.message = message
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        source = obj['source']  # Error source, must be unspecified
-        ttype = obj['type']
-        element_hash = obj['element_hash']
-        message = obj['message']
-        return cls(source, ttype, element_hash, message)
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            source = obj['source']  # Error source, must be unspecified
+            ttype = obj['type']
+            element_hash = obj['element_hash']
+            message = obj['message']
+            return cls(source, ttype, element_hash, message)
 
 
 class Game(JsonDeserializable):
-    """
-    This object represents a game
-    """
-
     def __init__(self, title, description, photo, text, text_entities, animation):
+        """
+        This object represents a game
+        """
         self.title = title
         self.description = description
         self.photo = photo
@@ -4206,11 +4168,10 @@ class CallbackGame:
 
 
 class GameHighScore(JsonDeserializable):
-    """
-    This object represents one row of the high scores' table for a game
-    """
-
     def __init__(self, position, user, score):
+        """
+        This object represents one row of the high scores' table for a game
+        """
         self.position = position
         self.user = user
         self.score = score
