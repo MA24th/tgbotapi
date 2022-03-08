@@ -117,12 +117,12 @@ class AsyncBot(Bot):
         return Bot.get_file(self, *args)
 
     @async_dec()
-    def kick_chat_member(self, *args, **kwargs):
-        return Bot.kick_chat_member(self, *args, **kwargs)
+    def ban_chat_member(self, chat_id, user_id, until_date, revoke_messages):
+        return Bot.ban_chat_member(self, chat_id, user_id, until_date, revoke_messages)
 
     @async_dec()
-    def unban_chat_member(self, *args):
-        return Bot.unban_chat_member(self, *args)
+    def unban_chat_member(self, chat_id, user_id, only_if_banned):
+        return Bot.unban_chat_member(self, chat_id, user_id, only_if_banned)
 
     @async_dec()
     def restrict_chat_member(self, *args, **kwargs):

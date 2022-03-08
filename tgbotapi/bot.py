@@ -957,9 +957,9 @@ class Bot:
         """
         return types.File.de_json(methods.get_file(self.__based_url, self.__proxies, file_id))
 
-    def kick_chat_member(self, chat_id, user_id, until_date=None, revoke_messages=False):
+    def ban_chat_member(self, chat_id, user_id, until_date=None, revoke_messages=False):
         """
-        Use this method to kick a user from a group, a supergroup or a channel
+        Use this method to ban a user from a group, a supergroup or a channel
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param int user_id: Unique identifier of the target user
         :param int or None until_date: Date when the user will be unbanned, unix time
@@ -969,11 +969,11 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.kick_chat_member(self.__based_url, self.__proxies, chat_id, user_id, until_date, revoke_messages)
+        return methods.ban_chat_member(self.__based_url, self.__proxies, chat_id, user_id, until_date, revoke_messages)
 
     def unban_chat_member(self, chat_id, user_id, only_if_banned=False):
         """
-        Use this method to unban a previously kicked user in a supergroup or channel
+        Use this method to unban a previously banned user in a supergroup or channel
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param int user_id: Unique identifier of the target user
         :param bool only_if_banned: Do nothing if the user is not banned

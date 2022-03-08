@@ -979,9 +979,9 @@ def get_file(based_url, proxies, file_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def kick_chat_member(based_url, proxies, chat_id, user_id, until_date, revoke_messages):
+def ban_chat_member(based_url, proxies, chat_id, user_id, until_date, revoke_messages):
     """
-    Use this method to kick a user from a group, a supergroup or a channel
+    Use this method to ban a user in a group, a supergroup or a channel
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
@@ -991,7 +991,7 @@ def kick_chat_member(based_url, proxies, chat_id, user_id, until_date, revoke_me
     :rtype: bool
     """
     method = r'post'
-    api_method = 'kickChatMember'
+    api_method = 'banChatMember'
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id, 'user_id': user_id}
@@ -1004,7 +1004,7 @@ def kick_chat_member(based_url, proxies, chat_id, user_id, until_date, revoke_me
 
 def unban_chat_member(based_url, proxies, chat_id, user_id, only_if_banned):
     """
-    Use this method to unban a previously kicked user in a supergroup or channel
+    Use this method to unban a previously banned user in a supergroup or channel
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
