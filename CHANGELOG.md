@@ -1,4 +1,13 @@
 # CHANGELOG
+## _v5.4_
+- Added the the parameter creates_join_request to the methods createChatInviteLink and editChatInviteLink for managing chat invite links that create join requests (read more about this on our blog).
+- Added the fields creates_join_request and pending_join_request_count to the class ChatInviteLink.
+- Added the field name to the class ChatInviteLink and the parameters name to the methods createChatInviteLink and editChatInviteLink for managing invite link names.
+- Added updates about new requests to join the chat, represented by the class ChatJoinRequest and the field chat_join_request in the Update class. The bot must be an administrator in the chat with the can_invite_users administrator right to receive these updates.
+- Added the methods approveChatJoinRequest and declineChatJoinRequest for managing requests to join the chat.
+- Added support for the choose_sticker action in the method sendChatAction.
+
+
 ## _v5.3_
 ### Personalized Commands
 - Bots can now show lists of commands tailored to specific situations - including localized commands for users with different languages, as well as different commands based on chat type or for specific chats, and special lists of commands for chat admins.
