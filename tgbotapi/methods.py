@@ -1397,7 +1397,7 @@ def get_chat_administrators(based_url, proxies, chat_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_chat_members_count(based_url, proxies, chat_id):
+def get_chat_member_count(based_url, proxies, chat_id):
     """
     Use this method to get the number of members in a chat
     :type based_url: str
@@ -1406,7 +1406,7 @@ def get_chat_members_count(based_url, proxies, chat_id):
     :rtype: int
     """
     method = r'get'
-    api_method = r'getChatMembersCount'
+    api_method = r'getChatMemberCount'
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}

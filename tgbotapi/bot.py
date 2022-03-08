@@ -1207,14 +1207,14 @@ class Bot:
             ret.append(types.ChatMember.de_json(r))
         return ret
 
-    def get_chat_members_count(self, chat_id):
+    def get_chat_member_count(self, chat_id):
         """
         Use this method to get the number of members in a chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :return: Integer On success
         :rtype: int
         """
-        return methods.get_chat_members_count(self.__based_url, self.__proxies, chat_id)
+        return methods.get_chat_member_count(self.__based_url, self.__proxies, chat_id)
 
     def get_chat_member(self, chat_id, user_id):
         """

@@ -197,8 +197,8 @@ class AsyncBot(Bot):
         return Bot.get_chat_administrators(self, *args)
 
     @async_dec()
-    def get_chat_members_count(self, *args):
-        return Bot.get_chat_members_count(self, *args)
+    def get_chat_member_count(self, chat_id):
+        return Bot.get_chat_member_count(self, chat_id)
 
     @async_dec()
     def get_chat_member(self, *args):
