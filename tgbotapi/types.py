@@ -1111,86 +1111,50 @@ class File(JsonDeserializable):
 
 
 class ReplyKeyboardMarkup(JsonSerializable):
-    """
-    This object represents a custom keyboard with reply options (see Introduction to bots for details and examples)
-    """
-
-    def __init__(self, resize_keyboard, one_time_keyboard, selective, row_width=3):
-        self.keyboard = []
+    def __init__(self, keyboard, resize_keyboard=False, one_time_keyboard=False, input_field_placeholder=None,
+                 selective=False):
+        """
+        This object represents a custom keyboard with reply options (see Introduction to bots for details and examples)
+        :param list[list[dict]] keyboard: Array of button rows, each represented by an Array of KeyboardButton objects
+        :param bool resize_keyboard: Optional. Requests clients to resize the keyboard vertically for optimal fit
+        :param bool one_time_keyboard: Optional. Requests clients to hide the keyboard as soon as it's been used
+        :param str or None input_field_placeholder: Optional. The placeholder to be shown in the input field when the
+                                                    keyboard is active; 1-64 characters
+        :param bool selective:Optional. Use this parameter if you want to show the keyboard to specific users only
+        """
+        self.keyboard = keyboard
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard
+        self.input_field_placeholder = input_field_placeholder
         self.selective = selective
-        self.row_width = row_width
-
-    def add(self, *args):
-        """
-        This function adds strings to the keyboard, while not exceeding row_width.
-        E.g. ReplyKeyboardMarkup#add("A", "B", "C") yields the json result {keyboard: [["A"], ["B"], ["C"]]}
-        when row_width is set to 1.
-        When row_width is set to 2, the following is the result of this function: {keyboard: [["A", "B"], ["C"]]}
-        See https://core.telegram.org/bots/api#replykeyboardmarkup
-        :param args: KeyboardButton to append to the keyboard
-        """
-        i = 1
-        row = []
-        for button in args:
-            if is_string(button):
-                row.append({'text': button})
-            elif isinstance(button, bytes):
-                row.append({'text': button.decode('utf-8')})
-            else:
-                row.append(button.to_dict())
-            if i % self.row_width == 0:
-                self.keyboard.append(row)
-                row = []
-            i += 1
-        if len(row) > 0:
-            self.keyboard.append(row)
-
-    def row(self, *args):
-        """
-        Adds a list of KeyboardButton to the keyboard. This function does not consider row_width.
-        ReplyKeyboardMarkup#row("A")#row("B", "C")#to_json() outputs '{keyboard: [["A"], ["B", "C"]]}'
-        See https://core.telegram.org/bots/api#replykeyboardmarkup
-        :param args: strings
-        :return: self, to allow function chaining.
-        """
-        btn_array = []
-        for button in args:
-            if is_string(button):
-                btn_array.append({'text': button})
-            else:
-                btn_array.append(button.to_dict())
-        self.keyboard.append(btn_array)
-        return self
-
-    def to_dict(self):
-        """
-        Converts this object to its json representation following the Telegram API guidelines described here:
-        https://core.telegram.org/bots/api#replykeyboardmarkup
-        :return:
-        """
-        obj = {'keyboard': self.keyboard}
-        if self.one_time_keyboard:
-            obj['one_time_keyboard'] = True
-        if self.resize_keyboard:
-            obj['resize_keyboard'] = True
-        if self.selective:
-            obj['selective'] = True
-        return obj
 
     def to_json(self):
-        return json.dumps(self.to_dict())
+        obj = {'keyboard': self.keyboard}
+        if self.one_time_keyboard:
+            obj['one_time_keyboard'] = self.one_time_keyboard
+        if self.resize_keyboard:
+            obj['resize_keyboard'] = self.resize_keyboard
+        if self.input_field_placeholder:
+            obj['input_message_content'] = self.input_field_placeholder
+        if self.selective:
+            obj['selective'] = self.selective
+        return json.dumps(obj)
 
 
-class KeyboardButton(Dictionaryable, JsonSerializable):
-    """ 
-    This object represents one button of the reply keyboard,
-    For simple text buttons String can be used instead of this object to specify text of the button,
-    Optional fields request_contact, request_location, and request_poll are mutually exclusive.
-    """
-
-    def __init__(self, text, request_contact, request_location, request_poll):
+class KeyboardButton(Dictionaryable):
+    def __init__(self, text, request_contact=False, request_location=False, request_poll=None):
+        """
+        This object represents one button of the reply keyboard
+        :param str text: Text of the button
+        :param bool request_contact: Optional. If True, the user's phone number will be sent as a contact when the
+                                     button is pressed. Available in private chats only
+        :param bool request_location: Optional. If True, the user's current location will be sent when the button is
+                                      pressed. Available in private chats only
+        :param KeyboardButtonPollType or None request_poll: Optional. If specified, the user will be asked to create a
+                                                            poll and send it to the bot when the button is pressed.
+                                                            Available in private chats only
+        :rtype: dict
+        """
         self.text = text
         self.request_contact = request_contact
         self.request_location = request_location
@@ -1206,9 +1170,6 @@ class KeyboardButton(Dictionaryable, JsonSerializable):
             obj['request_poll'] = KeyboardButtonPollType(
                 self.request_poll)
         return obj
-
-    def to_json(self):
-        return json.dumps(self.to_dict())
 
 
 class KeyboardButtonPollType(JsonDeserializable):
@@ -1405,19 +1366,22 @@ class CallbackQuery(JsonDeserializable):
 
 
 class ForceReply(JsonSerializable):
-    """
-    Upon receiving a message with this object, 
-    Telegram clients will display a reply interface to the user,
-    (act as if the user has selected the bot‘s message and tapped ’Reply'),
-    This can be extremely useful if you want to create user-friendly step-by-step,
-    interfaces without having to sacrifice privacy mode.
-    """
-
-    def __init__(self, selective):
+    def __init__(self, force_reply=True, input_field_placeholder=None, selective=False):
+        """
+        Upon receiving a message with this object,
+        Telegram clients will display a reply interface to the user,
+        (act as if the user has selected the bot‘s message and tapped ’Reply'),
+        This can be extremely useful if you want to create user-friendly step-by-step,
+        interfaces without having to sacrifice privacy mode.
+        """
+        self.force_reply = force_reply
+        self.input_field_placeholder = input_field_placeholder
         self.selective = selective
 
     def to_json(self):
-        obj = {'force_reply': True}
+        obj = {'force_reply': self.force_reply}
+        if self.input_field_placeholder:
+            obj['input_message_content'] = self.input_field_placeholder
         if self.selective:
             obj['selective'] = True
         return json.dumps(obj)

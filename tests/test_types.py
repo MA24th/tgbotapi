@@ -655,16 +655,16 @@ def test_file():
 
 
 def test_reply_keyboard_markup():
-    dic = r'{"keyboard": [], "one_time_keyboard": true, "selective": true}'
-    obj = types.ReplyKeyboardMarkup(resize_keyboard=False, one_time_keyboard=True, selective=True, row_width=3
-                                    ).to_json()
+    dic = r'{"keyboard": [[{"text": "bt1"}]]}'
+    bt1 = types.KeyboardButton(text='bt1').to_dict()
+    print(bt1)
+    obj = types.ReplyKeyboardMarkup(keyboard=[[bt1]]).to_json()
     assert obj == dic
 
 
 def test_keyboard_button():
-    dic = r'{"text": "any", "request_contact": "any"}'
-    obj = types.KeyboardButton(text='any', request_contact='any',
-                               request_location=None, request_poll=None).to_json()
+    dic = {"text": "bt1"}
+    obj = types.KeyboardButton(text='bt1', ).to_dict()
     assert obj == dic
 
 
