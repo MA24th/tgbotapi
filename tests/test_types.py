@@ -655,8 +655,9 @@ def test_file():
 
 
 def test_reply_keyboard_markup():
-    dic = r'{"keyboard": []}'
-    obj = types.ReplyKeyboardMarkup().to_json()
+    dic = r'{"keyboard": [], "one_time_keyboard": true, "selective": true}'
+    obj = types.ReplyKeyboardMarkup(resize_keyboard=False, one_time_keyboard=True, selective=True, row_width=3
+                                    ).to_json()
     assert obj == dic
 
 
@@ -684,9 +685,12 @@ def test_reply_keyboard_remove():
 def test_inline_keyboard_markup():
     markup = types.InlineKeyboardMarkup(row_width=2)
     button = types.InlineKeyboardButton
-    markup.add(button(text='bt1'))
-    markup.add(button(text='bt2'))
-    markup.add(button(text='bt3'))
+    markup.add(button(text='bt1', url=None, callback_data=None, switch_inline_query=None,
+                      switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None))
+    markup.add(button(text='bt2', url=None, callback_data=None, switch_inline_query=None,
+                      switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None))
+    markup.add(button(text='bt3', url=None, callback_data=None, switch_inline_query=None,
+                      switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None))
     obj = markup.to_json()
     assert obj == r'{"inline_keyboard": [[{"text": "bt1"}], [{"text": "bt2"}], [{"text": "bt3"}]]}'
 
@@ -984,6 +988,49 @@ def test_bot_commands():
     assert obj.description == 'command description'
 
 
+def test_bot_command_scope_default():
+    dic = {'type': 'default'}
+    obj = types.BotCommandScope().Default.de_json(dic)
+    assert obj.ttype == 'default'
+
+
+def test_bot_command_scope_all_private_chats():
+    dic = {'type': 'all_private_chats'}
+    obj = types.BotCommandScope().AllPrivateChats.de_json(dic)
+    assert obj.ttype == 'all_private_chats'
+
+
+def test_bot_command_scope_all_group_chats():
+    dic = {'type': 'all_group_chats'}
+    obj = types.BotCommandScope().AllGroupChats.de_json(dic)
+    assert obj.ttype == 'all_group_chats'
+
+
+def test_bot_command_scope_all_chat_administrator():
+    dic = {'type': 'all_chat_administrators', 'chat_id': 4040}
+    obj = types.BotCommandScope().AllChatAdministrators.de_json(dic)
+    assert obj.ttype == 'all_chat_administrators'
+    assert obj.chat_id == 4040
+
+
+def test_bot_command_scope_chat():
+    dic = r'{"type": "chat", "chat_id": 123213}'
+    obj = types.BotCommandScope().Chat(ttype='chat', chat_id=123213).to_json()
+    assert obj == dic
+
+
+def test_bot_command_scope_chat_administrators():
+    dic = r'{"type": "chat_administrators", "chat_id": 123213}'
+    obj = types.BotCommandScope().ChatAdministrators(ttype='chat_administrators', chat_id=123213).to_json()
+    assert obj == dic
+
+
+def test_bot_command_scope_chat_member():
+    dic = r'{"type": "chat_member", "chat_id": 123213, "user_id": 344233}'
+    obj = types.BotCommandScope().ChatMember(ttype='chat_member', chat_id=123213, user_id=344233).to_json()
+    assert obj == dic
+
+
 def test_response_parameters():
     dic = {
         'migrate_to_chat_id': 2342,
@@ -1001,7 +1048,8 @@ def test_response_parameters():
 
 def test_input_media_photo():
     dic = r'{"type": "photo", "media": "any", "caption": "any", "parse_mode": "Markdown"}'
-    obj = types.InputMedia().Photo(ttype='photo', media='any', caption='any', parse_mode='Markdown').to_json()
+    obj = types.InputMedia().Photo(ttype='photo', media='any', caption='any', parse_mode='Markdown',
+                                   caption_entities=None).to_json()
     assert obj == dic
 
 
@@ -1009,7 +1057,8 @@ def test_input_media_video():
     dic = r'{"type": "video", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown", ' \
           r'"width": 40, "height": 40, "duration": 4, "supports_streaming": false}'
     obj = types.InputMedia().Video(ttype='video', media='any', thumb='any', caption='any', parse_mode='Markdown',
-                                   width=40, height=40, duration=4).to_json()
+                                   width=40, height=40, duration=4, caption_entities=None, supports_streaming=False
+                                   ).to_json()
     assert obj == dic
 
 
@@ -1017,23 +1066,24 @@ def test_input_media_animation():
     dic = r'{"type": "animation", "media": "any", "thumb": "any", "caption": "abc", "parse_mode": "Markdown", ' \
           r'"width": 12, "height": 12, "duration": 5}'
     obj = types.InputMedia().Animation(ttype='animation', media='any', thumb='any', caption='abc',
-                                       parse_mode='Markdown', width=12, height=12, duration=5).to_json()
+                                       parse_mode='Markdown', width=12, height=12, duration=5, caption_entities=None
+                                       ).to_json()
     assert obj == dic
 
 
 def test_input_media_document():
-    dic = r'{"type": "document", "media": "any", "thumb": "any", "caption": "any", "parse_mode": "Markdown", ' \
-          r'"disable_content_type_detection": true}'
-    obj = types.InputMedia().Document(ttype='document', media='any', thumb='any', caption='any',
-                                      parse_mode='Markdown').to_json()
+    dic = r'{"type": "document", "media": "any"}'
+    obj = types.InputMedia().Document(ttype='document', media='any', thumb=None, caption=None, parse_mode=None,
+                                      caption_entities=None, disable_content_type_detection=False).to_json()
     assert obj == dic
 
 
 def test_input_media_audio():
     dic = r'{"type": "audio", "media": "any", "caption": "any", "parse_mode": "Markdown", ' \
-          r'"duration": 6, "title": "any"}'
+          r'"width": 40, "height": 40, "duration": 6, "title": "any"}'
     obj = types.InputMedia().Audio(ttype="audio", media='any', thumb=None, caption='any', parse_mode='Markdown',
-                                   duration=6, performer=None, title='any').to_json()
+                                   duration=6, performer=None, title='any', caption_entities=None, width=40, height=40
+                                   ).to_json()
     assert obj == dic
 
 
@@ -1148,145 +1198,129 @@ def test_inline_query_result():
 
 
 def test_inline_query_result_article():
-    dic = r'{"type": "article", "id": 24, "title": "article", "input_message_content": "any"}'
-    obj = types.InlineQueryResult().Article(24, 'article', 'any').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_audio():
-    obj = types.InlineQueryResult().Audio(24, 'https://example.com/audio.mp3', 'audio').to_json()
-    dic = r'{"type": "audio", "id": 24, "audio_url": "https://example.com/audio.mp3", "title": "audio"}'
-    assert obj == dic
-
-
-def test_inline_query_result_cached_audio():
-    dic = r'{"type": "audio", "id": 24, "audio_file_id": 12}'
-    obj = types.InlineQueryResult().CachedAudio('audio', 24, 12).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_document():
-    dic = r'{"type": "document", "id": 24, "document_file_id": 12}'
-    obj = types.InlineQueryResult().CachedDocument(
-        ttype='document', uid=24, document_file_id=12).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_gif():
-    dic = r'{"type": "gif", "id": 24, "gif_file_id": 12, "title": "giftitle", "caption": "gif caption", ' \
-          r'"parse_mode": "Markdown", "input_message_content": "any"}'
-    obj = types.InlineQueryResult().CachedGif(ttype='gif', uid=24, gif_file_id=12, title='giftitle',
-                                              caption='gif caption', parse_mode='Markdown', reply_markup=None,
-                                              input_message_content='any').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_mpeg4gif():
-    dic = r'{"type": "mpeg4gif", "id": 24, "mpeg4_file_id": 12}'
-    obj = types.InlineQueryResult().CachedMpeg4Gif(
-        ttype='mpeg4gif', uid=24, mpeg4_file_id=12).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_photo():
-    dic = r'{"type": "photo", "id": 122, "photo_url": "photourl", "thumb_url": "thumburl", "title": "title", ' \
-          r'"description": "description", "caption": "caption", "parse_mode": "Markdown", ' \
-          r'"input_message_content": "any"}'
-    obj = types.InlineQueryResult().CachedPhoto(ttype='photo', uid=122, photo_url='photourl', thumb_url='thumburl',
-                                                photo_width=30, photo_height=30, title='title',
-                                                description='description', caption='caption', parse_mode='Markdown',
-                                                reply_markup=None, input_message_content='any').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_sticker():
-    dic = r'{"type": "sticker", "id": 24, "sticker_file_id": 12}'
-    obj = types.InlineQueryResult().CachedSticker(
-        ttype='sticker', uid=24, sticker_file_id=12).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_video():
-    dic = r'{"type": "video", "id": 24, "video_file_id": 12}'
-    obj = types.InlineQueryResult().CachedVideo(
-        ttype='video', uid=24, video_file_id=12).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_cached_voice():
-    dic = r'{"type": "voice", "id": 24, "voice_file_id": 12}'
-    obj = types.InlineQueryResult().CachedVoice(
-        ttype='voice', uid=24, voice_file_id=12).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_contact():
-    dic = r'{"type": "contact", "id": 383324787, "phone_number": "009647815214015", "first_name": "Mustafa"}'
-    obj = types.InlineQueryResult().Contact(
-        uid=383324787, phone_number='009647815214015', first_name='Mustafa').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_game():
-    dic = r'{"type": "game", "id": 24, "game_short_name": "game name"}'
-    obj = types.InlineQueryResult().Game(
-        uid=24, game_short_name='game name').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_document():
-    dic = r'{"type": "document", "id": 24, "title": "title", "document_url": "durl", "mime_type": "any"}'
-    obj = types.InlineQueryResult().Document(
-        uid=24, title='title', document_url='durl', mime_type='any').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_gif():
-    dic = r'{"type": "gif", "id": 24, "gif_url": "gurl", "thumb_url": "any"}'
-    obj = types.InlineQueryResult().Gif(
-        uid=24, gif_url='gurl', thumb_url='any').to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_location():
-    dic = r'{"type": "location", "id": 24, "title": "Baghdad", "latitude": 39, "longitude": 44}'
-    obj = types.InlineQueryResult().Location(
-        uid=24, title='Baghdad', latitude=39, longitude=44).to_json()
-    assert obj == dic
-
-
-def test_inline_query_result_mpeg4gif():
-    dic = r'{"type": "mpeg4_gif", "id": 24, "mpeg4_url": "mpurl", "thumb_url": "thurl"}'
-    obj = types.InlineQueryResult().Mpeg4Gif(
-        uid=24, mpeg4_url='mpurl', thumb_url='thurl').to_json()
+    dic = r'{"type": "article", "id": "24", "title": "article", "input_message_content": ' \
+          r'{"phone_number": "00964", "first_name": "ali"}}'
+    input_message_content = types.InputMessageContent().Contact('00964', 'ali').to_dict()
+    obj = types.InlineQueryResult().Article('24', 'article', input_message_content).to_json()
     assert obj == dic
 
 
 def test_inline_query_result_photo():
-    dic = r'{"type": "photo", "id": 24, "photo_url": "photo url", "thumb_url": "thurl"}'
-    obj = types.InlineQueryResult().Photo(
-        uid=24, photo_url='photo url', thumb_url='thurl').to_json()
+    dic = r'{"type": "photo", "id": "24", "photo_url": "photo url", "thumb_url": "thurl"}'
+    obj = types.InlineQueryResult().Photo(uid='24', photo_url='photo url', thumb_url='thurl').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_audio():
+    dic = r'{"type": "audio", "id": "any", "audio_url": "https://example.com/audio.mp3", "title": "audio"}'
+    obj = types.InlineQueryResult().Audio(uid='any', audio_url='https://example.com/audio.mp3', title='audio').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_audio():
+    dic = r'{"type": "audio", "id": "cached audio", "audio_file_id": "abc123"}'
+    obj = types.InlineQueryResult().CachedAudio(uid='cached audio', audio_file_id='abc123').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_document():
+    dic = r'{"type": "document", "id": "abc", "document_file_id": "123abc"}'
+    obj = types.InlineQueryResult().CachedDocument(uid='abc', title=None, document_file_id='123abc').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_gif():
+    dic = r'{"type": "gif", "id": "cached gif", "gif_file_id": "abc123"}'
+    obj = types.InlineQueryResult().CachedGif(uid='cached gif', gif_file_id='abc123').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_mpeg4gif():
+    dic = r'{"type": "mpeg4_gif", "id": "abc", "mpeg4_file_id": "abc123"}'
+    obj = types.InlineQueryResult().CachedMpeg4Gif(uid='abc', mpeg4_file_id='abc123').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_photo():
+    dic = r'{"type": "photo", "id": "cached photo", "photo_file_id": "abc123"}'
+    obj = types.InlineQueryResult().CachedPhoto(uid='cached photo', photo_file_id='abc123').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_sticker():
+    dic = r'{"type": "sticker", "id": "cached sticker", "sticker_file_id": "abc123"}'
+    obj = types.InlineQueryResult().CachedSticker(uid='cached sticker', sticker_file_id='abc123').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_video():
+    dic = r'{"type": "video", "id": "cached video", "video_file_id": "abc123", "title": "any"}'
+    obj = types.InlineQueryResult().CachedVideo(uid='cached video', video_file_id='abc123', title='any').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_cached_voice():
+    dic = r'{"type": "voice", "id": "cached voice", "voice_file_id": "abc123", "title": "any"}'
+    obj = types.InlineQueryResult().CachedVoice(uid='cached voice', voice_file_id='abc123', title='any').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_contact():
+    dic = r'{"type": "contact", "id": "383324787", "phone_number": "009647815214015", "first_name": "Mustafa"}'
+    obj = types.InlineQueryResult().Contact(uid='383324787', phone_number='009647815214015',
+                                            first_name='Mustafa').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_game():
+    dic = r'{"type": "game", "id": "24", "game_short_name": "game name"}'
+    obj = types.InlineQueryResult().Game(uid='24', game_short_name='game name').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_document():
+    dic = r'{"type": "document", "id": "document", "title": "any", "document_url": "http://exmaple.com", ' \
+          r'"mime_type": "mpeg4"}'
+    obj = types.InlineQueryResult().Document(uid='document', title='any', document_url='http://exmaple.com',
+                                             mime_type='mpeg4').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_gif():
+    dic = r'{"type": "gif", "id": "24", "gif_url": "gurl", "thumb_url": "any"}'
+    obj = types.InlineQueryResult().Gif(uid='24', gif_url='gurl', thumb_url='any').to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_location():
+    dic = r'{"type": "location", "id": "location", "latitude": 4040, "longitude": 5050, "title": "any"}'
+    obj = types.InlineQueryResult().Location(uid='location', title='any', latitude=4040, longitude=5050).to_json()
+    assert obj == dic
+
+
+def test_inline_query_result_mpeg4gif():
+    dic = r'{"type": "mpeg4_gif", "id": "24", "mpeg4_url": "mpurl", "thumb_url": "thurl"}'
+    obj = types.InlineQueryResult().Mpeg4Gif(uid='24', mpeg4_url='mpurl', thumb_url='thurl').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_venue():
-    dic = r'{"type": "venue", "id": 24, "latitude": 22, "longitude": 11, "title": "Venue", "address": "US, 3030"}'
-    obj = types.InlineQueryResult().Venue(24, 22, 11, 'Venue', 'US, 3030').to_json()
+    dic = r'{"type": "venue", "id": "24", "latitude": 22, "longitude": 11, "title": "Venue", "address": "US, 3030"}'
+    obj = types.InlineQueryResult().Venue('24', 22, 11, 'Venue', 'US, 3030').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_video():
-    dic = r'{"type": "video", "id": 24, "video_url": "vurl", "mime_type": "mime type", "thumb_url": "thurl", ' \
+    dic = r'{"type": "video", "id": "24", "video_url": "vurl", "mime_type": "mime type", "thumb_url": "thurl", ' \
           r'"title": "any"}'
-    obj = types.InlineQueryResult().Video(
-        uid=24, video_url='vurl', mime_type='mime type', thumb_url='thurl', title='any').to_json()
+    obj = types.InlineQueryResult().Video(uid='24', video_url='vurl', mime_type='mime type', thumb_url='thurl',
+                                          title='any').to_json()
     assert obj == dic
 
 
 def test_inline_query_result_voice():
-    dic = r'{"type": "voice", "id": 24, "voice_url": "vurl", "title": "any"}'
-    obj = types.InlineQueryResult().Voice(
-        uid=24, voice_url='vurl', title='any').to_json()
+    dic = r'{"type": "voice", "id": "24", "voice_url": "vurl", "title": "any"}'
+    obj = types.InlineQueryResult().Voice(uid='24', voice_url='vurl', title='any').to_json()
     assert obj == dic
 
 
@@ -1311,7 +1345,8 @@ def test_input_location_message_content():
         'live_period': 15,
         'longitude': 44
     }
-    obj = types.InputMessageContent().Location(latitude=29, longitude=44, live_period=15).to_dict()
+    obj = types.InputMessageContent().Location(latitude=29, longitude=44, horizontal_accuracy=0, live_period=15,
+                                               heading=None, proximity_alert_radius=False).to_dict()
     assert obj == dic
 
 
@@ -1321,8 +1356,8 @@ def test_input_text_message_content():
         'parse_mode': 'Markdown',
         'disable_web_page_preview': True
     }
-    obj = types.InputMessageContent().Text(message_text='any', parse_mode='Markdown',
-                                           disable_web_page_preview=True).to_dict()
+    obj = types.InputMessageContent().Text(message_text='any', parse_mode='Markdown', disable_web_page_preview=True
+                                           ).to_dict()
     assert obj == dic
 
 
@@ -1331,12 +1366,9 @@ def test_input_venue_message_content():
         'latitude': 29,
         'longitude': 44,
         'title': 'any',
-        'address': 'ad',
-        'foursquare_id': 55,
-        'foursquare_type': 'any'
+        'address': 'google'
     }
-    obj = types.InputMessageContent().Venue(
-        latitude=29, longitude=44, title='any', address='ad', foursquare_id=55, foursquare_type='any').to_dict()
+    obj = types.InputMessageContent().Venue(latitude=29, longitude=44, title='any', address='google').to_dict()
     assert obj == dic
 
 

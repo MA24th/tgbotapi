@@ -128,7 +128,6 @@ class User(JsonDeserializable):
 
     def __init__(self, uid, is_bot, first_name, last_name, username, language_code, can_join_groups,
                  can_read_all_group_messages, supports_inline_queries):
-
         self.uid = uid
         self.is_bot = is_bot
         self.first_name = first_name
@@ -175,7 +174,6 @@ class Chat(JsonDeserializable):
     def __init__(self, uid, ttype, title, username, first_name, last_name, photo, bio, has_private_forwards,
                  description, invite_link, pinned_message, permissions, slow_mode_delay, message_auto_delete_time,
                  has_protected_content, sticker_set_name, can_set_sticker_set, linked_chat_id, location):
-
         self.uid = uid
         self.ttype = ttype
         self.title = title
@@ -481,7 +479,7 @@ class MessageEntity(JsonDeserializable):
     This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc
     """
 
-    def __init__(self, ttype, offset, length, url=None, user=None, language=None):
+    def __init__(self, ttype, offset, length, url, user, language):
         self.ttype = ttype
         self.offset = offset
         self.length = length
@@ -512,7 +510,7 @@ class PhotoSize(JsonDeserializable):
     This object represents one size of a photo or a file / sticker thumbnail
     """
 
-    def __init__(self, file_id, file_unique_id, width, height, file_size=None):
+    def __init__(self, file_id, file_unique_id, width, height, file_size):
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.width = width
@@ -578,7 +576,7 @@ class Document(JsonDeserializable):
     This object represents a general file
     """
 
-    def __init__(self, file_id, file_unique_id, thumb=None, file_name=None, mime_type=None, file_size=None):
+    def __init__(self, file_id, file_unique_id, thumb, file_name, mime_type, file_size):
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.thumb = thumb
@@ -689,7 +687,7 @@ class Voice(JsonDeserializable):
     This object represents a voice note
     """
 
-    def __init__(self, file_id, file_unique_id, duration, mime_type=None, file_size=None):
+    def __init__(self, file_id, file_unique_id, duration, mime_type, file_size):
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.duration = duration
@@ -716,7 +714,7 @@ class VideoNote(JsonDeserializable):
     This object represents a video message
     """
 
-    def __init__(self, file_id, file_unique_id, length, duration, thumb=None, file_size=None):
+    def __init__(self, file_id, file_unique_id, length, duration, thumb, file_size):
         self.file_id = file_id
         self.file_unique_id = file_unique_id
         self.length = length
@@ -745,7 +743,7 @@ class Contact(JsonDeserializable):
     This object represents a phone contact
     """
 
-    def __init__(self, phone_number, first_name, last_name=None, user_id=None, vcard=None):
+    def __init__(self, phone_number, first_name, last_name, user_id, vcard):
         self.phone_number = phone_number
         self.first_name = first_name
         self.last_name = last_name
@@ -1117,7 +1115,7 @@ class ReplyKeyboardMarkup(JsonSerializable):
     This object represents a custom keyboard with reply options (see Introduction to bots for details and examples)
     """
 
-    def __init__(self, resize_keyboard=None, one_time_keyboard=None, selective=None, row_width=3):
+    def __init__(self, resize_keyboard, one_time_keyboard, selective, row_width=3):
         self.keyboard = []
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard
@@ -1192,7 +1190,7 @@ class KeyboardButton(Dictionaryable, JsonSerializable):
     Optional fields request_contact, request_location, and request_poll are mutually exclusive.
     """
 
-    def __init__(self, text, request_contact=None, request_location=None, request_poll=None):
+    def __init__(self, text, request_contact, request_location, request_poll):
         self.text = text
         self.request_contact = request_contact
         self.request_location = request_location
@@ -1238,7 +1236,7 @@ class ReplyKeyboardRemove(JsonSerializable):
     (see ReplyKeyboardMarkup).
     """
 
-    def __init__(self, selective=None):
+    def __init__(self, selective):
         self.selective = selective
 
     def to_json(self):
@@ -1312,8 +1310,8 @@ class InlineKeyboardButton(JsonSerializable):
     You must use exactly one of the optional fields.
     """
 
-    def __init__(self, text, url=None, callback_data=None, switch_inline_query=None,
-                 switch_inline_query_current_chat=None, callback_game=None, pay=None, login_url=None):
+    def __init__(self, text, url, callback_data, switch_inline_query, switch_inline_query_current_chat, callback_game,
+                 pay, login_url):
         self.text = text
         self.url = url
         self.login_url = login_url
@@ -1351,7 +1349,7 @@ class LoginUrl(JsonSerializable):
     Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram.
     """
 
-    def __init__(self, url, forward_text=None, bot_username=None, request_write_access=None):
+    def __init__(self, url, forward_text, bot_username, request_write_access):
         self.url = url
         self.forward_text = forward_text
         self.bot_username = bot_username
@@ -1376,7 +1374,7 @@ class CallbackQuery(JsonDeserializable):
     This object represents an incoming callback query from a callback button in an inline keyboard
     """
 
-    def __init__(self, uid, from_user, data, chat_instance, message=None, inline_message_id=None, game_short_name=None):
+    def __init__(self, uid, from_user, data, chat_instance, message, inline_message_id, game_short_name):
         self.game_short_name = game_short_name
         self.chat_instance = chat_instance
         self.uid = uid
@@ -1415,7 +1413,7 @@ class ForceReply(JsonSerializable):
     interfaces without having to sacrifice privacy mode.
     """
 
-    def __init__(self, selective=None):
+    def __init__(self, selective):
         self.selective = selective
 
     def to_json(self):
@@ -1625,9 +1623,8 @@ class ChatPermissions(JsonDeserializable):
     Describes actions that a non-administrator user is allowed to take in a chat
     """
 
-    def __init__(self, can_send_messages=None, can_send_media_messages=None, can_send_polls=None,
-                 can_send_other_messages=None, can_add_web_page_previews=None, can_change_info=None,
-                 can_invite_users=None, can_pin_messages=None):
+    def __init__(self, can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages,
+                 can_add_web_page_previews, can_change_info, can_invite_users, can_pin_messages):
         self.can_send_messages = can_send_messages
         self.can_send_media_messages = can_send_media_messages
         self.can_send_polls = can_send_polls
@@ -1702,10 +1699,164 @@ class BotCommand(JsonDeserializable):
         return cls(command, description)
 
 
+class BotCommandScope:
+    """
+    This object represents the scope to which bot commands are applied.
+    Currently, the following 7 scopes are supported:
+        BotCommandScopeDefault
+        BotCommandScopeAllPrivateChats
+        BotCommandScopeAllGroupChats
+        BotCommandScopeAllChatAdministrators
+        BotCommandScopeChat
+        BotCommandScopeChatAdministrators
+        BotCommandScopeChatMember
+    """
+
+    def __init__(self):
+        self.Default = self.__BotCommandScopeDefault
+        self.AllPrivateChats = self.__BotCommandScopeAllPrivateChats
+        self.AllGroupChats = self.__BotCommandScopeAllGroupChats
+        self.AllChatAdministrators = self.__BotCommandScopeChatAdministrators
+        self.Chat = self.__BotCommandScopeChat
+        self.ChatAdministrators = self.__BotCommandScopeChatAdministrators
+        self.ChatMember = self.__BotCommandScopeChatMember
+
+    class __BotCommandScopeDefault(JsonDeserializable):
+        def __init__(self, ttype):
+            """
+            Represents the default scope of bot commands
+            :param str ttype: Scope type, must be default
+            """
+            self.ttype = ttype
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            return cls(ttype)
+
+    class __BotCommandScopeAllPrivateChats(JsonDeserializable):
+        def __init__(self, ttype):
+            """
+            Represents the scope of bot commands, covering all private chats
+            :param str ttype: Scope type, must be all_private_chats
+            """
+            self.ttype = ttype
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            return cls(ttype)
+
+    class __BotCommandScopeAllGroupChats(JsonDeserializable):
+        def __init__(self, ttype):
+            """
+            Represents the scope of bot commands, covering all group and supergroup chats
+            :param str ttype: Scope type, must be all_group_chats
+            """
+            self.ttype = ttype
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            return cls(ttype)
+
+    class __BotCommandScopeAllChatAdministrators(JsonDeserializable):
+        def __init__(self, ttype):
+            """
+            Represents the scope of bot commands, covering all group and supergroup chat administrators
+            :param str ttype: Scope type, must be all_chat_administrators
+            """
+            self.ttype = ttype
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            return cls(ttype)
+
+    class __BotCommandScopeChat(JsonDeserializable, JsonSerializable):
+        def __init__(self, ttype, chat_id):
+            """
+            Represents the scope of bot commands, covering a specific chat
+            :param str ttype: Scope type, must be chat
+            :param str or int chat_id: Unique identifier for the target chat or username of the target supergroup
+                                       (in the format @supergroupusername)
+            """
+            self.ttype = ttype
+            self.chat_id = chat_id
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            chat_id = obj['chat_id']
+            return cls(ttype, chat_id)
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'chat_id': self.chat_id}
+            return json.dumps(obj)
+
+    class __BotCommandScopeChatAdministrators(JsonDeserializable, JsonSerializable):
+        def __init__(self, ttype, chat_id):
+            """
+            Represents the scope of bot commands,
+            covering all administrators of a specific group or supergroup chat
+            :param str ttype: Scope type, must be chat_administrators
+            :param str or int chat_id: Unique identifier for the target chat or username of the target supergroup
+                                       (in the format @supergroupusername)
+            """
+            self.ttype = ttype
+            self.chat_id = chat_id
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            chat_id = obj['chat_id']
+            return cls(ttype, chat_id)
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'chat_id': self.chat_id}
+            return json.dumps(obj)
+
+    class __BotCommandScopeChatMember(JsonDeserializable, JsonSerializable):
+        def __init__(self, ttype, chat_id, user_id):
+            """
+            Represents the scope of bot commands,
+            covering a specific member of a group or supergroup chat
+            :param str ttype: Scope type, must be chat_member
+            :param str or int chat_id: Unique identifier for the target chat or username of the target supergroup
+                                       (in the format @supergroupusername)
+            :param int user_id: Unique identifier of the target user
+            """
+            self.ttype = ttype
+            self.chat_id = chat_id
+            self.user_id = user_id
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            ttype = obj['type']
+            chat_id = obj['chat_id']
+            user_id = obj['user_id']
+            return cls(ttype, chat_id, user_id)
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'chat_id': self.chat_id, 'user_id': self.user_id}
+            return json.dumps(obj)
+
+
 class ResponseParameters(JsonDeserializable):
     """
     Contains information about why a request was unsuccessful
     """
+
+    def __init__(self, migrate_to_chat_id, retry_after):
+        self.migrate_to_chat_id = migrate_to_chat_id
+        self.retry_after = retry_after
 
     @classmethod
     def de_json(cls, obj_type):
@@ -1717,10 +1868,6 @@ class ResponseParameters(JsonDeserializable):
         if 'retry_after' in obj:
             retry_after = obj['retry_after']
         return cls(migrate_to_chat_id, retry_after)
-
-    def __init__(self, migrate_to_chat_id, retry_after):
-        self.migrate_to_chat_id = migrate_to_chat_id
-        self.retry_after = retry_after
 
 
 class InputMedia:
@@ -1743,13 +1890,26 @@ class InputMedia:
 
     class __InputMediaPhoto(JsonSerializable):
         def __init__(self, ttype, media, caption=None, parse_mode=None, caption_entities=None):
+            """
+            Represents a photo to be sent
+            :param str ttype: Type of the result, must be photo
+            :param str media: File to send. Pass a file_id to send a file that exists on the Telegram servers
+                              (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
+                              or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under
+                              <file_attach_name> name
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            """
             self.ttype = ttype
             self.media = media
             self.caption = caption
             self.parse_mode = parse_mode
             self.caption_entities = caption_entities
 
-        def to_dict(self):
+        def to_json(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.caption:
                 obj['caption'] = self.caption
@@ -1757,14 +1917,24 @@ class InputMedia:
                 obj['parse_mode'] = self.parse_mode
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
+            return json.dumps(obj)
 
     class __InputMediaVideo(JsonSerializable):
-        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
-                     height=None, duration=None, supports_streaming=False):
+        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, width, height, duration,
+                     supports_streaming):
+            """
+            Represents a video to be sent
+            :param ttype:
+            :param media:
+            :param thumb:
+            :param caption:
+            :param parse_mode:
+            :param caption_entities:
+            :param width:
+            :param height:
+            :param duration:
+            :param supports_streaming:
+            """
             self.ttype = ttype
             self.media = media
             self.thumb = thumb
@@ -1776,7 +1946,7 @@ class InputMedia:
             self.duration = duration
             self.supports_streaming = supports_streaming
 
-        def to_dict(self):
+        def to_json(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -1793,14 +1963,22 @@ class InputMedia:
             if self.duration:
                 obj['duration'] = self.duration
             obj['supports_streaming'] = self.supports_streaming
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
+            return json.dumps(obj)
 
     class __InputMediaAnimation(JsonSerializable):
-        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
-                     height=None, duration=None):
+        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, width, height, duration):
+            """
+            Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent
+            :param ttype:
+            :param media:
+            :param thumb:
+            :param caption:
+            :param parse_mode:
+            :param caption_entities:
+            :param width:
+            :param height:
+            :param duration:
+            """
             self.ttype = ttype
             self.media = media
             self.thumb = thumb
@@ -1811,7 +1989,7 @@ class InputMedia:
             self.height = height
             self.duration = duration
 
-        def to_dict(self):
+        def to_json(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -1827,14 +2005,25 @@ class InputMedia:
                 obj['height'] = self.height
             if self.duration:
                 obj['duration'] = self.duration
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
+            return json.dumps(obj)
 
     class __InputMediaAudio(JsonSerializable):
-        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None, width=None,
-                     height=None, duration=None, performer=None, title=None):
+        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, width, height, duration,
+                     performer, title):
+            """
+            Represents an audio file to be treated as music to be sent
+            :param ttype:
+            :param media:
+            :param thumb:
+            :param caption:
+            :param parse_mode:
+            :param caption_entities:
+            :param width:
+            :param height:
+            :param duration:
+            :param performer:
+            :param title:
+            """
             self.ttype = ttype
             self.media = media
             self.thumb = thumb
@@ -1847,7 +2036,7 @@ class InputMedia:
             self.performer = performer
             self.title = title
 
-        def to_dict(self):
+        def to_json(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -1867,14 +2056,20 @@ class InputMedia:
                 obj['performer'] = self.performer
             if self.title:
                 obj['title'] = self.title
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
+            return json.dumps(obj)
 
     class __InputMediaDocument(JsonSerializable):
-        def __init__(self, ttype, media, thumb=None, caption=None, parse_mode=None, caption_entities=None,
-                     disable_content_type_detection=True):
+        def __init__(self, ttype, media, thumb, caption, parse_mode, caption_entities, disable_content_type_detection):
+            """
+            Represents a general file to be sent
+            :param ttype:
+            :param media:
+            :param thumb:
+            :param caption:
+            :param parse_mode:
+            :param caption_entities:
+            :param disable_content_type_detection:
+            """
             self.ttype = ttype
             self.media = media
             self.thumb = thumb
@@ -1883,7 +2078,7 @@ class InputMedia:
             self.caption_entities = caption_entities
             self.disable_content_type_detection = disable_content_type_detection
 
-        def to_dict(self):
+        def to_json(self):
             obj = {'type': self.ttype, 'media': self.media}
             if self.thumb:
                 obj['thumb'] = self.thumb
@@ -1895,10 +2090,7 @@ class InputMedia:
                 obj['caption_entities'] = self.caption_entities
             if self.disable_content_type_detection:
                 obj['disable_content_type_detection'] = self.disable_content_type_detection
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
+            return json.dumps(obj)
 
 
 # InputFile
@@ -2043,8 +2235,6 @@ class InlineQuery(JsonDeserializable):
 class InlineQueryResult:
     """ This object represents one result of an inline query. 
         Telegram clients currently support results of the following 20 types:
-            InlineQueryResultArticle
-            InlineQueryResultAudio
             InlineQueryResultCachedAudio
             InlineQueryResultCachedDocument
             InlineQueryResultCachedGif
@@ -2053,6 +2243,8 @@ class InlineQueryResult:
             InlineQueryResultCachedSticker
             InlineQueryResultCachedVideo
             InlineQueryResultCachedVoice
+            InlineQueryResultArticle
+            InlineQueryResultAudio
             InlineQueryResultContact
             InlineQueryResultGame
             InlineQueryResultDocument
@@ -2088,12 +2280,21 @@ class InlineQueryResult:
         self.Voice = self.__InlineQueryResultVoice
 
     class __InlineQueryResultArticle(JsonSerializable):
-        """
-        Represents a link to an article or web page
-        """
-
-        def __init__(self, uid, title, input_message_content, reply_markup=None, url=None,
-                     hide_url=None, description=None, thumb_url=None, thumb_width=None, thumb_height=None):
+        def __init__(self, uid, title, input_message_content, reply_markup=None, url=None, hide_url=False,
+                     description=None, thumb_url=None, thumb_width=None, thumb_height=None):
+            """
+            Represents a link to an article or web page
+            :param str uid: Unique identifier for this result
+            :param str title: Title of the result
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param str or None url: Optional. URL of the result
+            :param bool hide_url: Optional. Pass True, if you don't want the URL to be shown in the message
+            :param str or None description: Optional. Short description of the result
+            :param str or None thumb_url: Optional. Url of the thumbnail for the result
+            :param int or None thumb_width: Optional. Thumbnail width
+            :param int or None thumb_height: Optional. Thumbnail height
+            """
             self.ttype = 'article'
             self.uid = uid
             self.title = title
@@ -2125,212 +2326,33 @@ class InlineQueryResult:
                 obj['thumb_height'] = self.thumb_height
             return json.dumps(obj)
 
-    class __InlineQueryResultAudio(JsonSerializable):
-        """
-        Represents a link to an MP3 audio file
-        """
-
-        def __init__(self, uid, audio_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None,
-                     audio_duration=None, reply_markup=None, input_message_content=None):
-            self.ttype = 'audio'
-            self.uid = uid
-            self.audio_url = audio_url
-            self.title = title
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.performer = performer
-            self.audio_duration = audio_duration
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'audio_url': self.audio_url, 'title': self.title}
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.performer:
-                obj['performer'] = self.performer
-            if self.audio_duration:
-                obj['audio_duration'] = self.audio_duration
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
-            return json.dumps(obj)
-
-    class __InlineQueryResultCachedAudio(JsonSerializable):
-        """
-        Represents a link to an MP3 audio file stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, audio_file_id, title=None, description=None, caption=None, parse_mode=None,
-                     caption_entities=None, reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.audio_file_id = audio_file_id
-            self.title = title
-            self.description = description
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'audio_file_id': self.audio_file_id}
-            if self.title:
-                obj['title'] = self.title
-            if self.description:
-                obj['description'] = self.description
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedDocument(JsonSerializable):
-        """
-        Represents a link to a file stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, document_file_id, title=None, description=None, caption=None, parse_mode=None,
-                     caption_entities=None, reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.document_file_id = document_file_id
-            self.title = title
-            self.description = description
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'document_file_id': self.document_file_id}
-            if self.title:
-                obj['title'] = self.title
-            if self.description:
-                obj['description'] = self.description
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedGif(JsonSerializable):
-        """
-        Represents a link to an animated GIF file stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, gif_file_id, title=None, caption=None, parse_mode=None, caption_entities=None,
-                     reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.gif_file_id = gif_file_id
-            self.title = title
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'gif_file_id': self.gif_file_id}
-            if self.title:
-                obj['title'] = self.title
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedMpeg4Gif(JsonSerializable):
-        """
-        Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, mpeg4_file_id, title=None, caption=None, parse_mode=None, caption_entities=None,
-                     reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.mpeg4_file_id = mpeg4_file_id
-            self.title = title
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'mpeg4_file_id': self.mpeg4_file_id}
-            if self.title:
-                obj['title'] = self.title
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedPhoto(JsonSerializable):
-        """
-        Represents a link to a photo. By default, this photo will be sent by the user with optional caption
-        """
-
-        def __init__(self, ttype, uid, photo_url, thumb_url, photo_width=None, photo_height=None, title=None,
-                     description=None, caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
+    class __InlineQueryResultPhoto(JsonSerializable):
+        def __init__(self, uid, photo_url, thumb_url, photo_width=None, photo_height=None, title=None, description=None,
+                     caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
                      input_message_content=None):
-            self.ttype = ttype
+            """
+            Represents a link to a photo
+            :param str uid: Unique identifier for this result
+            :param str photo_url: A valid URL of the photo. Photo must be in JPEG format
+            :param str thumb_url: URL of the thumbnail for the photo
+            :param int or None photo_width: Optional. Width of the photo
+            :param int or None photo_height: Optional. Height of the photo
+            :param str title: Title of the result
+            :param str or None description: Optional. Short description of the result
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after
+                                        entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
+            :param list[MessageEntity] caption_entities: Optional. List of special entities that appear in the caption,
+                                                          which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'photo'
             self.uid = uid
             self.photo_url = photo_url
-            self.thumb_url = thumb_url
             self.photo_width = photo_width
             self.photo_height = photo_height
+            self.thumb_url = thumb_url
             self.title = title
             self.description = description
             self.caption = caption
@@ -2339,9 +2361,13 @@ class InlineQueryResult:
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
-        def to_dict(self):
+        def to_json(self):
             obj = {'type': self.ttype, 'id': self.uid,
                    'photo_url': self.photo_url, 'thumb_url': self.thumb_url}
+            if self.photo_width:
+                obj['photo_width'] = self.photo_width
+            if self.photo_height:
+                obj['photo_height'] = self.photo_height
             if self.title:
                 obj['title'] = self.title
             if self.description:
@@ -2356,222 +2382,31 @@ class InlineQueryResult:
                 obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
                 obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedSticker(JsonSerializable):
-        """
-        Represents a link to a sticker stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, sticker_file_id, reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.sticker_file_id = sticker_file_id
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'sticker_file_id': self.sticker_file_id}
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedVideo(JsonSerializable):
-        """
-        Represents a link to a video file stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, video_file_id, title=None, description=None, caption=None, parse_mode=None,
-                     caption_entities=None, reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.video_file_id = video_file_id
-            self.title = title
-            self.description = description
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'video_file_id': self.video_file_id}
-            if self.title:
-                obj['title'] = self.title
-            if self.description:
-                obj['description'] = self.description
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultCachedVoice(JsonSerializable):
-        """
-        Represents a link to a voice message stored on the Telegram servers
-        """
-
-        def __init__(self, ttype, uid, voice_file_id, title=None, description=None, caption=None, parse_mode=None,
-                     caption_entities=None, reply_markup=None, input_message_content=None):
-            self.ttype = ttype
-            self.uid = uid
-            self.voice_file_id = voice_file_id
-            self.title = title
-            self.description = description
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-
-        def to_dict(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'voice_file_id': self.voice_file_id}
-            if self.title:
-                obj['title'] = self.title
-            if self.description:
-                obj['description'] = self.description
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return obj
-
-        def to_json(self):
-            return json.dumps(self.to_dict())
-
-    class __InlineQueryResultContact(JsonSerializable):
-        """
-        Represents a contact with a phone number
-        """
-
-        def __init__(self, uid, phone_number, first_name, last_name=None, reply_markup=None,
-                     input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
-            self.ttype = 'contact'
-            self.uid = uid
-            self.phone_number = phone_number
-            self.first_name = first_name
-            self.last_name = last_name
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-            self.thumb_url = thumb_url
-            self.thumb_width = thumb_width
-            self.thumb_height = thumb_height
-
-        def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'phone_number': self.phone_number, 'first_name': self.first_name}
-            if self.last_name:
-                obj['last_name'] = self.last_name
-            if self.thumb_url:
-                obj['thumb_url'] = self.thumb_url
-            if self.thumb_width:
-                obj['thumb_width'] = self.thumb_width
-            if self.thumb_height:
-                obj['thumb_height'] = self.thumb_height
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content
-            return json.dumps(obj)
-
-    class __InlineQueryResultGame(JsonSerializable):
-        """
-        Represents a Game
-        """
-
-        def __init__(self, uid, game_short_name, reply_markup=None):
-            self.ttype = 'game'
-            self.uid = uid
-            self.game_short_name = game_short_name
-            self.reply_markup = reply_markup
-
-        def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'game_short_name': self.game_short_name}
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
-            return json.dumps(obj)
-
-    class __InlineQueryResultDocument(JsonSerializable):
-        """
-        Represents a link to a file
-        """
-
-        def __init__(self, uid, title, document_url, mime_type, caption=None, parse_mode=None, caption_entities=None,
-                     description=None, reply_markup=None, input_message_content=None, thumb_url=None, thumb_width=None,
-                     thumb_height=None):
-            self.ttype = 'document'
-            self.uid = uid
-            self.title = title
-            self.document_url = document_url
-            self.mime_type = mime_type
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.description = description
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-            self.thumb_url = thumb_url
-            self.thumb_width = thumb_width
-            self.thumb_height = thumb_height
-
-        def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid, 'title': self.title, 'document_url': self.document_url,
-                   'mime_type': self.mime_type}
-            if self.caption:
-                obj['caption'] = self.caption
-            if self.parse_mode:
-                obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
-            if self.description:
-                obj['description'] = self.description
-            if self.thumb_url:
-                obj['thumb_url'] = self.thumb_url
-            if self.thumb_width:
-                obj['thumb_width'] = self.thumb_width
-            if self.thumb_height:
-                obj['thumb_height'] = self.thumb_height
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
             return json.dumps(obj)
 
     class __InlineQueryResultGif(JsonSerializable):
-        """
-        Represents a link to an animated GIF file
-        """
-
         def __init__(self, uid, gif_url, gif_width=None, gif_height=None, gif_duration=None, thumb_url=None,
                      thumb_mime_type=None, title=None, caption=None, parse_mode=None, caption_entities=None,
                      reply_markup=None, input_message_content=None):
+            """
+            Represents a link to an animated GIF file
+            :param str uid: Unique identifier for this result
+            :param str gif_url: A valid URL of the GIF
+            :param int or None gif_width: Optional. Width of the GIF
+            :param int or None gif_height: Optional. Height of the GIF
+            :param int or None gif_duration: Optional. Duration of the GIF in seconds
+            :param str thumb_url: URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+            :param str or None thumb_mime_type: Optional. MIME type of the thumbnail, must be one of “image/jpeg”,
+                                                “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+            :param str title: Title of the result
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after
+                                        entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
+            :param list[MessageEntity] caption_entities: Optional. List of special entities that appear in the caption,
+                                                          which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
             self.ttype = 'gif'
             self.uid = uid
             self.gif_url = gif_url
@@ -2611,63 +2446,32 @@ class InlineQueryResult:
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
             if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
-            return json.dumps(obj)
-
-    class __InlineQueryResultLocation(JsonSerializable):
-        """
-        Represents a location on a map
-        """
-
-        def __init__(self, uid, title, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
-                     proximity_alert_radius=None, reply_markup=None, input_message_content=None, thumb_url=None,
-                     thumb_width=None, thumb_height=None):
-            self.ttype = 'location'
-            self.uid = uid
-            self.title = title
-            self.latitude = latitude
-            self.longitude = longitude
-            self.horizontal_accuracy = horizontal_accuracy
-            self.live_period = live_period
-            self.heading = heading
-            self.proximity_alert_radius = proximity_alert_radius
-            self.reply_markup = reply_markup
-            self.input_message_content = input_message_content
-            self.thumb_url = thumb_url
-            self.thumb_width = thumb_width
-            self.thumb_height = thumb_height
-
-        def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid, 'title': self.title,
-                   'latitude': self.latitude, 'longitude': self.longitude}
-            if self.horizontal_accuracy:
-                obj['horizontal_accuracy'] = self.horizontal_accuracy
-            if self.live_period:
-                obj['live_period'] = self.live_period
-            if self.heading:
-                obj['heading'] = self.heading
-            if self.proximity_alert_radius:
-                obj['proximity_alert_radius'] = self.proximity_alert_radius
-            if self.thumb_url:
-                obj['thumb_url'] = self.thumb_url
-            if self.thumb_width:
-                obj['thumb_width'] = self.thumb_width
-            if self.thumb_height:
-                obj['thumb_height'] = self.thumb_height
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
+                obj['input_message_content'] = self.input_message_content
             return json.dumps(obj)
 
     class __InlineQueryResultMpeg4Gif(JsonSerializable):
-        """
-        Represents a link to a video animation (H.264/MPEG-4 AVC video without sound)
-        """
-
-        def __init__(self, uid, mpeg4_url, mpeg4_width=None, mpeg4_height=None, mpeg4_duration=None, thumb_url=None,
+        def __init__(self, uid, mpeg4_url, thumb_url, mpeg4_width=None, mpeg4_height=None, mpeg4_duration=None,
                      thumb_mime_type=None, title=None, caption=None, parse_mode=None, caption_entities=None,
                      reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a video animation (H.264/MPEG-4 AVC video without sound)
+            :param str uid: Unique identifier for this result
+            :param str mpeg4_url: A valid URL for the MP4 file
+            :param int or None mpeg4_width: Optional. Video width
+            :param int or None mpeg4_height: Optional. Video height
+            :param int or None mpeg4_duration: Optional. Video duration in seconds
+            :param str thumb_url: URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+            :param str or None thumb_mime_type: Optional. MIME type of the thumbnail, must be one of “image/jpeg”,
+                                                “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+            :param str title: Title of the result
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after
+                                        entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
+            :param list[MessageEntity] caption_entities: Optional. List of special entities that appear in the caption,
+                                                          which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
             self.ttype = 'mpeg4_gif'
             self.uid = uid
             self.mpeg4_url = mpeg4_url
@@ -2684,12 +2488,15 @@ class InlineQueryResult:
             self.input_message_content = input_message_content
 
         def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid,
-                   'mpeg4_url': self.mpeg4_url, 'thumb_url': self.thumb_url}
+            obj = {'type': self.ttype, 'id': self.uid, 'mpeg4_url': self.mpeg4_url, 'thumb_url': self.thumb_url}
             if self.mpeg4_width:
                 obj['mpeg4_width'] = self.mpeg4_width
             if self.mpeg4_height:
                 obj['mpeg4_height'] = self.mpeg4_height
+            if self.mpeg4_duration:
+                obj['mpeg4_duration '] = self.mpeg4_duration
+            if self.thumb_mime_type:
+                obj['thumb_mime_type'] = self.thumb_mime_type
             if self.title:
                 obj['title'] = self.title
             if self.caption:
@@ -2699,66 +2506,312 @@ class InlineQueryResult:
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
+                obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
+                obj['input_message_content'] = self.input_message_content
             if self.mpeg4_duration:
                 obj['mpeg4_duration '] = self.mpeg4_duration
             return json.dumps(obj)
 
-    class __InlineQueryResultPhoto(JsonSerializable):
-        """
-        Represents a link to a photo
-        """
-
-        def __init__(self, uid, photo_url, thumb_url, photo_width=None, photo_height=None, title=None, description=None,
-                     caption=None, parse_mode=None, caption_entities=None, reply_markup=None,
-                     input_message_content=None):
-            self.ttype = 'photo'
+    class __InlineQueryResultVideo(JsonSerializable):
+        def __init__(self, uid, video_url, mime_type, thumb_url, title, caption=None, parse_mode=None,
+                     caption_entities=None, video_width=None, video_height=None, video_duration=None, description=None,
+                     reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a page containing an embedded video player or a video file
+            :param str uid: Unique identifier for this result
+            :param str video_url: A valid URL for the embedded video player or video file
+            :param str mime_type: Mime type of the content of video url, “text/html” or “video/mp4”
+            :param str thumb_url: URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+            :param str title: Title of the result
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after
+                                        entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the photo caption
+            :param list[MessageEntity] caption_entities: Optional. List of special entities that appear in the caption,
+                                                          which can be specified instead of parse_mode
+            :param int or None video_width: Optional. Video width
+            :param int or None video_height: Optional. Video height
+            :param int or None video_duration: Optional. Video duration in seconds
+            :param str or None description: Optional. Short description of the result
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'video'
             self.uid = uid
-            self.photo_url = photo_url
-            self.photo_width = photo_width
-            self.photo_height = photo_height
+            self.video_url = video_url
+            self.mime_type = mime_type
             self.thumb_url = thumb_url
             self.title = title
-            self.description = description
             self.caption = caption
             self.parse_mode = parse_mode
             self.caption_entities = caption_entities
+            self.video_width = video_width
+            self.video_height = video_height
+            self.video_duration = video_duration
+            self.description = description
+            self.input_message_content = input_message_content
+            self.reply_markup = reply_markup
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'video_url': self.video_url, 'mime_type': self.mime_type,
+                   'thumb_url': self.thumb_url, 'title': self.title}
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.video_width:
+                obj['video_width'] = self.video_width
+            if self.video_height:
+                obj['video_height'] = self.video_height
+            if self.video_duration:
+                obj['video_duration'] = self.video_duration
+            if self.description:
+                obj['description'] = self.description
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultAudio(JsonSerializable):
+        def __init__(self, uid, audio_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None,
+                     audio_duration=None, reply_markup=None, input_message_content=None):
+            """
+            Represents a link to an MP3 audio file
+            :param str uid: Unique identifier for this result
+            :param str audio_url: A valid URL for the audio file
+            :param str title: Title
+            :param str or None caption: Optional. Caption, 0-1024 characters after entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the audio caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param str or None performer: Optional. Performer
+            :param int or None audio_duration: Optional. Audio duration in seconds
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'audio'
+            self.uid = uid
+            self.audio_url = audio_url
+            self.title = title
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.performer = performer
+            self.audio_duration = audio_duration
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
         def to_json(self):
             obj = {'type': self.ttype, 'id': self.uid,
-                   'photo_url': self.photo_url, 'thumb_url': self.thumb_url}
-            if self.photo_width:
-                obj['photo_width'] = self.photo_width
-            if self.photo_height:
-                obj['photo_height'] = self.photo_height
-            if self.title:
-                obj['title'] = self.title
-            if self.description:
-                obj['description'] = self.description
+                   'audio_url': self.audio_url, 'title': self.title}
             if self.caption:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
+            if self.performer:
+                obj['performer'] = self.performer
+            if self.audio_duration:
+                obj['audio_duration'] = self.audio_duration
             if self.reply_markup:
                 obj['reply_markup'] = self.reply_markup.to_dict()
             if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultVoice(JsonSerializable):
+        def __init__(self, uid, voice_url, title, caption=None, parse_mode=None, caption_entities=None,
+                     voice_duration=None, reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a voice recording in an .ogg container encoded with OPUS
+            :param str uid: Unique identifier for this result
+            :param str voice_url: A valid URL for the voice recording
+            :param str title: Recording title
+            :param str or None caption: Optional. Caption, 0-1024 characters after entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the audio caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param int or None voice_duration: Optional. Recording duration in seconds
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'voice'
+            self.uid = uid
+            self.voice_url = voice_url
+            self.title = title
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.voice_duration = voice_duration
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid,
+                   'voice_url': self.voice_url, 'title': self.title}
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.voice_duration:
+                obj['voice_duration'] = self.voice_duration
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultDocument(JsonSerializable):
+        def __init__(self, uid, title, document_url, mime_type, caption=None, parse_mode=None, caption_entities=None,
+                     description=None, reply_markup=None, input_message_content=None, thumb_url=None, thumb_width=None,
+                     thumb_height=None):
+            """
+            Represents a link to a file
+            :param str uid: Unique identifier for this result
+            :param str title: Recording title
+            :param str or None caption: Optional. Caption, 0-1024 characters after entities parsing
+            :param str or None parse_mode: Optional. Mode for parsing entities in the audio caption
+            :param list[MessageEntity] or None caption_entities: Optional. List of special entities that appear in the
+                                                                 caption, which can be specified instead of parse_mode
+            :param str document_url: A valid URL for the file
+            :param str mime_type: Mime type of the content of the file, either “application/pdf” or “application/zip”
+            :param str or None description: Optional. Short description of the result
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            :param str or None thumb_url: Optional. Url of the thumbnail for the result
+            :param int or None thumb_width: Optional. Thumbnail width
+            :param int or None thumb_height: Optional. Thumbnail height
+            """
+            self.ttype = 'document'
+            self.uid = uid
+            self.title = title
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.document_url = document_url
+            self.mime_type = mime_type
+            self.description = description
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+            self.thumb_url = thumb_url
+            self.thumb_width = thumb_width
+            self.thumb_height = thumb_height
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'title': self.title, 'document_url': self.document_url,
+                   'mime_type': self.mime_type}
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.description:
+                obj['description'] = self.description
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            if self.thumb_url:
+                obj['thumb_url'] = self.thumb_url
+            if self.thumb_width:
+                obj['thumb_width'] = self.thumb_width
+            if self.thumb_height:
+                obj['thumb_height'] = self.thumb_height
+            return json.dumps(obj)
+
+    class __InlineQueryResultLocation(JsonSerializable):
+        def __init__(self, uid, title, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
+                     proximity_alert_radius=None, reply_markup=None, input_message_content=None, thumb_url=None,
+                     thumb_width=None, thumb_height=None):
+            """
+            Represents a location on a map
+            :param str uid: Unique identifier for this result
+            :param int latitude: Location latitude in degrees
+            :param int longitude: Location longitude in degrees
+            :param str title: Location title
+            :param int or None horizontal_accuracy: Optional. The radius of uncertainty for the location, measured in
+                                                    meters; 0-1500
+            :param int or None live_period: Optional. Period in seconds for which the location can be updated,
+                                            should be between 60 and 86400
+            :param int or None heading: Optional. For live locations, a direction in which the user is moving,
+                                        in degrees. Must be between 1 and 360 if specified
+            :param int or None proximity_alert_radius: Optional. For live locations, a maximum distance for proximity
+                                                       alerts about approaching another chat member, in meters.
+                                                       Must be between 1 and 100000 if specified
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            :param str or None thumb_url: Optional. Url of the thumbnail for the result
+            :param int or None thumb_width: Optional. Thumbnail width
+            :param int or None thumb_height: Optional. Thumbnail height
+            """
+            self.ttype = 'location'
+            self.uid = uid
+            self.latitude = latitude
+            self.longitude = longitude
+            self.title = title
+            self.horizontal_accuracy = horizontal_accuracy
+            self.live_period = live_period
+            self.heading = heading
+            self.proximity_alert_radius = proximity_alert_radius
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+            self.thumb_url = thumb_url
+            self.thumb_width = thumb_width
+            self.thumb_height = thumb_height
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'latitude': self.latitude, 'longitude': self.longitude,
+                   'title': self.title}
+            if self.horizontal_accuracy:
+                obj['horizontal_accuracy'] = self.horizontal_accuracy
+            if self.live_period:
+                obj['live_period'] = self.live_period
+            if self.heading:
+                obj['heading'] = self.heading
+            if self.proximity_alert_radius:
+                obj['proximity_alert_radius'] = self.proximity_alert_radius
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            if self.thumb_url:
+                obj['thumb_url'] = self.thumb_url
+            if self.thumb_width:
+                obj['thumb_width'] = self.thumb_width
+            if self.thumb_height:
+                obj['thumb_height'] = self.thumb_height
             return json.dumps(obj)
 
     class __InlineQueryResultVenue(JsonSerializable):
-        """
-        Represents a venue
-        """
-
         def __init__(self, uid, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
                      google_place_id=None, google_place_type=None, reply_markup=None, input_message_content=None,
                      thumb_url=None, thumb_width=None, thumb_height=None):
+            """
+            Represents a venue
+            :param str uid: Unique identifier for this result
+            :param int latitude: Location latitude in degrees
+            :param int longitude: Location longitude in degrees
+            :param str title: Location title
+            :param str address: Address of the venue
+            :param str or None foursquare_id: Optional. Foursquare identifier of the venue if known
+            :param str or None foursquare_type: Optional. Foursquare type of the venue, if known. For example,
+                                                “arts_entertainment/default”, “arts_entertainment/aquarium” or
+                                                “food/icecream”
+            :param str or None google_place_id: Optional. Google Places identifier of the venue
+            :param str or None google_place_type: Optional. Google Places type of the venue
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            :param str or None thumb_url: Optional. Url of the thumbnail for the result
+            :param int or None thumb_width: Optional. Thumbnail width
+            :param int or None thumb_height: Optional. Thumbnail height
+            """
             self.ttype = 'venue'
             self.uid = uid
             self.latitude = latitude
@@ -2789,51 +2842,115 @@ class InlineQueryResult:
                 obj['google_place_id'] = self.google_place_id
             if self.google_place_type:
                 obj['google_place_type'] = self.google_place_type
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
             if self.thumb_url:
                 obj['thumb_url'] = self.thumb_url
             if self.thumb_width:
                 obj['thumb_width'] = self.thumb_width
             if self.thumb_height:
                 obj['thumb_height'] = self.thumb_height
-            if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
-            if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
             return json.dumps(obj)
 
-    class __InlineQueryResultVideo(JsonSerializable):
-        """
-        Represents a link to a page containing an embedded video player or a video file
-        """
-
-        def __init__(self, uid, video_url, mime_type, thumb_url, title,
-                     caption=None, parse_mode=None, caption_entities=None, video_width=None, video_height=None,
-                     video_duration=None, description=None, reply_markup=None, input_message_content=None):
-            self.ttype = 'video'
+    class __InlineQueryResultContact(JsonSerializable):
+        def __init__(self, uid, phone_number, first_name, last_name=None, vcard=None, reply_markup=None,
+                     input_message_content=None, thumb_url=None, thumb_width=None, thumb_height=None):
+            """
+            Represents a contact with a phone number
+            :param str uid: Unique identifier for this result
+            :param str phone_number: Contact's phone number
+            :param str first_name:Contact's first name
+            :param str or None last_name:Optional. Contact's last name
+            :param str or None vcard: Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            :param str or None thumb_url: Optional. Url of the thumbnail for the result
+            :param int or None thumb_width: Optional. Thumbnail width
+            :param int or None thumb_height: Optional. Thumbnail height
+            """
+            self.ttype = 'contact'
             self.uid = uid
-            self.video_url = video_url
-            self.mime_type = mime_type
-            self.video_width = video_width
-            self.video_height = video_height
-            self.video_duration = video_duration
-            self.thumb_url = thumb_url
-            self.title = title
-            self.caption = caption
-            self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
-            self.description = description
+            self.phone_number = phone_number
+            self.first_name = first_name
+            self.last_name = last_name
+            self.vcard = vcard
+            self.reply_markup = reply_markup
             self.input_message_content = input_message_content
+            self.thumb_url = thumb_url
+            self.thumb_width = thumb_width
+            self.thumb_height = thumb_height
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'phone_number': self.phone_number, 'first_name': self.first_name}
+            if self.last_name:
+                obj['last_name'] = self.last_name
+            if self.vcard:
+                obj['vcard'] = self.vcard
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            if self.thumb_url:
+                obj['thumb_url'] = self.thumb_url
+            if self.thumb_width:
+                obj['thumb_width'] = self.thumb_width
+            if self.thumb_height:
+                obj['thumb_height'] = self.thumb_height
+            return json.dumps(obj)
+
+    class __InlineQueryResultGame(JsonSerializable):
+        def __init__(self, uid, game_short_name, reply_markup=None):
+            """
+            Represents a Game
+            :param str uid: Unique identifier for this result
+            :param str game_short_name: Short name of the game
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            """
+            self.ttype = 'game'
+            self.uid = uid
+            self.game_short_name = game_short_name
             self.reply_markup = reply_markup
 
         def to_json(self):
-            obj = {'type': self.ttype, 'id': self.uid, 'video_url': self.video_url, 'mime_type': self.mime_type,
-                   'thumb_url': self.thumb_url, 'title': self.title}
-            if self.video_width:
-                obj['video_width'] = self.video_width
-            if self.video_height:
-                obj['video_height'] = self.video_height
-            if self.video_duration:
-                obj['video_duration'] = self.video_duration
+            obj = {'type': self.ttype, 'id': self.uid, 'game_short_name': self.game_short_name}
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup.to_dict()
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedPhoto(JsonSerializable):
+        def __init__(self, uid, photo_file_id, title=None, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a photo. By default, this photo will be sent by the user with optional caption
+            :param str uid: Unique identifier for this result
+            :param str photo_file_id: A valid file identifier of the photo
+            :param str or None title: Optional. Title for the result
+            :param str or None description: Optional. Short description of the result
+            :param str or None caption: Optional. Caption of the photo to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the photo caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'photo'
+            self.uid = uid
+            self.photo_file_id = photo_file_id
+            self.title = title
+            self.description = description
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'photo_file_id': self.photo_file_id}
+            if self.title:
+                obj['title'] = self.title
             if self.description:
                 obj['description'] = self.description
             if self.caption:
@@ -2843,47 +2960,290 @@ class InlineQueryResult:
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
             if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
+                obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
+                obj['input_message_content'] = self.input_message_content
             return json.dumps(obj)
 
-    class __InlineQueryResultVoice(JsonSerializable):
-        """
-        Represents a link to a voice recording in an .ogg container encoded with OPUS
-        """
-
-        def __init__(self, uid, voice_url, title, caption=None, parse_mode=None, caption_entities=None, performer=None,
-                     voice_duration=None, reply_markup=None, input_message_content=None):
-            self.ttype = 'voice'
+    class __InlineQueryResultCachedGif(JsonSerializable):
+        def __init__(self, uid, gif_file_id, title=None, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            """
+            Represents a link to an animated GIF file stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str gif_file_id: A valid file identifier for the GIF file
+            :param str or None title: Optional. Title for the result
+            :param str or None caption: Optional. Caption of the GIF to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'gif'
             self.uid = uid
-            self.voice_url = voice_url
+            self.gif_file_id = gif_file_id
             self.title = title
             self.caption = caption
             self.parse_mode = parse_mode
             self.caption_entities = caption_entities
-            self.performer = performer
-            self.voice_duration = voice_duration
             self.reply_markup = reply_markup
             self.input_message_content = input_message_content
 
         def to_json(self):
             obj = {'type': self.ttype, 'id': self.uid,
-                   'voice_url': self.voice_url, 'title': self.title}
+                   'gif_file_id': self.gif_file_id}
+            if self.title:
+                obj['title'] = self.title
             if self.caption:
                 obj['caption'] = self.caption
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
             if self.caption_entities:
                 obj['caption_entities'] = self.caption_entities
-            if self.performer:
-                obj['performer'] = self.performer
-            if self.voice_duration:
-                obj['voice_duration'] = self.voice_duration
             if self.reply_markup:
-                obj['reply_markup'] = self.reply_markup.to_dict()
+                obj['reply_markup'] = self.reply_markup
             if self.input_message_content:
-                obj['input_message_content'] = self.input_message_content.to_dict()
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedMpeg4Gif(JsonSerializable):
+        def __init__(self, uid, mpeg4_file_id, title=None, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str mpeg4_file_id: A valid file identifier for the MP4 file
+            :param str or None title: Optional. Title for the result
+            :param str or None caption: Optional. Caption of the MPEG-4 to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'mpeg4_gif'
+            self.uid = uid
+            self.mpeg4_file_id = mpeg4_file_id
+            self.title = title
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'mpeg4_file_id': self.mpeg4_file_id}
+            if self.title:
+                obj['title'] = self.title
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedSticker(JsonSerializable):
+        def __init__(self, uid, sticker_file_id, reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a sticker stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str sticker_file_id: A valid file identifier for the sticker
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'sticker'
+            self.uid = uid
+            self.sticker_file_id = sticker_file_id
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'sticker_file_id': self.sticker_file_id}
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedDocument(JsonSerializable):
+        def __init__(self, uid, title, document_file_id, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a file stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str or None title: Optional. Title for the result
+            :param str document_file_id: A valid file identifier for the file
+            :param str or None description: Optional. Short description of the result
+            :param str or None caption: Optional. Caption of the document to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the document caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'document'
+            self.uid = uid
+            self.title = title
+            self.document_file_id = document_file_id
+            self.description = description
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'document_file_id': self.document_file_id}
+            if self.title:
+                obj['title'] = self.title
+            if self.description:
+                obj['description'] = self.description
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedVideo(JsonSerializable):
+        def __init__(self, uid, video_file_id, title, description=None, caption=None, parse_mode=None,
+                     caption_entities=None, reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a video file stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str video_file_id: A valid file identifier for the video file
+            :param str or None title: Optional. Title for the result
+            :param str or None description: Optional. Short description of the result
+            :param str or None caption: Optional. Caption of the video to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'video'
+            self.uid = uid
+            self.video_file_id = video_file_id
+            self.title = title
+            self.description = description
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'video_file_id': self.video_file_id}
+            if self.title:
+                obj['title'] = self.title
+            if self.description:
+                obj['description'] = self.description
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedVoice(JsonSerializable):
+        def __init__(self, uid, voice_file_id, title, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            """
+            Represents a link to a voice message stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str voice_file_id: A valid file identifier for the voice file
+            :param str or None title: Optional. Title for the result
+            :param str or None caption: Optional. Caption of the voice to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'voice'
+            self.uid = uid
+            self.voice_file_id = voice_file_id
+            self.title = title
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid,
+                   'voice_file_id': self.voice_file_id}
+            if self.title:
+                obj['title'] = self.title
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
+            return json.dumps(obj)
+
+    class __InlineQueryResultCachedAudio(JsonSerializable):
+        def __init__(self, uid, audio_file_id, caption=None, parse_mode=None, caption_entities=None,
+                     reply_markup=None, input_message_content=None):
+            """
+            Represents a link to an MP3 audio file stored on the Telegram servers
+            :param str uid: Unique identifier for this result
+            :param str audio_file_id: A valid file identifier for the audio file
+            :param str or None caption: Optional. Caption of the audio to be sent, 0-1024 characters after entities
+                                        parsing
+            :param str or None parse_mode: 	Optional. Mode for parsing entities in the caption
+            :param str or None caption_entities: Optional. List of special entities that appear in the caption,
+                                                 which can be specified instead of parse_mode
+            :param InlineKeyboardMarkup or None reply_markup: Optional. Inline keyboard attached to the message
+            :param InputMessageContent or None input_message_content: Content of the message to be sent
+            """
+            self.ttype = 'audio'
+            self.uid = uid
+            self.audio_file_id = audio_file_id
+            self.caption = caption
+            self.parse_mode = parse_mode
+            self.caption_entities = caption_entities
+            self.reply_markup = reply_markup
+            self.input_message_content = input_message_content
+
+        def to_json(self):
+            obj = {'type': self.ttype, 'id': self.uid, 'audio_file_id': self.audio_file_id}
+            if self.caption:
+                obj['caption'] = self.caption
+            if self.parse_mode:
+                obj['parse_mode'] = self.parse_mode
+            if self.caption_entities:
+                obj['caption_entities'] = self.caption_entities
+            if self.reply_markup:
+                obj['reply_markup'] = self.reply_markup
+            if self.input_message_content:
+                obj['input_message_content'] = self.input_message_content
             return json.dumps(obj)
 
 
@@ -2908,33 +3268,47 @@ class InputMessageContent:
         self.Invoice = self.__InputInvoiceMessageContent
 
     class __InputTextMessageContent(Dictionaryable):
-        """
-        Represents the content of a text message to be sent as the result of an inline query.
-        """
-
-        def __init__(self, message_text, parse_mode=None, caption_entities=None, disable_web_page_preview=None):
+        def __init__(self, message_text, parse_mode=None, entities=None, disable_web_page_preview=False):
+            """
+            Represents the content of a text message to be sent as the result of an inline query
+            :param str message_text: Text of the message to be sent, 1-4096 characters
+            :param str or None parse_mode: Optional. Mode for parsing entities in the message text
+            :param list[MessageEntity] or None entities: Optional. List of special entities that appear in message text,
+                                                         which can be specified instead of parse_mode
+            :param bool disable_web_page_preview: Optional. Disables link previews for links in the sent message
+            """
             self.message_text = message_text
             self.parse_mode = parse_mode
-            self.caption_entities = caption_entities
+            self.entities = entities
             self.disable_web_page_preview = disable_web_page_preview
 
         def to_dict(self):
             obj = {'message_text': self.message_text}
             if self.parse_mode:
                 obj['parse_mode'] = self.parse_mode
-            if self.caption_entities:
-                obj['caption_entities'] = self.caption_entities
+            if self.entities:
+                obj['entities'] = self.entities
             if self.disable_web_page_preview:
                 obj['disable_web_page_preview'] = self.disable_web_page_preview
             return obj
 
     class __InputLocationMessageContent(Dictionaryable):
-        """
-        Represents the content of a location message to be sent as the result of an inline query
-        """
-
         def __init__(self, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
                      proximity_alert_radius=None):
+            """
+            Represents the content of a location message to be sent as the result of an inline query
+            :param int latitude: Latitude of the location in degrees
+            :param int longitude: Longitude of the location in degrees
+            :param int or None horizontal_accuracy: Optional. The radius of uncertainty for the location,
+                                                    measured in meters; 0-1500
+            :param int or None live_period: Optional. Period in seconds for which the location can be updated,
+                                            should be between 60 and 86400
+            :param int or None heading: Optional. For live locations, a direction in which the user is moving,
+                                       in degrees. Must be between 1 and 360 if specified
+            :param int or None proximity_alert_radius: Optional. For live locations, a maximum distance for proximity
+                                                       alerts about approaching another chat member, in meters.
+                                                       Must be between 1 and 100000 if specified
+            """
             self.latitude = latitude
             self.longitude = longitude
             self.horizontal_accuracy = horizontal_accuracy
@@ -2955,12 +3329,21 @@ class InputMessageContent:
             return obj
 
     class __InputVenueMessageContent(Dictionaryable):
-        """
-        Represents the content of a venue message to be sent as the result of an inline query
-        """
-
         def __init__(self, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
                      google_place_id=None, google_place_type=None):
+            """
+            Represents the content of a venue message to be sent as the result of an inline query
+            :param int latitude: Latitude of the venue in degrees
+            :param int longitude: Longitude of the venue in degrees
+            :param str title: Name of the venue
+            :param str address: Address of the venue
+            :param str or None foursquare_id: Optional. Foursquare identifier of the venue, if known
+            :param str or None foursquare_type: Optional. Foursquare type of the venue, if known.
+                                                For example, “arts_entertainment/default”, “arts_entertainment/aquarium”
+                                                or “food/icecream”
+            :param str or None google_place_id: Optional. Google Places identifier of the venue
+            :param str or None google_place_type: Optional. Google Places type of the venue
+            """
             self.latitude = latitude
             self.longitude = longitude
             self.title = title
@@ -2971,8 +3354,7 @@ class InputMessageContent:
             self.google_place_type = google_place_type
 
         def to_dict(self):
-            obj = {'latitude': self.latitude, 'longitude': self.longitude, 'title': self.title,
-                   'address': self.address}
+            obj = {'latitude': self.latitude, 'longitude': self.longitude, 'title': self.title, 'address': self.address}
             if self.foursquare_id:
                 obj['foursquare_id'] = self.foursquare_id
             if self.foursquare_type:
@@ -2984,31 +3366,64 @@ class InputMessageContent:
             return obj
 
     class __InputContactMessageContent(Dictionaryable):
-        """
-        Represents a result of an inline query that was chosen by the user and sent to their chat partner
-        """
-
-        def __init__(self, phone_number, first_name, last_name=None):
+        def __init__(self, phone_number, first_name, last_name=None, vcard=None):
+            """
+            Represents a result of an inline query that was chosen by the user and sent to their chat partner
+            :param str phone_number: Contact's phone number
+            :param str first_name: Contact's first name
+            :param str or None last_name: Optional. Contact's last name
+            :param str or None vcard: Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
+            """
             self.phone_number = phone_number
             self.first_name = first_name
             self.last_name = last_name
+            self.vcard = vcard
 
         def to_dict(self):
-            obj = {'phone_number': self.phone_number,
-                   'first_name': self.first_name}
+            obj = {'phone_number': self.phone_number, 'first_name': self.first_name}
             if self.last_name:
                 obj['last_name'] = self.last_name
+            if self.vcard:
+                obj['vcard'] = self.vcard
             return obj
 
     class __InputInvoiceMessageContent(Dictionaryable):
-        """
-        Represents the content of an invoice message to be sent as the result of an inline query
-        """
-
-        def __init__(self, title, description, payload, provider_token, currency, prices, max_tip_amount,
-                     suggested_tip_amounts, provider_data, photo_url, photo_size, photo_width, photo_height, need_name,
-                     need_phone_number, need_email, need_shipping_address, send_phone_number_to_provider,
-                     send_email_to_provider, is_flexible):
+        def __init__(self, title, description, payload, provider_token, currency, prices, max_tip_amount=None,
+                     suggested_tip_amounts=None, provider_data=None, photo_url=None, photo_size=None, photo_width=None,
+                     photo_height=None, need_name=False, need_phone_number=False, need_email=False,
+                     need_shipping_address=False, send_phone_number_to_provider=False, send_email_to_provider=False,
+                     is_flexible=False):
+            """
+            Represents the content of an invoice message to be sent as the result of an inline query
+            :param str title: Product name, 1-32 characters
+            :param str description: Product description, 1-255 characters
+            :param str payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user,
+                                use for your internal processes
+            :param str provider_token: Payment provider token, obtained via Botfather
+            :param str currency: Three-letter ISO 4217 currency code
+            :param list[LabeledPrice] prices: Price breakdown, a JSON-serialized list of components
+            :param int or None max_tip_amount: Optional. The maximum accepted amount for tips in the smallest units of
+                                               the currency (integer, not float/double)
+            :param list[int] or None suggested_tip_amounts: Optional. A JSON-serialized array of suggested amounts of
+                                                            tip in the smallest units of the currency (integer, not
+                                                            float/double)
+            :param str or None provider_data: Optional. A JSON-serialized object for data about the invoice,
+                                              which will be shared with the payment provider
+            :param str or None photo_url: Optional. URL of the product photo for the invoice
+            :param int or None photo_size: Optional. Photo size
+            :param int or None photo_width: Optional. Photo width
+            :param int or None photo_height: Optional. Photo height
+            :param bool need_name: Optional. Pass True, if you require the user's full name to complete the order
+            :param bool need_phone_number: Optional. Pass True, if you require the user's phone number to complete the
+                                           order
+            :param bool need_email: Optional. Pass True, if you require the user's email address to complete the order
+            :param bool need_shipping_address: Optional. Pass True, if you require the user's shipping address to
+                                               complete the order
+            :param bool send_phone_number_to_provider: Optional. Pass True, if user's phone number should be sent to
+                                                       provider
+            :param bool send_email_to_provider: Optional. Pass True, if user's email address should be sent to provider
+            :param bool is_flexible: Optional. Pass True, if the final price depends on the shipping method
+            """
             self.title = title
             self.description = description
             self.payload = payload
@@ -3075,7 +3490,7 @@ class ChosenInlineResult(JsonDeserializable):
     Represents a result of an inline query that was chosen by the user and sent to their chat partner
     """
 
-    def __init__(self, result_id, from_user, query, location=None, inline_message_id=None):
+    def __init__(self, result_id, from_user, query, location, inline_message_id):
         self.result_id = result_id
         self.from_user = from_user
         self.query = query
@@ -3662,7 +4077,7 @@ class Game(JsonDeserializable):
     This object represents a game
     """
 
-    def __init__(self, title, description, photo, text=None, text_entities=None, animation=None):
+    def __init__(self, title, description, photo, text, text_entities, animation):
         self.title = title
         self.description = description
         self.photo = photo
@@ -3702,7 +4117,7 @@ class Game(JsonDeserializable):
 
 class CallbackGame:
     """
-    A placeholder, currently holds no information. Use BotFather to set up your game
+    A placeholder, currently holds no information
     """
     pass
 
