@@ -1513,18 +1513,24 @@ def set_my_commands(based_url, proxies, commands, scope, language_code):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def get_my_commands(based_url, proxies):
+def get_my_commands(based_url, proxies, scope, language_code):
     """
     Use this method to get the current list of the bots commands
     :type based_url: str
     :type proxies: dict or None
+    :type scope: dict or None
+    :type language_code: str or None
     :rtype: list
     """
     method = r'get'
     api_method = r'getMyCommands'
     api_url = based_url + '/' + api_method
     files = None
-    params = None
+    params = {}
+    if scope:
+        params['scope'] = scope
+    if language_code:
+        params['language_code'] = language_code
     return make_request(method, api_url, api_method, files, params, proxies)
 
 

@@ -1277,13 +1277,16 @@ class Bot:
         """
         return methods.set_my_commands(self.__based_url, self.__proxies, commands, scope, language_code)
 
-    def get_my_commands(self):
+    def get_my_commands(self, scope=None, language_code=None):
         """
         Use this method to get the current list of the bots commands.
+        :param types.BotCommandScope or None scope: A JSON-serialized object, describing scope of users.
+                                                    Defaults to BotCommandScopeDefault
+        :param str or None language_code: A two-letter ISO 639-1 language code or an empty string
         :return: Array of BotCommand On success
         :rtype: list[tgbotapi.types.BotCommand]
         """
-        resp = methods.get_my_commands(self.__based_url, self.__proxies)
+        resp = methods.get_my_commands(self.__based_url, self.__proxies, scope, language_code)
         result = []
         for x in resp:
             result.append(types.BotCommand.de_json(x))

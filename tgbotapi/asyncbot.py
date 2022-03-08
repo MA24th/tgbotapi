@@ -217,12 +217,12 @@ class AsyncBot(Bot):
         return Bot.answer_callback_query(self, *args, **kwargs)
 
     @async_dec()
-    def set_my_commands(self, *args):
-        return Bot.set_my_commands(self, *args)
+    def set_my_commands(self, *args, **kwargs):
+        return Bot.set_my_commands(self, *args, **kwargs)
 
     @async_dec()
-    def get_my_commands(self):
-        return Bot.get_my_commands(self)
+    def get_my_commands(self, *args, **kwargs):
+        return Bot.get_my_commands(self, *args, **kwargs)
 
     @async_dec()
     def edit_message_text(self, *args, **kwargs):
