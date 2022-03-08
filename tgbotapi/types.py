@@ -2231,8 +2231,8 @@ class InputFile:
 
 
 class Sticker(JsonDeserializable):
-    def __init__(self, file_id, file_unique_id, width, height, thumb, emoji, set_name, mask_position, file_size,
-                 is_animated):
+    def __init__(self, file_id, file_unique_id, width, height, is_animated, is_video, thumb, emoji, set_name,
+                 mask_position, file_size):
         """
         This object represents a sticker
         """
@@ -2240,12 +2240,13 @@ class Sticker(JsonDeserializable):
         self.file_unique_id = file_unique_id
         self.width = width
         self.height = height
+        self.is_animated = is_animated
+        self.is_video = is_video
         self.thumb = thumb
         self.emoji = emoji
         self.set_name = set_name
         self.mask_position = mask_position
         self.file_size = file_size
-        self.is_animated = is_animated
 
     @classmethod
     def de_json(cls, obj_type):
@@ -2254,7 +2255,12 @@ class Sticker(JsonDeserializable):
         file_unique_id = obj['file_unique_id']
         width = obj['width']
         height = obj['height']
-        is_animated = obj['is_animated']
+        is_animated = False
+        if 'is_animated' in obj:
+            is_animated = obj['is_animated']
+        is_video = False
+        if 'is_video' in obj:
+            is_video = obj['is_video']
         thumb = None
         if 'thumb' in obj:
             thumb = PhotoSize.de_json(obj['thumb'])
@@ -2270,17 +2276,19 @@ class Sticker(JsonDeserializable):
         file_size = None
         if 'file_size' in obj:
             file_size = obj['file_size']
-        return cls(file_id, file_unique_id, width, height, thumb, emoji, set_name, mask_position, file_size,
-                   is_animated)
+        return cls(file_id, file_unique_id, width, height, is_animated, is_video, thumb, emoji, set_name, mask_position,
+                   file_size)
 
 
 class StickerSet(JsonDeserializable):
-    def __init__(self, name, title, contains_masks, stickers, thumb):
+    def __init__(self, name, title, is_animated, is_video, contains_masks, stickers, thumb):
         """
         This object represents a sticker set
         """
         self.name = name
         self.title = title
+        self.is_animated = is_animated
+        self.is_video = is_video
         self.contains_masks = contains_masks
         self.stickers = stickers
         self.thumb = thumb
@@ -2290,12 +2298,20 @@ class StickerSet(JsonDeserializable):
         obj = cls.check_type(obj_type)
         name = obj['name']
         title = obj['title']
-        contains_masks = obj['contains_masks']
+        is_animated = False
+        if 'is_animated' in obj:
+            is_animated = obj['is_animated']
+        is_video = False
+        if 'is_video' in obj:
+            is_video = obj['is_video']
+        contains_masks = False
+        if 'contains_masks' in obj:
+            contains_masks = obj['contains_masks']
         stickers = StickerSet.parse_stickers(obj['stickers'])
         thumb = None
         if 'thumb' in obj:
             thumb = PhotoSize.de_json(obj['thumb'])
-        return cls(name, title, contains_masks, stickers, thumb)
+        return cls(name, title, is_animated, is_video, contains_masks, stickers, thumb)
 
     @classmethod
     def parse_stickers(cls, obj):
