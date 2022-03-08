@@ -1,4 +1,12 @@
 # CHANGELOG
+## _v5.6_
+- Improved support for Protected Content.
+- Added the parameter protect_content to the methods sendMessage, sendPhoto, sendVideo, sendAnimation, sendAudio, sendDocument, sendSticker, sendVideoNote, sendVoice, sendLocation, sendVenue, sendContact, sendPoll, sendDice, sendInvoice, sendGame, sendMediaGroup, copyMessage, forwardMessage to allow sending messages with protected content to any chat.
+- Added support for spoiler entities, which will work in Telegram versions released after December 30, 2021. Older clients will display unsupported message.
+- Added new MessageEntity type “spoiler”.
+- Added the ability to specify spoiler entities using HTML and MarkdownV2 formatting options.
+
+
 ## _v5.5_
 - Bots are now allowed to contact users who sent a join request to a chat where the bot is an administrator with the can_invite_users administrator right – even if the user never interacted with the bot before.
 - Added support for mentioning users by their ID in inline keyboards. This will only work in Telegram versions released after December 7, 2021. Older clients will display unsupported message.
@@ -6,6 +14,7 @@
 - Added the field has_private_forwards to the class Chat for private chats, which can be used to check the possibility of mentioning the user by their ID.
 - Added the field has_protected_content to the classes Chat and Message.
 - Added the field is_automatic_forward to the class Message.
+
 
 ## _v5.4_
 - Added the the parameter creates_join_request to the methods createChatInviteLink and editChatInviteLink for managing chat invite links that create join requests (read more about this on our blog).
