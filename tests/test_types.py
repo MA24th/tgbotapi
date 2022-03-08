@@ -821,50 +821,18 @@ def test_chat_member():
             "language_code": "en"
         },
         'status': 'creator',
-        'custom_title': 'DevOps Lion',
-        'until_date': None,
-        'can_be_edited': False,
-        'can_post_messages': True,
-        'can_edit_messages': True,
-        'can_delete_messages': True,
-        'can_manage_voice_chats': False,
-        'can_restrict_members': True,
-        'can_promote_members': True,
-        'can_change_info': True,
-        'can_invite_users': True,
-        'can_pin_messages': True,
-        'is_member': True,
-        'can_send_messages': True,
-        'can_send_media_messages': True,
-        'can_send_polls': True,
-        'can_send_other_messages': True,
-        'can_add_web_page_previews': True
+        'custom_title': 'DevOps Lion'
     }
     obj = types.ChatMember.de_json(dic)
+    assert obj.status == 'creator'
     assert obj.user.uid == 383324787
     assert obj.user.is_bot is False
     assert obj.user.first_name == 'Mustafa'
     assert obj.user.last_name == 'Asaad'
     assert obj.user.username == 'MA24th'
     assert obj.user.language_code == 'en'
-    assert obj.status == 'creator'
+    assert obj.is_anonymous is False
     assert obj.custom_title == 'DevOps Lion'
-    assert obj.until_date is None
-    assert obj.can_be_edited is False
-    assert obj.can_post_messages is True
-    assert obj.can_edit_messages is True
-    assert obj.can_delete_messages is True
-    assert obj.can_manage_voice_chats is False
-    assert obj.can_restrict_members is True
-    assert obj.can_promote_members is True
-    assert obj.can_change_info is True
-    assert obj.can_invite_users is True
-    assert obj.can_pin_messages is True
-    assert obj.is_member is True
-    assert obj.can_send_messages is True
-    assert obj.can_send_media_messages is True
-    assert obj.can_send_polls is True
-    assert obj.can_send_other_messages is True
 
 
 def test_chat_member_updated():

@@ -1451,108 +1451,239 @@ class ChatInviteLink(JsonDeserializable):
 
 class ChatMember(JsonDeserializable):
     """
-    This object contains information about one member of a chat
+    This object contains information about one member of a chat.
+    Currently, the following 6 types of chat members are supported:
+        ChatMemberOwner
+        ChatMemberAdministrator
+        ChatMemberMember
+        ChatMemberRestricted
+        ChatMemberLeft
+        ChatMemberBanned
     """
 
-    def __init__(self, status, user, is_anonymous, can_manage_chat, custom_title, until_date, can_be_edited,
-                 can_change_info, can_post_messages, can_edit_messages, can_delete_messages, can_manage_voice_chats,
-                 can_invite_users, can_restrict_members, is_member, can_pin_messages, can_promote_members,
-                 can_send_messages, can_send_media_messages, can_send_polls, can_send_other_messages,
-                 can_add_web_page_previews):
-
-        self.status = status
-        self.user = user
-        self.is_anonymous = is_anonymous
-        self.can_manage_chat = can_manage_chat
-        self.custom_title = custom_title
-        self.until_date = until_date
-        self.can_be_edited = can_be_edited
-        self.can_change_info = can_change_info
-        self.can_post_messages = can_post_messages
-        self.can_edit_messages = can_edit_messages
-        self.can_delete_messages = can_delete_messages
-        self.can_manage_voice_chats = can_manage_voice_chats
-        self.can_invite_users = can_invite_users
-        self.can_restrict_members = can_restrict_members
-        self.can_pin_messages = can_pin_messages
-        self.is_member = is_member
-        self.can_promote_members = can_promote_members
-        self.can_send_messages = can_send_messages
-        self.can_send_media_messages = can_send_media_messages
-        self.can_send_polls = can_send_polls
-        self.can_send_other_messages = can_send_other_messages
-        self.can_add_web_page_previews = can_add_web_page_previews
+    def __int__(self):
+        self.Owner = self.__ChatMemberOwner
+        self.Administrator = self.__ChatMemberAdministrator
+        self.Member = self.__ChatMemberMember
+        self.Restricted = self.__ChatMemberRestricted
+        self.Left = self.__ChatMemberLeft
+        self.Banned = self.__ChatMemberBanned
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         status = obj['status']
-        user = User.de_json(obj['user'])
-        is_anonymous = None
-        if 'is_anonymous' in obj:
-            is_anonymous = obj['is_anonymous']
-        can_manage_chat = None
-        if 'can_manage_chat' in obj:
-            can_manage_chat = obj['can_manage_chat']
-        custom_title = None
-        if 'custom_title' in obj:
-            custom_title = obj['custom_title']
-        until_date = None
-        if 'until_date' in obj:
+        if status == 'creator':
+            return cls.__ChatMemberOwner.de_json(obj_type)
+        elif status == 'administrator':
+            return cls.__ChatMemberAdministrator.de_json(obj_type)
+        elif status == 'member':
+            return cls.__ChatMemberMember.de_json(obj_type)
+        elif status == 'restricted':
+            return cls.__ChatMemberRestricted.de_json(obj_type)
+        elif status == 'left':
+            return cls.__ChatMemberLeft.de_json(obj_type)
+        elif status == 'kicked':
+            return cls.__ChatMemberBanned.de_json(obj_type)
+
+    class __ChatMemberOwner(JsonDeserializable):
+        def __init__(self, status, user, is_anonymous, custom_title):
+            """
+            Represents a chat member that owns the chat and has all administrator privileges
+            """
+            self.status = status
+            self.user = user
+            self.is_anonymous = is_anonymous
+            self.custom_title = custom_title
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            status = obj['status']
+            user = User.de_json(obj['user'])
+            is_anonymous = False
+            if 'is_anonymous' in obj:
+                is_anonymous = obj['is_anonymous']
+            custom_title = None
+            if 'custom_title' in obj:
+                custom_title = obj['custom_title']
+            return cls(status, user, is_anonymous, custom_title)
+
+    class __ChatMemberAdministrator(JsonDeserializable):
+        def __init__(self, status, user, can_be_edited, is_anonymous, can_manage_chat, can_delete_messages,
+                     can_manage_voice_chats, can_restrict_members, can_promote_members, can_change_info,
+                     can_invite_users, can_post_messages, can_edit_messages, can_pin_messages, custom_title):
+            """
+            Represents a chat member that has some additional privileges
+            """
+            self.status = status
+            self.user = user
+            self.can_be_edited = can_be_edited
+            self.is_anonymous = is_anonymous
+            self.can_manage_chat = can_manage_chat
+            self.can_delete_messages = can_delete_messages
+            self.can_manage_voice_chats = can_manage_voice_chats
+            self.can_restrict_members = can_restrict_members
+            self.can_promote_members = can_promote_members
+            self.can_change_info = can_change_info
+            self.can_invite_users = can_invite_users
+            self.can_post_messages = can_post_messages
+            self.can_edit_messages = can_edit_messages
+            self.can_pin_messages = can_pin_messages
+            self.custom_title = custom_title
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            status = obj['status']
+            user = User.de_json(obj['user'])
+            can_be_edited = False
+            if 'can_be_edited' in obj:
+                can_be_edited = obj['can_be_edited']
+            is_anonymous = False
+            if 'is_anonymous' in obj:
+                is_anonymous = obj['is_anonymous']
+            can_manage_chat = False
+            if 'can_manage_chat' in obj:
+                can_manage_chat = obj['can_manage_chat']
+            can_delete_messages = False
+            if 'can_delete_messages' in obj:
+                can_delete_messages = obj['can_delete_messages']
+            can_manage_voice_chats = False
+            if 'can_manage_voice_chats' in obj:
+                can_manage_voice_chats = obj['can_manage_voice_chats']
+            can_restrict_members = False
+            if 'can_restrict_members' in obj:
+                can_restrict_members = obj['can_restrict_members']
+            can_promote_members = False
+            if 'can_promote_members' in obj:
+                can_promote_members = obj['can_promote_members']
+            can_change_info = False
+            if 'can_change_info' in obj:
+                can_change_info = obj['can_change_info']
+            can_invite_users = False
+            if 'can_invite_users' in obj:
+                can_invite_users = obj['can_invite_users']
+            can_post_messages = False
+            if 'can_post_messages' in obj:
+                can_post_messages = obj['can_post_messages']
+            can_edit_messages = False
+            if 'can_edit_messages' in obj:
+                can_edit_messages = obj['can_edit_messages']
+            can_pin_messages = False
+            if 'can_pin_messages' in obj:
+                can_pin_messages = obj['can_pin_messages']
+            custom_title = None
+            if 'custom_title' in obj:
+                custom_title = obj['custom_title']
+            return cls(status, user, can_be_edited, is_anonymous, can_manage_chat, can_delete_messages,
+                       can_manage_voice_chats, can_restrict_members, can_promote_members, can_change_info,
+                       can_invite_users, can_post_messages, can_edit_messages, can_pin_messages, custom_title)
+
+    class __ChatMemberMember(JsonDeserializable):
+        def __init__(self, status, user):
+            """
+            Represents a chat member that has no additional privileges or restrictions
+            """
+            self.status = status
+            self.user = user
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            status = obj['status']
+            user = User.de_json(obj['user'])
+            return cls(status, user)
+
+    class __ChatMemberRestricted(JsonDeserializable):
+        def __init__(self, status, user, is_member, can_change_info, can_invite_users, can_pin_messages,
+                     can_send_media_messages, can_send_polls, can_send_other_messages, can_add_web_page_previews,
+                     until_date):
+            """
+            Represents a chat member that is under certain restrictions in the chat. Supergroups only
+            """
+            self.status = status
+            self.user = user
+            self.is_member = is_member
+            self.can_change_info = can_change_info
+            self.can_invite_users = can_invite_users
+            self.can_pin_messages = can_pin_messages
+            self.can_send_media_messages = can_send_media_messages
+            self.can_send_polls = can_send_polls
+            self.can_send_other_messages = can_send_other_messages
+            self.can_add_web_page_previews = can_add_web_page_previews
+            self.until_date = until_date
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            status = obj['status']
+            user = User.de_json(obj['user'])
+            is_member = False
+            if 'is_member' in obj:
+                is_member = obj['is_member']
+            can_change_info = False
+            if 'can_change_info' in obj:
+                can_change_info = obj['can_change_info']
+            can_invite_users = False
+            if 'can_invite_users' in obj:
+                can_invite_users = obj['can_invite_users']
+            can_pin_messages = False
+            if 'can_pin_messages' in obj:
+                can_pin_messages = obj['can_pin_messages']
+            can_send_messages = False
+            if 'can_send_messages' in obj:
+                can_send_messages = obj['can_send_messages']
+            can_send_media_messages = False
+            if 'can_send_media_messages' in obj:
+                can_send_media_messages = obj['can_send_media_messages']
+            can_send_polls = False
+            if 'can_send_polls' in obj:
+                can_send_polls = obj['can_send_polls']
+            can_send_other_messages = False
+            if 'can_send_other_messages' in obj:
+                can_send_other_messages = obj['can_send_other_messages']
+            can_add_web_page_previews = False
+            if 'can_add_web_page_previews' in obj:
+                can_add_web_page_previews = obj['can_add_web_page_previews']
+            until_date = None
+            if 'until_date' in obj:
+                until_date = obj['until_date']
+            return cls(status, user, is_member, can_change_info, can_invite_users, can_pin_messages, can_send_messages,
+                       can_send_media_messages, can_send_polls, can_send_other_messages, can_add_web_page_previews,
+                       until_date)
+
+    class __ChatMemberLeft(JsonDeserializable):
+        def __init__(self, status, user):
+            """
+            Represents a chat member that isn't currently a member of the chat, but may join it themselves
+            """
+            self.status = status
+            self.user = user
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            status = obj['status']
+            user = User.de_json(obj['user'])
+            return cls(status, user)
+
+    class __ChatMemberBanned(JsonDeserializable):
+        def __init__(self, status, user, until_date):
+            """
+            Represents a chat member that was banned in the chat and can't return to the chat or view chat messages
+            """
+            self.status = status
+            self.user = user
+            self.until_date = until_date
+
+        @classmethod
+        def de_json(cls, obj_type):
+            obj = cls.check_type(obj_type)
+            status = obj['status']
+            user = User.de_json(obj['user'])
             until_date = obj['until_date']
-        can_be_edited = None
-        if 'can_be_edited' in obj:
-            can_be_edited = obj['can_be_edited']
-        can_post_messages = None
-        if 'can_post_messages' in obj:
-            can_post_messages = obj['can_post_messages']
-        can_edit_messages = None
-        if 'can_edit_messages' in obj:
-            can_edit_messages = obj['can_edit_messages']
-        can_delete_messages = None
-        if 'can_delete_messages' in obj:
-            can_delete_messages = obj['can_delete_messages']
-        can_manage_voice_chats = None
-        if 'can_manage_voice_chats' in obj:
-            can_manage_voice_chats = obj['can_manage_voice_chats']
-        can_restrict_members = None
-        if 'can_restrict_members' in obj:
-            can_restrict_members = obj['can_restrict_members']
-        can_promote_members = None
-        if 'can_promote_members' in obj:
-            can_promote_members = obj['can_promote_members']
-        can_change_info = None
-        if 'can_change_info' in obj:
-            can_change_info = obj['can_change_info']
-        can_invite_users = None
-        if 'can_invite_users' in obj:
-            can_invite_users = obj['can_invite_users']
-        can_pin_messages = None
-        if 'can_pin_messages' in obj:
-            can_pin_messages = obj['can_pin_messages']
-        is_member = None
-        if 'is_member' in obj:
-            is_member = obj['is_member']
-        can_send_messages = None
-        if 'can_send_messages' in obj:
-            can_send_messages = obj['can_send_messages']
-        can_send_media_messages = None
-        if 'can_send_media_messages' in obj:
-            can_send_media_messages = obj['can_send_media_messages']
-        can_send_polls = None
-        if 'can_send_polls' in obj:
-            can_send_polls = obj['can_send_polls']
-        can_send_other_messages = None
-        if 'can_send_other_messages' in obj:
-            can_send_other_messages = obj['can_send_other_messages']
-        can_add_web_page_previews = None
-        if 'can_add_web_page_previews' in obj:
-            can_add_web_page_previews = obj['can_add_web_page_previews']
-        return cls(status, user, is_anonymous, can_manage_chat, custom_title, until_date, can_be_edited,
-                   can_change_info, can_post_messages, can_edit_messages, can_delete_messages, can_manage_voice_chats,
-                   can_invite_users, can_restrict_members, is_member, can_pin_messages, can_promote_members,
-                   can_send_messages, can_send_media_messages, can_send_other_messages, can_add_web_page_previews,
-                   can_send_polls)
+            return cls(status, user, until_date)
 
 
 class ChatMemberUpdated(JsonDeserializable):
