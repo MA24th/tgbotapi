@@ -218,7 +218,7 @@ class Chat(JsonDeserializable):
         bio = None
         if 'bio' in obj:
             bio = obj['bio']
-        has_private_forwards = None
+        has_private_forwards = False
         if 'has_private_forwards' in obj:
             has_private_forwards = obj['has_private_forwards']
         description = None
@@ -239,7 +239,7 @@ class Chat(JsonDeserializable):
         message_auto_delete_time = None
         if 'message_auto_delete_time' in obj:
             message_auto_delete_time = obj['message_auto_delete_time']
-        has_protected_content = None
+        has_protected_content = False
         if 'has_protected_content' in obj:
             has_protected_content = obj['has_protected_content']
         sticker_set_name = None
@@ -275,6 +275,7 @@ class Message(JsonDeserializable):
         self.forward_date = None
         self.reply_to_message = None
         self.via_bot = None
+        self.has_protected_content = False
         self.edit_date = None
         self.media_group_id = None
         self.author_signature = None
@@ -348,6 +349,8 @@ class Message(JsonDeserializable):
             opts['via_bot'] = User.de_json(obj['via_bot'])
         if 'edit_date' in obj:
             opts['edit_date'] = obj['edit_date']
+        if 'has_protected_content' in obj:
+            opts['has_protected_content'] = obj['has_protected_content']
         if 'media_group_id' in obj:
             opts['media_group_id'] = obj['media_group_id']
         if 'author_signature' in obj:
