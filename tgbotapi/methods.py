@@ -147,7 +147,7 @@ def close(based_url, proxies):
 
 
 def send_message(based_url, proxies, chat_id, text, parse_mode, entities, disable_web_page_preview,
-                 disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+                 disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send text messages. On success, send Message is returned
     :type based_url: str
@@ -158,6 +158,7 @@ def send_message(based_url, proxies, chat_id, text, parse_mode, entities, disabl
     :type entities: list or None
     :type disable_web_page_preview: bool
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -174,6 +175,8 @@ def send_message(based_url, proxies, chat_id, text, parse_mode, entities, disabl
         params['entities'] = entities
     if disable_web_page_preview:
         params['disable_web_page_preview'] = disable_web_page_preview
+    if protect_content:
+        params['protect_content'] = protect_content
     if disable_notification:
         params['disable_notification'] = disable_notification
     if reply_to_message_id:
@@ -185,7 +188,7 @@ def send_message(based_url, proxies, chat_id, text, parse_mode, entities, disabl
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def forward_message(based_url, proxies, chat_id, from_chat_id, message_id, disable_notification):
+def forward_message(based_url, proxies, chat_id, from_chat_id, message_id, disable_notification, protect_content):
     """
     Use this method to forward messages of any kind
     :type based_url: str
@@ -193,6 +196,7 @@ def forward_message(based_url, proxies, chat_id, from_chat_id, message_id, disab
     :type chat_id: int or str
     :type from_chat_id: int or str
     :type disable_notification: bool
+    :type protect_content: bool
     :type message_id: int
     :rtype: dict
     """
@@ -203,6 +207,8 @@ def forward_message(based_url, proxies, chat_id, from_chat_id, message_id, disab
     params = {'chat_id': chat_id, 'from_chat_id': from_chat_id, 'message_id': message_id}
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -251,8 +257,7 @@ def copy_message(based_url, proxies, chat_id, from_chat_id, message_id, caption,
 
 
 def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_entities, disable_notification,
-               reply_to_message_id, allow_sending_without_reply,
-               reply_markup):
+               protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send photos
     :type based_url: str
@@ -263,6 +268,7 @@ def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_
     :type parse_mode: str or None
     :type caption_entities: list or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -285,6 +291,8 @@ def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_
         params['caption_entities'] = caption_entities
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -295,7 +303,8 @@ def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_
 
 
 def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_entities, duration, performer, title,
-               thumb, disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+               thumb, disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
+               reply_markup):
     """
     Use this method to send audio files
     :type based_url: str
@@ -310,6 +319,7 @@ def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_
     :type title: str or None
     :type thumb: any
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -340,6 +350,8 @@ def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_
         params['thumb'] = thumb
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -350,8 +362,8 @@ def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_
 
 
 def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_mode, caption_entities,
-                  disable_content_type_detection, disable_notification,
-                  reply_to_message_id, allow_sending_without_reply, reply_markup):
+                  disable_content_type_detection, disable_notification, protect_content, reply_to_message_id,
+                  allow_sending_without_reply, reply_markup):
     """
     Use this method to send general files
     :type based_url: str
@@ -364,6 +376,7 @@ def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_m
     :type caption_entities: list or None
     :type disable_content_type_detection: bool
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -390,6 +403,8 @@ def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_m
         params['disable_content_type_detection'] = disable_content_type_detection
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -400,7 +415,7 @@ def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_m
 
 
 def send_video(based_url, proxies, chat_id, video, duration, width, height, thumb, caption, parse_mode,
-               caption_entities, supports_streaming, disable_notification, reply_to_message_id,
+               caption_entities, supports_streaming, disable_notification, protect_content, reply_to_message_id,
                allow_sending_without_reply, reply_markup):
     """
     Use this method to send video files
@@ -417,6 +432,7 @@ def send_video(based_url, proxies, chat_id, video, duration, width, height, thum
     :type caption_entities: list or None
     :type supports_streaming: bool
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -449,6 +465,8 @@ def send_video(based_url, proxies, chat_id, video, duration, width, height, thum
         params['supports_streaming'] = supports_streaming
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -459,8 +477,8 @@ def send_video(based_url, proxies, chat_id, video, duration, width, height, thum
 
 
 def send_animation(based_url, proxies, chat_id, animation, duration, width, height, thumb, caption, parse_mode,
-                   caption_entities, disable_notification, reply_to_message_id, allow_sending_without_reply,
-                   reply_markup):
+                   caption_entities, disable_notification, protect_content, reply_to_message_id,
+                   allow_sending_without_reply, reply_markup):
     """
     Use this method to send animation files
     :type based_url: str
@@ -475,6 +493,7 @@ def send_animation(based_url, proxies, chat_id, animation, duration, width, heig
     :type parse_mode: str or None
     :type caption_entities: list or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -505,6 +524,8 @@ def send_animation(based_url, proxies, chat_id, animation, duration, width, heig
         params['caption_entities'] = caption_entities
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -515,7 +536,7 @@ def send_animation(based_url, proxies, chat_id, animation, duration, width, heig
 
 
 def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_entities, duration,
-               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+               disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send audio files
     :type based_url: str
@@ -527,6 +548,7 @@ def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_
     :type caption_entities: list or None
     :type duration: int or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -551,6 +573,8 @@ def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_
         params['duration'] = duration
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -561,7 +585,7 @@ def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_
 
 
 def send_video_note(based_url, proxies, chat_id, video_note, duration, length, thumb, disable_notification,
-                    reply_to_message_id, allow_sending_without_reply, reply_markup):
+                    protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send video messages
     :type based_url: str
@@ -572,6 +596,7 @@ def send_video_note(based_url, proxies, chat_id, video_note, duration, length, t
     :type length: int or None
     :type thumb: bytes or str
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -594,6 +619,8 @@ def send_video_note(based_url, proxies, chat_id, video_note, duration, length, t
         params['thumb'] = thumb
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -603,7 +630,7 @@ def send_video_note(based_url, proxies, chat_id, video_note, duration, length, t
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_media_group(based_url, proxies, chat_id, media, disable_notification, reply_to_message_id,
+def send_media_group(based_url, proxies, chat_id, media, disable_notification, protect_content, reply_to_message_id,
                      allow_sending_without_reply):
     """
     Use this method to send a group of photos or videos as an album
@@ -612,6 +639,7 @@ def send_media_group(based_url, proxies, chat_id, media, disable_notification, r
     :type chat_id: int or str
     :type media: list
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :rtype: list
@@ -627,6 +655,8 @@ def send_media_group(based_url, proxies, chat_id, media, disable_notification, r
         params['media'] = media
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -635,7 +665,7 @@ def send_media_group(based_url, proxies, chat_id, media, disable_notification, r
 
 
 def send_location(based_url, proxies, chat_id, latitude, longitude, horizontal_accuracy, live_period, heading,
-                  proximity_alert_radius, disable_notification, reply_to_message_id,
+                  proximity_alert_radius, disable_notification, protect_content, reply_to_message_id,
                   allow_sending_without_reply, reply_markup):
     """
     Use this method to send point on the map
@@ -649,6 +679,7 @@ def send_location(based_url, proxies, chat_id, latitude, longitude, horizontal_a
     :type heading: int or None
     :type proximity_alert_radius: int or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -670,6 +701,8 @@ def send_location(based_url, proxies, chat_id, latitude, longitude, horizontal_a
         params['proximity_alert_radius'] = proximity_alert_radius
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -747,8 +780,8 @@ def stop_message_live_location(based_url, proxies, chat_id, message_id, inline_m
 
 
 def send_venue(based_url, proxies, chat_id, latitude, longitude, title, address, foursquare_id, foursquare_type,
-               google_place_id, google_place_type,
-               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup):
+               google_place_id, google_place_type, disable_notification, protect_content, reply_to_message_id,
+               allow_sending_without_reply, reply_markup):
     """
     Use this method to send information about a venue
     :type based_url: str
@@ -763,6 +796,7 @@ def send_venue(based_url, proxies, chat_id, latitude, longitude, title, address,
     :type google_place_id: str or None
     :type google_place_type: str or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -783,6 +817,8 @@ def send_venue(based_url, proxies, chat_id, latitude, longitude, title, address,
         params['google_place_type'] = google_place_type
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -793,7 +829,7 @@ def send_venue(based_url, proxies, chat_id, latitude, longitude, title, address,
 
 
 def send_contact(based_url, proxies, chat_id, phone_number, first_name, last_name, vcard, disable_notification,
-                 reply_to_message_id, allow_sending_without_reply, reply_markup):
+                 protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send phone contacts
     :type based_url: str
@@ -804,6 +840,7 @@ def send_contact(based_url, proxies, chat_id, phone_number, first_name, last_nam
     :type last_name: str or None
     :type vcard: str or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -821,6 +858,8 @@ def send_contact(based_url, proxies, chat_id, phone_number, first_name, last_nam
         params['vcard'] = vcard
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -831,10 +870,9 @@ def send_contact(based_url, proxies, chat_id, phone_number, first_name, last_nam
 
 
 def send_poll(based_url, proxies, chat_id, question, options, is_anonymous, ttype, allows_multiple_answers,
-              correct_option_id,
-              explanation, explanation_parse_mode, explanation_entities, open_period, close_date, is_closed,
-              disable_notifications,
-              reply_to_message_id, allow_sending_without_reply, reply_markup):
+              correct_option_id, explanation, explanation_parse_mode, explanation_entities, open_period, close_date,
+              is_closed, disable_notifications, protect_content, reply_to_message_id, allow_sending_without_reply,
+              reply_markup):
     """
     Use this method to send a native poll
     :type based_url: str
@@ -853,6 +891,7 @@ def send_poll(based_url, proxies, chat_id, question, options, is_anonymous, ttyp
     :type close_date: int or None
     :type is_closed: bool
     :type disable_notifications: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -885,6 +924,8 @@ def send_poll(based_url, proxies, chat_id, question, options, is_anonymous, ttyp
         params['is_closed'] = is_closed
     if disable_notifications:
         params['disable_notification'] = disable_notifications
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -894,7 +935,7 @@ def send_poll(based_url, proxies, chat_id, question, options, is_anonymous, ttyp
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_dice(based_url, proxies, chat_id, emoji, disable_notification, reply_to_message_id,
+def send_dice(based_url, proxies, chat_id, emoji, disable_notification, protect_content, reply_to_message_id,
               allow_sending_without_reply, reply_markup):
     """
     Use this method to send a dice
@@ -903,6 +944,7 @@ def send_dice(based_url, proxies, chat_id, emoji, disable_notification, reply_to
     :type chat_id: int or str
     :type emoji: str or None
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -915,6 +957,8 @@ def send_dice(based_url, proxies, chat_id, emoji, disable_notification, reply_to
     params = {'chat_id': chat_id, 'emoji': emoji}
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -1794,7 +1838,7 @@ def delete_message(based_url, proxies, chat_id, message_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_sticker(based_url, proxies, chat_id, sticker, disable_notification, reply_to_message_id,
+def send_sticker(based_url, proxies, chat_id, sticker, protect_content, disable_notification, reply_to_message_id,
                  allow_sending_without_reply, reply_markup):
     """
     Use this method to send static .WEBP or animated .TGS stickers
@@ -1803,6 +1847,7 @@ def send_sticker(based_url, proxies, chat_id, sticker, disable_notification, rep
     :type chat_id: int or str
     :type sticker: any
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -1819,6 +1864,8 @@ def send_sticker(based_url, proxies, chat_id, sticker, disable_notification, rep
         params['sticker'] = sticker
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -2014,7 +2061,7 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
                  max_tip_amount, suggested_tip_amounts, start_parameter, provider_data, photo_url, photo_size,
                  photo_width, photo_height, need_name, need_phone_number, need_email, need_shipping_address,
                  send_phone_number_to_provider, send_email_to_provider, is_flexible, disable_notification,
-                 reply_to_message_id, allow_sending_without_reply, reply_markup):
+                 protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup):
     """
     Use this method to send invoices. On success, the sent Message is returned
     :type based_url: str
@@ -2042,6 +2089,7 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
     :type send_email_to_provider: bool
     :type is_flexible: bool
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -2091,8 +2139,8 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
         params['is_flexible'] = is_flexible
     if disable_notification:
         params['disable_notification'] = disable_notification
-    # if protect_content:
-    #     params['protect_content'] = protect_content
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:
@@ -2162,7 +2210,7 @@ def set_passport_data_errors(based_url, proxies, user_id, errors):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def send_game(based_url, proxies, chat_id, game_short_name, disable_notification, reply_to_message_id,
+def send_game(based_url, proxies, chat_id, game_short_name, disable_notification, protect_content, reply_to_message_id,
               allow_sending_without_reply, reply_markup):
     """
     Use this method to send a game
@@ -2171,6 +2219,7 @@ def send_game(based_url, proxies, chat_id, game_short_name, disable_notification
     :type chat_id: int or str
     :type game_short_name: str
     :type disable_notification: bool
+    :type protect_content: bool
     :type reply_to_message_id: int or None
     :type allow_sending_without_reply: bool
     :type reply_markup: dict or None
@@ -2183,6 +2232,8 @@ def send_game(based_url, proxies, chat_id, game_short_name, disable_notification
     params = {'chat_id': chat_id, 'game_short_name': game_short_name}
     if disable_notification:
         params['disable_notification'] = disable_notification
+    if protect_content:
+        params['protect_content'] = protect_content
     if reply_to_message_id:
         params['reply_to_message_id'] = reply_to_message_id
     if allow_sending_without_reply:

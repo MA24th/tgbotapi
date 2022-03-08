@@ -503,8 +503,8 @@ class Bot:
         return types.User.de_json(methods.close(self.__based_url, self.__proxies))
 
     def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False,
-                     disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
-                     reply_markup=None):
+                     disable_notification=False, protect_content=False, reply_to_message_id=None,
+                     allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send text messages. On success, the sent Message is returned
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -513,6 +513,7 @@ class Bot:
         :param list[MessageEntity] or None entities: A JSON-serialized list of special entities
         :param bool disable_web_page_preview: Disables link previews for links in this message
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the sent message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -522,22 +523,23 @@ class Bot:
         return types.Message.de_json(
             methods.send_message(self.__based_url, self.__proxies, chat_id, text, parse_mode, entities,
                                  disable_web_page_preview,
-                                 disable_notification, reply_to_message_id,
+                                 disable_notification, protect_content, reply_to_message_id,
                                  allow_sending_without_reply, reply_markup))
 
-    def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False):
+    def forward_message(self, chat_id, from_chat_id, message_id, disable_notification=False, protect_content=False):
         """
         Use this method to forward messages of any kind
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param int or str from_chat_id: Unique identifier for the chat where the original message was sent
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int message_id: Message identifier in the chat specified in from_chat_id
         :return: a Message object
         :rtype: types.Message
         """
         return types.Message.de_json(
             methods.forward_message(self.__based_url, self.__proxies, chat_id, from_chat_id, message_id,
-                                    disable_notification))
+                                    disable_notification, protect_content))
 
     def copy_message(self, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
                      disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
@@ -564,8 +566,8 @@ class Bot:
                                  reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_photo(self, chat_id, photo, caption=None, parse_mode=None, caption_entities=None,
-                   disable_notification=False,
-                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+                   disable_notification=False, protect_content=False, reply_to_message_id=None,
+                   allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send photos
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -574,6 +576,8 @@ class Bot:
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -582,13 +586,12 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_photo(self.__based_url, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities,
-                               disable_notification,
-                               reply_to_message_id, allow_sending_without_reply, reply_markup))
+                               disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
+                               reply_markup))
 
     def send_audio(self, chat_id, audio, caption=None, parse_mode=None, caption_entities=None, duration=None,
-                   performer=None, title=None,
-                   thumb=None, disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
-                   reply_markup=None):
+                   performer=None, title=None, thumb=None, disable_notification=False, protect_content=False,
+                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send audio files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -601,6 +604,7 @@ class Bot:
         :param str or None title: Track Name
         :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -609,12 +613,11 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_audio(self.__based_url, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities,
-                               duration, performer,
-                               title, thumb,
-                               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
+                               duration, performer, title, thumb, disable_notification, protect_content,
+                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_document(self, chat_id, document, thumb=None, caption=None, parse_mode=None, caption_entities=None,
-                      disable_content_type_detection=False, disable_notification=False,
+                      disable_content_type_detection=False, disable_notification=False, protect_content=False,
                       reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send general files
@@ -626,6 +629,7 @@ class Bot:
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
         :param bool disable_content_type_detection: Disables automatic server-side content type detection
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -634,14 +638,13 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_document(self.__based_url, self.__proxies, chat_id, document, thumb, caption, parse_mode,
-                                  caption_entities, disable_content_type_detection,
-                                  disable_notification,
-                                  reply_to_message_id, allow_sending_without_reply, reply_markup))
+                                  caption_entities, disable_content_type_detection, disable_notification,
+                                  protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_video(self, chat_id, video, duration=None, width=None, height=None, thumb=None, caption=None,
                    parse_mode=None, caption_entities=None, supports_streaming=None, disable_notification=False,
-                   reply_to_message_id=None,
-                   allow_sending_without_reply=False, reply_markup=None):
+                   protect_content=False, reply_to_message_id=None, allow_sending_without_reply=False,
+                   reply_markup=None):
         """
         Use this method to send video files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -655,6 +658,7 @@ class Bot:
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
         :param bool supports_streaming: Pass True, if the uploaded video is suitable for streaming
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -664,11 +668,11 @@ class Bot:
         return types.Message.de_json(
             methods.send_video(self.__based_url, self.__proxies, chat_id, video, duration, width, height, thumb,
                                caption, parse_mode, caption_entities, supports_streaming, disable_notification,
-                               reply_to_message_id, allow_sending_without_reply, reply_markup))
+                               protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_animation(self, chat_id, animation, duration=None, width=None, height=None, thumb=None, caption=None,
-                       parse_mode=None, caption_entities=None, disable_notification=False, reply_to_message_id=None,
-                       allow_sending_without_reply=False, reply_markup=None):
+                       parse_mode=None, caption_entities=None, disable_notification=False, protect_content=False,
+                       reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send animation files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -681,6 +685,7 @@ class Bot:
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -689,15 +694,12 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_animation(self.__based_url, self.__proxies, chat_id, animation, duration, width, height, thumb,
-                                   caption,
-                                   parse_mode,
-                                   caption_entities,
-                                   disable_notification, reply_to_message_id, allow_sending_without_reply,
-                                   reply_markup))
+                                   caption, parse_mode, caption_entities, disable_notification, protect_content,
+                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_voice(self, chat_id, voice, caption=None, parse_mode=None, caption_entities=None, duration=None,
-                   disable_notification=False,
-                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+                   disable_notification=False, protect_content=False, reply_to_message_id=None,
+                   allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send audio files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -707,6 +709,7 @@ class Bot:
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
         :param int or None duration: Duration of the voice in seconds
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -715,12 +718,12 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_voice(self.__based_url, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities,
-                               duration,
-                               disable_notification,
-                               reply_to_message_id, allow_sending_without_reply, reply_markup))
+                               duration, disable_notification, protect_content, reply_to_message_id,
+                               allow_sending_without_reply, reply_markup))
 
     def send_video_note(self, chat_id, video_note, duration=None, length=None, thumb=None, disable_notification=False,
-                        reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+                        protect_content=False, reply_to_message_id=None, allow_sending_without_reply=False,
+                        reply_markup=None):
         """
         Use this method to send video messages
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -729,6 +732,7 @@ class Bot:
         :param int or None length: Video width and height, i.e. diameter of the video message
         :param bytes or str thumb: Thumbnail [file_id or InputFile] of the file sent
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -737,32 +741,32 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_video_note(self.__based_url, self.__proxies, chat_id, video_note, duration, length, thumb,
-                                    disable_notification,
-                                    reply_to_message_id, allow_sending_without_reply, reply_markup))
+                                    disable_notification, protect_content, reply_to_message_id,
+                                    allow_sending_without_reply, reply_markup))
 
-    def send_media_group(self, chat_id, media, disable_notification=False, reply_to_message_id=None,
-                         allow_sending_without_reply=False):
+    def send_media_group(self, chat_id, media, disable_notification=False, protect_content=False,
+                         reply_to_message_id=None, allow_sending_without_reply=False):
         """
         Use this method to send a group of photos or videos as an album
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param list[types.InputMedia] media: A JSON-serialized array describing messages to be sent,
                                              must include 2-10 items
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :return: On success, an array of Messages that were sent is returned
         :rtype: list[types.Message]
         """
-        resp = methods.send_media_group(
-            self.__based_url, self.__proxies, chat_id, media, disable_notification, reply_to_message_id,
-            allow_sending_without_reply)
+        resp = methods.send_media_group(self.__based_url, self.__proxies, chat_id, media, disable_notification,
+                                        protect_content, reply_to_message_id, allow_sending_without_reply)
         result = []
         for x in resp:
             result.append(types.Message.de_json(x))
         return result
 
     def send_location(self, chat_id, latitude, longitude, horizontal_accuracy=None, live_period=None, heading=None,
-                      proximity_alert_radius=None, disable_notification=False,
+                      proximity_alert_radius=None, disable_notification=False, protect_content=False,
                       reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send point on the map
@@ -774,6 +778,7 @@ class Bot:
         :param str or None heading: For live locations, a direction in which the user is moving, in degrees
         :param int or None proximity_alert_radius: a maximum distance proximity alerts about approaching another member
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -782,8 +787,7 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_location(self.__based_url, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy,
-                                  live_period, heading, proximity_alert_radius,
-                                  disable_notification,
+                                  live_period, heading, proximity_alert_radius, disable_notification, protect_content,
                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def edit_message_live_location(self, latitude, longitude, horizontal_accuracy=None, heading=None,
@@ -827,9 +831,8 @@ class Bot:
         return types.Message.de_json(result)
 
     def send_venue(self, chat_id, latitude, longitude, title, address, foursquare_id=None, foursquare_type=None,
-                   google_place_id=None, google_place_type=None,
-                   disable_notification=False, reply_to_message_id=None, allow_sending_without_reply=False,
-                   reply_markup=None):
+                   google_place_id=None, google_place_type=None, disable_notification=False, protect_content=False,
+                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send information about a venue
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -842,22 +845,22 @@ class Bot:
         :param str or None google_place_id: Google Places identifier of the venue
         :param str or None google_place_type: Google Places type of the venue
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
         :return: a Message object
         :rtype: types.Message
         """
-        return types.Message.de_json(
-            methods.send_venue(self.__based_url, self.__proxies, chat_id, latitude, longitude, title, address,
-                               foursquare_id,
-                               foursquare_type,
-                               google_place_id,
-                               google_place_type,
-                               disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
+        return types.Message.de_json(methods.send_venue(self.__based_url, self.__proxies, chat_id, latitude, longitude,
+                                                        title, address, foursquare_id, foursquare_type,
+                                                        google_place_id, google_place_type, disable_notification,
+                                                        protect_content, reply_to_message_id,
+                                                        allow_sending_without_reply, reply_markup))
 
     def send_contact(self, chat_id, phone_number, first_name, last_name=None, vcard=None, disable_notification=False,
-                     reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
+                     protect_content=False, reply_to_message_id=None, allow_sending_without_reply=False,
+                     reply_markup=None):
         """
         Use this method to send phone contacts
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -866,6 +869,7 @@ class Bot:
         :param str or None last_name: Contact's last name
         :param str or None vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -874,11 +878,12 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_contact(self.__based_url, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
-                                 disable_notification, reply_to_message_id, allow_sending_without_reply, reply_markup))
+                                 disable_notification, protect_content, reply_to_message_id,
+                                 allow_sending_without_reply, reply_markup))
 
     def send_poll(self, chat_id, question, options, is_anonymous=True, ttype='regular', allows_multiple_answers=False,
                   correct_option_id=None, explanation=None, explanation_parse_mode=None, explanation_entities=None,
-                  open_period=None, close_date=None, is_closed=True, disable_notifications=False,
+                  open_period=None, close_date=None, is_closed=True, disable_notifications=False, protect_content=False,
                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a native poll
@@ -901,7 +906,8 @@ class Bot:
         Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period
         :param bool is_closed: Pass True, if the poll needs to be immediately closed. This can be useful for poll
         preview
-        :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound.
+        :param bool disable_notifications: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         replied-to message is not found
@@ -914,11 +920,12 @@ class Bot:
             methods.send_poll(self.__based_url, self.__proxies, chat_id, question, options, is_anonymous, ttype,
                               allows_multiple_answers, correct_option_id, explanation, explanation_parse_mode,
                               explanation_entities,
-                              open_period, close_date, is_closed, disable_notifications, reply_to_message_id,
+                              open_period, close_date, is_closed, disable_notifications, protect_content,
+                              reply_to_message_id,
                               allow_sending_without_reply, reply_markup))
 
-    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, reply_to_message_id=None,
-                  allow_sending_without_reply=False, reply_markup=None):
+    def send_dice(self, chat_id, emoji='🎲', disable_notification=False, protect_content=False,
+                  reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a dice
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -926,6 +933,7 @@ class Bot:
                                   “🎲”, “🎯”, “🏀”, “⚽”, “🎳”, or “🎰”. Dice can have values 1-6 for “🎲”, “🎯” and
                                   “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -933,7 +941,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_dice(self.__based_url, self.__proxies, chat_id, emoji, disable_notification,
+            methods.send_dice(self.__based_url, self.__proxies, chat_id, emoji, disable_notification, protect_content,
                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_chat_action(self, chat_id, action):
@@ -1480,13 +1488,14 @@ class Bot:
         """
         return methods.delete_message(self.__based_url, self.__proxies, chat_id, message_id)
 
-    def send_sticker(self, chat_id, sticker, disable_notification=False, reply_to_message_id=None,
-                     allow_sending_without_reply=False, reply_markup=None):
+    def send_sticker(self, chat_id, sticker, disable_notification=False, protect_content=False,
+                     reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send static .WEBP or animated .TGS stickers
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param any sticker: Sticker [file_id or InputFile] to send
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or types.ReplyKeyboardMarkup or types.ReplyKeyboardRemove or types.ForceReply or None reply_markup:
@@ -1495,8 +1504,7 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_sticker(self.__based_url, self.__proxies, chat_id, sticker, disable_notification,
-                                 reply_to_message_id,
-                                 allow_sending_without_reply, reply_markup))
+                                 protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def get_sticker_set(self, name):
         """
@@ -1603,7 +1611,7 @@ class Bot:
                      suggested_tip_amounts=None, start_parameter=None, provider_data=None, photo_url=None,
                      photo_size=None, photo_width=None, photo_height=None, need_name=False, need_phone_number=False,
                      need_email=False, need_shipping_address=False, send_phone_number_to_provider=False,
-                     send_email_to_provider=False, is_flexible=False, disable_notification=False,
+                     send_email_to_provider=False, is_flexible=False, disable_notification=False, protect_content=False,
                      reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send invoices. On success, the sent Message is returned
@@ -1632,6 +1640,7 @@ class Bot:
         :param send_email_to_provider: Pass True, if user's email address should be sent to provider
         :param is_flexible: Pass True, if the final price depends on the shipping method
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
@@ -1643,8 +1652,8 @@ class Bot:
                                  currency, prices, max_tip_amount, suggested_tip_amounts, start_parameter,
                                  provider_data, photo_url, photo_size, photo_width, photo_height, need_name,
                                  need_phone_number, need_email, need_shipping_address, send_phone_number_to_provider,
-                                 send_email_to_provider, is_flexible, disable_notification, reply_to_message_id,
-                                 allow_sending_without_reply, reply_markup))
+                                 send_email_to_provider, is_flexible, disable_notification, protect_content,
+                                 reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def answer_shipping_query(self, shipping_query_id, ok, shipping_options=None, error_message=None):
         """
@@ -1685,13 +1694,14 @@ class Bot:
         """
         return methods.set_passport_data_errors(self.__based_url, self.__proxies, user_id, errors)
 
-    def send_game(self, chat_id, game_short_name, disable_notification=False, reply_to_message_id=None,
-                  allow_sending_without_reply=False, reply_markup=None):
+    def send_game(self, chat_id, game_short_name, disable_notification=False, protect_content=False,
+                  reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to send a game
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
         :param str game_short_name: Short name of the game, serves as the unique identifier for the game
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
+        :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
         :param bool allow_sending_without_reply: Pass True, if  not replied_to_message_id even set
         :param dict or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
@@ -1700,7 +1710,7 @@ class Bot:
         """
         return types.Message.de_json(
             methods.send_game(self.__based_url, self.__proxies, chat_id, game_short_name, disable_notification,
-                              reply_to_message_id, allow_sending_without_reply, reply_markup))
+                              protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
                        inline_message_id=None):

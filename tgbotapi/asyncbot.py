@@ -33,8 +33,12 @@ class AsyncBot(Bot):
         return Bot.close(self)
 
     @async_dec()
-    def send_message(self, *args, **kwargs):
-        return Bot.send_message(self, *args, **kwargs)
+    def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False,
+                     disable_notification=False, protect_content=False, reply_to_message_id=None,
+                     allow_sending_without_reply=False, reply_markup=None):
+        return Bot.send_message(self, chat_id, text, parse_mode, entities, disable_web_page_preview,
+                                disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
+                                reply_markup)
 
     @async_dec()
     def forward_message(self, *args, **kwargs):
