@@ -137,6 +137,14 @@ class AsyncBot(Bot):
         return Bot.set_chat_administrator_custom_title(self, *args, **kwargs)
 
     @async_dec()
+    def ban_chat_sender_chat(self, chat_id, sender_chat_id):
+        return Bot.ban_chat_sender_chat(self, chat_id, sender_chat_id)
+
+    @async_dec()
+    def unban_chat_sender_chat(self, chat_id, sender_chat_id):
+        return Bot.unban_chat_sender_chat(self, chat_id, sender_chat_id)
+
+    @async_dec()
     def set_chat_permissions(self, *args, **kwargs):
         return Bot.set_chat_permissions(self, *args, **kwargs)
 

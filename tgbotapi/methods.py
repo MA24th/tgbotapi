@@ -1113,6 +1113,40 @@ def set_chat_administrator_custom_title(based_url, proxies, chat_id, user_id, cu
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def ban_chat_sender_chat(based_url, proxies, chat_id, sender_chat_id):
+    """
+    Use this method to ban a channel chat in a supergroup or a channel
+    :type based_url: str
+    :type proxies: dict or None
+    :type chat_id: int or str
+    :type sender_chat_id:
+    :rtype: bool
+    """
+    method = r'post'
+    api_method = r'banChatSenderChat'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'chat_id': chat_id, 'sender_chat_id': sender_chat_id}
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
+def unban_chat_sender_chat(based_url, proxies, chat_id, sender_chat_id):
+    """
+    Use this method to unban a previously banned channel chat in a supergroup or channel
+    :type based_url: str
+    :type proxies: dict or None
+    :type chat_id: int or str
+    :type sender_chat_id:
+    :rtype: bool
+    """
+    method = r'post'
+    api_method = r'banChatSenderChat'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'chat_id': chat_id, 'sender_chat_id': sender_chat_id}
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def set_chat_permissions(based_url, proxies, chat_id, permissions):
     """
     Use this method to set default chat permissions for all members
