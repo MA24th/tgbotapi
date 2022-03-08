@@ -1,4 +1,22 @@
 # CHANGELOG
+## _v5.3_
+### Personalized Commands
+- Bots can now show lists of commands tailored to specific situations - including localized commands for users with different languages, as well as different commands based on chat type or for specific chats, and special lists of commands for chat admins.
+- Added the class BotCommandScope, describing the scope to which bot commands apply.
+- Added the parameters scope and language_code to the method setMyCommands to allow bots specify different commands for different chats and users.
+- Added the parameters scope and language_code to the method getMyCommands.
+- Added the method deleteMyCommands to allow deletion of the bot's commands for the given scope and user language.
+- Improved visibility of bot commands in Telegram apps with the new 'Menu' button in chats with bots, read more on the blog.
+
+### Custom Placeholders
+- Added the ability to specify a custom input field placeholder in the classes ReplyKeyboardMarkup and ForceReply.
+
+### And More
+- Improved documentation of the class ChatMember by splitting it into 6 subclasses.
+- Renamed the method kickChatMember to banChatMember.
+- Renamed the method getChatMembersCount to getChatMemberCount.
+- Values of the field file_unique_id in objects of the type PhotoSize and of the fields small_file_unique_id and big_file_unique_id in objects of the type ChatPhoto were changed.
+
 
 ## _v5.2_
 - Support for Payments 2.0, see this manual for more details about the Bot Payments API.

@@ -3,7 +3,7 @@
 The Ultimate [Telegram Bot API](https://core.telegram.org/bots/api) Client Framework
 
 [![GPLv2 license](https://img.shields.io/badge/LICENSE-GPLv2-red)](https://github.com/ma24th/tgbotapi/blob/master/LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-v5.2-yellow.svg)](https://pypi.org/project/tgbotapi/)
+[![PyPI](https://img.shields.io/badge/PyPI-v5.3-yellow.svg)](https://pypi.org/project/tgbotapi/)
 ![Python package](https://github.com/MA24th/tgbotapi/workflows/Python%20package/badge.svg)
 ![Upload Python Package](https://github.com/MA24th/tgbotapi/workflows/Upload%20Python%20Package/badge.svg)
 
@@ -103,22 +103,26 @@ bot.polling()
 To start the bot, simply open up a terminal and enter `python echo_bot.py` to run the bot! Test it by sending commands ('/start' and '/help') and arbitrary text messages.
 
 ### ChangeLog
-**_version 5.2_**
-- Support for Payments 2.0, see this manual for more details about the Bot Payments API.
-- Added the type InputInvoiceMessageContent to support sending invoices as inline query results.
-- Allowed sending invoices to group, supergroup and channel chats.
-- Added the fields max_tip_amount and suggested_tip_amounts to the method sendInvoice to allow adding optional tips to the
-payment.
-- The parameter start_parameter of the method sendInvoice became optional. If the parameter isn't specified, the invoice 
-can be paid directly from forwarded messages.
-- Added the field chat_type to the class InlineQuery, containing the type of the chat, from which the inline request was 
-sent.
-- Added the type VoiceChatScheduled and the field voice_chat_scheduled to the class Message.
+**_version 5.3_**
+### Personalized Commands
+- Bots can now show lists of commands tailored to specific situations - including localized commands for users with different languages, as well as different commands based on chat type or for specific chats, and special lists of commands for chat admins.
+- Added the class BotCommandScope, describing the scope to which bot commands apply.
+- Added the parameters scope and language_code to the method setMyCommands to allow bots specify different commands for different chats and users.
+- Added the parameters scope and language_code to the method getMyCommands.
+- Added the method deleteMyCommands to allow deletion of the bot's commands for the given scope and user language.
+- Improved visibility of bot commands in Telegram apps with the new 'Menu' button in chats with bots, read more on the blog.
+
+### Custom Placeholders
+- Added the ability to specify a custom input field placeholder in the classes ReplyKeyboardMarkup and ForceReply.
+
+### And More
+- Improved documentation of the class ChatMember by splitting it into 6 subclasses.
+- Renamed the method kickChatMember to banChatMember.
+- Renamed the method getChatMembersCount to getChatMemberCount.
+- Values of the field file_unique_id in objects of the type PhotoSize and of the fields small_file_unique_id and big_file_unique_id in objects of the type ChatPhoto were changed.
 
 **_Fixes_**
-- Fixed an error in sendChatAction documentation to correctly mention “record_voice” and “upload_voice” instead of 
-“record_audio” and “upload_audio” for related to voice note actions. Old action names will still work for backward 
-compatibility.
+- No Issues until Now
 
 ### Guide
 For more explanation goto [Wiki Tab](https://github.com/MA24th/tgbotapi/wiki).
