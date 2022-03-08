@@ -10,7 +10,7 @@ import json
 class Update(JsonDeserializable):
     def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                  chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer,
-                 my_chat_member, chat_member):
+                 my_chat_member, chat_member, chat_join_request):
         """
         This object represents an incoming update
         """
@@ -28,6 +28,7 @@ class Update(JsonDeserializable):
         self.poll_answer = poll_answer
         self.my_chat_member = my_chat_member
         self.chat_member = chat_member
+        self.chat_join_request = chat_join_request
 
     @classmethod
     def de_json(cls, obj_type):
@@ -74,9 +75,12 @@ class Update(JsonDeserializable):
         chat_member = None
         if 'chat_member' in obj:
             chat_member = ChatMemberUpdated.de_json(obj['chat_member'])
+        chat_join_request = None
+        if 'chat_join_request' in obj:
+            chat_join_request = ChatJoinRequest.de_json(obj['chat_join_request'])
         return cls(update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                    chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer,
-                   my_chat_member, chat_member)
+                   my_chat_member, chat_member, chat_join_request)
 
 
 class WebhookInfo(JsonDeserializable):
@@ -1671,6 +1675,49 @@ class ChatMemberUpdated(JsonDeserializable):
         if 'invite_link' in obj:
             invite_link = ChatInviteLink.de_json(obj['invite_link'])
         return cls(chat, from_user, date, old_chat_member, new_chat_member, invite_link)
+
+
+class ChatJoinRequest(Dictionaryable, JsonDeserializable):
+    def __init__(self, chat, from_user, date, bio, invite_link):
+        """
+        Represents a join request sent to a chat
+        :param Chat chat: Chat to which the request was sent
+        :param User from_user: User that sent the join request
+        :param int date: Date the request was sent in Unix time
+        :param str or None bio: Optional. Bio of the user
+        :param ChatInviteLink or None invite_link: Optional. Chat invite link that was used by the user to send the
+                                                   join request
+        """
+        self.chat = chat
+        self.from_user = from_user
+        self.date = date
+        self.bio = bio
+        self.invite_link = invite_link
+
+    def to_dict(self):
+        """
+        :rtype: dict
+        """
+        obj = {'chat': self.chat, 'user': self.from_user, 'date': self.date}
+        if self.bio:
+            obj['bio'] = self.bio
+        if self.invite_link:
+            obj['invite_link'] = self.invite_link
+        return obj
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        chat = Chat.de_json(obj['chat'])
+        from_user = User.de_json(obj['user'])
+        date = obj['date']
+        bio = None
+        if 'bio' in obj:
+            bio = obj['bio']
+        invite_link = None
+        if 'invite_link' in obj:
+            invite_link = ChatInviteLink.de_json(obj['invite_link'])
+        return cls(chat, from_user, date, bio, invite_link)
 
 
 class ChatPermissions(JsonDeserializable):

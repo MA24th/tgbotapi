@@ -43,6 +43,7 @@ class Bot:
         self.__poll_answer_handlers = []
         self.__my_chat_member_handlers = []
         self.__chat_member_handlers = []
+        self.__chat_join_request_handlers = []
 
     def __get_updates(self, offset=None, limit=100, timeout=0, allowed_updates=None):
         """
@@ -91,6 +92,7 @@ class Bot:
         new_poll_answers = []
         new_my_chat_member = []
         new_chat_member = []
+        new_chat_join_request = []
 
         for update in updates:
             if update.update_id > self.__last_update_id:
@@ -121,6 +123,8 @@ class Bot:
                 new_my_chat_member.append(update.my_chat_member)
             if update.chat_member:
                 new_chat_member.append(update.chat_member)
+            if update.chat_join_request:
+                new_chat_join_request.append(update.chat_join_request)
 
         utils.logger.info(f'RECEIVED {len(updates)} UPDATES')
         if len(updates) > 0:
@@ -150,6 +154,8 @@ class Bot:
                 self.__process_new_my_chat_member(new_my_chat_member)
             if len(new_chat_member) > 0:
                 self.__process_new_chat_member(new_chat_member)
+            if len(new_chat_join_request) > 0:
+                self.__process_new_chat_join_request(new_chat_join_request)
 
     def __retrieve_updates(self, timeout=20):
         """
@@ -222,6 +228,9 @@ class Bot:
     def __process_new_chat_member(self, chat_member):
         self.__notify_command_handlers(self.__chat_member_handlers, chat_member)
 
+    def __process_new_chat_join_request(self, chat_join_request):
+        self.__notify_command_handlers(self.__chat_join_request_handlers, chat_join_request)
+
     @staticmethod
     def __build_handler_dict(handler, **filters):
         """
@@ -289,6 +298,9 @@ class Bot:
             elif update_type == 'chat_member':
                 handler_dict = self.__build_handler_dict(handler, func=func)
                 self.__chat_member_handlers.append(handler_dict)
+            elif update_type == 'chat_join_request':
+                handler_dict = self.__build_handler_dict(handler, func=func)
+                self.__chat_join_request_handlers.append(handler_dict)
             else:
                 handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
                                                          regexp=regexp, func=func)
