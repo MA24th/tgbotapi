@@ -1525,39 +1525,47 @@ class Bot:
         """
         return types.File.de_json(methods.upload_sticker_file(self.__based_url, self.__proxies, user_id, png_sticker))
 
-    def create_new_sticker_set(self, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks=None,
-                               mask_position=False):
+    def create_new_sticker_set(self, user_id, name, title, emojis=None, png_sticker=None, tgs_sticker=None,
+                               webm_sticker=None, contains_masks=False, mask_position=None):
         """
         Use this method to create a new sticker set owned by a user
         :param int user_id: Unique identifier of the target user
         :param str name: Short name of sticker set
         :param str title: New chat title, 1-255 characters
-        :param any or None png_sticker: PNG image [file_id or InputFile] with the sticker
-        :param any or None tgs_sticker: TGS animation [InputFile] with the sticker
+        :param any or None png_sticker: PNG image with the sticker, must be up to 512 kilobytes in size,
+                                        dimensions must not exceed 512px, and either width or height must be exactly
+                                        512px
+        :param any or None tgs_sticker: TGS animation with the sticker, uploaded using multipart/form-data
+        :param types.InputFile or None webm_sticker: WEBM video with the sticker, uploaded using multipart/form-data
         :param str emojis: One or more emoji corresponding to the sticker
         :param bool contains_masks: Pass True, if a set of mask stickers should be created
-        :param any or None mask_position: A JSON-serialized object for position where the mask should be placed on faces
+        :param types.MaskPosition or None mask_position: A JSON-serialized object for position where the mask should be
+                                                         placed on faces
         :return: True On success
         :rtype: bool
         """
         return methods.create_new_sticker_set(self.__based_url, self.__proxies, user_id, name, title, png_sticker,
-                                              tgs_sticker, emojis,
-                                              contains_masks, mask_position)
+                                              tgs_sticker, webm_sticker, emojis, contains_masks, mask_position)
 
-    def add_sticker_to_set(self, user_id, name, png_sticker, tgs_sticker, emojis, mask_position=False):
+    def add_sticker_to_set(self, user_id, name, emojis, png_sticker=None, tgs_sticker=None, webm_sticker=None,
+                           mask_position=None):
         """
         Use this method to add a new sticker to a set created by the bot
         :param int user_id: Unique identifier of the target user
         :param str name: Short name of sticker set
-        :param any png_sticker: PNG image [file_id or InputFile] with the sticker
-        :param any or None tgs_sticker: TGS animation [InputFile] with the sticker
+        :param any or None png_sticker: PNG image with the sticker, must be up to 512 kilobytes in size,
+                                        dimensions must not exceed 512px, and either width or height must be exactly
+                                        512px
+        :param any or None tgs_sticker: TGS animation with the sticker, uploaded using multipart/form-data
+        :param types.InputFile or None webm_sticker: WEBM video with the sticker, uploaded using multipart/form-data
         :param str emojis: One or more emoji corresponding to the sticker
-        :param any or None mask_position: A JSON-serialized object for position where the mask should be placed on faces
+        :param types.MaskPosition or None mask_position: A JSON-serialized object for position where the mask should be
+                                                         placed on faces
         :return: True On success
         :rtype: bool
         """
         return methods.add_sticker_to_set(self.__based_url, self.__proxies, user_id, name, png_sticker, tgs_sticker,
-                                          emojis, mask_position)
+                                          webm_sticker, emojis, mask_position)
 
     def set_sticker_position_in_set(self, sticker, position):
         """

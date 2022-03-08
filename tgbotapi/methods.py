@@ -1908,8 +1908,8 @@ def upload_sticker_file(based_url, proxies, user_id, png_sticker):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker, tgs_sticker, emojis, contains_masks,
-                           mask_position):
+def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker, tgs_sticker, webm_sticker, emojis,
+                           contains_masks, mask_position):
     """
     Use this method to create a new sticker set owned by a user
     :type based_url: str
@@ -1919,9 +1919,10 @@ def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker
     :type title: str
     :type png_sticker: any or None
     :type tgs_sticker: any or None
+    :type webm_sticker: any or None
     :type emojis: str
     :type contains_masks: bool
-    :type mask_position: dict
+    :type mask_position: dict or None
     :rtype: bool
     """
     method = r'post'
@@ -1935,6 +1936,8 @@ def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker
         params['png_sticker'] = png_sticker
     if not is_string(tgs_sticker):
         files = {'tgs_sticker', tgs_sticker}
+    if not is_string(webm_sticker):
+        files = {'webm_sticker', webm_sticker}
     if contains_masks:
         params['contains_masks'] = contains_masks
     if mask_position:
@@ -1942,7 +1945,8 @@ def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, tgs_sticker, mask_position):
+def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, tgs_sticker, webm_sticker,
+                       mask_position):
     """
     Use this method to add a new sticker to a set created by the bot
     :type based_url: str
@@ -1951,8 +1955,9 @@ def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, t
     :type name: str
     :type png_sticker: any or None
     :type tgs_sticker: any or None
+    :type webm_sticker: any or None
     :type emojis: str
-    :type mask_position: dict
+    :type mask_position: dict or None
     :rtype: bool
     """
     method = r'post'
@@ -1966,6 +1971,8 @@ def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, t
         params['png_sticker'] = png_sticker
     if not is_string(tgs_sticker):
         files = {'tgs_sticker': tgs_sticker}
+    if not is_string(webm_sticker):
+        files = {'webm_sticker', webm_sticker}
     if mask_position:
         params['mask_position'] = mask_position
     return make_request(method, api_url, api_method, files, params, proxies)
