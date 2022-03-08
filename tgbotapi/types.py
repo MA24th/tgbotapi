@@ -2,7 +2,7 @@ from .utils import *
 import json
 
 """ 
-    Telegram Available types
+    Telegram Available types,
     All types used in the Bot API responses are represented as JSON-objects.
 """
 
