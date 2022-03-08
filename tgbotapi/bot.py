@@ -1277,9 +1277,21 @@ class Bot:
         """
         return methods.set_my_commands(self.__based_url, self.__proxies, commands, scope, language_code)
 
+    def delete_my_commands(self, scope=None, language_code=None):
+        """
+        Use this method to delete the list of the bots commands for the given scope and user language
+        :param types.BotCommandScope or None scope: A JSON-serialized object, describing scope of users.
+                                                    Defaults to BotCommandScopeDefault
+        :param str or None language_code: A two-letter ISO 639-1 language code If empty, commands will be applied to all
+                                          users from the given scope, for whose language there are no dedicated commands
+        :return: True on success
+        :rtype: bool
+        """
+        return methods.delete_my_commands(self.__based_url, self.__proxies, scope, language_code)
+
     def get_my_commands(self, scope=None, language_code=None):
         """
-        Use this method to get the current list of the bots commands.
+        Use this method to get the current list of the bots commands
         :param types.BotCommandScope or None scope: A JSON-serialized object, describing scope of users.
                                                     Defaults to BotCommandScopeDefault
         :param str or None language_code: A two-letter ISO 639-1 language code or an empty string

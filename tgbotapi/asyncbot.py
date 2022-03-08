@@ -217,12 +217,16 @@ class AsyncBot(Bot):
         return Bot.answer_callback_query(self, *args, **kwargs)
 
     @async_dec()
-    def set_my_commands(self, *args, **kwargs):
-        return Bot.set_my_commands(self, *args, **kwargs)
+    def set_my_commands(self, commands, scope=None, language_code=None):
+        return Bot.set_my_commands(self, commands, scope, language_code)
 
     @async_dec()
-    def get_my_commands(self, *args, **kwargs):
-        return Bot.get_my_commands(self, *args, **kwargs)
+    def delete_my_commands(self, scope=None, language_code=None):
+        return Bot.delete_my_commands(self, scope, language_code)
+
+    @async_dec()
+    def get_my_commands(self, scope=None, language_code=None):
+        return Bot.get_my_commands(self, scope, language_code)
 
     @async_dec()
     def edit_message_text(self, *args, **kwargs):
