@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
+
+"""
+tgbotapi.utils.logger
+~~~~~~~~~~~~~~~~~~~~~
+This submodule provides logger utility functions that are consumed internally by tgbotapi
+"""
 import logging
 import sys
 
-""" logging submodule """
 
 logger = logging.getLogger('TgBotAPI')
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s]-> %(threadName)s: "%(message)s"')

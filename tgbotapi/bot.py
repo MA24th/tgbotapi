@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+
+"""
+tgbotapi.bot
+~~~~~~~~~~~~
+This submodule provides a Bot object to manage and persist settings across
+tgbotapi (based_url, allowed_update, threaded, skip_pending, num_threads, proxies).
+"""
+
 from . import methods
 from . import types
 from . import utils
@@ -5,18 +14,17 @@ import threading
 import time
 import re
 
-""" This is Bot module """
-
 
 class Bot:
     def __init__(self, based_url, allowed_updates=None, threaded=True, skip_pending=False, num_threads=2, proxies=None):
         """
         Use this class to create bot instance
         :param str based_url: Required, The API url with Bot token
-        :param list[str] or None allowed_updates: specify [“message”, “edited_channel_post”, “callback_query”] to
-                                                 only receive updates of these types
+        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
+                                                  receive, For example, specify [“message”, “edited_channel_post”,
+                                                  “callback_query”] to only receive updates of these types
         :param bool threaded: Enable Threading
-        :param bool skip_pending: Skip Old Updates
+        :param bool skip_pending: Pass True to drop all pending Updates
         :param int num_threads: Number of thread to process incoming tasks, default 2
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
@@ -51,7 +59,9 @@ class Bot:
         :param int or None offset: Identifier of the first update to be returned
         :param int or None limit: Limits the number of updates to be retrieved
         :param int or None timeout: Timeout in seconds for long polling
-        :param list or None allowed_updates: An Array of String
+        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
+                                                  receive, For example, specify [“message”, “edited_channel_post”,
+                                                  “callback_query”] to only receive updates of these types
         :return: An Array of Update objects
         :rtype: list[types.Update]
         """
@@ -75,7 +85,7 @@ class Bot:
             for update in updates:
                 if update.update_id > self.__last_update_id:
                     self.__last_update_id = update.update_id
-            updates = self.__get_updates(offset=self.__last_update_id + 1, timeout=1)
+            updates = self.__get_updates(offset=self.__last_update_id + 1, timeout=total + 1)
         return total
 
     def __process_new_updates(self, updates):
@@ -248,63 +258,58 @@ class Bot:
     def update_handler(self, update_type=None, chat_type=None, bot_command=None, regexp=None, func=None):
         """
         Update handler decorator
-        :param str or None update_type: specify one of allowed_updates to take action
-        :param str or list or None chat_type: list of chat types (private, supergroup, group, channel)
+        :param str or list[str] or None update_type: specify one of allowed_updates to take action, Default 'message'
+        :param str or list or None chat_type: list of chat types (private, supergroup, group, channel), works only with
+                                              these updates ['message', 'edited_message', 'channel_post',
+                                              'edited_channel_post','my_chat_member','chat_member','chat_join_request']
         :param str or list or None bot_command: Bot Commands like (/start, /help)
         :param str or None regexp: Sequence of characters that define a search pattern
         :param function or None func: any python function that return True On success like (lambda)
         :return: filtered Update`
         """
+        if update_type is None:
+            update_type = self.__allowed_updates
 
         def decorator(handler):
-            if update_type == 'message':
-                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
-                                                         regexp=regexp, func=func)
-                self.__message_handlers.append(handler_dict)
-            elif update_type == 'edited_message':
-                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
-                                                         regexp=regexp, func=func)
-                self.__edited_message_handlers.append(handler_dict)
-            elif update_type == 'channel_post':
-                handler_dict = self.__build_handler_dict(handler, regexp=regexp, func=func)
-                self.__channel_post_handlers.append(handler_dict)
-            elif update_type == 'edited_channel_post':
-                handler_dict = self.__build_handler_dict(handler, regexp=regexp, func=func)
-                self.__edited_channel_post_handlers.append(handler_dict)
-            elif update_type == 'inline_query':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__inline_query_handlers.append(handler_dict)
-            elif update_type == 'chosen_inline':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__chosen_inline_handlers.append(handler_dict)
-            elif update_type == 'callback_query':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__callback_query_handlers.append(handler_dict)
-            elif update_type == 'shipping_query':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__shipping_query_handlers.append(handler_dict)
-            elif update_type == 'pre_check_query':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__pre_checkout_query_handlers.append(handler_dict)
-            elif update_type == 'poll':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__poll_handlers.append(handler_dict)
-            elif update_type == 'poll_answer':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__poll_answer_handlers.append(handler_dict)
-            elif update_type == 'my_chat_member':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__my_chat_member_handlers.append(handler_dict)
-            elif update_type == 'chat_member':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__chat_member_handlers.append(handler_dict)
-            elif update_type == 'chat_join_request':
-                handler_dict = self.__build_handler_dict(handler, func=func)
-                self.__chat_join_request_handlers.append(handler_dict)
+            if 'message' in update_type:
+                self.__message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                         bot_command=bot_command, regexp=regexp,
+                                                                         func=func))
+            elif 'edited_message' in update_type:
+                self.__edited_message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                                bot_command=bot_command, regexp=regexp,
+                                                                                func=func))
+            elif 'channel_post' in update_type:
+                self.__channel_post_handlers.append(self.__build_handler_dict(handler, regexp=regexp, func=func))
+            elif 'edited_channel_post' in update_type:
+                self.__edited_channel_post_handlers.append(self.__build_handler_dict(handler, regexp=regexp, func=func))
+            elif 'inline_query' in update_type:
+                self.__inline_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'chosen_inline' in update_type:
+                self.__chosen_inline_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'callback_query' in update_type:
+                self.__callback_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'shipping_query' in update_type:
+                self.__shipping_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'pre_check_query' in update_type:
+                self.__pre_checkout_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'poll' in update_type:
+                self.__poll_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'poll_answer' in update_type:
+                self.__poll_answer_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'my_chat_member' in update_type:
+                self.__my_chat_member_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                                func=func))
+            elif 'chat_member' in update_type:
+                self.__chat_member_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                             func=func))
+            elif 'chat_join_request' in update_type:
+                self.__chat_join_request_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                                   func=func))
             else:
-                handler_dict = self.__build_handler_dict(handler, chat_type=chat_type, bot_command=bot_command,
-                                                         regexp=regexp, func=func)
-                self.__message_handlers.append(handler_dict)
+                self.__message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                         bot_command=bot_command, regexp=regexp,
+                                                                         func=func))
             return handler
 
         return decorator
@@ -334,7 +339,7 @@ class Bot:
         :param message:
         :return:
         """
-        if filters == 'chat_types':
+        if filters == 'chat_type':
             return message.chat.ttype in filter_value
         elif filters == 'regexp':
             return message.text and re.search(filter_value, message.text, re.IGNORECASE)
@@ -343,7 +348,7 @@ class Bot:
         elif filters == 'bot_command':
             entity = message.entities
             if entity:
-                return entity[0].ttype == 'bot_command' and utils.extract_command(message.text) in filter_value
+                return entity[0].ttype == 'bot_command'
             else:
                 return False
         else:
@@ -364,7 +369,7 @@ class Bot:
         This allows the bot to retrieve Updates automatically and notify listeners and message handlers accordingly
         Warning: Do not call this function more than once!
         Always get updates
-        :param bool none_stop:  Do not stop polling when an ApiException occurs
+        :param bool none_stop: Do not stop polling when an ApiException occurs
         :param int interval:
         :param int timeout: Timeout in seconds for long polling
         :return:
@@ -393,7 +398,7 @@ class Bot:
                 self.__worker_pool.raise_exceptions()
 
                 error_interval = 0.25
-            except methods.ApiException as e:
+            except utils.ApiException as e:
                 utils.logger.error(e)
                 if not none_stop:
                     self.__stop_polling.set()
@@ -421,7 +426,7 @@ class Bot:
             try:
                 self.__retrieve_updates(timeout)
                 error_interval = 0.25
-            except methods.ApiException as e:
+            except utils.ApiException as e:
                 utils.logger.error(e)
                 if not none_stop:
                     self.__stop_polling.set()
@@ -445,12 +450,12 @@ class Bot:
         if self.__worker_pool:
             self.__worker_pool.close()
 
-    def set_webhook(self, url=None, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
+    def set_webhook(self, url, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
                     drop_pending_updates=False):
         """
         Use this method to specify an url and receive incoming updates via an outgoing webhook
         :param str url: HTTPS url to send updates to. Use an empty string to remove webhook integration
-        :param any or None certificate: Upload your public key [InputFile] certificate
+        :param types.InputFile or None certificate: Upload your public key [InputFile] certificate
         :param str or None ip_address: The fixed IP address which will be used to send webhook requests
         :param int max_connections: Maximum allowed number of simultaneous HTTPS connections to the webhook for update
         :param list or None allowed_updates: A JSON-serialized list of the update types you want your bot to receive
@@ -541,9 +546,9 @@ class Bot:
             methods.forward_message(self.__based_url, self.__proxies, chat_id, from_chat_id, message_id,
                                     disable_notification, protect_content))
 
-    def copy_message(self, chat_id, from_chat_id, message_id, caption, parse_mode, caption_entities,
-                     disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
-                     reply_markup):
+    def copy_message(self, chat_id, from_chat_id, message_id, caption=None, parse_mode=None, caption_entities=None,
+                     disable_notification=False, protect_content=False, reply_to_message_id=None,
+                     allow_sending_without_reply=False, reply_markup=None):
         """
         Use this method to copy messages of any kind
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
@@ -571,7 +576,7 @@ class Bot:
         """
         Use this method to send photos
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str photo: Photo [file_id or InputFile] to send
+        :param types.InputFile or str photo: Photo [file_id or file_url or InputFile] to send
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -595,7 +600,7 @@ class Bot:
         """
         Use this method to send audio files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str audio: Audio [file_id or InputFile] to send
+        :param types.InputFile or str audio: Audio [file_id or file_url or InputFile] to send
         :param str or None caption: Photo caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -622,8 +627,8 @@ class Bot:
         """
         Use this method to send general files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str document: File [file_id or InputFile] to send
-        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent
+        :param types.InputFile or str document: File [file_id or file_url or InputFile] to send
+        :param types.InputFile or str or None thumb: Thumbnail [file_id or file_url or InputFile] of the file sent
         :param str or None caption: Document caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -648,11 +653,11 @@ class Bot:
         """
         Use this method to send video files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str video: Video [file_id or InputFile] to send
+        :param types.InputFile or str video: Video [file_id or file_url or InputFile] to send
         :param int or None duration: Duration of the video in seconds
         :param int or None width: Video width
         :param int or None height: Video height
-        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent
+        :param types.InputFile or str or None thumb: Thumbnail [file_id or file_url or InputFile] of the file sent
         :param str or None caption: Video caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -676,11 +681,11 @@ class Bot:
         """
         Use this method to send animation files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str animation: Animation [file_id or InputFile] to send
+        :param types.InputFile or str animation: Animation [file_id or file_url or InputFile] to send
         :param int or None duration: Duration of the animation in seconds
         :param int or None width: Animation width
         :param int or None height: Animation height
-        :param any or None thumb: Thumbnail [file_id or InputFile] of the file sent
+        :param types.InputFile or str or None thumb: Thumbnail [file_id or file_url or InputFile] of the file sent
         :param str or None caption: Video caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -703,7 +708,7 @@ class Bot:
         """
         Use this method to send audio files
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str voice: Audio [file_id or InputFile] to send
+        :param types.InputFile or str voice: Audio [file_id or file_url or InputFile] to send
         :param str or None caption: Voice caption, 0-1024 characters after entities parsing
         :param str or None parse_mode: Send Markdown or HTML
         :param list[MessageEntity] or None caption_entities: A JSON-serialized list of special entities
@@ -727,10 +732,10 @@ class Bot:
         """
         Use this method to send video messages
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes or str video_note: Video note [file_id or InputFile] to send
+        :param types.InputFile or str video_note: Video note [file_id or file_url or InputFile] to send
         :param int or None duration: Duration of the VideoNote in seconds
         :param int or None length: Video width and height, i.e. diameter of the video message
-        :param bytes or str thumb: Thumbnail [file_id or InputFile] of the file sent
+        :param types.InputFile or str or None thumb: Thumbnail [file_id or file_url or InputFile] of the file sent
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
         :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
@@ -1092,7 +1097,7 @@ class Bot:
         """
         Use this method to set default chat permissions for all members
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param dict permissions: New default chat permissions must be a ChatPermissions object
+        :param types.ChatPermission permissions: New default chat permissions must be a ChatPermissions object
         :return: True On success
         :rtype: bool
         """
@@ -1185,7 +1190,7 @@ class Bot:
         """
         Use this method to set a new profile photo for the chat
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param bytes photo: Use this method to set a new profile photo for the chat
+        :param types.InputFile photo: Use this method to set a new profile photo for the chat
         :return: True On success
         :rtype: bool
         """
@@ -1432,7 +1437,7 @@ class Bot:
         :param int or str chat_id: Required if inline_message_id is not specified,Unique identifier for the target chat
         :param int or None message_id: Required if inline_message_id is not specified,Identifier of the message to edit
         :param str or None inline_message_id: Required if chat_id and message_id are not specified
-        :param any media: A JSON-serialized object for a new media content of the message must be InputMedia
+        :param types.InputFile media: A JSON-serialized object for a new media content of the message must be InputMedia
         :param types.InlineKeyboardMarkup or None reply_markup: A JSON-serialized object for an InlineKeyboardMarkup
         :return: a Message object On success, otherwise True
         :rtype: types.Message or bool
@@ -1493,7 +1498,7 @@ class Bot:
         """
         Use this method to send static .WEBP or animated .TGS stickers
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-        :param any sticker: Sticker [file_id or InputFile] to send
+        :param types.InputFile or str sticker: Sticker [file_id or file_url or InputFile] to send
         :param bool disable_notification: Sends the message silently. Users will receive a notification with no sound
         :param bool protect_content: Protects the contents of the forwarded message from forwarding and saving
         :param int or None reply_to_message_id: If the message is a reply, ID of the original message
@@ -1519,7 +1524,7 @@ class Bot:
         """
         Use this method to upload a .PNG file with a sticker
         :param int user_id: Unique identifier of the target user
-        :param bytes or str png_sticker: Png image with the sticker
+        :param types.InputFile png_sticker: Png image with the sticker
         :return: a File object On success
         :rtype: types.File
         """
@@ -1532,10 +1537,10 @@ class Bot:
         :param int user_id: Unique identifier of the target user
         :param str name: Short name of sticker set
         :param str title: New chat title, 1-255 characters
-        :param any or None png_sticker: PNG image with the sticker, must be up to 512 kilobytes in size,
-                                        dimensions must not exceed 512px, and either width or height must be exactly
-                                        512px
-        :param any or None tgs_sticker: TGS animation with the sticker, uploaded using multipart/form-data
+        :param types.InputFile or str or None png_sticker: PNG image with the sticker, must be up to 512 kilobytes in
+                                                           size, dimensions must not exceed 512px, and either width or
+                                                           height must be exactly 512px
+        :param types.InputFile or None tgs_sticker: TGS animation with the sticker, uploaded using multipart/form-data
         :param types.InputFile or None webm_sticker: WEBM video with the sticker, uploaded using multipart/form-data
         :param str emojis: One or more emoji corresponding to the sticker
         :param bool contains_masks: Pass True, if a set of mask stickers should be created
@@ -1553,10 +1558,10 @@ class Bot:
         Use this method to add a new sticker to a set created by the bot
         :param int user_id: Unique identifier of the target user
         :param str name: Short name of sticker set
-        :param any or None png_sticker: PNG image with the sticker, must be up to 512 kilobytes in size,
-                                        dimensions must not exceed 512px, and either width or height must be exactly
-                                        512px
-        :param any or None tgs_sticker: TGS animation with the sticker, uploaded using multipart/form-data
+        :param types.InputFile or str or None png_sticker: PNG image with the sticker, must be up to 512 kilobytes in
+                                                           size, dimensions must not exceed 512px, and either width or
+                                                           height must be exactly 512px
+        :param types.InputFile or None tgs_sticker: TGS animation with the sticker, uploaded using multipart/form-data
         :param types.InputFile or None webm_sticker: WEBM video with the sticker, uploaded using multipart/form-data
         :param str emojis: One or more emoji corresponding to the sticker
         :param types.MaskPosition or None mask_position: A JSON-serialized object for position where the mask should be
@@ -1591,7 +1596,7 @@ class Bot:
         Use this method to set the thumbnail of a sticker set
         :param str name: Short name of sticker set
         :param int user_id: Unique identifier of the target user
-        :param str or bytearray or None thumb: Thumbnail [file_id or InputFile] of the file sent
+        :param types.InputFile or str or None thumb: Thumbnail [file_id or file_url or InputFile] of the file sent
         :return: True On success
         :rtype: bool
         """

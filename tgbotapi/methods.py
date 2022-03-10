@@ -1,12 +1,16 @@
-from .utils import *
-import json
+# -*- coding: utf-8 -*-
 
-""" Telegram Available methods
-    All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods. 
-    Use either URL query string or application/json or application/x-www-form-urlencoded,
-    Or multipart/form-data for passing parameters in Bot API requests.
-    On successful call, a JSON-object containing the result will be returned.
 """
+tgbotapi.methods
+~~~~~~~~~~~~~~~~
+This submodule provides a Telegram Available methods,
+All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods,
+Use either URL query string or application/json or application/x-www-form-urlencoded,
+Or multipart/form-data for passing parameters in Bot API requests,
+On successful call, a JSON-object containing the result will be returned,
+that are also useful for external consumption.
+"""
+from .utils import make_request
 
 
 def get_updates(based_url, proxies, offset, limit, timeout, allowed_updates):
@@ -32,7 +36,7 @@ def get_updates(based_url, proxies, offset, limit, timeout, allowed_updates):
     if timeout:
         params['timeout'] = timeout
     if allowed_updates:
-        params['allowed_updates'] = json.dumps(allowed_updates)
+        params['allowed_updates'] = allowed_updates
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -43,8 +47,8 @@ def set_webhook(based_url, proxies, url, certificate, ip_address, max_connection
     :type based_url: str
     :type proxies: dict or None
     :type url: str
-    :type certificate: any
-    :type ip_address: str
+    :type certificate: BinaryIO or None
+    :type ip_address: str or None
     :type max_connections: int
     :type allowed_updates: list or None
     :type drop_pending_updates: bool
@@ -54,7 +58,7 @@ def set_webhook(based_url, proxies, url, certificate, ip_address, max_connection
     api_method = r'setWebhook'
     api_url = based_url + '/' + api_method
     files = None
-    params = {'url': url if url else ""}
+    params = {'url': url}
     if certificate:
         files = {'certificate': certificate}
     if ip_address:
@@ -62,7 +66,7 @@ def set_webhook(based_url, proxies, url, certificate, ip_address, max_connection
     if max_connections:
         params['max_connections'] = max_connections
     if allowed_updates:
-        params['allowed_updates'] = json.dumps(allowed_updates)
+        params['allowed_updates'] = allowed_updates
     if drop_pending_updates:
         params['drop_pending_updates'] = drop_pending_updates
     return make_request(method, api_url, api_method, files, params, proxies)
@@ -184,7 +188,7 @@ def send_message(based_url, proxies, chat_id, text, parse_mode, entities, disabl
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -263,7 +267,7 @@ def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type photo: bytes or str
+    :type photo: BinaryIO or str
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -279,7 +283,7 @@ def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(photo):
+    if not isinstance(photo, str):
         files = {'photo': photo}
     else:
         params['photo'] = photo
@@ -298,7 +302,7 @@ def send_photo(based_url, proxies, chat_id, photo, caption, parse_mode, caption_
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -310,14 +314,14 @@ def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type audio: bytes or str
+    :type audio: BinaryIO or str
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
     :type duration: int or None
     :type performer: str or None
     :type title: str or None
-    :type thumb: any
+    :type thumb: BinaryIO
     :type disable_notification: bool
     :type protect_content: bool
     :type reply_to_message_id: int or None
@@ -330,7 +334,7 @@ def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(audio):
+    if not isinstance(audio, str):
         files = {'audio': audio}
     else:
         params['audio'] = audio
@@ -357,7 +361,7 @@ def send_audio(based_url, proxies, chat_id, audio, caption, parse_mode, caption_
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -369,8 +373,8 @@ def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_m
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type document: bytes or str
-    :type thumb: any or None
+    :type document: BinaryIO or str
+    :type thumb: BinaryIO or None
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -387,7 +391,7 @@ def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_m
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(document):
+    if not isinstance(document, str):
         files = {'document': document}
     else:
         params['document'] = document
@@ -410,7 +414,7 @@ def send_document(based_url, proxies, chat_id, document, thumb, caption, parse_m
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -422,11 +426,11 @@ def send_video(based_url, proxies, chat_id, video, duration, width, height, thum
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type video: bytes or str
+    :type video: BinaryIO or str
     :type duration: int or None
     :type width: int or None
     :type height: int or None
-    :type thumb: any
+    :type thumb: BinaryIO
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -443,7 +447,7 @@ def send_video(based_url, proxies, chat_id, video, duration, width, height, thum
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(video):
+    if not isinstance(video, str):
         files = {'video': video}
     else:
         params['video'] = video
@@ -472,7 +476,7 @@ def send_video(based_url, proxies, chat_id, video, duration, width, height, thum
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -484,11 +488,11 @@ def send_animation(based_url, proxies, chat_id, animation, duration, width, heig
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type animation: bytes or str
+    :type animation: BinaryIO or str
     :type duration: int or None
     :type width: int or None
     :type height: int or None
-    :type thumb: any or None
+    :type thumb: BinaryIO or None
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -504,7 +508,7 @@ def send_animation(based_url, proxies, chat_id, animation, duration, width, heig
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(animation):
+    if not isinstance(animation, str):
         files = {'animation': animation}
     else:
         params['animation'] = animation
@@ -531,7 +535,7 @@ def send_animation(based_url, proxies, chat_id, animation, duration, width, heig
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -542,7 +546,7 @@ def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type voice: bytes or str
+    :type voice: BinaryIO or str
     :type caption: str or None
     :type parse_mode: str or None
     :type caption_entities: list or None
@@ -559,7 +563,7 @@ def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_
     api_url = based_url + '/' + api_method
     params = {'chat_id': chat_id}
     files = None
-    if not is_string(voice):
+    if not isinstance(voice, str):
         files = {'voice': voice}
     else:
         params['voice'] = voice
@@ -580,7 +584,7 @@ def send_voice(based_url, proxies, chat_id, voice, caption, parse_mode, caption_
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -591,10 +595,10 @@ def send_video_note(based_url, proxies, chat_id, video_note, duration, length, t
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type video_note: bytes or str
+    :type video_note: BinaryIO or str
     :type duration: int or None
     :type length: int or None
-    :type thumb: bytes or str
+    :type thumb: BinaryIO or str
     :type disable_notification: bool
     :type protect_content: bool
     :type reply_to_message_id: int or None
@@ -607,7 +611,7 @@ def send_video_note(based_url, proxies, chat_id, video_note, duration, length, t
     api_url = based_url + '/' + api_method
     params = {'chat_id': chat_id}
     files = None
-    if not is_string(video_note):
+    if not isinstance(video_note, str):
         files = {'video_note': video_note}
     else:
         params['video_note'] = video_note
@@ -626,7 +630,7 @@ def send_video_note(based_url, proxies, chat_id, video_note, duration, length, t
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -649,7 +653,7 @@ def send_media_group(based_url, proxies, chat_id, media, disable_notification, p
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(media):
+    if not isinstance(media, str):
         files = {'media': media}
     else:
         params['media'] = media
@@ -708,7 +712,7 @@ def send_location(based_url, proxies, chat_id, latitude, longitude, horizontal_a
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -748,7 +752,7 @@ def edit_message_live_location(based_url, proxies, latitude, longitude, horizont
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -775,7 +779,7 @@ def stop_message_live_location(based_url, proxies, chat_id, message_id, inline_m
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -824,7 +828,7 @@ def send_venue(based_url, proxies, chat_id, latitude, longitude, title, address,
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -865,7 +869,7 @@ def send_contact(based_url, proxies, chat_id, phone_number, first_name, last_nam
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -931,7 +935,7 @@ def send_poll(based_url, proxies, chat_id, question, options, is_anonymous, ttyp
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -964,7 +968,7 @@ def send_dice(based_url, proxies, chat_id, emoji, disable_notification, protect_
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1340,7 +1344,7 @@ def set_chat_photo(based_url, proxies, chat_id, photo):
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type photo: bytes
+    :type photo: BinaryIO
     :rtype: bool
     """
     method = r'post'
@@ -1348,7 +1352,7 @@ def set_chat_photo(based_url, proxies, chat_id, photo):
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(photo):
+    if not isinstance(photo, str):
         files = {'photo': photo}
     else:
         params['photo'] = photo
@@ -1703,7 +1707,7 @@ def edit_message_text(based_url, proxies, text, chat_id, message_id, inline_mess
     if disable_web_page_preview:
         params['disable_web_page_preview'] = disable_web_page_preview
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1738,7 +1742,7 @@ def edit_message_caption(based_url, proxies, caption, chat_id, message_id, inlin
     if caption_entities:
         params['caption_entities'] = caption_entities
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1750,7 +1754,7 @@ def edit_message_media(based_url, proxies, media, chat_id, message_id, inline_me
     :type chat_id: int or str
     :type message_id: int or None
     :type inline_message_id: str or None
-    :type media: dict
+    :type media: BinaryIO
     :type reply_markup: dict or None:
     :rtype: dict or bool
     """
@@ -1759,7 +1763,7 @@ def edit_message_media(based_url, proxies, media, chat_id, message_id, inline_me
     api_url = based_url + '/' + api_method
     files = None
     params = {}
-    if not is_string(media):
+    if not isinstance(media, str):
         files = {'media': media}
     else:
         params = {'media': media}
@@ -1770,7 +1774,7 @@ def edit_message_media(based_url, proxies, media, chat_id, message_id, inline_me
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1797,7 +1801,7 @@ def edit_message_reply_markup(based_url, proxies, chat_id, message_id, inline_me
     if inline_message_id:
         params['inline_message_id'] = inline_message_id
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1817,7 +1821,7 @@ def stop_poll(based_url, proxies, chat_id, message_id, reply_markup):
     files = None
     params = {'chat_id': chat_id, 'message_id': message_id}
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1845,7 +1849,7 @@ def send_sticker(based_url, proxies, chat_id, sticker, protect_content, disable_
     :type based_url: str
     :type proxies: dict or None
     :type chat_id: int or str
-    :type sticker: any
+    :type sticker: BinaryIO
     :type disable_notification: bool
     :type protect_content: bool
     :type reply_to_message_id: int or None
@@ -1858,7 +1862,7 @@ def send_sticker(based_url, proxies, chat_id, sticker, protect_content, disable_
     api_url = based_url + '/' + api_method
     files = None
     params = {'chat_id': chat_id}
-    if not is_string(sticker):
+    if not isinstance(sticker, str):
         files = {'sticker': sticker}
     else:
         params['sticker'] = sticker
@@ -1871,7 +1875,7 @@ def send_sticker(based_url, proxies, chat_id, sticker, protect_content, disable_
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -1897,7 +1901,7 @@ def upload_sticker_file(based_url, proxies, user_id, png_sticker):
     :type based_url: str
     :type proxies: dict or None
     :type user_id: int
-    :type png_sticker: bytes or str
+    :type png_sticker: BinaryIO
     :rtype: dict
     """
     method = r'post'
@@ -1917,9 +1921,9 @@ def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker
     :type user_id: int
     :type name: str
     :type title: str
-    :type png_sticker: any or None
-    :type tgs_sticker: any or None
-    :type webm_sticker: any or None
+    :type png_sticker: BinaryIO or None
+    :type tgs_sticker: BinaryIO or None
+    :type webm_sticker: BinaryIO or None
     :type emojis: str
     :type contains_masks: bool
     :type mask_position: dict or None
@@ -1930,13 +1934,13 @@ def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker
     api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id, 'name': name, 'title': title, 'emojis': emojis}
-    if not is_string(png_sticker):
+    if not isinstance(png_sticker, str):
         files = {'png_sticker': png_sticker}
     else:
         params['png_sticker'] = png_sticker
-    if not is_string(tgs_sticker):
+    if not isinstance(png_sticker, str):
         files = {'tgs_sticker', tgs_sticker}
-    if not is_string(webm_sticker):
+    if not isinstance(webm_sticker, str):
         files = {'webm_sticker', webm_sticker}
     if contains_masks:
         params['contains_masks'] = contains_masks
@@ -1953,9 +1957,9 @@ def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, t
     :type proxies: dict or None
     :type user_id: int
     :type name: str
-    :type png_sticker: any or None
-    :type tgs_sticker: any or None
-    :type webm_sticker: any or None
+    :type png_sticker: BinaryIO or str or None
+    :type tgs_sticker: BinaryIO or None
+    :type webm_sticker: BinaryIO or None
     :type emojis: str
     :type mask_position: dict or None
     :rtype: bool
@@ -1965,13 +1969,13 @@ def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, t
     api_url = based_url + '/' + api_method
     files = None
     params = {'user_id': user_id, 'name': name, 'emojis': emojis}
-    if not is_string(png_sticker):
+    if not isinstance(png_sticker, str):
         files = {'png_sticker': png_sticker}
     else:
         params['png_sticker'] = png_sticker
-    if not is_string(tgs_sticker):
+    if not isinstance(tgs_sticker, str):
         files = {'tgs_sticker': tgs_sticker}
-    if not is_string(webm_sticker):
+    if not isinstance(webm_sticker, str):
         files = {'webm_sticker', webm_sticker}
     if mask_position:
         params['mask_position'] = mask_position
@@ -2018,7 +2022,7 @@ def set_sticker_set_thumb(based_url, proxies, name, user_id, thumb):
     :type proxies: dict or None
     :type name: str
     :type user_id: int
-    :type thumb: any or None
+    :type thumb: BinaryIO or None
     :rtype: bool
     """
     method = r'post'
@@ -2153,7 +2157,7 @@ def send_invoice(based_url, proxies, chat_id, title, description, payload, provi
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
@@ -2246,7 +2250,7 @@ def send_game(based_url, proxies, chat_id, game_short_name, disable_notification
     if allow_sending_without_reply:
         params['allow_sending_without_reply'] = allow_sending_without_reply
     if reply_markup:
-        params['reply_markup'] = convert_markup(reply_markup)
+        params['reply_markup'] = reply_markup
     return make_request(method, api_url, api_method, files, params, proxies)
 
 

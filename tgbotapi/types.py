@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+
+"""
+tgbotapi.types
+~~~~~~~~~~~~~~~~~
+This submodule provides a Telegram Available types,
+All types used in the Bot API responses are represented as JSON-objects,
+that are also useful for external consumption.
+"""
 from .utils import *
 import json
-
-""" 
-    Telegram Available types,
-    All types used in the Bot API responses are represented as JSON-objects.
-"""
 
 
 class Update(JsonDeserializable):
@@ -61,8 +65,7 @@ class Update(JsonDeserializable):
             shipping_query = ShippingQuery.de_json(obj['shipping_query'])
         pre_checkout_query = None
         if 'pre_checkout_query' in obj:
-            pre_checkout_query = PreCheckoutQuery.de_json(
-                obj['pre_checkout_query'])
+            pre_checkout_query = PreCheckoutQuery.de_json(obj['pre_checkout_query'])
         poll = None
         if 'poll' in obj:
             poll = Poll.de_json(obj['poll'])
@@ -102,7 +105,9 @@ class WebhookInfo(JsonDeserializable):
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         url = obj['url']
-        has_custom_certificate = obj['has_custom_certificate']
+        has_custom_certificate = False
+        if 'has_custom_certificate' in obj:
+            has_custom_certificate = obj['has_custom_certificate']
         pending_update_count = obj['pending_update_count']
         ip_address = None
         if 'ip_address' in obj:
@@ -154,13 +159,13 @@ class User(JsonDeserializable):
         language_code = None
         if 'language_code' in obj:
             language_code = obj['language_code']
-        can_join_groups = None
+        can_join_groups = False
         if 'can_join_groups' in obj:
             can_join_groups = obj['can_join_groups']
-        can_read_all_group_messages = None
+        can_read_all_group_messages = False
         if 'can_read_all_group_messages' in obj:
             can_read_all_group_messages = obj['can_read_all_group_messages']
-        supports_inline_queries = None
+        supports_inline_queries = False
         if 'supports_inline_queries' in obj:
             supports_inline_queries = obj['supports_inline_queries']
         return cls(uid, is_bot, first_name, last_name, username, language_code, can_join_groups,
@@ -299,10 +304,10 @@ class Message(JsonDeserializable):
         self.left_chat_member = None
         self.new_chat_title = None
         self.new_chat_photo = None
-        self.delete_chat_photo = None
-        self.group_chat_created = None
-        self.supergroup_chat_created = None
-        self.channel_chat_created = None
+        self.delete_chat_photo = False
+        self.group_chat_created = False
+        self.supergroup_chat_created = False
+        self.channel_chat_created = False
         self.message_auto_delete_timer_changed = None
         self.migrate_to_chat_id = None
         self.migrate_from_chat_id = None
@@ -552,8 +557,48 @@ class PhotoSize(JsonDeserializable):
         file_unique_id = obj['file_unique_id']
         width = obj['width']
         height = obj['height']
-        file_size = obj['file_size']
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj['file_size']
         return cls(file_id, file_unique_id, width, height, file_size)
+
+
+class Animation(JsonDeserializable):
+    def __init__(self, file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size):
+        """
+        This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound)
+        """
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.width = width
+        self.height = height
+        self.duration = duration
+        self.thumb = thumb
+        self.file_name = file_name
+        self.mime_type = mime_type
+        self.file_size = file_size
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        width = obj['width']
+        height = obj['height']
+        duration = obj['duration']
+        thumb = None
+        if 'thumb' in obj:
+            thumb = PhotoSize.de_json(obj['thumb'])
+        file_name = None
+        if 'file_name' in obj:
+            file_name = obj['file_name']
+        mime_type = None
+        if 'mime_type' in obj:
+            mime_type = obj['mime_type']
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj['file_size']
+        return cls(file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size)
 
 
 class Audio(JsonDeserializable):
@@ -616,7 +661,7 @@ class Document(JsonDeserializable):
         file_id = obj['file_id']
         file_unique_id = obj['file_unique_id']
         thumb = None
-        if 'thumb' in obj and 'file_id' in obj['thumb']:
+        if 'thumb' in obj:
             thumb = PhotoSize.de_json(obj['thumb'])
         file_name = None
         if 'file_name' in obj:
@@ -668,70 +713,6 @@ class Video(JsonDeserializable):
         return cls(file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size)
 
 
-class Animation(JsonDeserializable):
-    def __init__(self, file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size):
-        """
-        This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound)
-        """
-        self.file_id = file_id
-        self.file_unique_id = file_unique_id
-        self.width = width
-        self.height = height
-        self.duration = duration
-        self.thumb = thumb
-        self.file_name = file_name
-        self.mime_type = mime_type
-        self.file_size = file_size
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        file_id = obj['file_id']
-        file_unique_id = obj['file_unique_id']
-        width = obj['width']
-        height = obj['height']
-        duration = obj['duration']
-        thumb = None
-        if 'thumb' in obj:
-            thumb = PhotoSize.de_json(obj['thumb'])
-        file_name = None
-        if 'file_name' in obj:
-            file_name = obj['file_name']
-        mime_type = None
-        if 'mime_type' in obj:
-            mime_type = obj['mime_type']
-        file_size = None
-        if 'file_size' in obj:
-            file_size = obj['file_size']
-        return cls(file_id, file_unique_id, width, height, duration, thumb, file_name, mime_type, file_size)
-
-
-class Voice(JsonDeserializable):
-    def __init__(self, file_id, file_unique_id, duration, mime_type, file_size):
-        """
-        This object represents a voice note
-        """
-        self.file_id = file_id
-        self.file_unique_id = file_unique_id
-        self.duration = duration
-        self.mime_type = mime_type
-        self.file_size = file_size
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        file_id = obj['file_id']
-        file_unique_id = obj['file_unique_id']
-        duration = obj['duration']
-        mime_type = None
-        if 'mime_type' in obj:
-            mime_type = obj['mime_type']
-        file_size = None
-        if 'file_size' in obj:
-            file_size = obj['file_size']
-        return cls(file_id, file_unique_id, duration, mime_type, file_size)
-
-
 class VideoNote(JsonDeserializable):
     def __init__(self, file_id, file_unique_id, length, duration, thumb, file_size):
         """
@@ -760,6 +741,32 @@ class VideoNote(JsonDeserializable):
         return cls(file_id, file_unique_id, length, duration, thumb, file_size)
 
 
+class Voice(JsonDeserializable):
+    def __init__(self, file_id, file_unique_id, duration, mime_type, file_size):
+        """
+        This object represents a voice note
+        """
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
+        self.duration = duration
+        self.mime_type = mime_type
+        self.file_size = file_size
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        file_id = obj['file_id']
+        file_unique_id = obj['file_unique_id']
+        duration = obj['duration']
+        mime_type = None
+        if 'mime_type' in obj:
+            mime_type = obj['mime_type']
+        file_size = None
+        if 'file_size' in obj:
+            file_size = obj['file_size']
+        return cls(file_id, file_unique_id, duration, mime_type, file_size)
+
+
 class Contact(JsonDeserializable):
     def __init__(self, phone_number, first_name, last_name, user_id, vcard):
         """
@@ -786,6 +793,125 @@ class Contact(JsonDeserializable):
         if 'vcard' in obj:
             vcard = obj['vcard']
         return cls(phone_number, first_name, last_name, user_id, vcard)
+
+
+class Dice(JsonDeserializable):
+    def __init__(self, value, emoji):
+        """
+        This object represents a dice with random value
+        """
+        self.value = value
+        self.emoji = emoji
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        emoji = obj['emoji']
+        value = obj['value']
+        return cls(emoji, value)
+
+
+class PollOption(JsonDeserializable):
+    def __init__(self, text, voter_count):
+        """
+        This object contains information about one answer option in a poll
+        """
+        self.text = text
+        self.voter_count = voter_count
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        text = obj['text']
+        voter_count = obj['voter_count']
+        return cls(text, voter_count)
+
+
+class PollAnswer(JsonDeserializable):
+    def __init__(self, poll_id, user, option_ids):
+        """
+        This object represents an answer of a user in a non-anonymous poll
+        """
+        self.poll_id = poll_id
+        self.user = user
+        self.option_ids = option_ids
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        poll_id = obj['poll_id']
+        user = User.de_json(obj['user'])
+        option_ids = None
+        if 'option_ids' in obj:
+            option_ids = obj['option_ids']
+        return cls(poll_id, user, option_ids)
+
+
+class Poll(JsonDeserializable):
+    def __init__(self, uid, question, options, total_voter_count, is_closed, is_anonymous, ttype,
+                 allows_multiple_answers, correct_option_id, explanation, explanation_entities, open_period,
+                 close_date):
+        """
+        This object contains information about a poll
+        """
+        self.uid = uid
+        self.question = question
+        self.options = options
+        self.total_voter_count = total_voter_count
+        self.is_closed = is_closed
+        self.is_anonymous = is_anonymous
+        self.ttype = ttype
+        self.allows_multiple_answers = allows_multiple_answers
+        self.correct_option_id = correct_option_id
+        self.explanation = explanation
+        self.explanation_entities = explanation_entities
+        self.open_period = open_period
+        self.close_date = close_date
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        uid = obj['id']
+        question = obj['question']
+        options = Poll.parse_options(obj['options'])
+        total_voter_count = obj['total_voter_count']
+        is_closed = obj['is_closed']
+        is_anonymous = obj['is_anonymous']
+        ttype = obj['type']
+        allows_multiple_answers = True
+        if 'allows_multiple_answers' in obj:
+            allows_multiple_answers = obj['allows_multiple_answers']
+        correct_option_id = None
+        if 'correct_option_id' in obj:
+            correct_option_id = obj['correct_option_id']
+        explanation = None
+        if 'explanation' in obj:
+            explanation = obj['explanation']
+        explanation_entities = None
+        if 'explanation_entities' in obj:
+            explanation_entities = Poll.parse_explanation_entities(obj['explanation_entities'])
+        open_period = None
+        if 'open_period' in obj:
+            open_period = obj['open_period']
+        close_date = None
+        if 'close_date' in obj:
+            close_date = obj['close_date']
+        return cls(uid, question, options, total_voter_count, is_closed, is_anonymous, ttype, allows_multiple_answers,
+                   correct_option_id, explanation, explanation_entities, open_period, close_date)
+
+    @classmethod
+    def parse_options(cls, obj):
+        options = []
+        for x in obj:
+            options.append(PollOption.de_json(x))
+        return options
+
+    @classmethod
+    def parse_explanation_entities(cls, obj):
+        explanation_entities = []
+        for x in obj:
+            explanation_entities.append(MessageEntity.de_json(x))
+        return explanation_entities
 
 
 class Location(JsonDeserializable):
@@ -871,124 +997,6 @@ class ProximityAlertTriggered(JsonDeserializable):
         watcher = User.de_json(obj['watcher'])
         distance = obj['distance']
         return cls(traveler, watcher, distance)
-
-
-class PollOption(JsonDeserializable):
-    def __init__(self, text, voter_count):
-        """
-        This object contains information about one answer option in a poll
-        """
-        self.text = text
-        self.voter_count = voter_count
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        text = obj['text']
-        voter_count = obj['voter_count']
-        return cls(text, voter_count)
-
-
-class PollAnswer(JsonDeserializable):
-    def __init__(self, poll_id, user, option_ids):
-        """
-        This object represents an answer of a user in a non-anonymous poll
-        """
-        self.poll_id = poll_id
-        self.user = user
-        self.option_ids = option_ids
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        poll_id = obj['poll_id']
-        user = User.de_json(obj['user'])
-        option_ids = None
-        if 'option_ids' in obj:
-            option_ids = obj['option_ids']
-        return cls(poll_id, user, option_ids)
-
-
-class Poll(JsonDeserializable):
-    def __init__(self, uid, question, options, total_voter_count, is_closed, is_anonymous, ttype,
-                 allows_multiple_answers, correct_option_id, explanation, explanation_entities, open_period,
-                 close_date):
-        """
-        This object contains information about a poll
-        """
-        self.uid = uid
-        self.question = question
-        self.options = options
-        self.total_voter_count = total_voter_count
-        self.is_closed = is_closed
-        self.is_anonymous = is_anonymous
-        self.ttype = ttype
-        self.allows_multiple_answers = allows_multiple_answers
-        self.correct_option_id = correct_option_id
-        self.explanation = explanation
-        self.explanation_entities = explanation_entities
-        self.open_period = open_period
-        self.close_date = close_date
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        uid = obj['id']
-        question = obj['question']
-        options = Poll.parse_options(obj['options'])
-        total_voter_count = obj['total_voter_count']
-        is_closed = obj['is_closed']
-        is_anonymous = obj['is_anonymous']
-        ttype = obj['type']
-        allows_multiple_answers = obj['allows_multiple_answers']
-        correct_option_id = None
-        if 'correct_option_id' in obj:
-            correct_option_id = obj['correct_option_id']
-        explanation = None
-        if 'explanation' in obj:
-            explanation = obj['explanation']
-        explanation_entities = None
-        if 'explanation_entities' in obj:
-            explanation_entities = Poll.parse_explanation_entities(
-                obj['explanation_entities'])
-        open_period = None
-        if 'open_period' in obj:
-            open_period = obj['open_period']
-        close_date = None
-        if 'close_date' in obj:
-            close_date = obj['close_date']
-        return cls(uid, question, options, total_voter_count, is_closed, is_anonymous, ttype, allows_multiple_answers,
-                   correct_option_id, explanation, explanation_entities, open_period, close_date)
-
-    @classmethod
-    def parse_options(cls, obj):
-        options = []
-        for x in obj:
-            options.append(PollOption.de_json(x))
-        return options
-
-    @classmethod
-    def parse_explanation_entities(cls, obj):
-        explanation_entities = []
-        for x in obj:
-            explanation_entities.append(MessageEntity.de_json(x))
-        return explanation_entities
-
-
-class Dice(JsonDeserializable):
-    def __init__(self, value, emoji):
-        """
-        This object represents a dice with random value
-        """
-        self.value = value
-        self.emoji = emoji
-
-    @classmethod
-    def de_json(cls, obj_type):
-        obj = cls.check_type(obj_type)
-        emoji = obj['emoji']
-        value = obj['value']
-        return cls(emoji, value)
 
 
 class MessageAutoDeleteTimerChanged(JsonDeserializable):
@@ -1122,7 +1130,8 @@ class ReplyKeyboardMarkup(JsonSerializable):
                  selective=False):
         """
         This object represents a custom keyboard with reply options (see Introduction to bots for details and examples)
-        :param list[list[dict]] keyboard: Array of button rows, each represented by an Array of KeyboardButton objects
+        :param list[list[KeyboardButton]] keyboard: Array of button rows, each represented by an Array of KeyboardButton
+                                                    objects
         :param bool resize_keyboard: Optional. Requests clients to resize the keyboard vertically for optimal fit
         :param bool one_time_keyboard: Optional. Requests clients to hide the keyboard as soon as it's been used
         :param str or None input_field_placeholder: Optional. The placeholder to be shown in the input field when the
@@ -1195,19 +1204,18 @@ class KeyboardButtonPollType(JsonDeserializable):
 
 
 class ReplyKeyboardRemove(JsonSerializable):
-    def __init__(self, selective):
+    def __init__(self, remove_keyboard=True, selective=False):
         """
         Upon receiving a message with this object,
         Telegram clients will remove the current custom keyboard and display the default letter-keyboard,
         By default, custom keyboards are displayed until a new keyboard is sent by a bot,
         An exception is made for one-time keyboards that are hidden immediately after the user presses a button
         """
+        self.remove_keyboard = remove_keyboard
         self.selective = selective
 
     def to_json(self):
-        obj = {'remove_keyboard': True}
-        if self.selective:
-            obj['selective'] = True
+        obj = {'remove_keyboard': self.remove_keyboard, 'selective': self.selective}
         return json.dumps(obj)
 
 
@@ -1215,8 +1223,8 @@ class InlineKeyboardMarkup(Dictionaryable):
     def __init__(self, inline_keyboard):
         """
         This object represents an inline keyboard that appears right next to the message it belongs to
-        :param list[list[dict]] inline_keyboard: Array of button rows, each represented by an Array of
-                                                 InlineKeyboardButton objects
+        :param list[list[InlineKeyboardButton]] inline_keyboard: Array of button rows, each represented by an Array of
+                                                                 InlineKeyboardButton objects
         :rtype: dict
         """
         self.inline_keyboard = inline_keyboard
@@ -1406,9 +1414,15 @@ class ChatInviteLink(JsonDeserializable):
         obj = cls.check_type(obj_type)
         invite_link = obj['invite_link']
         creator = User.de_json(obj['creator'])
-        creates_join_request = obj['creates_join_request']
-        is_primary = obj['is_primary']
-        is_revoked = obj['is_revoked']
+        creates_join_request = False
+        if 'creates_join_request' in obj:
+            creates_join_request = obj['creates_join_request']
+        is_primary = False
+        if 'is_primary' in obj:
+            is_primary = obj['is_primary']
+        is_revoked = False
+        if 'is_revoked' in obj:
+            is_revoked = obj['is_revoked']
         name = None
         if 'name' in obj:
             name = obj['name']
@@ -1971,11 +1985,11 @@ class InputMedia:
     """ 
     This object represents the content of a media message to be sent,
     It should be one of:
+        InputMediaAnimation
+        InputMediaDocument
+        InputMediaAudio
         InputMediaPhoto
         InputMediaVideo
-        InputMediaAnimation
-        InputMediaAudio
-        InputMediaDocument
     """
 
     def __init__(self):
@@ -2222,12 +2236,13 @@ class InputMedia:
 
 
 class InputFile:
-    def __init__(self):
+    def __new__(cls, path):
         """
-        This object represents the contents of a file to be uploaded.
-        Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
+        This object represents the contents of a file to be uploaded
+        :param str path: file path
+        :rtype: bytes
         """
-        pass
+        return open(path, 'rb')
 
 
 class Sticker(JsonDeserializable):

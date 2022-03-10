@@ -677,8 +677,8 @@ def test_keyboard_button_poll_type():
 
 
 def test_reply_keyboard_remove():
-    dic = r'{"remove_keyboard": true}'
-    obj = types.ReplyKeyboardRemove(selective=None).to_json()
+    dic = r'{"remove_keyboard": true, "selective": false}'
+    obj = types.ReplyKeyboardRemove().to_json()
     assert obj == dic
 
 

@@ -1,10 +1,14 @@
-from .api_exceptions import *
-from .logger import *
-from .json_handler import *
-from .api_handler import *
+# -*- coding: utf-8 -*-
 
 """
-Module: utils
-Mustafa Asaad [ma24th]
-ma24tth@yahoo.com
+tgbotapi.utils
+~~~~~~~~~~~~~~
+This submodule provides utility functions that are consumed internally by tgbotapi
+:copyright: (c) 2022 by Mustafa Asaad.
+:license: GPLv2, see LICENSE for more details.
 """
+from .api_exceptions import *
+from .api_handler import *
+from .api_worker import *
+from .json_helper import *
+from .logger import *

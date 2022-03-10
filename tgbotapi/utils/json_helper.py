@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+"""
+tgbotapi.utils.json_helper
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+This submodule provides json utility objects that are consumed internally by tgbotapi
+"""
+
 import json
 import six
 
