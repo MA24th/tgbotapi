@@ -1949,8 +1949,8 @@ def create_new_sticker_set(based_url, proxies, user_id, name, title, png_sticker
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
-def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, emojis, tgs_sticker, webm_sticker,
-                       mask_position):
+def add_sticker_to_set(based_url, proxies, user_id, name, png_sticker, tgs_sticker, webm_sticker,
+                       emojis, mask_position):
     """
     Use this method to add a new sticker to a set created by the bot
     :type based_url: str
