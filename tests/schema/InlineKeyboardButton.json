@@ -1,0 +1,15 @@
+{
+  "text": "InlineKeyboardButton text",
+  "url": "InlineKeyboardButton url",
+  "login_url": {
+    "url": "LoginUrl url",
+    "forward_text": "LoginUrl forward text",
+    "bot_username": "LoginUrl bot username",
+    "request_write_access": true
+  },
+  "callback_data": "InlineKeyboardButton callback data",
+  "switch_inline_query": "InlineKeyboardButton switch inline query",
+  "switch_inline_query_current_chat": "InlineKeyboardButton siq current chat",
+  "callback_game": null,
+  "pay": true
+}
