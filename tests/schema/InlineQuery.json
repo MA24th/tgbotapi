@@ -1,0 +1,25 @@
+{
+  "id": "InlineQuery id",
+  "form": {
+    "id": 952435061,
+    "is_bot": true,
+    "first_name": "GuardBot",
+    "last_name": null,
+    "username": "guardbot",
+    "language_code": "en",
+    "can_join_groups": true,
+    "can_read_all_group_messages": true,
+    "supports_inline_queries": true
+  },
+  "query": "InlineQuery query",
+  "offset": "InlineQuery offset",
+  "chat_type": "InlineQuery chat type",
+  "location": {
+    "longitude": 33.29,
+    "latitude": 40.50,
+    "horizontal_accuracy": 100,
+    "live_period": 60,
+    "heading": 30,
+    "proximity_alert_radius": 20
+  }
+}
