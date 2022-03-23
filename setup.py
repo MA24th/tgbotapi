@@ -10,9 +10,9 @@ def read(filename):
 
 setup(name='tgbotapi',
       version='5.7',
-      description='The Ultimate Telegram Bot API Client Framework',
-      long_description=read('README.rst'),
-      long_description_content_type="text/x-rst",
+      description='The Ultimate Telegram Bot API Framework',
+      long_description=read('README.md'),
+      long_description_content_type="text/markdown",
       author='Mustafa Asaad',
       author_email='ma24th@yahoo.com',
       url='https://github.com/MA24th/tgbotapi',
@@ -20,12 +20,12 @@ setup(name='tgbotapi',
       license='GNU GPLv2',
       keywords='telegram-bot-api, tgbotapi, framework, telegram bot api, bot api',
       install_requires=['requests', 'six'],
-      extras_require={'json': 'json'},
       classifiers=['Development Status :: 5 - Production/Stable',
+                   'Framework :: tgbotapi'
+                   'Intended Audience :: Developers',
+                   'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',
                    'Programming Language :: Python :: 3.8',
-                   'Programming Language :: Python :: 3.9',
-                   'Environment :: Console',
-                   'License :: OSI Approved :: GNU General Public License v2 (GPLv2)']
+                   'Programming Language :: Python :: 3.9']
       )
