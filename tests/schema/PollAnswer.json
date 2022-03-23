@@ -1,0 +1,26 @@
+{
+  "poll_id": "PollAnswer poll id",
+  "user": {
+    "id": 987654321,
+    "is_bot": true,
+    "first_name": "GuardBot",
+    "last_name": null,
+    "username": "guardbot",
+    "language_code": "en",
+    "can_join_groups": true,
+    "can_read_all_group_messages": true,
+    "supports_inline_queries": true
+  },
+  "option_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ]
+}
