@@ -1,0 +1,17 @@
+{
+  "file_id": "Audio file id",
+  "file_unique_id": "Audio file unique id",
+  "duration": 120,
+  "performer": "Audio performer",
+  "title": "Audio title",
+  "file_name": "Audio file name",
+  "mime_type": "Audio mime type",
+  "file_size": 640,
+  "thumb": {
+    "file_id": "PhotoSize file id",
+    "file_unique_id": "PhotoSize file unique id",
+    "width": 180,
+    "height": 200,
+    "file_size": 640
+  }
+}
