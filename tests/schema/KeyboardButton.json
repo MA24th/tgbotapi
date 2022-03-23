@@ -1,0 +1,8 @@
+{
+  "text": "KeyboardButton text",
+  "request_contact": false,
+  "request_location": true,
+  "request_poll": {
+    "type": "KeyboardButtonPollType type"
+  }
+}
