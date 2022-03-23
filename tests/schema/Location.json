@@ -1,0 +1,8 @@
+{
+  "longitude": 33.29,
+  "latitude": 40.50,
+  "horizontal_accuracy": 100,
+  "live_period": 60,
+  "heading": 30,
+  "proximity_alert_radius": 20
+}
