@@ -1,0 +1,10 @@
+{
+  "url": "WebhookInfo url",
+  "has_custom_certificate": false,
+  "pending_update_count": 2,
+  "ip_address": "192.168.0.1",
+  "last_error_date": 1234567890,
+  "last_error_message": "connection timeout",
+  "max_connections": 40,
+  "allowed_updates": ["message"]
+}
