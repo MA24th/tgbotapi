@@ -16,26 +16,25 @@ import re
 
 
 class Bot:
-    def __init__(self, based_url, allowed_updates=None, threaded=True, skip_pending=False, num_threads=2, proxies=None):
+    def __init__(self, access_token, based_url="https://api.telegram.org/bot", threaded=True, num_threads=2,
+                 proxies=None):
         """
         Use this class to create bot instance
+        :param str access_token:
         :param str based_url: Required, The API url with Bot token
-        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
-                                                  receive, For example, specify [“message”, “edited_channel_post”,
-                                                  “callback_query”] to only receive updates of these types
         :param bool threaded: Enable Threading
-        :param bool skip_pending: Pass True to drop all pending Updates
         :param int num_threads: Number of thread to process incoming tasks, default 2
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
-        self.__allowed_updates = allowed_updates
-        self.__based_url = based_url
+        self.__based_url = f'{based_url+access_token}'
         self.__proxies = proxies
         self.__threaded = threaded
-        self.__skip_pending = skip_pending
+        self.__skip_pending = False
         if self.__threaded:
             self.__worker_pool = utils.ThreadPool(num_threads=num_threads)
+
         self.__stop_polling = threading.Event()
+        self.__allowed_updates = None
 
         self.__last_update_id = 0
         self.__message_handlers = []
@@ -53,7 +52,80 @@ class Bot:
         self.__chat_member_handlers = []
         self.__chat_join_request_handlers = []
 
-    def __get_updates(self, offset=None, limit=100, timeout=0, allowed_updates=None):
+    @staticmethod
+    def __build_handler_dict(handler, **filters):
+        """
+        Builds a dictionary for a handler
+        :param handler: functions name
+        :param filters: functions filters
+        :return: Return Dictionary type for handlers
+        :rtype: dict
+        """
+        return {'function': handler, 'filters': filters}
+
+    def update_handler(self, update_type=None, chat_type=None, bot_command=None, regexp=None, func=None):
+        """
+        Update handler decorator
+        :param str or list[str] or None update_type: specify one of allowed_updates to take action, Default 'message'
+        :param str or list or None chat_type: list of chat types (private, supergroup, group, channel), works only with
+                                              these updates ['message', 'edited_message', 'channel_post',
+                                              'edited_channel_post','my_chat_member','chat_member','chat_join_request']
+        :param str or list or None bot_command: Bot Commands like (/start, /help)
+        :param str or None regexp: Sequence of characters that define a search pattern
+        :param function or None func: any python function that return True On success like (lambda)
+        :return: filtered Update
+        """
+        if update_type is None:
+            if self.__allowed_updates is None:
+                update_type = 'message'
+            else:
+                update_type = self.__allowed_updates
+
+        def decorator(handler):
+            if 'message' in update_type:
+                self.__message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                         bot_command=bot_command, regexp=regexp,
+                                                                         func=func))
+            elif 'edited_message' in update_type:
+                self.__edited_message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                                bot_command=bot_command, regexp=regexp,
+                                                                                func=func))
+            elif 'channel_post' in update_type:
+                self.__channel_post_handlers.append(self.__build_handler_dict(handler, regexp=regexp, func=func))
+            elif 'edited_channel_post' in update_type:
+                self.__edited_channel_post_handlers.append(self.__build_handler_dict(handler, regexp=regexp, func=func))
+            elif 'inline_query' in update_type:
+                self.__inline_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'chosen_inline' in update_type:
+                self.__chosen_inline_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'callback_query' in update_type:
+                self.__callback_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'shipping_query' in update_type:
+                self.__shipping_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'pre_check_query' in update_type:
+                self.__pre_checkout_query_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'poll' in update_type:
+                self.__poll_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'poll_answer' in update_type:
+                self.__poll_answer_handlers.append(self.__build_handler_dict(handler, func=func))
+            elif 'my_chat_member' in update_type:
+                self.__my_chat_member_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                                func=func))
+            elif 'chat_member' in update_type:
+                self.__chat_member_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                             func=func))
+            elif 'chat_join_request' in update_type:
+                self.__chat_join_request_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                                   func=func))
+            else:
+                self.__message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
+                                                                         bot_command=bot_command, regexp=regexp,
+                                                                         func=func))
+            return handler
+
+        return decorator
+
+    def __get_updates(self, offset, limit, timeout, allowed_updates):
         """
         Use this method to receive incoming updates using long polling
         :param int or None offset: Identifier of the first update to be returned
@@ -79,14 +151,119 @@ class Bot:
         :return: total updates skipped
         """
         total = 0
-        updates = self.__get_updates(offset=self.__last_update_id, timeout=1)
+        updates = self.__get_updates(offset=self.__last_update_id, limit=100, timeout=1, allowed_updates=None)
         while updates:
             total += len(updates)
             for update in updates:
                 if update.update_id > self.__last_update_id:
                     self.__last_update_id = update.update_id
-            updates = self.__get_updates(offset=self.__last_update_id + 1, timeout=total + 1)
+            updates = self.__get_updates(offset=self.__last_update_id + 1, limit=100, timeout=total + 1,
+                                         allowed_updates=None)
         return total
+
+    def __retrieve_updates(self, limit, timeout, allowed_updates):
+        """
+        Retrieves any updates from the Telegram API
+        Registered listeners and applicable message handlers will be notified when a new message arrives
+        :raises ApiException when a call has failed
+        """
+        offset = (self.__last_update_id + 1)
+        if self.__skip_pending:
+            utils.logger.info(f'SKIPPED {self.__skip_updates()} PENDING MESSAGES')
+            self.__skip_pending = False
+
+        self.__process_new_updates(self.__get_updates(offset, limit, timeout, allowed_updates))
+
+    def __threaded_polling(self, none_stop, interval, limit, timeout, allowed_updates):
+        utils.logger.info('POLLING STARTED')
+        self.__stop_polling.clear()
+        error_interval = 0.25
+        polling_thread = utils.WorkerThread(name="PollingThread")
+        or_event = utils.events_handler(polling_thread.done_event, polling_thread.exception_event,
+                                        self.__worker_pool.exception_event)
+
+        while not self.__stop_polling.wait(interval):
+            or_event.clear()
+            try:
+                polling_thread.put(self.__retrieve_updates, limit, timeout, allowed_updates)
+
+                or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
+
+                polling_thread.raise_exceptions()
+                self.__worker_pool.raise_exceptions()
+
+                error_interval = 0.25
+            except utils.ApiException as e:
+                utils.logger.error(e)
+                if not none_stop:
+                    self.__stop_polling.set()
+                    utils.logger.info("Exception Occurred, STOPPING")
+                else:
+                    polling_thread.clear_exceptions()
+                    self.__worker_pool.clear_exceptions()
+                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
+                    time.sleep(error_interval)
+                    error_interval *= 2
+            except KeyboardInterrupt:
+                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
+                self.__stop_polling.set()
+                break
+
+        polling_thread.stop()
+        utils.logger.info('POLLING STOPPED')
+
+    def __non_threaded_polling(self, none_stop, interval, limit, timeout, allowed_updates):
+        utils.logger.info('POLLING STARTED')
+        self.__stop_polling.clear()
+        error_interval = 0.25
+
+        while not self.__stop_polling.wait(interval):
+            try:
+                self.__retrieve_updates(limit, timeout, allowed_updates)
+                error_interval = 0.25
+            except utils.ApiException as e:
+                utils.logger.error(e)
+                if not none_stop:
+                    self.__stop_polling.set()
+                    utils.logger.info("Exception Occurred, STOPPING")
+                else:
+                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
+                    time.sleep(error_interval)
+                    error_interval *= 2
+            except KeyboardInterrupt:
+                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
+                self.__stop_polling.set()
+                break
+
+        utils.logger.info('POLLING STOPPED')
+
+    def polling(self, none_stop=False, interval=0, skip_pending=False, limit=100, timeout=20, allowed_updates=None):
+        """
+        This function creates a new Thread that calls an internal __retrieve_updates function
+        This allows the bot to retrieve Updates automatically and notify listeners and message handlers accordingly
+        Warning: Do not call this function more than once!
+        Always get updates
+        :param bool none_stop: Do not stop polling when an ApiException occurs
+        :param int interval: wait interval in milliseconds
+        :param bool skip_pending: Pass True to drop all pending Updates
+        :param int or None limit: Limits the number of updates to be retrieved
+        :param int or None timeout: Timeout in seconds for long polling
+        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
+                                                  receive, For example, specify [“message”, “edited_channel_post”,
+                                                  “callback_query”] to only receive updates of these types
+
+        :return:
+        """
+        if skip_pending:
+            self.__skip_pending = True
+
+        if allowed_updates:
+            self.__allowed_updates = allowed_updates
+
+        if self.__threaded:
+            self.__threaded_polling(none_stop, interval, limit, timeout, allowed_updates)
+        else:
+            self.__non_threaded_polling(none_stop, interval, limit, timeout, allowed_updates)
 
     def __process_new_updates(self, updates):
         new_messages = []
@@ -136,7 +313,6 @@ class Bot:
             if update.chat_join_request:
                 new_chat_join_request.append(update.chat_join_request)
 
-        utils.logger.info(f'RECEIVED {len(updates)} UPDATES')
         if len(updates) > 0:
             if len(new_messages) > 0:
                 self.__process_new_messages(new_messages)
@@ -167,288 +343,112 @@ class Bot:
             if len(new_chat_join_request) > 0:
                 self.__process_new_chat_join_request(new_chat_join_request)
 
-    def __retrieve_updates(self, timeout=20):
-        """
-        Retrieves any updates from the Telegram API
-        Registered listeners and applicable message handlers will be notified when a new message arrives
-        :raises ApiException when a call has failed
-        """
-        if self.__skip_pending:
-            utils.logger.info(f'SKIPPED {self.__skip_updates()} PENDING MESSAGES')
-            self.__skip_pending = False
-        updates = self.__get_updates(offset=(self.__last_update_id + 1), timeout=timeout)
-        self.__process_new_updates(updates)
-
     def __exec_task(self, task, *args, **kwargs):
         if self.__threaded:
             self.__worker_pool.put(task, *args, **kwargs)
         else:
             task(*args, **kwargs)
 
-    def __notify_command_handlers(self, handlers, new_messages):
-        """
-        Notifies command handlers
-        :param handlers:
-        :param new_messages:
-        :return:
-        """
-        for message in new_messages:
-            for message_handler in handlers:
-                if self.__check_update_handler(message_handler, message):
-                    self.__exec_task(message_handler['function'], message)
-                    break
-
-    def __process_new_messages(self, new_messages):
-        self.__notify_command_handlers(self.__message_handlers, new_messages)
-
-    def __process_new_edited_messages(self, edited_message):
-        self.__notify_command_handlers(self.__edited_message_handlers, edited_message)
-
-    def __process_new_channel_posts(self, channel_post):
-        self.__notify_command_handlers(self.__channel_post_handlers, channel_post)
-
-    def __process_new_edited_channel_posts(self, edited_channel_post):
-        self.__notify_command_handlers(self.__edited_channel_post_handlers, edited_channel_post)
-
-    def __process_new_inline_query(self, new_inline_queries):
-        self.__notify_command_handlers(self.__inline_query_handlers, new_inline_queries)
-
-    def __process_new_chosen_inline_query(self, new_chosen_inline_queries):
-        self.__notify_command_handlers(self.__chosen_inline_handlers, new_chosen_inline_queries)
-
-    def __process_new_callback_query(self, new_callback_queries):
-        self.__notify_command_handlers(
-            self.__callback_query_handlers, new_callback_queries)
-
-    def __process_new_shipping_query(self, new_shipping_queries):
-        self.__notify_command_handlers(self.__shipping_query_handlers, new_shipping_queries)
-
-    def __process_new_pre_checkout_query(self, pre_checkout_queries):
-        self.__notify_command_handlers(self.__pre_checkout_query_handlers, pre_checkout_queries)
-
-    def __process_new_poll(self, poll):
-        self.__notify_command_handlers(self.__poll_handlers, poll)
-
-    def __process_new_poll_answer(self, poll_answer):
-        self.__notify_command_handlers(self.__poll_answer_handlers, poll_answer)
-
-    def __process_new_my_chat_member(self, my_chat_member):
-        self.__notify_command_handlers(self.__my_chat_member_handlers, my_chat_member)
-
-    def __process_new_chat_member(self, chat_member):
-        self.__notify_command_handlers(self.__chat_member_handlers, chat_member)
-
-    def __process_new_chat_join_request(self, chat_join_request):
-        self.__notify_command_handlers(self.__chat_join_request_handlers, chat_join_request)
-
-    @staticmethod
-    def __build_handler_dict(handler, **filters):
-        """
-        Builds a dictionary for a handler
-        :param handler: functions name
-        :param filters: functions filters
-        :return: Return Dictionary type for handlers
-        :rtype: dict
-        """
-        return {
-            'function': handler,
-            'filters': filters
-        }
-
-    def update_handler(self, update_type=None, chat_type=None, bot_command=None, regexp=None, func=None):
-        """
-        Update handler decorator
-        :param str or list[str] or None update_type: specify one of allowed_updates to take action, Default 'message'
-        :param str or list or None chat_type: list of chat types (private, supergroup, group, channel), works only with
-                                              these updates ['message', 'edited_message', 'channel_post',
-                                              'edited_channel_post','my_chat_member','chat_member','chat_join_request']
-        :param str or list or None bot_command: Bot Commands like (/start, /help)
-        :param str or None regexp: Sequence of characters that define a search pattern
-        :param function or None func: any python function that return True On success like (lambda)
-        :return: filtered Update`
-        """
-        if update_type is None:
-            update_type = self.__allowed_updates
-
-        def decorator(handler):
-            if 'message' in update_type:
-                self.__message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
-                                                                         bot_command=bot_command, regexp=regexp,
-                                                                         func=func))
-            elif 'edited_message' in update_type:
-                self.__edited_message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
-                                                                                bot_command=bot_command, regexp=regexp,
-                                                                                func=func))
-            elif 'channel_post' in update_type:
-                self.__channel_post_handlers.append(self.__build_handler_dict(handler, regexp=regexp, func=func))
-            elif 'edited_channel_post' in update_type:
-                self.__edited_channel_post_handlers.append(self.__build_handler_dict(handler, regexp=regexp, func=func))
-            elif 'inline_query' in update_type:
-                self.__inline_query_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'chosen_inline' in update_type:
-                self.__chosen_inline_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'callback_query' in update_type:
-                self.__callback_query_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'shipping_query' in update_type:
-                self.__shipping_query_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'pre_check_query' in update_type:
-                self.__pre_checkout_query_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'poll' in update_type:
-                self.__poll_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'poll_answer' in update_type:
-                self.__poll_answer_handlers.append(self.__build_handler_dict(handler, func=func))
-            elif 'my_chat_member' in update_type:
-                self.__my_chat_member_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
-                                                                                func=func))
-            elif 'chat_member' in update_type:
-                self.__chat_member_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
-                                                                             func=func))
-            elif 'chat_join_request' in update_type:
-                self.__chat_join_request_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
-                                                                                   func=func))
-            else:
-                self.__message_handlers.append(self.__build_handler_dict(handler, chat_type=chat_type,
-                                                                         bot_command=bot_command, regexp=regexp,
-                                                                         func=func))
-            return handler
-
-        return decorator
-
-    def __check_update_handler(self, message_handler, message):
+    def __check_update_handler(self, update_handler, update):
         """
         check update handler
-        :param message_handler:
-        :param message:
+        :param update_handler:
+        :param update:
         :return:
         """
-        for filters, filter_value in message_handler['filters'].items():
+        for filters, filter_value in update_handler['filters'].items():
             if filter_value is None:
                 continue
 
-            if not self.__check_filter(filters, filter_value, message):
+            if not self.__check_filter(filters, filter_value, update):
                 return False
 
         return True
 
     @staticmethod
-    def __check_filter(filters, filter_value, message):
+    def __check_filter(filters, filter_value, update):
         """
-        check filters
-        :param filters:
-        :param filter_value:
-        :param message:
-        :return:
+        check filters if filter_value in update
+        :param str filters: filter name
+        :param any filter_value: filter value
+        :param any update: class object
+        :return: True on Success
+        :rtype: bool
         """
         if filters == 'chat_type':
-            return message.chat.ttype in filter_value
+            try:
+                ttype = update.chat.ttype
+            except AssertionError:
+                ttype = update.message.chat.ttype
+
+            return ttype in filter_value
         elif filters == 'regexp':
-            return message.text and re.search(filter_value, message.text, re.IGNORECASE)
+            return update.text and re.search(filter_value, update.text, re.IGNORECASE)
         elif filters == 'func':
-            return filter_value(message)
+            return filter_value(update)
         elif filters == 'bot_command':
-            entity = message.entities
+            entity = update.entities
             if entity:
-                return entity[0].ttype == 'bot_command'
+                return entity[0].ttype == 'bot_command' and update.text in filter_value
             else:
                 return False
         else:
             return False
 
-    def infinity_polling(self, timeout=20, *args, **kwargs):
-        while not self.__stop_polling.is_set():
-            try:
-                self.polling(timeout=timeout, *args, **kwargs)
-            except ConnectionError or ConnectionAbortedError or ConnectionRefusedError or ConnectionResetError:
-                time.sleep(timeout)
-                pass
-        utils.logger.info("BREAK INFINITY POLLING")
-
-    def polling(self, none_stop=False, interval=0, timeout=20):
+    def __notify_update_handlers(self, handlers, new_updates):
         """
-        This function creates a new Thread that calls an internal __retrieve_updates function
-        This allows the bot to retrieve Updates automatically and notify listeners and message handlers accordingly
-        Warning: Do not call this function more than once!
-        Always get updates
-        :param bool none_stop: Do not stop polling when an ApiException occurs
-        :param int interval:
-        :param int timeout: Timeout in seconds for long polling
+        Notifies command handlers
+        :param handlers:
+        :param new_updates:
         :return:
         """
-        if self.__threaded:
-            self.__threaded_polling(none_stop, interval, timeout)
-        else:
-            self.__non_threaded_polling(none_stop, interval, timeout)
+        for update_type in new_updates:
+            for update_handler in handlers:
+                if self.__check_update_handler(update_handler, update_type):
+                    self.__exec_task(update_handler['function'], update_type)
+                    break
 
-    def __threaded_polling(self, none_stop=False, interval=0, timeout=3):
-        utils.logger.info('STARTED POLLING')
-        self.__stop_polling.clear()
-        error_interval = 0.25
-        polling_thread = utils.WorkerThread(name="PollingThread")
-        or_event = utils.events_handler(polling_thread.done_event, polling_thread.exception_event,
-                                        self.__worker_pool.exception_event)
+    def __process_new_messages(self, new_messages):
+        self.__notify_update_handlers(self.__message_handlers, new_messages)
 
-        while not self.__stop_polling.wait(interval):
-            or_event.clear()
-            try:
-                polling_thread.put(self.__retrieve_updates, timeout)
+    def __process_new_edited_messages(self, edited_message):
+        self.__notify_update_handlers(self.__edited_message_handlers, edited_message)
 
-                or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
+    def __process_new_channel_posts(self, channel_post):
+        self.__notify_update_handlers(self.__channel_post_handlers, channel_post)
 
-                polling_thread.raise_exceptions()
-                self.__worker_pool.raise_exceptions()
+    def __process_new_edited_channel_posts(self, edited_channel_post):
+        self.__notify_update_handlers(self.__edited_channel_post_handlers, edited_channel_post)
 
-                error_interval = 0.25
-            except utils.ApiException as e:
-                utils.logger.error(e)
-                if not none_stop:
-                    self.__stop_polling.set()
-                    utils.logger.info("Exception Occurred, STOPPING")
-                else:
-                    polling_thread.clear_exceptions()
-                    self.__worker_pool.clear_exceptions()
-                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
-                    time.sleep(error_interval)
-                    error_interval *= 2
-            except KeyboardInterrupt:
-                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
-                self.__stop_polling.set()
-                break
+    def __process_new_inline_query(self, new_inline_queries):
+        self.__notify_update_handlers(self.__inline_query_handlers, new_inline_queries)
 
-        polling_thread.stop()
-        utils.logger.info('STOPPED POLLING')
+    def __process_new_chosen_inline_query(self, new_chosen_inline_queries):
+        self.__notify_update_handlers(self.__chosen_inline_handlers, new_chosen_inline_queries)
 
-    def __non_threaded_polling(self, none_stop=False, interval=0, timeout=3):
-        utils.logger.info('STARTED POLLING')
-        self.__stop_polling.clear()
-        error_interval = 0.25
+    def __process_new_callback_query(self, new_callback_queries):
+        self.__notify_update_handlers(self.__callback_query_handlers, new_callback_queries)
 
-        while not self.__stop_polling.wait(interval):
-            try:
-                self.__retrieve_updates(timeout)
-                error_interval = 0.25
-            except utils.ApiException as e:
-                utils.logger.error(e)
-                if not none_stop:
-                    self.__stop_polling.set()
-                    utils.logger.info("Exception Occurred, STOPPING")
-                else:
-                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
-                    time.sleep(error_interval)
-                    error_interval *= 2
-            except KeyboardInterrupt:
-                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
-                self.__stop_polling.set()
-                break
+    def __process_new_shipping_query(self, new_shipping_queries):
+        self.__notify_update_handlers(self.__shipping_query_handlers, new_shipping_queries)
 
-        utils.logger.info('STOPPED POLLING')
+    def __process_new_pre_checkout_query(self, pre_checkout_queries):
+        self.__notify_update_handlers(self.__pre_checkout_query_handlers, pre_checkout_queries)
 
-    def stop_polling(self):
-        self.__stop_polling.set()
+    def __process_new_poll(self, poll):
+        self.__notify_update_handlers(self.__poll_handlers, poll)
 
-    def stop_bot(self):
-        self.stop_polling()
-        if self.__worker_pool:
-            self.__worker_pool.close()
+    def __process_new_poll_answer(self, poll_answer):
+        self.__notify_update_handlers(self.__poll_answer_handlers, poll_answer)
+
+    def __process_new_my_chat_member(self, my_chat_member):
+        self.__notify_update_handlers(self.__my_chat_member_handlers, my_chat_member)
+
+    def __process_new_chat_member(self, chat_member):
+        self.__notify_update_handlers(self.__chat_member_handlers, chat_member)
+
+    def __process_new_chat_join_request(self, chat_join_request):
+        self.__notify_update_handlers(self.__chat_join_request_handlers, chat_join_request)
 
     def set_webhook(self, url, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
                     drop_pending_updates=False):
