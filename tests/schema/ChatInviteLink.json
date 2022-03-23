@@ -1,0 +1,11 @@
+{
+  "invite_link": "ChatInvite link",
+  "creator": {},
+  "creates_join_request": true,
+  "is_primary": true,
+  "is_revoked": false,
+  "name": "ChatInvite name",
+  "expire_date": 1234567890,
+  "member_count": 20,
+  "pending_join_request_count": 2
+}
