@@ -1,0 +1,16 @@
+{
+  "status": "administrator",
+  "user": {},
+  "is_anonymous": true,
+  "can_manage_chat": true,
+  "can_delete_messages": false,
+  "can_manage_voice_chats": true,
+  "can_restrict_members": true,
+  "can_promote_members": true,
+  "can_change_info": false,
+  "can_invite_users": true,
+  "can_post_messages": true,
+  "can_edit_messages": false,
+  "can_pin_messages": true,
+  "custom_title": "ChatMemberAdministrator custom title"
+}
