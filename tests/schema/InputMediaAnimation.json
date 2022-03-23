@@ -1,0 +1,11 @@
+{
+  "type": "animation",
+  "media": "InputMediaAnimation media",
+  "thumb": "InputMediaAnimation thumb",
+  "caption": "InputMediaAnimation caption",
+  "parse_mode": "InputMediaAnimation parse mode",
+  "caption_entities": [],
+  "width": 800,
+  "height": 600,
+  "duration": 120
+}

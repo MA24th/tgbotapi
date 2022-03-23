@@ -1,0 +1,7 @@
+{
+  "type": "photo",
+  "media": "InputMediaPhoto media",
+  "caption": "InputMediaPhoto caption",
+  "parse_mode": "InputMediaPhoto parse mode",
+  "caption_entities": []
+}

@@ -1,0 +1,9 @@
+{
+  "type": "document",
+  "media": "InputMediaDocument media",
+  "thumb": "InputMediaDocument thumb",
+  "caption": "InputMediaDocument caption",
+  "parse_mode": "InputMediaDocument parse mode",
+  "caption_entities": [],
+  "disable_content_type_detection": true
+}

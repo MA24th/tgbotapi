@@ -1,0 +1,12 @@
+{
+  "type": "video",
+  "media": "InputMediaVideo media",
+  "thumb": "InputMediaVideo thumb",
+  "caption": "InputMediaVideo caption",
+  "parse_mode": "InputMediaVideo parse mode",
+  "caption_entities": [],
+  "width": 800,
+  "height": 600,
+  "duration": 120,
+  "supports_streaming": true
+}

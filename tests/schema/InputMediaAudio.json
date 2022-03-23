@@ -1,0 +1,11 @@
+{
+  "type": "audio",
+  "media": "InputMediaAudio media",
+  "thumb": "InputMediaAudio thumb",
+  "caption": "InputMediaAudio caption",
+  "parse_mode": "InputMediaAudio parse mode",
+  "caption_entities": [],
+  "duration": 120,
+  "performer": "InputMediaAudio performer",
+  "supports_streaming": true
+}
