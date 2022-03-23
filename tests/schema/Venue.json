@@ -1,0 +1,16 @@
+{
+  "location": {
+    "longitude": 33.29,
+    "latitude": 40.50,
+    "horizontal_accuracy": 100,
+    "live_period": 60,
+    "heading": 30,
+    "proximity_alert_radius": 20
+  },
+  "title": "Venue title",
+  "address": "Venue address",
+  "foursquare_id": "Venue foursquare id",
+  "foursquare_type": "Venue foursquare type",
+  "google_place_id": "Venue google place id",
+  "google_place_type": "Venue google place type"
+}
