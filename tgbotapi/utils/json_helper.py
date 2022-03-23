@@ -3,27 +3,10 @@
 """
 tgbotapi.utils.json_helper
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-This submodule provides json utility objects that are consumed internally by tgbotapi
+This submodule provides json utility objects that are consumed internally by tgbotapi types
 """
 
 import json
-import six
-
-
-class Dictionaryable(object):
-    """
-    Subclasses of this class are guaranteed to be able to be converted to dictionary,
-    All subclasses of this class must override to_dict.
-    """
-
-    def to_dict(self):
-        """
-        Returns a JSON string representation of this class.
-
-        This function must be overridden by subclasses.
-        :return: a Dict formatted string.
-        """
-        raise NotImplementedError
 
 
 class JsonDeserializable(object):
@@ -45,6 +28,7 @@ class JsonDeserializable(object):
     @staticmethod
     def check_type(obj_type):
         """
+        implement
         Checks whether obj_type is a dict or a string. If it is already a dict, it is returned as-is,
         If it is not, it is converted to a dict by means of json.loads(obj_type),
         :param str or dict obj_type:
@@ -58,16 +42,6 @@ class JsonDeserializable(object):
         else:
             raise ValueError("obj_type should be a dict or string.")
 
-    def __str__(self):
-        d = {}
-        for x, y in six.iteritems(self.__dict__):
-            if hasattr(y, '__dict__'):
-                d[x] = y.__dict__
-            else:
-                d[x] = y
-
-        return six.text_type(d)
-
 
 class JsonSerializable(object):
     """
@@ -75,11 +49,28 @@ class JsonSerializable(object):
     All subclasses of this class must override to_json.
     """
 
+    def to_dict(self):
+        """
+        Returns a Dict string representation of this class.
+
+        This function must be overridden by subclasses.
+        :return: a Dict formatted string.
+        """
+        raise NotImplementedError
+
     def to_json(self):
         """
         Returns a JSON string representation of this class.
-
-        This function must be overridden by subclasses.
         :return: a JSON formatted string.
         """
-        raise NotImplementedError
+        return json.dumps(self, default=self.custom_serializer)
+
+    def __repr__(self):
+        return self.to_json()
+
+    @staticmethod
+    def custom_serializer(obj):
+        if isinstance(obj, JsonSerializable):
+            return obj.to_dict()
+        else:
+            raise TypeError(f'Object of type {obj.__class__.__name__} is not JSON serializable')
