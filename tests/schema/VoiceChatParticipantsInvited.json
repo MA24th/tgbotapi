@@ -1,0 +1,13 @@
+{
+  "users": [{
+  "id": 987654321,
+  "is_bot": true,
+  "first_name": "GuardBot",
+  "last_name": null,
+  "username": "guardbot",
+  "language_code": "en",
+  "can_join_groups": true,
+  "can_read_all_group_messages": true,
+  "supports_inline_queries": true
+}]
+}
