@@ -1,0 +1,17 @@
+{
+  "file_id": "Animation file id",
+  "file_unique_id": "Animation file unique id",
+  "width": 180,
+  "height": 200,
+  "duration": 120,
+  "thumb": {
+    "file_id": "PhotoSize file id",
+    "file_unique_id": "PhotoSize file unique id",
+    "width": 180,
+    "height": 200,
+    "file_size": 640
+  },
+  "file_name": "Animation file name",
+  "mime_type": "Animation mime type",
+  "file_size": 640
+}
