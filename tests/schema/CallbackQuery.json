@@ -1,0 +1,17 @@
+{
+  "id": "CallbackQuery id",
+  "from": {
+    "id": 987654321,
+    "is_bot": true,
+    "first_name": "GuardBot",
+    "last_name": null,
+    "username": "guardbot",
+    "language_code": "en",
+    "can_join_groups": true,
+    "can_read_all_group_messages": true,
+    "supports_inline_queries": true
+  },
+  "inline_message_id": "CallbackQuery inline message id",
+  "chat_instance": "CallbackQuery chat instance",
+  "game_short_name": "CallbackQuery game short name"
+}
