@@ -1,0 +1,18 @@
+{
+  "keyboard": [
+    [
+      {
+        "text": "KeyboardButton text",
+        "request_contact": false,
+        "request_location": true,
+        "request_poll": {
+          "type": "KeyboardButtonPollType type"
+        }
+      }
+    ]
+  ],
+  "resize_keyboard": true,
+  "one_time_keyboard": true,
+  "input_field_placeholder": "input field place holder",
+  "selective": true
+}
