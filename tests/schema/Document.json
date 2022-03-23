@@ -1,0 +1,14 @@
+{
+  "file_id": "Document file id",
+  "file_unique_id": "Document file unique id",
+  "thumb": {
+    "file_id": "PhotoSize file id",
+    "file_unique_id": "PhotoSize file unique id",
+    "width": 180,
+    "height": 200,
+    "file_size": 640
+  },
+  "file_name": "Document file name",
+  "mime_type": "Document mime type",
+  "file_size": 640
+}
