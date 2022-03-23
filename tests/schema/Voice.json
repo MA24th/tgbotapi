@@ -1,0 +1,7 @@
+{
+  "file_id": "Voice file id",
+  "file_unique_id": "Voice file unique id",
+  "duration": 120,
+  "mime_type": "Voice mime type",
+  "file_size": 640
+}
