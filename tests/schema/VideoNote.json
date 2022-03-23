@@ -1,0 +1,14 @@
+{
+  "file_id": "VideoNote file id",
+  "file_unique_id": "VideoNote file unique id",
+  "length": 90,
+  "duration": 120,
+  "thumb": {
+    "file_id": "PhotoSize file id",
+    "file_unique_id": "PhotoSize file unique id",
+    "width": 180,
+    "height": 200,
+    "file_size": 640
+  },
+  "file_size": 640
+}
