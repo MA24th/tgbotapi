@@ -12,8 +12,8 @@ from .utils import async_dec
 
 
 class AsyncBot(Bot):
-    def __init__(self, access_token, threaded=True, num_threads=12, based_url=None, proxies=None):
-        Bot.__init__(self, access_token, threaded, num_threads, based_url, proxies)
+    def __init__(self, based_url, allowed_updates=None, threaded=True, skip_pending=False, num_threads=2, proxies=None):
+        Bot.__init__(self, based_url, allowed_updates, threaded, skip_pending, num_threads, proxies)
 
     @async_dec()
     def set_webhook(self, url, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
