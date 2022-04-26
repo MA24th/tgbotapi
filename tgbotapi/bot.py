@@ -3,8 +3,7 @@
 """
 tgbotapi.bot
 ~~~~~~~~~~~~
-This submodule provides a Bot object to manage and persist settings across
-tgbotapi (based_url, allowed_update, threaded, skip_pending, num_threads, proxies).
+This submodule provides a Bot object to manage and persist settings across tgbotapi.
 """
 
 from . import methods
@@ -16,22 +15,21 @@ import re
 
 
 class Bot:
-    def __init__(self, access_token, based_url="https://api.telegram.org/bot", threaded=True, num_threads=2,
-                 proxies=None):
+    def __init__(self, access_token, num_threads=2, based_url=None, proxies=None):
         """
         Use this class to create bot instance
-        :param str access_token:
-        :param str based_url: Required, The API url with Bot token
-        :param bool threaded: Enable Threading
+        :param str access_token: Telegram Bot Access Token
         :param int num_threads: Number of thread to process incoming tasks, default 2
+        :param str based_url: Required, The API url with Bot token
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
-        self.__based_url = f'{based_url+access_token}'
+
+        self.__based_url = "https://api.telegram.org/bot" if based_url is None else based_url
+        self.__api_url = f'{self.__based_url}{access_token}'
         self.__proxies = proxies
-        self.__threaded = threaded
+
+        self.__worker_pool = utils.ThreadPool(num_threads=num_threads)
         self.__skip_pending = False
-        if self.__threaded:
-            self.__worker_pool = utils.ThreadPool(num_threads=num_threads)
 
         self.__stop_polling = threading.Event()
         self.__allowed_updates = None
@@ -139,7 +137,7 @@ class Bot:
         """
         if allowed_updates is None:
             allowed_updates = self.__allowed_updates
-        resp = methods.get_updates(self.__based_url, self.__proxies, offset, limit, timeout, allowed_updates)
+        resp = methods.get_updates(self.__api_url, self.__proxies, offset, limit, timeout, allowed_updates)
         updates = []
         for x in resp:
             updates.append(types.Update.de_json(x))
@@ -174,70 +172,7 @@ class Bot:
 
         self.__process_new_updates(self.__get_updates(offset, limit, timeout, allowed_updates))
 
-    def __threaded_polling(self, none_stop, interval, limit, timeout, allowed_updates):
-        utils.logger.info('POLLING STARTED')
-        self.__stop_polling.clear()
-        error_interval = 0.25
-        polling_thread = utils.WorkerThread(name="PollingThread")
-        or_event = utils.events_handler(polling_thread.done_event, polling_thread.exception_event,
-                                        self.__worker_pool.exception_event)
-
-        while not self.__stop_polling.wait(interval):
-            or_event.clear()
-            try:
-                polling_thread.put(self.__retrieve_updates, limit, timeout, allowed_updates)
-
-                or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
-
-                polling_thread.raise_exceptions()
-                self.__worker_pool.raise_exceptions()
-
-                error_interval = 0.25
-            except utils.ApiException as e:
-                utils.logger.error(e)
-                if not none_stop:
-                    self.__stop_polling.set()
-                    utils.logger.info("Exception Occurred, STOPPING")
-                else:
-                    polling_thread.clear_exceptions()
-                    self.__worker_pool.clear_exceptions()
-                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
-                    time.sleep(error_interval)
-                    error_interval *= 2
-            except KeyboardInterrupt:
-                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
-                self.__stop_polling.set()
-                break
-
-        polling_thread.stop()
-        utils.logger.info('POLLING STOPPED')
-
-    def __non_threaded_polling(self, none_stop, interval, limit, timeout, allowed_updates):
-        utils.logger.info('POLLING STARTED')
-        self.__stop_polling.clear()
-        error_interval = 0.25
-
-        while not self.__stop_polling.wait(interval):
-            try:
-                self.__retrieve_updates(limit, timeout, allowed_updates)
-                error_interval = 0.25
-            except utils.ApiException as e:
-                utils.logger.error(e)
-                if not none_stop:
-                    self.__stop_polling.set()
-                    utils.logger.info("Exception Occurred, STOPPING")
-                else:
-                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
-                    time.sleep(error_interval)
-                    error_interval *= 2
-            except KeyboardInterrupt:
-                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
-                self.__stop_polling.set()
-                break
-
-        utils.logger.info('POLLING STOPPED')
-
-    def polling(self, none_stop=False, interval=0, skip_pending=False, limit=100, timeout=20, allowed_updates=None):
+    def polling(self, none_stop=False, interval=0, skip_pending=False, limit=100, timeout=5, allowed_updates=None):
         """
         This function creates a new Thread that calls an internal __retrieve_updates function
         This allows the bot to retrieve Updates automatically and notify listeners and message handlers accordingly
@@ -254,16 +189,45 @@ class Bot:
 
         :return:
         """
+        utils.logger.info('POLLING STARTED')
+        self.__stop_polling.clear()
+        error_interval = 0.25
+
         if skip_pending:
             self.__skip_pending = True
 
         if allowed_updates:
             self.__allowed_updates = allowed_updates
 
-        if self.__threaded:
-            self.__threaded_polling(none_stop, interval, limit, timeout, allowed_updates)
-        else:
-            self.__non_threaded_polling(none_stop, interval, limit, timeout, allowed_updates)
+        polling_thread = utils.WorkerThread(name="PollingThread")
+        or_event = utils.events_handler(polling_thread.done_event, polling_thread.exception_event,
+                                        self.__worker_pool.exception_event)
+
+        while not self.__stop_polling.wait(interval):
+            or_event.clear()
+            try:
+                polling_thread.put(self.__retrieve_updates, limit, timeout, allowed_updates)
+                or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
+                polling_thread.raise_exceptions()
+                self.__worker_pool.raise_exceptions()
+            except utils.ApiException as e:
+                # utils.logger.error(e)
+                if not none_stop:
+                    self.__stop_polling.set()
+                    utils.logger.info("Exception Occurred, STOPPING")
+                else:
+                    polling_thread.clear_exceptions()
+                    self.__worker_pool.clear_exceptions()
+                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
+                    time.sleep(error_interval)
+                    error_interval *= 2
+            except KeyboardInterrupt:
+                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
+                self.__stop_polling.set()
+                break
+
+        polling_thread.stop()
+        utils.logger.info('POLLING STOPPED')
 
     def __process_new_updates(self, updates):
         new_messages = []
@@ -344,10 +308,7 @@ class Bot:
                 self.__process_new_chat_join_request(new_chat_join_request)
 
     def __exec_task(self, task, *args, **kwargs):
-        if self.__threaded:
-            self.__worker_pool.put(task, *args, **kwargs)
-        else:
-            task(*args, **kwargs)
+        self.__worker_pool.put(task, *args, **kwargs)
 
     def __check_update_handler(self, update_handler, update):
         """
@@ -463,7 +424,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_webhook(self.__based_url, self.__proxies, url, certificate, ip_address, max_connections,
+        return methods.set_webhook(self.__api_url, self.__proxies, url, certificate, ip_address, max_connections,
                                    allowed_updates, drop_pending_updates)
 
     def delete_webhook(self, drop_pending_updates=False):
@@ -473,7 +434,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_webhook(self.__based_url, self.__proxies, drop_pending_updates)
+        return methods.delete_webhook(self.__api_url, self.__proxies, drop_pending_updates)
 
     def get_webhook_info(self):
         """
@@ -481,7 +442,7 @@ class Bot:
         :return: a WebhookInfo object, otherwise an object with the url field empty
         :rtype: types.WebhookInfo
         """
-        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__based_url, self.__proxies))
+        return types.WebhookInfo.de_json(methods.get_webhook_info(self.__api_url, self.__proxies))
 
     def get_me(self):
         """
@@ -489,7 +450,7 @@ class Bot:
         :return: a User object
         :rtype: types.User
         """
-        return types.User.de_json(methods.get_me(self.__based_url, self.__proxies))
+        return types.User.de_json(methods.get_me(self.__api_url, self.__proxies))
 
     def log_out(self):
         """
@@ -497,7 +458,7 @@ class Bot:
         :return: True on success
         :rtype: bool
         """
-        return methods.log_out(self.__based_url, self.__proxies)
+        return methods.log_out(self.__api_url, self.__proxies)
 
     def close(self):
         """
@@ -505,7 +466,7 @@ class Bot:
         :return: True on success
         :rtype: bool
         """
-        return types.User.de_json(methods.close(self.__based_url, self.__proxies))
+        return types.User.de_json(methods.close(self.__api_url, self.__proxies))
 
     def send_message(self, chat_id, text, parse_mode=None, entities=None, disable_web_page_preview=False,
                      disable_notification=False, protect_content=False, reply_to_message_id=None,
@@ -526,7 +487,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_message(self.__based_url, self.__proxies, chat_id, text, parse_mode, entities,
+            methods.send_message(self.__api_url, self.__proxies, chat_id, text, parse_mode, entities,
                                  disable_web_page_preview,
                                  disable_notification, protect_content, reply_to_message_id,
                                  allow_sending_without_reply, reply_markup))
@@ -543,7 +504,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.forward_message(self.__based_url, self.__proxies, chat_id, from_chat_id, message_id,
+            methods.forward_message(self.__api_url, self.__proxies, chat_id, from_chat_id, message_id,
                                     disable_notification, protect_content))
 
     def copy_message(self, chat_id, from_chat_id, message_id, caption=None, parse_mode=None, caption_entities=None,
@@ -566,7 +527,7 @@ class Bot:
         :rtype: types.MessageId
         """
         return types.MessageId.de_json(
-            methods.copy_message(self.__based_url, self.__proxies, chat_id, from_chat_id, message_id, caption,
+            methods.copy_message(self.__api_url, self.__proxies, chat_id, from_chat_id, message_id, caption,
                                  parse_mode, caption_entities, disable_notification, protect_content,
                                  reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -590,7 +551,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_photo(self.__based_url, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities,
+            methods.send_photo(self.__api_url, self.__proxies, chat_id, photo, caption, parse_mode, caption_entities,
                                disable_notification, protect_content, reply_to_message_id, allow_sending_without_reply,
                                reply_markup))
 
@@ -617,7 +578,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_audio(self.__based_url, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities,
+            methods.send_audio(self.__api_url, self.__proxies, chat_id, audio, caption, parse_mode, caption_entities,
                                duration, performer, title, thumb, disable_notification, protect_content,
                                reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -642,7 +603,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_document(self.__based_url, self.__proxies, chat_id, document, thumb, caption, parse_mode,
+            methods.send_document(self.__api_url, self.__proxies, chat_id, document, thumb, caption, parse_mode,
                                   caption_entities, disable_content_type_detection, disable_notification,
                                   protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -671,7 +632,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_video(self.__based_url, self.__proxies, chat_id, video, duration, width, height, thumb,
+            methods.send_video(self.__api_url, self.__proxies, chat_id, video, duration, width, height, thumb,
                                caption, parse_mode, caption_entities, supports_streaming, disable_notification,
                                protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -698,7 +659,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_animation(self.__based_url, self.__proxies, chat_id, animation, duration, width, height, thumb,
+            methods.send_animation(self.__api_url, self.__proxies, chat_id, animation, duration, width, height, thumb,
                                    caption, parse_mode, caption_entities, disable_notification, protect_content,
                                    reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -722,7 +683,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_voice(self.__based_url, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities,
+            methods.send_voice(self.__api_url, self.__proxies, chat_id, voice, caption, parse_mode, caption_entities,
                                duration, disable_notification, protect_content, reply_to_message_id,
                                allow_sending_without_reply, reply_markup))
 
@@ -745,7 +706,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_video_note(self.__based_url, self.__proxies, chat_id, video_note, duration, length, thumb,
+            methods.send_video_note(self.__api_url, self.__proxies, chat_id, video_note, duration, length, thumb,
                                     disable_notification, protect_content, reply_to_message_id,
                                     allow_sending_without_reply, reply_markup))
 
@@ -763,7 +724,7 @@ class Bot:
         :return: On success, an array of Messages that were sent is returned
         :rtype: list[types.Message]
         """
-        resp = methods.send_media_group(self.__based_url, self.__proxies, chat_id, media, disable_notification,
+        resp = methods.send_media_group(self.__api_url, self.__proxies, chat_id, media, disable_notification,
                                         protect_content, reply_to_message_id, allow_sending_without_reply)
         result = []
         for x in resp:
@@ -791,7 +752,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_location(self.__based_url, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy,
+            methods.send_location(self.__api_url, self.__proxies, chat_id, latitude, longitude, horizontal_accuracy,
                                   live_period, heading, proximity_alert_radius, disable_notification, protect_content,
                                   reply_to_message_id, allow_sending_without_reply, reply_markup))
 
@@ -812,7 +773,7 @@ class Bot:
         :return: a Message object, otherwise True
         :rtype: types.Message or bool
         """
-        result = methods.edit_message_live_location(self.__based_url, self.__proxies, latitude, longitude,
+        result = methods.edit_message_live_location(self.__api_url, self.__proxies, latitude, longitude,
                                                     horizontal_accuracy, heading, proximity_alert_radius, chat_id,
                                                     message_id, inline_message_id, reply_markup)
         if type(result) is bool:
@@ -829,7 +790,7 @@ class Bot:
         :return: a Message object, otherwise True
         :rtype: types.Message or bool
         """
-        result = methods.stop_message_live_location(self.__based_url, self.__proxies, chat_id, message_id,
+        result = methods.stop_message_live_location(self.__api_url, self.__proxies, chat_id, message_id,
                                                     inline_message_id, reply_markup)
         if type(result) is bool:
             return result
@@ -857,7 +818,7 @@ class Bot:
         :return: a Message object
         :rtype: types.Message
         """
-        return types.Message.de_json(methods.send_venue(self.__based_url, self.__proxies, chat_id, latitude, longitude,
+        return types.Message.de_json(methods.send_venue(self.__api_url, self.__proxies, chat_id, latitude, longitude,
                                                         title, address, foursquare_id, foursquare_type,
                                                         google_place_id, google_place_type, disable_notification,
                                                         protect_content, reply_to_message_id,
@@ -882,7 +843,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_contact(self.__based_url, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
+            methods.send_contact(self.__api_url, self.__proxies, chat_id, phone_number, first_name, last_name, vcard,
                                  disable_notification, protect_content, reply_to_message_id,
                                  allow_sending_without_reply, reply_markup))
 
@@ -922,7 +883,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_poll(self.__based_url, self.__proxies, chat_id, question, options, is_anonymous, ttype,
+            methods.send_poll(self.__api_url, self.__proxies, chat_id, question, options, is_anonymous, ttype,
                               allows_multiple_answers, correct_option_id, explanation, explanation_parse_mode,
                               explanation_entities,
                               open_period, close_date, is_closed, disable_notifications, protect_content,
@@ -946,7 +907,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_dice(self.__based_url, self.__proxies, chat_id, emoji, disable_notification, protect_content,
+            methods.send_dice(self.__api_url, self.__proxies, chat_id, emoji, disable_notification, protect_content,
                               reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def send_chat_action(self, chat_id, action):
@@ -961,7 +922,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.send_chat_action(self.__based_url, self.__proxies, chat_id, action)
+        return methods.send_chat_action(self.__api_url, self.__proxies, chat_id, action)
 
     def get_user_profile_photos(self, user_id, offset=None, limit=100):
         """
@@ -975,7 +936,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.UserProfilePhotos.de_json(
-            methods.get_user_profile_photos(self.__based_url, self.__proxies, user_id, offset, limit))
+            methods.get_user_profile_photos(self.__api_url, self.__proxies, user_id, offset, limit))
 
     def get_file(self, file_id):
         """
@@ -984,7 +945,7 @@ class Bot:
         :return: a File object
         :rtype: types.File
         """
-        return types.File.de_json(methods.get_file(self.__based_url, self.__proxies, file_id))
+        return types.File.de_json(methods.get_file(self.__api_url, self.__proxies, file_id))
 
     def ban_chat_member(self, chat_id, user_id, until_date=None, revoke_messages=False):
         """
@@ -998,7 +959,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.ban_chat_member(self.__based_url, self.__proxies, chat_id, user_id, until_date, revoke_messages)
+        return methods.ban_chat_member(self.__api_url, self.__proxies, chat_id, user_id, until_date, revoke_messages)
 
     def unban_chat_member(self, chat_id, user_id, only_if_banned=False):
         """
@@ -1009,7 +970,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.unban_chat_member(self.__based_url, self.__proxies, chat_id, user_id, only_if_banned)
+        return methods.unban_chat_member(self.__api_url, self.__proxies, chat_id, user_id, only_if_banned)
 
     def restrict_chat_member(self, chat_id, user_id, permissions, until_date=None):
         """
@@ -1021,7 +982,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.restrict_chat_member(self.__based_url, self.__proxies, chat_id, user_id, permissions, until_date)
+        return methods.restrict_chat_member(self.__api_url, self.__proxies, chat_id, user_id, permissions, until_date)
 
     def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_manage_chat=False, can_change_info=False,
                             can_post_messages=False, can_edit_messages=False, can_delete_messages=False,
@@ -1050,7 +1011,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.promote_chat_member(self.__based_url, self.__proxies, chat_id, user_id, is_anonymous,
+        return methods.promote_chat_member(self.__api_url, self.__proxies, chat_id, user_id, is_anonymous,
                                            can_manage_chat, can_change_info, can_post_messages, can_edit_messages,
                                            can_delete_messages, can_delete_messages, can_invite_users,
                                            can_restrict_members, can_pin_messages, can_promote_members)
@@ -1064,7 +1025,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_administrator_custom_title(self.__based_url, self.__proxies, chat_id, user_id,
+        return methods.set_chat_administrator_custom_title(self.__api_url, self.__proxies, chat_id, user_id,
                                                            custom_title)
 
     def ban_chat_sender_chat(self, chat_id, sender_chat_id):
@@ -1074,24 +1035,24 @@ class Bot:
         channels. The bot must be an administrator in the supergroup or channel for this to work and must have the
         appropriate administrator rights
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-                                   (in the format @channelusername)
+                                   (in the format @channel_username)
         :param int sender_chat_id: Unique identifier of the target sender chat
         :return: Returns True on success
         :rtype: bool
         """
-        return methods.ban_chat_sender_chat(self.__based_url, self.__proxies, chat_id, sender_chat_id)
+        return methods.ban_chat_sender_chat(self.__api_url, self.__proxies, chat_id, sender_chat_id)
 
     def unban_chat_sender_chat(self, chat_id, sender_chat_id):
         """
         Use this method to unban a previously banned channel chat in a supergroup or channel.
         The bot must be an administrator for this to work and must have the appropriate administrator rights
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-                                   (in the format @channelusername)
+                                   (in the format @channel_username)
         :param int sender_chat_id: Unique identifier of the target sender chat
         :return: Returns True on success
         :rtype: bool
         """
-        return methods.unban_chat_sender_chat(self.__based_url, self.__proxies, chat_id, sender_chat_id)
+        return methods.unban_chat_sender_chat(self.__api_url, self.__proxies, chat_id, sender_chat_id)
 
     def set_chat_permissions(self, chat_id, permissions):
         """
@@ -1101,7 +1062,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_permissions(self.__based_url, self.__proxies, chat_id, permissions)
+        return methods.set_chat_permissions(self.__api_url, self.__proxies, chat_id, permissions)
 
     def export_chat_invite_link(self, chat_id):
         """
@@ -1110,7 +1071,7 @@ class Bot:
         :return: new link as String on success
         :rtype: str
         """
-        return methods.export_chat_invite_link(self.__based_url, self.__proxies, chat_id)
+        return methods.export_chat_invite_link(self.__api_url, self.__proxies, chat_id)
 
     def create_chat_invite_link(self, chat_id, name=None, expire_date=None, member_limit=None,
                                 creates_join_request=False):
@@ -1126,7 +1087,7 @@ class Bot:
         :return: Returns the new invite link as ChatInviteLink object
         :rtype: types.ChatInviteLink
         """
-        return types.ChatInviteLink.de_json(methods.create_chat_invite_link(self.__based_url, self.__proxies, chat_id,
+        return types.ChatInviteLink.de_json(methods.create_chat_invite_link(self.__api_url, self.__proxies, chat_id,
                                                                             name, expire_date, member_limit,
                                                                             creates_join_request))
 
@@ -1145,7 +1106,7 @@ class Bot:
         :return: Returns the new invite link as ChatInviteLink object
         :rtype: types.ChatInviteLink
         """
-        return types.ChatInviteLink.de_json(methods.edit_chat_invite_link(self.__based_url, self.__proxies, chat_id,
+        return types.ChatInviteLink.de_json(methods.edit_chat_invite_link(self.__api_url, self.__proxies, chat_id,
                                                                           invite_link, name, expire_date, member_limit,
                                                                           creates_join_request))
 
@@ -1157,7 +1118,7 @@ class Bot:
         :return: Returns the revoked invite link as ChatInviteLink object
         :rtype: types.ChatInviteLink
         """
-        return types.ChatInviteLink.de_json(methods.revoke_chat_invite_link(self.__based_url, self.__proxies, chat_id,
+        return types.ChatInviteLink.de_json(methods.revoke_chat_invite_link(self.__api_url, self.__proxies, chat_id,
                                                                             invite_link))
 
     def approve_chat_join_request(self, chat_id, user_id):
@@ -1166,12 +1127,12 @@ class Bot:
         The bot must be an administrator in the chat for this to work
         and must have the can_invite_users administrator right
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-                                   (in the format @channelusername)
+                                   (in the format @channel_username)
         :param int user_id: Unique identifier of the target user
         :return: True on success
         :rtype: bool
         """
-        return methods.approve_chat_join_request(self.__based_url, self.__proxies, chat_id, user_id)
+        return methods.approve_chat_join_request(self.__api_url, self.__proxies, chat_id, user_id)
 
     def decline_chat_join_request(self, chat_id, user_id):
         """
@@ -1179,12 +1140,12 @@ class Bot:
         The bot must be an administrator in the chat for this to work
         and must have the can_invite_users administrator right
         :param int or str chat_id: Unique identifier for the target chat or username of the target channel
-                                   (in the format @channelusername)
+                                   (in the format @channel_username)
         :param int user_id: Unique identifier of the target user
         :return: True on success
         :rtype: bool
         """
-        return methods.decline_chat_join_request(self.__based_url, self.__proxies, chat_id, user_id)
+        return methods.decline_chat_join_request(self.__api_url, self.__proxies, chat_id, user_id)
 
     def set_chat_photo(self, chat_id, photo):
         """
@@ -1194,7 +1155,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_photo(self.__based_url, self.__proxies, chat_id, photo)
+        return methods.set_chat_photo(self.__api_url, self.__proxies, chat_id, photo)
 
     def delete_chat_photo(self, chat_id):
         """
@@ -1203,7 +1164,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_chat_photo(self.__based_url, self.__proxies, chat_id)
+        return methods.delete_chat_photo(self.__api_url, self.__proxies, chat_id)
 
     def set_chat_title(self, chat_id, title):
         """
@@ -1213,7 +1174,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_title(self.__based_url, self.__proxies, chat_id, title)
+        return methods.set_chat_title(self.__api_url, self.__proxies, chat_id, title)
 
     def set_chat_description(self, chat_id, description):
         """
@@ -1223,7 +1184,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_description(self.__based_url, self.__proxies, chat_id, description)
+        return methods.set_chat_description(self.__api_url, self.__proxies, chat_id, description)
 
     def pin_chat_message(self, chat_id, message_id, disable_notification=False):
         """
@@ -1234,7 +1195,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.pin_chat_message(self.__based_url, self.__proxies, chat_id, message_id, disable_notification)
+        return methods.pin_chat_message(self.__api_url, self.__proxies, chat_id, message_id, disable_notification)
 
     def unpin_chat_message(self, chat_id, message_id=None):
         """
@@ -1245,7 +1206,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.unpin_chat_message(self.__based_url, self.__proxies, chat_id, message_id)
+        return methods.unpin_chat_message(self.__api_url, self.__proxies, chat_id, message_id)
 
     def unpin_all_chat_message(self, chat_id):
         """
@@ -1254,7 +1215,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.unpin_all_chat_message(self.__based_url, self.__proxies, chat_id)
+        return methods.unpin_all_chat_message(self.__api_url, self.__proxies, chat_id)
 
     def leave_chat(self, chat_id):
         """
@@ -1263,7 +1224,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.leave_chat(self.__based_url, self.__proxies, chat_id)
+        return methods.leave_chat(self.__api_url, self.__proxies, chat_id)
 
     def get_chat(self, chat_id):
         """
@@ -1272,7 +1233,7 @@ class Bot:
         :return: a Chat object
         :rtype: types.Chat
         """
-        return types.Chat.de_json(methods.get_chat(self.__based_url, self.__proxies, chat_id))
+        return types.Chat.de_json(methods.get_chat(self.__api_url, self.__proxies, chat_id))
 
     def get_chat_administrators(self, chat_id):
         """
@@ -1282,7 +1243,7 @@ class Bot:
         :rtype: list[types.ChatMember]
         """
         result = methods.get_chat_administrators(
-            self.__based_url, self.__proxies, chat_id)
+            self.__api_url, self.__proxies, chat_id)
         ret = []
         for r in result:
             ret.append(types.ChatMember.de_json(r))
@@ -1295,7 +1256,7 @@ class Bot:
         :return: Integer On success
         :rtype: int
         """
-        return methods.get_chat_member_count(self.__based_url, self.__proxies, chat_id)
+        return methods.get_chat_member_count(self.__api_url, self.__proxies, chat_id)
 
     def get_chat_member(self, chat_id, user_id):
         """
@@ -1305,7 +1266,7 @@ class Bot:
         :return: a ChatMember object On success
         :rtype: types.ChatMember
         """
-        return types.ChatMember.de_json(methods.get_chat_member(self.__based_url, self.__proxies, chat_id, user_id))
+        return types.ChatMember.de_json(methods.get_chat_member(self.__api_url, self.__proxies, chat_id, user_id))
 
     def set_chat_sticker_set(self, chat_id, sticker_set_name):
         """
@@ -1315,7 +1276,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_chat_sticker_set(self.__based_url, self.__proxies, chat_id, sticker_set_name)
+        return methods.set_chat_sticker_set(self.__api_url, self.__proxies, chat_id, sticker_set_name)
 
     def delete_chat_sticker_set(self, chat_id):
         """
@@ -1324,7 +1285,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_chat_sticker_set(self.__based_url, self.__proxies, chat_id)
+        return methods.delete_chat_sticker_set(self.__api_url, self.__proxies, chat_id)
 
     def answer_callback_query(self, callback_query_id, text=None, show_alert=False, url=None, cache_time=None):
         """
@@ -1340,7 +1301,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.answer_callback_query(self.__based_url, self.__proxies, callback_query_id, text, show_alert, url,
+        return methods.answer_callback_query(self.__api_url, self.__proxies, callback_query_id, text, show_alert, url,
                                              cache_time)
 
     def set_my_commands(self, commands, scope=None, language_code=None):
@@ -1356,7 +1317,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_my_commands(self.__based_url, self.__proxies, commands, scope, language_code)
+        return methods.set_my_commands(self.__api_url, self.__proxies, commands, scope, language_code)
 
     def delete_my_commands(self, scope=None, language_code=None):
         """
@@ -1368,7 +1329,7 @@ class Bot:
         :return: True on success
         :rtype: bool
         """
-        return methods.delete_my_commands(self.__based_url, self.__proxies, scope, language_code)
+        return methods.delete_my_commands(self.__api_url, self.__proxies, scope, language_code)
 
     def get_my_commands(self, scope=None, language_code=None):
         """
@@ -1379,7 +1340,7 @@ class Bot:
         :return: Array of BotCommand On success
         :rtype: list[tgbotapi.types.BotCommand]
         """
-        resp = methods.get_my_commands(self.__based_url, self.__proxies, scope, language_code)
+        resp = methods.get_my_commands(self.__api_url, self.__proxies, scope, language_code)
         result = []
         for x in resp:
             result.append(types.BotCommand.de_json(x))
@@ -1400,7 +1361,7 @@ class Bot:
         :return: a Message object On success, otherwise True
         :rtype: types.Message or bool
         """
-        result = methods.edit_message_text(self.__based_url, self.__proxies, text, chat_id, message_id,
+        result = methods.edit_message_text(self.__api_url, self.__proxies, text, chat_id, message_id,
                                            inline_message_id, parse_mode, entities, disable_web_page_preview,
                                            reply_markup)
         if type(result) is bool:
@@ -1422,7 +1383,7 @@ class Bot:
         :return: a Message object On success, otherwise True
         :rtype: types.Message or bool
         """
-        result = methods.edit_message_caption(self.__based_url, self.__proxies, chat_id, message_id,
+        result = methods.edit_message_caption(self.__api_url, self.__proxies, chat_id, message_id,
                                               inline_message_id,
                                               caption, parse_mode,
                                               caption_entities,
@@ -1443,7 +1404,7 @@ class Bot:
         :rtype: types.Message or bool
         """
         result = methods.edit_message_media(
-            self.__based_url, self.__proxies, media, chat_id, message_id, inline_message_id, reply_markup)
+            self.__api_url, self.__proxies, media, chat_id, message_id, inline_message_id, reply_markup)
         if type(result) is bool:
             return result
         return types.Message.de_json(result)
@@ -1459,7 +1420,7 @@ class Bot:
         :rtype: types.Message or bool
         """
         result = methods.edit_message_reply_markup(
-            self.__based_url, self.__proxies, chat_id, message_id, inline_message_id, reply_markup)
+            self.__api_url, self.__proxies, chat_id, message_id, inline_message_id, reply_markup)
         if type(result) is bool:
             return result
         return types.Message.de_json(result)
@@ -1473,7 +1434,7 @@ class Bot:
         :return: a Poll object On success
         :rtype: types.Poll
         """
-        return types.Poll.de_json(methods.stop_poll(self.__based_url, self.__proxies, chat_id, message_id,
+        return types.Poll.de_json(methods.stop_poll(self.__api_url, self.__proxies, chat_id, message_id,
                                                     reply_markup))
 
     def delete_message(self, chat_id, message_id):
@@ -1491,7 +1452,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_message(self.__based_url, self.__proxies, chat_id, message_id)
+        return methods.delete_message(self.__api_url, self.__proxies, chat_id, message_id)
 
     def send_sticker(self, chat_id, sticker, disable_notification=False, protect_content=False,
                      reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
@@ -1508,7 +1469,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_sticker(self.__based_url, self.__proxies, chat_id, sticker, disable_notification,
+            methods.send_sticker(self.__api_url, self.__proxies, chat_id, sticker, disable_notification,
                                  protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def get_sticker_set(self, name):
@@ -1518,7 +1479,7 @@ class Bot:
         :return: a StickerSet object On success
         :rtype: types.StickerSet
         """
-        return types.StickerSet.de_json(methods.get_sticker_set(self.__based_url, self.__proxies, name))
+        return types.StickerSet.de_json(methods.get_sticker_set(self.__api_url, self.__proxies, name))
 
     def upload_sticker_file(self, user_id, png_sticker):
         """
@@ -1528,7 +1489,7 @@ class Bot:
         :return: a File object On success
         :rtype: types.File
         """
-        return types.File.de_json(methods.upload_sticker_file(self.__based_url, self.__proxies, user_id, png_sticker))
+        return types.File.de_json(methods.upload_sticker_file(self.__api_url, self.__proxies, user_id, png_sticker))
 
     def create_new_sticker_set(self, user_id, name, title, emojis=None, png_sticker=None, tgs_sticker=None,
                                webm_sticker=None, contains_masks=False, mask_position=None):
@@ -1549,7 +1510,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.create_new_sticker_set(self.__based_url, self.__proxies, user_id, name, title, png_sticker,
+        return methods.create_new_sticker_set(self.__api_url, self.__proxies, user_id, name, title, png_sticker,
                                               tgs_sticker, webm_sticker, emojis, contains_masks, mask_position)
 
     def add_sticker_to_set(self, user_id, name, emojis, png_sticker=None, tgs_sticker=None, webm_sticker=None,
@@ -1569,7 +1530,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.add_sticker_to_set(self.__based_url, self.__proxies, user_id, name, png_sticker, tgs_sticker,
+        return methods.add_sticker_to_set(self.__api_url, self.__proxies, user_id, name, png_sticker, tgs_sticker,
                                           webm_sticker, emojis, mask_position)
 
     def set_sticker_position_in_set(self, sticker, position):
@@ -1580,7 +1541,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_sticker_position_in_set(self.__based_url, self.__proxies, sticker, position)
+        return methods.set_sticker_position_in_set(self.__api_url, self.__proxies, sticker, position)
 
     def delete_sticker_from_set(self, sticker):
         """
@@ -1589,7 +1550,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.delete_sticker_from_set(self.__based_url, self.__proxies, sticker)
+        return methods.delete_sticker_from_set(self.__api_url, self.__proxies, sticker)
 
     def set_sticker_set_thumb(self, name, user_id, thumb=None):
         """
@@ -1600,7 +1561,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_sticker_set_thumb(self.__based_url, self.__proxies, name, user_id, thumb)
+        return methods.set_sticker_set_thumb(self.__api_url, self.__proxies, name, user_id, thumb)
 
     def answer_inline_query(self, inline_query_id, results, cache_time=300, is_personal=False, next_offset=None,
                             switch_pm_text=None, switch_pm_parameter=None):
@@ -1616,7 +1577,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.answer_inline_query(self.__based_url, self.__proxies, inline_query_id, results, cache_time,
+        return methods.answer_inline_query(self.__api_url, self.__proxies, inline_query_id, results, cache_time,
                                            is_personal, next_offset,
                                            switch_pm_text, switch_pm_parameter)
 
@@ -1632,7 +1593,7 @@ class Bot:
         :param str title: New chat title, 1-255 characters
         :param str description: Product description, 1-255 characters
         :param str payload: Bot-defined invoice payload, 1-128 bytes
-        :param str provider_token: Payments provider token, obtained via Botfather
+        :param str provider_token: Payments provider token, obtained via Bot father
         :param str currency: Three-letter ISO 4217 currency code
         :param list[types.LabeledPrice] prices: Price breakdown, a JSON-serialized list of components
         :param int or None max_tip_amount: The maximum accepted amount for tips in the smallest units of the currency
@@ -1661,7 +1622,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_invoice(self.__based_url, self.__proxies, chat_id, title, description, payload, provider_token,
+            methods.send_invoice(self.__api_url, self.__proxies, chat_id, title, description, payload, provider_token,
                                  currency, prices, max_tip_amount, suggested_tip_amounts, start_parameter,
                                  provider_data, photo_url, photo_size, photo_width, photo_height, need_name,
                                  need_phone_number, need_email, need_shipping_address, send_phone_number_to_provider,
@@ -1681,7 +1642,7 @@ class Bot:
         :return: True, On success
         :rtype: bool
         """
-        return methods.answer_shipping_query(self.__based_url, self.__proxies, shipping_query_id, ok, shipping_options,
+        return methods.answer_shipping_query(self.__api_url, self.__proxies, shipping_query_id, ok, shipping_options,
                                              error_message)
 
     def answer_pre_checkout_query(self, pre_checkout_query_id, ok, error_message=None):
@@ -1693,7 +1654,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.answer_pre_checkout_query(self.__based_url, self.__proxies, pre_checkout_query_id, ok,
+        return methods.answer_pre_checkout_query(self.__api_url, self.__proxies, pre_checkout_query_id, ok,
                                                  error_message)
 
     def set_passport_data_errors(self, user_id, errors):
@@ -1705,7 +1666,7 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_passport_data_errors(self.__based_url, self.__proxies, user_id, errors)
+        return methods.set_passport_data_errors(self.__api_url, self.__proxies, user_id, errors)
 
     def send_game(self, chat_id, game_short_name, disable_notification=False, protect_content=False,
                   reply_to_message_id=None, allow_sending_without_reply=False, reply_markup=None):
@@ -1722,7 +1683,7 @@ class Bot:
         :rtype: types.Message
         """
         return types.Message.de_json(
-            methods.send_game(self.__based_url, self.__proxies, chat_id, game_short_name, disable_notification,
+            methods.send_game(self.__api_url, self.__proxies, chat_id, game_short_name, disable_notification,
                               protect_content, reply_to_message_id, allow_sending_without_reply, reply_markup))
 
     def set_game_score(self, user_id, score, force=False, disable_edit_message=False, chat_id=None, message_id=None,
@@ -1739,7 +1700,7 @@ class Bot:
         :return: On success a Message object, otherwise returns True
         :rtype: types.Message or bool
         """
-        result = methods.set_game_score(self.__based_url, self.__proxies, user_id, score, force, disable_edit_message,
+        result = methods.set_game_score(self.__api_url, self.__proxies, user_id, score, force, disable_edit_message,
                                         chat_id, message_id,
                                         inline_message_id)
         if type(result) is bool:
@@ -1756,7 +1717,7 @@ class Bot:
         :return: an Array of GameHighScore objects
         :rtype: list[types.GameHighScore]
         """
-        resp = methods.get_game_high_scores(self.__based_url, self.__proxies, user_id, chat_id, message_id,
+        resp = methods.get_game_high_scores(self.__api_url, self.__proxies, user_id, chat_id, message_id,
                                             inline_message_id)
         result = []
         for x in resp:
