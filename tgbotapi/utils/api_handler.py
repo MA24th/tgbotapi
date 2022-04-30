@@ -48,12 +48,12 @@ def make_request(method, api_url, api_method, files, params, proxies):
     response = per_thread(key=api_method, value=reqs)
 
     if response.status_code != 200:
-        raise ApiException(f"The Server Returns", response.text)
+        raise ApiException(f"The Server Returns {response.text}", response.text)
     else:
         try:
             resp_json = response.json()
         except AssertionError:
-            raise ApiException(f"Invalid JSON, Response body:\n", response.text)
+            raise ApiException(f"Invalid JSON, Response body:\n {response.text}", response.text)
 
     logger.info(f"Response <- {resp_json}")
     return resp_json.get('result')

@@ -28,7 +28,7 @@ class Bot:
         self.__api_url = f'{self.__based_url}{access_token}'
         self.__proxies = proxies
 
-        self.__worker_pool = utils.ThreadPool(num_threads=num_threads)
+        self.__worker_pool = utils.PoolThread(num_threads)
         self.__skip_pending = False
 
         self.__stop_polling = threading.Event()
@@ -181,8 +181,8 @@ class Bot:
         :param bool none_stop: Do not stop polling when an ApiException occurs
         :param int interval: wait interval in milliseconds
         :param bool skip_pending: Pass True to drop all pending Updates
-        :param int or None limit: Limits the number of updates to be retrieved
-        :param int or None timeout: Timeout in seconds for long polling
+        :param int limit: Limits the number of updates to be retrieved
+        :param int timeout: Timeout in seconds for long polling
         :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
                                                   receive, For example, specify [“message”, “edited_channel_post”,
                                                   “callback_query”] to only receive updates of these types
@@ -200,31 +200,30 @@ class Bot:
             self.__allowed_updates = allowed_updates
 
         polling_thread = utils.WorkerThread(name="PollingThread")
-        or_event = utils.events_handler(polling_thread.done_event, polling_thread.exception_event,
-                                        self.__worker_pool.exception_event)
+        event = utils.events_handler(polling_thread.event_completed, polling_thread.event_exception,
+                                     self.__worker_pool.event_exception)
 
         while not self.__stop_polling.wait(interval):
-            or_event.clear()
+            event.clear()
             try:
                 polling_thread.put(self.__retrieve_updates, limit, timeout, allowed_updates)
-                or_event.wait()  # wait for polling thread finish, polling thread error or thread pool error
+                event.wait()  # wait for polling thread finish, polling thread error or thread pool error
                 polling_thread.raise_exceptions()
                 self.__worker_pool.raise_exceptions()
-            except utils.ApiException as e:
-                # utils.logger.error(e)
-                if not none_stop:
-                    self.__stop_polling.set()
-                    utils.logger.info("Exception Occurred, STOPPING")
-                else:
+            except KeyboardInterrupt:
+                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
+                self.__stop_polling.set()
+                break
+            except Exception or utils.ApiException:
+                if none_stop:
                     polling_thread.clear_exceptions()
                     self.__worker_pool.clear_exceptions()
                     utils.logger.info(f"Waiting for {error_interval} seconds until retry")
                     time.sleep(error_interval)
                     error_interval *= 2
-            except KeyboardInterrupt:
-                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
-                self.__stop_polling.set()
-                break
+                else:
+                    self.__stop_polling.set()
+                    utils.logger.info("Exception Occurred, STOPPING")
 
         polling_thread.stop()
         utils.logger.info('POLLING STOPPED')
