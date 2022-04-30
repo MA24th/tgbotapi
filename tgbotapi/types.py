@@ -2,12 +2,12 @@
 
 """
 tgbotapi.types
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 This submodule provides a Telegram Available types,
 All types used in the Bot API responses are represented as JSON-objects,
 that are also useful for external consumption.
 """
-from .utils import *
+from .utils import JsonDeserializable, JsonSerializable
 
 
 class Update(JsonDeserializable):
@@ -273,20 +273,22 @@ class Message(JsonDeserializable):
         self.sender_chat = sender_chat
         self.date = date
         self.chat = chat
+        self.forward_from = None
         self.forward_from_chat = None
         self.forward_from_message_id = None
-        self.forward_from = None
+        self.forward_signature = None
+        self.forward_sender_name = None
         self.forward_date = None
         self.is_automatic_forward = False
         self.reply_to_message = None
         self.via_bot = None
-        self.has_protected_content = False
         self.edit_date = None
+        self.has_protected_content = False
         self.media_group_id = None
         self.author_signature = None
         self.text = None
         self.entities = None
-        self.caption_entities = None
+        self.animation = None
         self.audio = None
         self.document = None
         self.photo = None
@@ -295,10 +297,13 @@ class Message(JsonDeserializable):
         self.video_note = None
         self.voice = None
         self.caption = None
+        self.caption_entities = None
         self.contact = None
-        self.location = None
+        self.dice = None
+        self.game = None
+        self.poll = None
         self.venue = None
-        self.animation = None
+        self.location = None
         self.new_chat_members = None
         self.left_chat_member = None
         self.new_chat_title = None
@@ -314,11 +319,12 @@ class Message(JsonDeserializable):
         self.invoice = None
         self.successful_payment = None
         self.connected_website = None
+        self.passport_data = None
         self.proximity_alert_triggered = None
-        self.voice_chat_scheduled = None
-        self.voice_chat_started = None
-        self.voice_chat_ended = None
-        self.voice_chat_participants_invited = None
+        self.video_chat_scheduled = None
+        self.video_chat_started = None
+        self.video_chat_ended = None
+        self.video_chat_participants_invited = None
         self.reply_markup = None
         for key in options:
             setattr(self, key, options[key])
@@ -342,10 +348,10 @@ class Message(JsonDeserializable):
             opts['forward_from_chat'] = Chat.de_json(obj['forward_from_chat'])
         if 'forward_from_message_id' in obj:
             opts['forward_from_message_id'] = obj['forward_from_message_id']
-        if 'forward_sender_name' in obj:
-            opts['forward_sender_name'] = obj['forward_sender_name']
         if 'forward_signature' in obj:
             opts['forward_signature'] = obj['forward_signature']
+        if 'forward_sender_name' in obj:
+            opts['forward_sender_name'] = obj['forward_sender_name']
         if 'forward_date' in obj:
             opts['forward_date'] = obj['forward_date']
         if 'is_automatic_forward' in obj:
@@ -366,39 +372,38 @@ class Message(JsonDeserializable):
             opts['text'] = obj['text']
         if 'entities' in obj:
             opts['entities'] = Message.parse_entities(obj['entities'])
-        if 'caption_entities' in obj:
-            opts['caption_entities'] = Message.parse_entities(
-                obj['caption_entities'])
+        if 'animation' in obj:
+            opts['animation'] = Animation.de_json(obj['animation'])
         if 'audio' in obj:
             opts['audio'] = Audio.de_json(obj['audio'])
         if 'document' in obj:
             opts['document'] = Document.de_json(obj['document'])
-        if 'animation' in obj:
-            opts['animation'] = Animation.de_json(obj['animation'])
-        if 'game' in obj:
-            opts['game'] = Game.de_json(obj['game'])
         if 'photo' in obj:
             opts['photo'] = Message.parse_photo(obj['photo'])
         if 'sticker' in obj:
             opts['sticker'] = Sticker.de_json(obj['sticker'])
         if 'video' in obj:
             opts['video'] = Video.de_json(obj['video'])
-        if 'voice' in obj:
-            opts['voice'] = Audio.de_json(obj['voice'])
         if 'video_note' in obj:
             opts['video_note'] = VideoNote.de_json(obj['video_note'])
+        if 'voice' in obj:
+            opts['voice'] = Audio.de_json(obj['voice'])
         if 'caption' in obj:
             opts['caption'] = obj['caption']
+        if 'caption_entities' in obj:
+            opts['caption_entities'] = Message.parse_entities(obj['caption_entities'])
         if 'contact' in obj:
             opts['contact'] = Contact.de_json(obj['contact'])
-        if 'location' in obj:
-            opts['location'] = Location.de_json(obj['location'])
-        if 'venue' in obj:
-            opts['venue'] = Venue.de_json(obj['venue'])
-        if 'poll' in obj:
-            opts['poll'] = Poll.de_json(obj['poll'])
         if 'dice' in obj:
             opts['dice'] = Dice.de_json(obj['dice'])
+        if 'game' in obj:
+            opts['game'] = Game.de_json(obj['game'])
+        if 'poll' in obj:
+            opts['poll'] = Poll.de_json(obj['poll'])
+        if 'venue' in obj:
+            opts['venue'] = Venue.de_json(obj['venue'])
+        if 'location' in obj:
+            opts['location'] = Location.de_json(obj['location'])
         if 'new_chat_members' in obj:
             opts['new_chat_members'] = Message.parse_users(obj['new_chat_members'])
         if 'left_chat_member' in obj:
@@ -433,17 +438,16 @@ class Message(JsonDeserializable):
         if 'passport_data' in obj:
             opts['passport_data'] = obj['passport_data']
         if 'proximity_alert_triggered' in obj:
-            opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(
-                obj['proximity_alert_triggered'])
-        if 'voice_chat_scheduled' in obj:
-            opts['voice_chat_scheduled'] = VoiceChatScheduled.de_json(obj['voice_chat_scheduled'])
-        if 'voice_chat_started' in obj:
-            opts['voice_chat_started'] = VoiceChatStarted.de_json(obj['voice_chat_started'])
-        if 'voice_chat_ended' in obj:
-            opts['voice_chat_ended'] = VoiceChatEnded.de_json(obj['voice_chat_ended'])
-        if 'voice_chat_participants_invited' in obj:
-            opts['voice_chat_participants_invited'] = VoiceChatParticipantsInvited.de_json(
-                obj['voice_chat_participants_invited'])
+            opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
+        if 'video_chat_scheduled' in obj:
+            opts['video_chat_scheduled'] = VideoChatScheduled.de_json(obj['video_chat_scheduled'])
+        if 'video_chat_started' in obj:
+            opts['video_chat_started'] = VideoChatStarted.de_json(obj['video_chat_started'])
+        if 'video_chat_ended' in obj:
+            opts['video_chat_ended'] = VideoChatEnded.de_json(obj['video_chat_ended'])
+        if 'video_chat_participants_invited' in obj:
+            opts['video_chat_participants_invited'] = VideoChatParticipantsInvited.de_json(
+                obj['video_chat_participants_invited'])
         if 'reply_markup' in obj:
             opts['reply_markup'] = InlineKeyboardMarkup.de_json(obj['reply_markup'])
         return cls(message_id, from_user, sender_chat, date, chat, opts)
@@ -488,7 +492,7 @@ class MessageEntity(JsonSerializable, JsonDeserializable):
     def __init__(self, ttype, offset, length, url, user, language):
         """
         This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
-        :param str ttype: Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag”
+        :param str ttype: Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cash-tag”
                          ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org),
                          “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text),
                          “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text),
@@ -1012,7 +1016,7 @@ class MessageAutoDeleteTimerChanged(JsonDeserializable):
         return cls(message_auto_delete_time)
 
 
-class VoiceChatScheduled(JsonDeserializable):
+class VideoChatScheduled(JsonDeserializable):
     def __init__(self, start_date):
         """
         This object represents a service message about a voice chat scheduled in the chat
@@ -1026,7 +1030,7 @@ class VoiceChatScheduled(JsonDeserializable):
         return cls(start_date)
 
 
-class VoiceChatStarted(JsonDeserializable):
+class VideoChatStarted(JsonDeserializable):
     def __init__(self, field):
         """
         This object represents a service message about a voice chat started in the chat
@@ -1042,7 +1046,7 @@ class VoiceChatStarted(JsonDeserializable):
         return cls(field)
 
 
-class VoiceChatEnded(JsonDeserializable):
+class VideoChatEnded(JsonDeserializable):
     def __init__(self, duration):
         """
         This object represents a service message about a voice chat ended in the chat
@@ -1056,7 +1060,7 @@ class VoiceChatEnded(JsonDeserializable):
         return cls(duration)
 
 
-class VoiceChatParticipantsInvited(JsonDeserializable):
+class VideoChatParticipantsInvited(JsonDeserializable):
     def __init__(self, users):
         """
         This object represents a service message about new members invited to a voice chat
@@ -1068,7 +1072,7 @@ class VoiceChatParticipantsInvited(JsonDeserializable):
         obj = cls.check_type(obj_type)
         users = None
         if 'users' in obj:
-            users = VoiceChatParticipantsInvited.parse_users(obj['users'])
+            users = VideoChatParticipantsInvited.parse_users(obj['users'])
         return cls(users)
 
     @classmethod
@@ -2007,7 +2011,7 @@ class BotCommandScope:
             Represents the scope of bot commands, covering a specific chat
             :param str ttype: Scope type, must be chat
             :param str or int chat_id: Unique identifier for the target chat or username of the target supergroup
-                                       (in the format @supergroupusername)
+                                       (in the format @supergroup_username)
             """
             self.ttype = ttype
             self.chat_id = chat_id
@@ -2023,7 +2027,7 @@ class BotCommandScope:
             covering all administrators of a specific group or supergroup chat
             :param str ttype: Scope type, must be chat_administrators
             :param str or int chat_id: Unique identifier for the target chat or username of the target supergroup
-                                       (in the format @supergroupusername)
+                                       (in the format @supergroup_username)
             """
             self.ttype = ttype
             self.chat_id = chat_id
@@ -2039,7 +2043,7 @@ class BotCommandScope:
             covering a specific member of a group or supergroup chat
             :param str ttype: Scope type, must be chat_member
             :param str or int chat_id: Unique identifier for the target chat or username of the target supergroup
-                                       (in the format @supergroupusername)
+                                       (in the format @supergroup_username)
             :param int user_id: Unique identifier of the target user
             """
             self.ttype = ttype
@@ -3529,7 +3533,7 @@ class InputMessageContent:
             :param str or None parse_mode: Optional. Mode for parsing entities in the message text
             :param list[MessageEntity] or None entities: Optional. List of special entities that appear in message text,
                                                          which can be specified instead of parse_mode
-            :param bool disable_web_page_preview: Optional. Disables link previews for links in the sent message
+            :param bool disable_web_page_preview: Optional. Disables link previews for links in to send message
             """
             self.message_text = message_text
             self.parse_mode = parse_mode
@@ -3653,12 +3657,12 @@ class InputMessageContent:
             :param str description: Product description, 1-255 characters
             :param str payload: Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user,
                                 use for your internal processes
-            :param str provider_token: Payment provider token, obtained via Botfather
+            :param str provider_token: Payment provider token, obtained via Bot father
             :param str currency: Three-letter ISO 4217 currency code
             :param list[LabeledPrice] prices: Price breakdown, a JSON-serialized list of components
             :param int or None max_tip_amount: Optional. The maximum accepted amount for tips in the smallest units of
                                                the currency (integer, not float/double)
-            :param list[int] or None suggested_tip_amounts: Optional. A JSON-serialized array of suggested amounts of
+            :param list[int] or None suggested_tip_amounts: Optional. A JSON-serialized array of proposed amounts of
                                                             tip in the smallest units of the currency (integer, not
                                                             float/double)
             :param str or None provider_data: Optional. A JSON-serialized object for data about the invoice,

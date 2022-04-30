@@ -832,35 +832,45 @@ class TestMessageAutoDeleteTimerChanged(unittest.TestCase):
         self.assertEqual(changed.message_auto_delete_time, 0)
 
 
-class TestVoiceChatScheduled(unittest.TestCase):
-    with open("schema/VoiceChatScheduled.json") as f:
+class TestVideoChatScheduled(unittest.TestCase):
+    with open("schema/VideoChatScheduled.json") as f:
         data = f.read()
 
-    object = types.VoiceChatScheduled.de_json(data)
+    object = types.VideoChatScheduled.de_json(data)
 
-    def test_voice_chat_scheduled(self):
+    def test_video_chat_scheduled(self):
         scheduled = self.object
         self.assertEqual(scheduled.start_date, 1234567890)
 
 
-class TestVoiceChatEnded(unittest.TestCase):
-    with open("schema/VoiceChatEnded.json") as f:
+class TestVideoChatStarted(unittest.TestCase):
+    with open("schema/VideoChatStarted.json") as f:
         data = f.read()
 
-    object = types.VoiceChatEnded.de_json(data)
+    object = types.VideoChatStarted.de_json(data)
 
-    def test_voice_chat_ended(self):
+    def test_video_chat_started(self):
+        pass
+
+
+class TestVideoChatEnded(unittest.TestCase):
+    with open("schema/VideoChatEnded.json") as f:
+        data = f.read()
+
+    object = types.VideoChatEnded.de_json(data)
+
+    def test_video_chat_ended(self):
         ended = self.object
         self.assertEqual(ended.duration, 0)
 
 
-class TestVoiceChatParticipantsInvited(unittest.TestCase):
-    with open("schema/VoiceChatParticipantsInvited.json") as f:
+class TestVideoChatParticipantsInvited(unittest.TestCase):
+    with open("schema/VideoChatParticipantsInvited.json") as f:
         data = f.read()
 
-    object = types.VoiceChatParticipantsInvited.de_json(data)
+    object = types.VideoChatParticipantsInvited.de_json(data)
 
-    def test_voice_chat_participants_invited(self):
+    def test_video_chat_participants_invited(self):
         invited = self.object.users[0]
         self.assertEqual(invited.uid, 987654321)
         self.assertEqual(invited.is_bot, True)
