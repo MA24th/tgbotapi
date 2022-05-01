@@ -1128,6 +1128,23 @@ class File(JsonDeserializable):
         return cls(file_id, file_unique_id, file_size, file_path)
 
 
+class WebAppInfo(JsonDeserializable):
+    """
+    Contains information about a Web App
+    """
+    def __init__(self, url):
+        """
+        :param str url: Web App url
+        """
+        self.url = url
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        url = obj['url']
+        return cls(url)
+
+
 class ReplyKeyboardMarkup(JsonSerializable, JsonDeserializable):
     def __init__(self, keyboard, resize_keyboard=False, one_time_keyboard=False, input_field_placeholder=None,
                  selective=False):
@@ -1189,7 +1206,7 @@ class ReplyKeyboardMarkup(JsonSerializable, JsonDeserializable):
 
 
 class KeyboardButton(JsonSerializable, JsonDeserializable):
-    def __init__(self, text, request_contact=False, request_location=False, request_poll=None):
+    def __init__(self, text, request_contact=False, request_location=False, request_poll=None, web_app=None):
         """
         This object represents one button of the reply keyboard
         :param str text: Text of the button
@@ -1200,12 +1217,15 @@ class KeyboardButton(JsonSerializable, JsonDeserializable):
         :param KeyboardButtonPollType or None request_poll: Optional. If specified, the user will be asked to create a
                                                             poll and send it to the bot when the button is pressed.
                                                             Available in private chats only
+        :param WebAppInfo or None web_app: Optional. If specified, the described Web App will be launched when the
+                                           button is pressed
         :rtype: dict
         """
         self.text = text
         self.request_contact = request_contact
         self.request_location = request_location
         self.request_poll = request_poll
+        self.web_app = web_app
 
     def to_dict(self):
         obj = {'text': self.text}
@@ -1214,8 +1234,9 @@ class KeyboardButton(JsonSerializable, JsonDeserializable):
         if self.request_location:
             obj['request_location'] = self.request_location
         if self.request_poll:
-            obj['request_poll'] = KeyboardButtonPollType(
-                self.request_poll)
+            obj['request_poll'] = self.request_poll
+        if self.web_app:
+            obj['web_app'] = self.web_app
         return obj
 
     @classmethod
@@ -1231,7 +1252,10 @@ class KeyboardButton(JsonSerializable, JsonDeserializable):
         request_poll = None
         if 'request_poll' in obj:
             request_poll = KeyboardButtonPollType.de_json(obj['request_poll'])
-        return cls(text, request_contact, request_location, request_poll)
+        web_app = None
+        if 'web_app' in obj:
+            web_app = WebAppInfo.de_json(obj['web_app'])
+        return cls(text, request_contact, request_location, request_poll, web_app)
 
 
 class KeyboardButtonPollType(JsonSerializable, JsonDeserializable):
@@ -1301,7 +1325,7 @@ class InlineKeyboardMarkup(JsonSerializable, JsonDeserializable):
 
 
 class InlineKeyboardButton(JsonSerializable, JsonDeserializable):
-    def __init__(self, text, url=None, login_url=None, callback_data=None, switch_inline_query=None,
+    def __init__(self, text, url=None, login_url=None, callback_data=None, web_app=None, switch_inline_query=None,
                  switch_inline_query_current_chat=None, callback_game=None, pay=False):
         """
         This object represents one button of an inline keyboard,
@@ -1313,6 +1337,8 @@ class InlineKeyboardButton(JsonSerializable, JsonDeserializable):
         :param LoginUrl or None login_url: Optional. An HTTP URL used to automatically authorize the user
         :param str or None callback_data: Optional. Data to be sent in a callback query to the bot when button is
                                           pressed, 1-64 bytes
+        :param WebAppInfo or None web_app: Optional. Description of the Web App that will be launched when the user
+                                           presses the button
         :param str or None switch_inline_query: Optional. If set, pressing the button will prompt the user to select one
                                                 of their chats, open that chat and insert the bots username and the
                                                 specified inline query in the input field. Can be empty, in which case
@@ -1330,6 +1356,7 @@ class InlineKeyboardButton(JsonSerializable, JsonDeserializable):
         self.url = url
         self.login_url = login_url
         self.callback_data = callback_data
+        self.web_app = web_app
         self.switch_inline_query = switch_inline_query
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
         self.callback_game = callback_game
@@ -1343,6 +1370,8 @@ class InlineKeyboardButton(JsonSerializable, JsonDeserializable):
             obj['login_url'] = self.login_url
         if self.callback_data:
             obj['callback_data'] = self.callback_data
+        if self.web_app:
+            obj['web_app'] = self.web_app
         if self.switch_inline_query:
             obj['switch_inline_query'] = self.switch_inline_query
         if self.switch_inline_query_current_chat:
@@ -1366,6 +1395,9 @@ class InlineKeyboardButton(JsonSerializable, JsonDeserializable):
         callback_data = None
         if 'callback_data' in obj:
             callback_data = obj['callback_data']
+        web_app = None
+        if 'web_app' in obj:
+            web_app = WebAppInfo.de_json(obj['web_app'])
         switch_inline_query = None
         if 'switch_inline_query' in obj:
             switch_inline_query = obj['switch_inline_query']
@@ -1378,7 +1410,7 @@ class InlineKeyboardButton(JsonSerializable, JsonDeserializable):
         pay = False
         if 'pay' in obj:
             pay = obj['pay']
-        return cls(text, url, login_url, callback_data, switch_inline_query, switch_inline_query_current_chat,
+        return cls(text, url, login_url, callback_data, web_app, switch_inline_query, switch_inline_query_current_chat,
                    callback_game, pay)
 
 

@@ -917,6 +917,17 @@ class TestFile(unittest.TestCase):
         self.assertEqual(file.file_path, "File file path")
 
 
+class TestWebAppInfo(unittest.TestCase):
+    with open("schema/WebAppInfo.json") as f:
+        data = f.read()
+
+    object = types.WebAppInfo.de_json(data)
+
+    def test_web_app_info(self):
+        info = self.object
+        self.assertEqual(info.url, 'https://telegram.org')
+
+
 class TestReplyKeyboardMarkup(unittest.TestCase):
     with open("schema/ReplyKeyboardMarkup.json") as f:
         data = f.read()
