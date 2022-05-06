@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
+
 import os
 import logging
 from tgbotapi import logger
 from tgbotapi import Bot
 
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
-bot = Bot(access_token=os.getenv("BOT_TOKEN"))
+bot = Bot(access_token=os.getenv("BOT_TOKEN"), max_workers=os.sysconf('SC_NPROCESSORS_ONLN')*2)
 
 
 @bot.update_handler(bot_command=['/start', '/help'])
