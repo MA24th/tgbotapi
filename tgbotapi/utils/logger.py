@@ -9,9 +9,8 @@ import logging
 import sys
 
 
-logger = logging.getLogger('TgBotAPI')
-formatter = logging.Formatter('[%(asctime)s-%(threadName)s] %(levelname)s: "%(message)s"',
-                              datefmt='%H:%M:%S')
+logger = logging.getLogger('tgbotapi')
+formatter = logging.Formatter('[%(asctime)s-%(threadName)s] %(levelname)s: "%(message)s"',datefmt='%H:%M:%S')
 console_output_handler = logging.StreamHandler(sys.stderr)
 console_output_handler.setFormatter(formatter)
 logger.addHandler(console_output_handler)
