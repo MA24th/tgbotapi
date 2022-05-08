@@ -39,11 +39,11 @@ for example:
 :copyright: (c) 2022 by Mustafa Asaad.
 :license: GPLv2, see LICENSE for more details.
 """
-import threading
 import sys
+import threading
 
-from .utils import ApiException
 from .bot import Bot
+from .utils import TelegramAPIError
 
 
 class AsyncTask:
@@ -77,7 +77,7 @@ class AsyncTask:
         if not self.done:
             self.thread.join()
         if isinstance(self.result, BaseException):
-            raise ApiException(self.result)
+            raise TelegramAPIError(self.result)
         else:
             return self.result
 
