@@ -10,7 +10,7 @@ by the other modules of tgbotapi.
 :license: GPLv2, see LICENSE for more details.
 """
 
-from .api_exceptions import ApiException
+from .api_exceptions import *
 from .api_handler import make_request
 from .api_worker import ThreadWorker, ThreadPool, events_handler
 from .json_helper import JsonDeserializable, JsonSerializable
