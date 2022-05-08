@@ -3,7 +3,7 @@ from io import open
 
 from setuptools import setup, find_packages
 
-from tgbotapi import __title__, __version__, __description__, __author__, __author_email__, __license__
+from tgbotapi.__version__ import __title__, __version__, __description__, __author__, __author_email__, __license__
 
 
 def read(filename):
