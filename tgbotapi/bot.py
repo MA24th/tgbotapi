@@ -1,25 +1,59 @@
 # -*- coding: utf-8 -*-
 
 """
-tgbotapi.bot
-~~~~~~~~~~~~
-This submodule provides a Bot object to manage and persist settings across tgbotapi.
+tgbotapi.bot - Synchronous Telegram Bot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This module provides a bot client instance to implement all telegram bot api methods and types.
+for example:
+    >>> import tgbotapi
+    >>> # Note: Make sure to actually replace TOKEN with your own API token
+    >>> bot = tgbotapi.Bot(access_token="TOKEN")
+    >>>
+    >>>
+    >>> # After that declaration, we need to register some so-called update handler.
+    >>> # update_type define filters which can be a message, If a message passes the filter,
+    >>> # the decorated function is called and the incoming message is passed as an argument.
+    >>>
+    >>> # Let's define an update handler which handles incoming `/start` and `/help` bot_command.
+    >>> @bot.update_handler(update_type='message', bot_command=['/start', '/help'])
+    >>> # A function which is decorated by an update handler can have an arbitrary name,
+    >>> # however, it must have only one parameter (the msg)
+    >>> def send_welcome(msg):
+    >>>     bot.send_message(chat_id=msg.chat.uid, text="Howdy, how are you doing?")
+    >>>
+    >>>
+    >>> # This one echoes all incoming text messages back to the sender.
+    >>> # It uses a lambda function to test a message. If the lambda returns True,
+    >>> # the message is handled by the decorated function.
+    >>> # Since we want all text messages to be handled by this function,
+    >>> # so it simply always return True.
+    >>> @bot.update_handler(update_type='message', func=lambda message: message.text)
+    >>> def echo_all(msg):
+    >>>     bot.send_message(chat_id=msg.chat.uid, text=msg.text)
+    >>>
+    >>>
+    >>> # Finally, we call long polling function
+    >>> bot.polling()
+
+:copyright: (c) 2022 by Mustafa Asaad.
+:license: GPLv2, see LICENSE for more details.
 """
+
+import re
+import threading
+import time
 
 from . import methods
 from . import types
 from . import utils
-import threading
-import time
-import re
 
 
 class Bot:
-    def __init__(self, access_token, num_threads=2, based_url=None, proxies=None):
+    def __init__(self, access_token, max_workers=2, based_url=None, proxies=None):
         """
         Use this class to create bot instance
         :param str access_token: Telegram Bot Access Token
-        :param int num_threads: Number of thread to process incoming tasks, default 2
+        :param int max_workers: Number of thread workers to process incoming tasks, default 2
         :param str based_url: Required, The API url with Bot token
         :param dict or None proxies: Dictionary mapping protocol to the URL of the proxy
         """
@@ -28,13 +62,12 @@ class Bot:
         self.__api_url = f'{self.__based_url}{access_token}'
         self.__proxies = proxies
 
-        self.__worker_pool = utils.PoolThread(num_threads)
+        self.__worker_pool = utils.ThreadPool(max_workers)
         self.__skip_pending = False
-
         self.__stop_polling = threading.Event()
         self.__allowed_updates = None
-
         self.__last_update_id = 0
+
         self.__message_handlers = []
         self.__edited_message_handlers = []
         self.__channel_post_handlers = []
@@ -122,189 +155,6 @@ class Bot:
             return handler
 
         return decorator
-
-    def __get_updates(self, offset, limit, timeout, allowed_updates):
-        """
-        Use this method to receive incoming updates using long polling
-        :param int or None offset: Identifier of the first update to be returned
-        :param int or None limit: Limits the number of updates to be retrieved
-        :param int or None timeout: Timeout in seconds for long polling
-        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
-                                                  receive, For example, specify [“message”, “edited_channel_post”,
-                                                  “callback_query”] to only receive updates of these types
-        :return: An Array of Update objects
-        :rtype: list[types.Update]
-        """
-        if allowed_updates is None:
-            allowed_updates = self.__allowed_updates
-        resp = methods.get_updates(self.__api_url, self.__proxies, offset, limit, timeout, allowed_updates)
-        updates = []
-        for x in resp:
-            updates.append(types.Update.de_json(x))
-        return updates
-
-    def __skip_updates(self):
-        """
-        Get and discard all pending updates before first poll of the bot
-        :return: total updates skipped
-        """
-        total = 0
-        updates = self.__get_updates(offset=self.__last_update_id, limit=100, timeout=1, allowed_updates=None)
-        while updates:
-            total += len(updates)
-            for update in updates:
-                if update.update_id > self.__last_update_id:
-                    self.__last_update_id = update.update_id
-            updates = self.__get_updates(offset=self.__last_update_id + 1, limit=100, timeout=total + 1,
-                                         allowed_updates=None)
-        return total
-
-    def __retrieve_updates(self, limit, timeout, allowed_updates):
-        """
-        Retrieves any updates from the Telegram API
-        Registered listeners and applicable message handlers will be notified when a new message arrives
-        :raises ApiException when a call has failed
-        """
-        offset = (self.__last_update_id + 1)
-        if self.__skip_pending:
-            utils.logger.info(f'SKIPPED {self.__skip_updates()} PENDING MESSAGES')
-            self.__skip_pending = False
-
-        self.__process_new_updates(self.__get_updates(offset, limit, timeout, allowed_updates))
-
-    def polling(self, none_stop=False, interval=0, skip_pending=False, limit=100, timeout=5, allowed_updates=None):
-        """
-        This function creates a new Thread that calls an internal __retrieve_updates function
-        This allows the bot to retrieve Updates automatically and notify listeners and message handlers accordingly
-        Warning: Do not call this function more than once!
-        Always get updates
-        :param bool none_stop: Do not stop polling when an ApiException occurs
-        :param int interval: wait interval in milliseconds
-        :param bool skip_pending: Pass True to drop all pending Updates
-        :param int limit: Limits the number of updates to be retrieved
-        :param int timeout: Timeout in seconds for long polling
-        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
-                                                  receive, For example, specify [“message”, “edited_channel_post”,
-                                                  “callback_query”] to only receive updates of these types
-
-        :return:
-        """
-        utils.logger.info('POLLING STARTED')
-        self.__stop_polling.clear()
-        error_interval = 0.25
-
-        if skip_pending:
-            self.__skip_pending = True
-
-        if allowed_updates:
-            self.__allowed_updates = allowed_updates
-
-        polling_thread = utils.WorkerThread(name="PollingThread")
-        event = utils.events_handler(polling_thread.event_completed, polling_thread.event_exception,
-                                     self.__worker_pool.event_exception)
-
-        while not self.__stop_polling.wait(interval):
-            event.clear()
-            try:
-                polling_thread.put(self.__retrieve_updates, limit, timeout, allowed_updates)
-                event.wait()  # wait for polling thread finish, polling thread error or thread pool error
-                polling_thread.raise_exceptions()
-                self.__worker_pool.raise_exceptions()
-            except KeyboardInterrupt:
-                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
-                self.__stop_polling.set()
-                break
-            except Exception or utils.ApiException:
-                if none_stop:
-                    polling_thread.clear_exceptions()
-                    self.__worker_pool.clear_exceptions()
-                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
-                    time.sleep(error_interval)
-                    error_interval *= 2
-                else:
-                    self.__stop_polling.set()
-                    utils.logger.info("Exception Occurred, STOPPING")
-
-        polling_thread.stop()
-        utils.logger.info('POLLING STOPPED')
-
-    def __process_new_updates(self, updates):
-        new_messages = []
-        new_edited_messages = []
-        new_channel_posts = []
-        new_edited_channel_posts = []
-        new_inline_queries = []
-        new_chosen_inline_results = []
-        new_callback_queries = []
-        new_shipping_queries = []
-        new_pre_checkout_queries = []
-        new_polls = []
-        new_poll_answers = []
-        new_my_chat_member = []
-        new_chat_member = []
-        new_chat_join_request = []
-
-        for update in updates:
-            if update.update_id > self.__last_update_id:
-                self.__last_update_id = update.update_id
-            if update.message:
-                new_messages.append(update.message)
-            if update.edited_message:
-                new_edited_messages.append(update.edited_message)
-            if update.channel_post:
-                new_channel_posts.append(update.channel_post)
-            if update.edited_channel_post:
-                new_edited_channel_posts.append(update.edited_channel_post)
-            if update.inline_query:
-                new_inline_queries.append(update.inline_query)
-            if update.chosen_inline_result:
-                new_chosen_inline_results.append(update.chosen_inline_result)
-            if update.callback_query:
-                new_callback_queries.append(update.callback_query)
-            if update.shipping_query:
-                new_shipping_queries.append(update.shipping_query)
-            if update.pre_checkout_query:
-                new_pre_checkout_queries.append(update.pre_checkout_query)
-            if update.poll:
-                new_polls.append(update.poll)
-            if update.poll_answer:
-                new_poll_answers.append(update.poll_answer)
-            if update.my_chat_member:
-                new_my_chat_member.append(update.my_chat_member)
-            if update.chat_member:
-                new_chat_member.append(update.chat_member)
-            if update.chat_join_request:
-                new_chat_join_request.append(update.chat_join_request)
-
-        if len(updates) > 0:
-            if len(new_messages) > 0:
-                self.__process_new_messages(new_messages)
-            if len(new_edited_messages) > 0:
-                self.__process_new_edited_messages(new_edited_messages)
-            if len(new_channel_posts) > 0:
-                self.__process_new_channel_posts(new_channel_posts)
-            if len(new_edited_channel_posts) > 0:
-                self.__process_new_edited_channel_posts(new_edited_channel_posts)
-            if len(new_inline_queries) > 0:
-                self.__process_new_inline_query(new_inline_queries)
-            if len(new_chosen_inline_results) > 0:
-                self.__process_new_chosen_inline_query(new_chosen_inline_results)
-            if len(new_callback_queries) > 0:
-                self.__process_new_callback_query(new_callback_queries)
-            if len(new_pre_checkout_queries) > 0:
-                self.__process_new_pre_checkout_query(new_pre_checkout_queries)
-            if len(new_shipping_queries) > 0:
-                self.__process_new_shipping_query(new_shipping_queries)
-            if len(new_polls) > 0:
-                self.__process_new_poll(new_polls)
-            if len(new_poll_answers) > 0:
-                self.__process_new_poll_answer(new_poll_answers)
-            if len(new_my_chat_member) > 0:
-                self.__process_new_my_chat_member(new_my_chat_member)
-            if len(new_chat_member) > 0:
-                self.__process_new_chat_member(new_chat_member)
-            if len(new_chat_join_request) > 0:
-                self.__process_new_chat_join_request(new_chat_join_request)
 
     def __exec_task(self, task, *args, **kwargs):
         self.__worker_pool.put(task, *args, **kwargs)
@@ -410,6 +260,168 @@ class Bot:
     def __process_new_chat_join_request(self, chat_join_request):
         self.__notify_update_handlers(self.__chat_join_request_handlers, chat_join_request)
 
+    def __process_new_updates(self, updates):
+        new_messages = []
+        new_edited_messages = []
+        new_channel_posts = []
+        new_edited_channel_posts = []
+        new_inline_queries = []
+        new_chosen_inline_results = []
+        new_callback_queries = []
+        new_shipping_queries = []
+        new_pre_checkout_queries = []
+        new_polls = []
+        new_poll_answers = []
+        new_my_chat_member = []
+        new_chat_member = []
+        new_chat_join_request = []
+
+        for update in updates:
+            if update.update_id > self.__last_update_id:
+                self.__last_update_id = update.update_id
+            if update.message:
+                new_messages.append(update.message)
+            if update.edited_message:
+                new_edited_messages.append(update.edited_message)
+            if update.channel_post:
+                new_channel_posts.append(update.channel_post)
+            if update.edited_channel_post:
+                new_edited_channel_posts.append(update.edited_channel_post)
+            if update.inline_query:
+                new_inline_queries.append(update.inline_query)
+            if update.chosen_inline_result:
+                new_chosen_inline_results.append(update.chosen_inline_result)
+            if update.callback_query:
+                new_callback_queries.append(update.callback_query)
+            if update.shipping_query:
+                new_shipping_queries.append(update.shipping_query)
+            if update.pre_checkout_query:
+                new_pre_checkout_queries.append(update.pre_checkout_query)
+            if update.poll:
+                new_polls.append(update.poll)
+            if update.poll_answer:
+                new_poll_answers.append(update.poll_answer)
+            if update.my_chat_member:
+                new_my_chat_member.append(update.my_chat_member)
+            if update.chat_member:
+                new_chat_member.append(update.chat_member)
+            if update.chat_join_request:
+                new_chat_join_request.append(update.chat_join_request)
+
+        if len(updates) > 0:
+            if len(new_messages) > 0:
+                self.__process_new_messages(new_messages)
+            if len(new_edited_messages) > 0:
+                self.__process_new_edited_messages(new_edited_messages)
+            if len(new_channel_posts) > 0:
+                self.__process_new_channel_posts(new_channel_posts)
+            if len(new_edited_channel_posts) > 0:
+                self.__process_new_edited_channel_posts(new_edited_channel_posts)
+            if len(new_inline_queries) > 0:
+                self.__process_new_inline_query(new_inline_queries)
+            if len(new_chosen_inline_results) > 0:
+                self.__process_new_chosen_inline_query(new_chosen_inline_results)
+            if len(new_callback_queries) > 0:
+                self.__process_new_callback_query(new_callback_queries)
+            if len(new_pre_checkout_queries) > 0:
+                self.__process_new_pre_checkout_query(new_pre_checkout_queries)
+            if len(new_shipping_queries) > 0:
+                self.__process_new_shipping_query(new_shipping_queries)
+            if len(new_polls) > 0:
+                self.__process_new_poll(new_polls)
+            if len(new_poll_answers) > 0:
+                self.__process_new_poll_answer(new_poll_answers)
+            if len(new_my_chat_member) > 0:
+                self.__process_new_my_chat_member(new_my_chat_member)
+            if len(new_chat_member) > 0:
+                self.__process_new_chat_member(new_chat_member)
+            if len(new_chat_join_request) > 0:
+                self.__process_new_chat_join_request(new_chat_join_request)
+
+    def __get_updates(self, offset, limit, timeout, allowed_updates):
+        """
+        Use this method to receive incoming updates using long polling
+        :param int offset:
+        :param int limit: Limits the number of updates to be retrieved
+        :param int timeout: Timeout in seconds for long polling
+        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
+                                                  receive, For example, specify [“message”, “edited_channel_post”,
+                                                  “callback_query”] to only receive updates of these types
+        :return: An Array of Update objects
+        """
+        offset = (self.__last_update_id + offset)
+
+        updates = []
+        for data in methods.get_updates(self.__api_url, self.__proxies, offset, limit, timeout, allowed_updates):
+            updates.append(types.Update.de_json(data))
+
+        total = 0
+        if self.__skip_pending:
+            while updates:
+                total += len(updates)
+                for update in updates:
+                    if update.update_id > self.__last_update_id:
+                        self.__last_update_id = update.update_id
+                    updates.pop()
+
+            utils.logger.info(f'SKIPPED {total} PENDING MESSAGES')
+            self.__skip_pending = False
+
+        self.__process_new_updates(updates)
+
+    def polling(self, stop=True, skip_pending=False, offset=1, limit=100, timeout=5, allowed_updates=None):
+        """
+        This method starts a new polling thread,
+        and allows the bot to retrieve Updates automatically and notify listeners and message handlers accordingly
+        Warning: Do not call this function more than once
+        :param bool stop: Stop polling when an ApiException occurs
+        :param bool skip_pending: Pass True to drop all pending Updates
+        :param int offset: Identifier of the first update to be returned, default 1
+        :param int limit: Limits the number of updates to be retrieved, default 100 updates
+        :param int timeout: Timeout in seconds for long polling, default 5 milliseconds
+        :param list[str] or None allowed_updates: A JSON-serialized list of the update types you want your bot to
+                                                  receive, For example, specify [“message”, “edited_channel_post”,
+                                                  “callback_query”] to only receive updates of these types
+        """
+        if skip_pending:
+            self.__skip_pending = True
+
+        if allowed_updates:
+            self.__allowed_updates = allowed_updates
+
+        utils.logger.info('POLLING STARTED')
+        self.__stop_polling.set()
+        error_interval = 0.25
+
+        polling_thread = utils.ThreadWorker(name="PollingThread")
+        event = utils.events_handler(polling_thread.event_completed, polling_thread.event_exception,
+                                     self.__worker_pool.event_exception)
+
+        while self.__stop_polling.is_set():
+            event.clear()
+            try:
+                polling_thread.put(self.__get_updates, offset, limit, timeout, allowed_updates)
+                event.wait()  # wait for polling thread finish, polling thread error or thread pool error
+                polling_thread.raise_exceptions()
+                self.__worker_pool.raise_exceptions()
+            except KeyboardInterrupt:
+                utils.logger.info("KeyboardInterrupt Occurred, STOPPING")
+                self.__stop_polling.clear()
+                break
+            except Exception or utils.TelegramAPIError:
+                if stop:
+                    self.__stop_polling.clear()
+                    utils.logger.info("Exception Occurred, STOPPING")
+                else:
+                    polling_thread.clear_exceptions()
+                    self.__worker_pool.clear_exceptions()
+                    utils.logger.info(f"Waiting for {error_interval} seconds until retry")
+                    time.sleep(error_interval)
+                    error_interval *= 2
+
+        polling_thread.stop()
+        utils.logger.info('POLLING STOPPED')
+
     def set_webhook(self, url, certificate=None, ip_address=None, max_connections=40, allowed_updates=None,
                     drop_pending_updates=False):
         """
@@ -423,8 +435,9 @@ class Bot:
         :return: True On success
         :rtype: bool
         """
-        return methods.set_webhook(self.__api_url, self.__proxies, url, certificate, ip_address, max_connections,
+        data = methods.set_webhook(self.__api_url, self.__proxies, url, certificate, ip_address, max_connections,
                                    allowed_updates, drop_pending_updates)
+        return data
 
     def delete_webhook(self, drop_pending_updates=False):
         """
