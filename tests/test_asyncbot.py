@@ -13,8 +13,8 @@ bot = AsyncBot(access_token=os.getenv("BOT_TOKEN"), max_workers=os.sysconf('SC_N
 @bot.update_handler(bot_command=['/start', '/help'])
 def send_welcome(msg):
     bot.send_message(chat_id=msg.chat.uid, text="Howdy, how are you doing?", parse_mode=None, entities=None,
-                     disable_web_page_preview=False, disable_notification=False,
-                     reply_to_message_id=msg.message_id, allow_sending_without_reply=True, reply_markup=None)
+                     disable_web_page_preview=False, disable_notification=False, reply_to_message_id=msg.message_id,
+                     allow_sending_without_reply=True, reply_markup=None)
 
 
 @bot.update_handler(regexp='hi')
