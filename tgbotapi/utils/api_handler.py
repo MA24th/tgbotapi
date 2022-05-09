@@ -3,30 +3,56 @@
 """
 tgbotapi.utils.api_handler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-This submodule provides api handler functions that are consumed internally by methods.py
+This module contains the api handler functions that are consumed internally by methods.py
 """
 
-import threading
 import requests
+
+from tgbotapi import __version__
+from .api_exceptions import TelegramAPIError
+from .json_helper import JsonDeserializable
 from .logger import logger
-from .api_exceptions import ApiException
-
-thread_local = threading.local()
 
 
-def per_thread(key, value):
-    logger.debug(f'{thread_local.__class__.__name__}: {key} -> {value.status_code}')
-    if thread_local:
-        setattr(thread_local, key, value)
-
-    return getattr(thread_local, key)
-
-
-def make_request(method, api_url, api_method, files, params, proxies):
+class Response(JsonDeserializable):
     """
-    Makes a request to the Telegram API
+    This class represents a Telegram API response.
+    """
+
+    def __init__(self, ok, result, error_code, description):
+        """
+        This method initializes a Response instance
+        :param bool ok: True if the request was successful
+        :param str or list or dict result: The API result
+        :param int error_code: The error code returned by the Telegram API
+        :param str description: The API description
+        """
+        self.ok = ok
+        self.result = result
+        self.error_code = error_code
+        self.description = description
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        ok = obj['ok']
+        result = None
+        if 'result' in obj:
+            result = obj['result']
+        error_code = None
+        if 'error_code' in obj:
+            error_code = obj['error_code']
+        description = None
+        if 'description' in obj:
+            description = obj['description']
+        return cls(ok, result, error_code, description)
+
+
+def make_request(method, url, api_method, files, params, proxies):
+    """
+    This method makes a request to the Telegram API
     :param str method: HTTP method ['get', 'post']
-    :param str api_url: telegram api url for api_method
+    :param str url: The URL to send the request to
     :param str api_method: Name of the API method to be called. (E.g. 'getUpdates')
     :param any files: files content's a data to be uploaded with request
     :param dict or None params: Should be a dictionary with key-value pairs
@@ -42,18 +68,23 @@ def make_request(method, api_url, api_method, files, params, proxies):
         'Accept-Language': 'en-US,en;q=0.8',
         'Connection': 'close',
         'Content-Encoding': 'gzip',
-        'User-Agent': 'tgbotapi v5.7.0'
+        'User-Agent': f'tgbotapi v{__version__}'
     }
-    reqs = requests.session().request(method, url=api_url, params=params, headers=headers, files=files, proxies=proxies)
-    response = per_thread(key=api_method, value=reqs)
+    reqs = requests.request(method, url, params=params, headers=headers, files=files, proxies=proxies)
+    logger.info(f"Response <- {reqs.json()}")
 
-    if response.status_code != 200:
-        raise ApiException(f"The Server Returns {response.text}", response.text)
+    response = Response.de_json(reqs.json())
+    if response.ok:
+        return response.result
     else:
-        try:
-            resp_json = response.json()
-        except AssertionError:
-            raise ApiException(f"Invalid JSON, Response body:\n {response.text}", response.text)
-
-    logger.info(f"Response <- {resp_json}")
-    return resp_json.get('result')
+        logger.debug(f"The Server Responded with an Error: {response.error_code} - {response.description}")
+        if response.error_code == 400:
+            raise TelegramAPIError(f'Bad Request: {response.description}')
+        elif response.error_code == 401:
+            raise TelegramAPIError(f'Unauthorized: {response.description}')
+        elif response.error_code == 404:
+            raise TelegramAPIError(f'Invalid Bot Token: {response.description}')
+        elif response.error_code == 429:
+            raise TelegramAPIError(f'Too Many Requests: {response.description}')
+        else:
+            raise TelegramAPIError(f'Unknown Error: {response.description}')
