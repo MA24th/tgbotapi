@@ -3,12 +3,12 @@
 """
 tgbotapi.methods
 ~~~~~~~~~~~~~~~~
-This submodule provides a Telegram Available methods,
-All methods in the Bot API are case-insensitive. We support GET and POST HTTP methods,
-Use either URL query string or application/json or application/x-www-form-urlencoded,
-Or multipart/form-data for passing parameters in Bot API requests,
-On successful call, a JSON-object containing the result will be returned,
-that are also useful for external consumption.
+This module contains all the available Telegram Bot API methods,
+All methods in the tgbotapi are based on the Telegram Bot API documentation,
+The names of the methods changed to be more Pythonic.
+
+:copyright: (c) 2022 by Mustafa Asaad.
+:license: GPLv2, see LICENSE for more details.
 """
 from .utils import make_request
 
@@ -74,7 +74,7 @@ def set_webhook(based_url, proxies, url, certificate, ip_address, max_connection
 
 def delete_webhook(based_url, proxies, drop_pending_updates):
     """
-    Use this method to remove webhook integration if you decide to switch back to getUpdates. 
+    Use this method to remove webhook integration if you decide to switch back to getUpdates
     :type based_url: str
     :type proxies: dict or None
     :type drop_pending_updates: bool
@@ -92,7 +92,7 @@ def delete_webhook(based_url, proxies, drop_pending_updates):
 
 def get_webhook_info(based_url, proxies):
     """
-    Use this method to get current webhook status. 
+    Use this method to get current webhook status
     :type based_url: str
     :type proxies: dict or None
     :rtype: dict
@@ -2066,6 +2066,25 @@ def answer_inline_query(based_url, proxies, inline_query_id, results, cache_time
     if switch_pm_parameter:
         params['switch_pm_parameter'] = switch_pm_parameter
     return make_request(method, api_url, api_method, files, params, proxies)
+
+
+def answer_web_app_query(based_url, proxies, web_app_query_id, result):
+    """
+    Use this method to set the result of an interaction with a Web App and send a corresponding message,
+    On behalf of the user to the chat from which the query originated
+    :type based_url: str
+    :type proxies: dict or None
+    :type web_app_query_id: str
+    :type result: object
+    :rtype: dict
+    """
+    method = r'post'
+    api_method = r'answerWebAppQuery'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {'web_app_query_id': web_app_query_id, 'result': result}
+    return make_request(method, api_url, api_method, files, params, proxies)
+
 
 
 def send_invoice(based_url, proxies, chat_id, title, description, payload, provider_token, currency, prices,

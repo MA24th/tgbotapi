@@ -481,6 +481,10 @@ class AsyncBot(Bot):
                                        switch_pm_text, switch_pm_parameter)
 
     @async_handler()
+    def answer_web_app_query(self, web_app_query_id, result):
+        return Bot.answer_web_app_query(self, web_app_query_id, result)
+
+    @async_handler()
     def send_invoice(self, chat_id, title, description, payload, provider_token, currency, prices, max_tip_amount=None,
                      suggested_tip_amounts=None, start_parameter=None, provider_data=None, photo_url=None,
                      photo_size=None, photo_width=None, photo_height=None, need_name=False, need_phone_number=False,

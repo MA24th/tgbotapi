@@ -1593,6 +1593,17 @@ class Bot:
                                            is_personal, next_offset,
                                            switch_pm_text, switch_pm_parameter)
 
+    def answer_web_app_query(self, web_app_query_id, result):
+        """
+        Use this method to set the result of an interaction with a Web App and send a corresponding message
+        on behalf of the user to the chat from which the query originated.
+        On success, a SentWebAppMessage object is returned
+        :param str web_app_query_id: Unique identifier for the query
+        :param types.InlineQueryResult result: The result of the query
+        """
+        data = methods.answer_web_app_query(self.__based_url, self.__proxies, web_app_query_id, result)
+        return types.SentWebAppMessage.de_json(data)
+
     def send_invoice(self, chat_id, title, description, payload, provider_token, currency, prices, max_tip_amount=None,
                      suggested_tip_amounts=None, start_parameter=None, provider_data=None, photo_url=None,
                      photo_size=None, photo_width=None, photo_height=None, need_name=False, need_phone_number=False,
