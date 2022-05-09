@@ -3808,6 +3808,10 @@ class SentWebAppMessage(JsonDeserializable):
     """
 
     def __init__(self, inline_message_id):
+        """
+        Initialize the SentWebAppMessage object
+        :param str or None inline_message_id: Optional, Identifier of the sent inline message
+        """
         self.inline_message_id = inline_message_id
 
     @classmethod

@@ -3,7 +3,7 @@
 """
 test_types.py
 ~~~~~~~~~~~~~
-This submodule provides a tests for tgbotapi types objects
+This module contains tests for the tgbotapi types module.
 :copyright: (c) 2022 by Mustafa Asaad.
 :license: GPLv2, see LICENSE for more details.
 """
@@ -1083,3 +1083,14 @@ class TestForceReply(unittest.TestCase):
     def test_force_reply(self):
         force_reply = str(self.object)
         self.assertEqual(force_reply, self.data)
+
+
+class TestSentWebAppMessage(unittest.TestCase):
+    with open("schema/SentWebAppMessage.json") as f:
+        data = f.read()
+
+    object = types.SentWebAppMessage.de_json(data)
+
+    def test_sent_web_app_message(self):
+        sent_web_app = self.object
+        self.assertEqual(sent_web_app.inline_message_id, "SentWebAppMessage inline message id")
