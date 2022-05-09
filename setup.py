@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 from io import open
-
 from setuptools import setup, find_packages
-
-from tgbotapi.__version__ import __title__, __version__, __description__, __author__, __author_email__, __license__
 
 
 def read(filename):
@@ -11,13 +8,13 @@ def read(filename):
         return file.read()
 
 
-setup(name=__title__,
-      version=__version__,
-      description=__description__,
+setup(name='tgbotapi',
+      version='6.0.0',
+      description='Telegram Bot API Framework',
       long_description=read('README.md'),
       long_description_content_type="text/markdown",
-      author=__author__,
-      author_email=__author_email__,
+      author='Mustafa Asaad',
+      author_email='ma24th@yahoo.com',
       url='https://github.com/MA24th/tgbotapi',
       packages=find_packages(),
       classifiers=[
@@ -33,8 +30,8 @@ setup(name=__title__,
           'Intended Audience :: Developers',
           'Operating System :: OS Independent',
           'Natural Language :: English'],
-      license=__license__,
+      license='GPLv2',
       keywords='telegram-bot-api, tgbotapi, framework, telegram bot api, bot api',
-      install_requires=['requests', 'six'],
+      install_requires=['requests'],
 
       )
