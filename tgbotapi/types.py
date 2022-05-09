@@ -267,15 +267,19 @@ class Chat(JsonDeserializable):
 
 
 class Message(JsonDeserializable):
-    def __init__(self, message_id, from_user, sender_chat, date, chat, options):
+    """
+    This object represents a message
+    """
+    def __init__(self, message_id, attrs):
         """
-        This object represents a message
+        Initializes a Message object
+        :param int message_id: Unique message identifier
         """
         self.message_id = message_id
-        self.from_user = from_user
-        self.sender_chat = sender_chat
-        self.date = date
-        self.chat = chat
+        self.ffrom = None
+        self.sender_chat = None
+        self.date = None
+        self.chat = None
         self.forward_from = None
         self.forward_from_chat = None
         self.forward_from_message_id = None
@@ -328,132 +332,135 @@ class Message(JsonDeserializable):
         self.video_chat_started = None
         self.video_chat_ended = None
         self.video_chat_participants_invited = None
+        self.web_app_data = None
         self.reply_markup = None
-        for key in options:
-            setattr(self, key, options[key])
+        for key in attrs:
+            setattr(self, key, attrs[key])
 
     @classmethod
     def de_json(cls, obj_type):
         obj = cls.check_type(obj_type)
         message_id = obj['message_id']
-        from_user = None
+        attrs = {}
         if 'from' in obj:
-            from_user = User.de_json(obj['from'])
-        sender_chat = None
+            attrs['ffrom'] = User.de_json(obj['from'])
         if 'sender_chat' in obj:
-            sender_chat = Chat.de_json(obj['sender_chat'])
-        date = obj['date']
-        chat = Chat.de_json(obj['chat'])
-        opts = {}
+            attrs['sender_chat'] = Chat.de_json(obj['sender_chat'])
+        if 'data' in obj:
+            attrs['date'] = obj['data']
+        if 'chat' in obj:
+            attrs['chat'] = Chat.de_json(obj['chat'])
         if 'forward_from' in obj:
-            opts['forward_from'] = User.de_json(obj['forward_from'])
+            attrs['forward_from'] = User.de_json(obj['forward_from'])
         if 'forward_from_chat' in obj:
-            opts['forward_from_chat'] = Chat.de_json(obj['forward_from_chat'])
+            attrs['forward_from_chat'] = Chat.de_json(obj['forward_from_chat'])
         if 'forward_from_message_id' in obj:
-            opts['forward_from_message_id'] = obj['forward_from_message_id']
+            attrs['forward_from_message_id'] = obj['forward_from_message_id']
         if 'forward_signature' in obj:
-            opts['forward_signature'] = obj['forward_signature']
+            attrs['forward_signature'] = obj['forward_signature']
         if 'forward_sender_name' in obj:
-            opts['forward_sender_name'] = obj['forward_sender_name']
+            attrs['forward_sender_name'] = obj['forward_sender_name']
         if 'forward_date' in obj:
-            opts['forward_date'] = obj['forward_date']
+            attrs['forward_date'] = obj['forward_date']
         if 'is_automatic_forward' in obj:
-            opts['is_automatic_forward'] = obj['is_automatic_forward']
+            attrs['is_automatic_forward'] = obj['is_automatic_forward']
         if 'reply_to_message' in obj:
-            opts['reply_to_message'] = Message.de_json(obj['reply_to_message'])
+            attrs['reply_to_message'] = Message.de_json(obj['reply_to_message'])
         if 'via_bot' in obj:
-            opts['via_bot'] = User.de_json(obj['via_bot'])
+            attrs['via_bot'] = User.de_json(obj['via_bot'])
         if 'edit_date' in obj:
-            opts['edit_date'] = obj['edit_date']
+            attrs['edit_date'] = obj['edit_date']
         if 'has_protected_content' in obj:
-            opts['has_protected_content'] = obj['has_protected_content']
+            attrs['has_protected_content'] = obj['has_protected_content']
         if 'media_group_id' in obj:
-            opts['media_group_id'] = obj['media_group_id']
+            attrs['media_group_id'] = obj['media_group_id']
         if 'author_signature' in obj:
-            opts['author_signature'] = obj['author_signature']
+            attrs['author_signature'] = obj['author_signature']
         if 'text' in obj:
-            opts['text'] = obj['text']
+            attrs['text'] = obj['text']
         if 'entities' in obj:
-            opts['entities'] = Message.parse_entities(obj['entities'])
+            attrs['entities'] = Message.parse_entities(obj['entities'])
         if 'animation' in obj:
-            opts['animation'] = Animation.de_json(obj['animation'])
+            attrs['animation'] = Animation.de_json(obj['animation'])
         if 'audio' in obj:
-            opts['audio'] = Audio.de_json(obj['audio'])
+            attrs['audio'] = Audio.de_json(obj['audio'])
         if 'document' in obj:
-            opts['document'] = Document.de_json(obj['document'])
+            attrs['document'] = Document.de_json(obj['document'])
         if 'photo' in obj:
-            opts['photo'] = Message.parse_photo(obj['photo'])
+            attrs['photo'] = Message.parse_photo(obj['photo'])
         if 'sticker' in obj:
-            opts['sticker'] = Sticker.de_json(obj['sticker'])
+            attrs['sticker'] = Sticker.de_json(obj['sticker'])
         if 'video' in obj:
-            opts['video'] = Video.de_json(obj['video'])
+            attrs['video'] = Video.de_json(obj['video'])
         if 'video_note' in obj:
-            opts['video_note'] = VideoNote.de_json(obj['video_note'])
+            attrs['video_note'] = VideoNote.de_json(obj['video_note'])
         if 'voice' in obj:
-            opts['voice'] = Audio.de_json(obj['voice'])
+            attrs['voice'] = Audio.de_json(obj['voice'])
         if 'caption' in obj:
-            opts['caption'] = obj['caption']
+            attrs['caption'] = obj['caption']
         if 'caption_entities' in obj:
-            opts['caption_entities'] = Message.parse_entities(obj['caption_entities'])
+            attrs['caption_entities'] = Message.parse_entities(obj['caption_entities'])
         if 'contact' in obj:
-            opts['contact'] = Contact.de_json(obj['contact'])
+            attrs['contact'] = Contact.de_json(obj['contact'])
         if 'dice' in obj:
-            opts['dice'] = Dice.de_json(obj['dice'])
+            attrs['dice'] = Dice.de_json(obj['dice'])
         if 'game' in obj:
-            opts['game'] = Game.de_json(obj['game'])
+            attrs['game'] = Game.de_json(obj['game'])
         if 'poll' in obj:
-            opts['poll'] = Poll.de_json(obj['poll'])
+            attrs['poll'] = Poll.de_json(obj['poll'])
         if 'venue' in obj:
-            opts['venue'] = Venue.de_json(obj['venue'])
+            attrs['venue'] = Venue.de_json(obj['venue'])
         if 'location' in obj:
-            opts['location'] = Location.de_json(obj['location'])
+            attrs['location'] = Location.de_json(obj['location'])
         if 'new_chat_members' in obj:
-            opts['new_chat_members'] = Message.parse_users(obj['new_chat_members'])
+            attrs['new_chat_members'] = Message.parse_users(obj['new_chat_members'])
         if 'left_chat_member' in obj:
-            opts['left_chat_member'] = User.de_json(obj['left_chat_member'])
+            attrs['left_chat_member'] = User.de_json(obj['left_chat_member'])
         if 'new_chat_title' in obj:
-            opts['new_chat_title'] = obj['new_chat_title']
+            attrs['new_chat_title'] = obj['new_chat_title']
         if 'new_chat_photo' in obj:
-            opts['new_chat_photo'] = Message.parse_photo(obj['new_chat_photo'])
+            attrs['new_chat_photo'] = Message.parse_photo(obj['new_chat_photo'])
         if 'delete_chat_photo' in obj:
-            opts['delete_chat_photo'] = obj['delete_chat_photo']
+            attrs['delete_chat_photo'] = obj['delete_chat_photo']
         if 'group_chat_created' in obj:
-            opts['group_chat_created'] = obj['group_chat_created']
+            attrs['group_chat_created'] = obj['group_chat_created']
         if 'supergroup_chat_created' in obj:
-            opts['supergroup_chat_created'] = obj['supergroup_chat_created']
+            attrs['supergroup_chat_created'] = obj['supergroup_chat_created']
         if 'channel_chat_created' in obj:
-            opts['channel_chat_created'] = obj['channel_chat_created']
+            attrs['channel_chat_created'] = obj['channel_chat_created']
         if 'message_auto_delete_timer_changed' in obj:
-            opts['message_auto_delete_timer_changed'] = MessageAutoDeleteTimerChanged.de_json(
+            attrs['message_auto_delete_timer_changed'] = MessageAutoDeleteTimerChanged.de_json(
                 obj['message_auto_delete_timer_changed'])
         if 'migrate_to_chat_id' in obj:
-            opts['migrate_to_chat_id'] = obj['migrate_to_chat_id']
+            attrs['migrate_to_chat_id'] = obj['migrate_to_chat_id']
         if 'migrate_from_chat_id' in obj:
-            opts['migrate_from_chat_id'] = obj['migrate_from_chat_id']
+            attrs['migrate_from_chat_id'] = obj['migrate_from_chat_id']
         if 'pinned_message' in obj:
-            opts['pinned_message'] = Message.de_json(obj['pinned_message'])
+            attrs['pinned_message'] = Message.de_json(obj['pinned_message'])
         if 'invoice' in obj:
-            opts['invoice'] = Invoice.de_json(obj['invoice'])
+            attrs['invoice'] = Invoice.de_json(obj['invoice'])
         if 'successful_payment' in obj:
-            opts['successful_payment'] = SuccessfulPayment.de_json(obj['successful_payment'])
+            attrs['successful_payment'] = SuccessfulPayment.de_json(obj['successful_payment'])
         if 'connected_website' in obj:
-            opts['connected_website'] = obj['connected_website']
+            attrs['connected_website'] = obj['connected_website']
         if 'passport_data' in obj:
-            opts['passport_data'] = obj['passport_data']
+            attrs['passport_data'] = obj['passport_data']
         if 'proximity_alert_triggered' in obj:
-            opts['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
+            attrs['proximity_alert_triggered'] = ProximityAlertTriggered.de_json(obj['proximity_alert_triggered'])
         if 'video_chat_scheduled' in obj:
-            opts['video_chat_scheduled'] = VideoChatScheduled.de_json(obj['video_chat_scheduled'])
+            attrs['video_chat_scheduled'] = VideoChatScheduled.de_json(obj['video_chat_scheduled'])
         if 'video_chat_started' in obj:
-            opts['video_chat_started'] = VideoChatStarted.de_json(obj['video_chat_started'])
+            attrs['video_chat_started'] = VideoChatStarted.de_json(obj['video_chat_started'])
         if 'video_chat_ended' in obj:
-            opts['video_chat_ended'] = VideoChatEnded.de_json(obj['video_chat_ended'])
+            attrs['video_chat_ended'] = VideoChatEnded.de_json(obj['video_chat_ended'])
         if 'video_chat_participants_invited' in obj:
-            opts['video_chat_participants_invited'] = VideoChatParticipantsInvited.de_json(
+            attrs['video_chat_participants_invited'] = VideoChatParticipantsInvited.de_json(
                 obj['video_chat_participants_invited'])
+        if 'web_app_data' in obj:
+            attrs['web_app_data'] = obj['web_app_data']
         if 'reply_markup' in obj:
-            opts['reply_markup'] = InlineKeyboardMarkup.de_json(obj['reply_markup'])
-        return cls(message_id, from_user, sender_chat, date, chat, opts)
+            attrs['reply_markup'] = InlineKeyboardMarkup.de_json(obj['reply_markup'])
+        return cls(message_id, attrs)
 
     @classmethod
     def parse_photo(cls, obj):
@@ -478,10 +485,10 @@ class Message(JsonDeserializable):
 
 
 class MessageId(JsonDeserializable):
+    """
+    This object represents a unique message identifier.
+    """
     def __init__(self, message_id):
-        """
-        This object represents a unique message identifier.
-        """
         self.message_id = message_id
 
     @classmethod
@@ -986,6 +993,28 @@ class Venue(JsonDeserializable):
         return cls(location, title, address, foursquare_id, foursquare_type, google_place_id, google_place_type)
 
 
+class WebAppData(JsonDeserializable):
+    """
+    Contains data sent from a Web App to the bot.
+    """
+
+    def __init__(self, data, button_text):
+        """
+        Initialize a WebAppData instance
+        :param str data: Data sent from the web app
+        :param str button_text: Text of the web_app keyboard button
+        """
+        self.data = data
+        self.button_text = button_text
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        data = obj['data']
+        button_text = obj['button_text']
+        return cls(data, button_text)
+
+
 class ProximityAlertTriggered(JsonDeserializable):
     def __init__(self, traveler, watcher, distance):
         """
@@ -1135,6 +1164,7 @@ class WebAppInfo(JsonDeserializable):
     """
     Contains information about a Web App
     """
+
     def __init__(self, url):
         """
         :param str url: Web App url
@@ -3782,6 +3812,7 @@ class ChosenInlineResult(JsonDeserializable):
     """
     Represents a result of an inline query that was chosen by the user and sent to their chat partner
     """
+
     def __init__(self, result_id, from_user, query, location, inline_message_id):
         self.result_id = result_id
         self.from_user = from_user
