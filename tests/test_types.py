@@ -784,6 +784,18 @@ class TestVenue(unittest.TestCase):
         self.assertEqual(location.proximity_alert_radius, 20)
 
 
+class TestWebAppData(unittest.TestCase):
+    with open("schema/WebAppData.json") as f:
+        data = f.read()
+
+    object = types.WebAppData.de_json(data)
+
+    def test_web_app_data(self):
+        web_app_data = self.object
+        self.assertEqual(web_app_data.data, "{'foo': 'bar'}")
+        self.assertEqual(web_app_data.button_text, "Button text")
+
+
 class TestProximityAlertTriggered(unittest.TestCase):
     with open("schema/ProximityAlertTriggered.json") as f:
         data = f.read()
