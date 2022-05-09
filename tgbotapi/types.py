@@ -3,20 +3,23 @@
 """
 tgbotapi.types
 ~~~~~~~~~~~~~~
-This submodule provides a Telegram Available types,
-All types used in the Bot API responses are represented as JSON-objects,
-that are also useful for external consumption.
+This module contains the basic types of Telegram Bot API used in tgbotapi,
+such as Update, Message, etc.
+
+:copyright: (c) 2022 by Mustafa Asaad.
+:license: GPLv2, see LICENSE for more details.
 """
 from .utils import JsonDeserializable, JsonSerializable
 
 
 class Update(JsonDeserializable):
+    """
+    This object represents an incoming update
+    """
+
     def __init__(self, update_id, message, edited_message, channel_post, edited_channel_post, inline_query,
                  chosen_inline_result, callback_query, shipping_query, pre_checkout_query, poll, poll_answer,
                  my_chat_member, chat_member, chat_join_request):
-        """
-        This object represents an incoming update
-        """
         self.update_id = update_id
         self.message = message
         self.edited_message = edited_message
@@ -3776,10 +3779,10 @@ class InputMessageContent:
 
 
 class ChosenInlineResult(JsonDeserializable):
+    """
+    Represents a result of an inline query that was chosen by the user and sent to their chat partner
+    """
     def __init__(self, result_id, from_user, query, location, inline_message_id):
-        """
-        Represents a result of an inline query that was chosen by the user and sent to their chat partner
-        """
         self.result_id = result_id
         self.from_user = from_user
         self.query = query
@@ -3797,6 +3800,23 @@ class ChosenInlineResult(JsonDeserializable):
             location = Location.de_json(obj['location'])
         inline_message_id = obj['inline_message_id']
         return cls(result_id, from_user, query, location, inline_message_id)
+
+
+class SentWebAppMessage(JsonDeserializable):
+    """
+    Contains information about an inline message sent by a Web App on behalf a user
+    """
+
+    def __init__(self, inline_message_id):
+        self.inline_message_id = inline_message_id
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        inline_message_id = None
+        if 'inline_message_id' in obj:
+            inline_message_id = obj['inline_message_id']
+        return cls(inline_message_id)
 
 
 class LabeledPrice(JsonSerializable):
