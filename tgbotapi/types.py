@@ -270,6 +270,7 @@ class Message(JsonDeserializable):
     """
     This object represents a message
     """
+
     def __init__(self, message_id, attrs):
         """
         Initializes a Message object
@@ -488,6 +489,7 @@ class MessageId(JsonDeserializable):
     """
     This object represents a unique message identifier.
     """
+
     def __init__(self, message_id):
         self.message_id = message_id
 
@@ -2117,6 +2119,94 @@ class BotCommandScope:
 
         def to_dict(self):
             obj = {'type': self.ttype, 'chat_id': self.chat_id, 'user_id': self.user_id}
+            return obj
+
+
+class MenuButton(JsonDeserializable):
+    """
+    This object describes the bots' menu button in a private chat. It should be one of
+        MenuButtonCommands
+        MenuButtonWebApp
+        MenuButtonDefault
+    If a menu button other than MenuButtonDefault is set for a private chat, then it is applied in the chat.
+    Otherwise, the default menu button is applied. By default, the menu button opens the list of bot commands.
+    """
+
+    def __init__(self, ttype, text, web_app):
+        """
+        Initializes a new instance of the MenuButton class
+        """
+        self.Commands = self.__MenuButtonCommands
+        self.WebApp = self.__MenuButtonWebApp
+        self.Default = self.__MenuButtonDefault
+        self.type = ttype
+        self.text = text
+        self.web_app = web_app
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        ttype = None
+        if 'type' in obj:
+            ttype = obj['type']
+        text = None
+        if 'text' in obj:
+            text = obj['text']
+        web_app = None
+        if 'web_app' in obj:
+            web_app = obj['web_app']
+        return cls(ttype, text, web_app)
+
+    class __MenuButtonCommands(JsonSerializable):
+        """
+        Represents a menu button, which opens the bots' list of commands.
+        """
+
+        def __init__(self, ttype='commands'):
+            """
+            Initializes a new instance of the MenuButtonCommands class
+            :param str ttype: Type of the button, must be commands
+            """
+            self.type = ttype
+
+        def to_dict(self):
+            obj = {'type': self.type}
+            return obj
+
+    class __MenuButtonWebApp(JsonSerializable):
+        """
+        Represents a menu button, which opens the bots' list of commands.
+        """
+
+        def __init__(self, text, web_app, ttype='web_app'):
+            """
+            Initializes a new instance of the MenuButtonWebApp class
+            :param str ttype: Type of the button, must be web_app
+            :param str text: Text of the button
+            :param WebAppInfo web_app: Description of the Web App that will be launched when the user presses the button
+            """
+            self.type = ttype
+            self.text = text
+            self.web_app = web_app
+
+        def to_dict(self):
+            obj = {'type': self.type, 'text': self.text, 'web_app': self.web_app}
+            return obj
+
+    class __MenuButtonDefault(JsonSerializable):
+        """
+        Describes that no specific value for the menu button was set.
+        """
+
+        def __init__(self, ttype='default'):
+            """
+            Initializes a new instance of the MenuButtonDefault class
+            :param str ttype: Type of the button, must be default
+            """
+            self.type = ttype
+
+        def to_dict(self):
+            obj = {'type': self.type}
             return obj
 
 

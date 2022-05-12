@@ -1672,6 +1672,45 @@ def get_my_commands(based_url, proxies, scope, language_code):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def set_chat_menu_button(based_url, proxies, chat_id, menu_button):
+    """
+    Use this method to change the bots' menu button in a private chat, or the default menu button
+    :type based_url: str
+    :type proxies: dict or None
+    :type chat_id: int or None
+    :type menu_button: object or None
+    :rtype: bool
+    """
+    method = r'post'
+    api_method = r'setChatMenuButton'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {}
+    if chat_id:
+        params['chat_id'] = chat_id
+    if menu_button:
+        params['menu_button'] = menu_button
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
+def get_chat_menu_button(based_url, proxies, chat_id):
+    """
+    Use this method to get the current value of the bots' menu button in a private chat, or the default menu button
+    :type based_url: str
+    :type proxies: dict or None
+    :type chat_id: int or None
+    :rtype: dict
+    """
+    method = r'get'
+    api_method = r'getChatMenuButton'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {}
+    if chat_id:
+        params['chat_id'] = chat_id
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def edit_message_text(based_url, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities,
                       disable_web_page_preview,
                       reply_markup):
@@ -2084,7 +2123,6 @@ def answer_web_app_query(based_url, proxies, web_app_query_id, result):
     files = None
     params = {'web_app_query_id': web_app_query_id, 'result': result}
     return make_request(method, api_url, api_method, files, params, proxies)
-
 
 
 def send_invoice(based_url, proxies, chat_id, title, description, payload, provider_token, currency, prices,

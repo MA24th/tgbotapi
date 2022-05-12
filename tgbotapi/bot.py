@@ -1358,6 +1358,31 @@ class Bot:
             result.append(types.BotCommand.de_json(x))
         return result
 
+    def set_chat_menu_button(self, chat_id=None, menu_button=None):
+        """
+        Use this method to change the bots' menu button in a private chat, or the default menu button.
+        Returns True on success
+        :param int or str or None chat_id: Unique identifier for the target private chat. If not specified,
+                                           default bots' menu button will be returned
+        :param types.MenuButton or None menu_button: A JSON-serialized object for the new menu
+        :return: True on success
+        :rtype: bool
+        """
+        data = methods.set_chat_menu_button(self.__api_url, self.__proxies, chat_id, menu_button)
+        return data
+
+    def get_chat_menu_button(self, chat_id=None):
+        """
+        Use this method to get the current value of the bots' menu button in a private chat, or the default menu button.
+        Returns MenuButton on success
+        :param int or str or None chat_id: Unique identifier for the target private chat. If not specified,
+                                           default bots' menu button will be returned
+        :return: MenuButton on success
+        :rtype: types.MenuButton
+        """
+        data = methods.get_chat_menu_button(self.__api_url, self.__proxies, chat_id)
+        return types.MenuButton.de_json(data)
+
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           entities=None, disable_web_page_preview=False, reply_markup=None):
         """

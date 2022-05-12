@@ -408,6 +408,14 @@ class AsyncBot(Bot):
         return Bot.get_my_commands(self, scope, language_code)
 
     @async_handler()
+    def set_chat_menu_button(self, chat_id=None, menu_button=None):
+        return Bot.set_chat_menu_button(self, chat_id, menu_button)
+
+    @async_handler()
+    def get_chat_menu_button(self, chat_id=None):
+        return Bot.get_chat_menu_button(self, chat_id)
+
+    @async_handler()
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           entities=None, disable_web_page_preview=False, reply_markup=None):
         return Bot.edit_message_text(self, chat_id, chat_id, message_id, inline_message_id, parse_mode, entities,
