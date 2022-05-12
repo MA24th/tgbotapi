@@ -1615,6 +1615,109 @@ class ChatInviteLink(JsonDeserializable):
                    pending_join_request_count)
 
 
+class ChatAdministratorRights(JsonDeserializable, JsonSerializable):
+    """
+    Represents the rights of an administrator in a chat
+    """
+    def __init__(self, is_anonymous=False, can_manage_chat=False, can_delete_messages=False,
+                 can_manage_video_chats=False, can_restrict_members=False, can_promote_members=False,
+                 can_change_info=False, can_invite_users=False, can_post_messages=False, can_edit_messages=False,
+                 can_pin_messages=False):
+        """
+        Initialize the ChatAdministratorRights object
+        :param bool is_anonymous: True, if the user's presence in the chat is hidden
+        :param bool can_manage_chat: True, if the administrator can access the chat event log
+        :param bool can_delete_messages: True, if the administrator can delete messages of other users
+        :param bool can_manage_video_chats: True, if the administrator can manage video chats
+        :param bool can_restrict_members: True, if the administrator can restrict, ban or unban chat members
+        :param bool can_promote_members: True, if the administrator can add new administrators with a subset of their
+                                         own privileges or demote administrators that he has promoted
+        :param bool can_change_info: True, if the user is allowed to change the chat title, photo and other settings
+        :param bool can_invite_users: True, if the user is allowed to invite new users to the chat
+        :param bool can_post_messages: True, if the administrator can post in the channel; channels only
+        :param bool can_edit_messages: True, if the administrator can edit messages of other users and can pin messages;
+                                       channels only
+        :param bool can_pin_messages: True, if the user is allowed to pin messages; groups and supergroups only
+        """
+        self.is_anonymous = is_anonymous
+        self.can_manage_chat = can_manage_chat
+        self.can_delete_messages = can_delete_messages
+        self.can_manage_video_chats = can_manage_video_chats
+        self.can_restrict_members = can_restrict_members
+        self.can_promote_members = can_promote_members
+        self.can_change_info = can_change_info
+        self.can_invite_users = can_invite_users
+        self.can_post_messages = can_post_messages
+        self.can_edit_messages = can_edit_messages
+        self.can_pin_messages = can_pin_messages
+
+    def to_dict(self):
+        obj = {}
+        if self.is_anonymous:
+            obj['is_anonymous'] = self.is_anonymous
+        if self.can_manage_chat:
+            obj['can_manage_chat'] = self.can_manage_chat
+        if self.can_delete_messages:
+            obj['can_delete_messages'] = self.can_delete_messages
+        if self.can_manage_video_chats:
+            obj['can_manage_video_chats'] = self.can_manage_video_chats
+        if self.can_restrict_members:
+            obj['can_restrict_members'] = self.can_restrict_members
+        if self.can_promote_members:
+            obj['can_promote_members'] = self.can_promote_members
+        if self.can_change_info:
+            obj['can_change_info'] = self.can_change_info
+        if self.can_invite_users:
+            obj['can_invite_users'] = self.can_invite_users
+        if self.can_post_messages:
+            obj['can_post_messages'] = self.can_post_messages
+        if self.can_edit_messages:
+            obj['can_edit_messages'] = self.can_edit_messages
+        if self.can_pin_messages:
+            obj['can_pin_messages'] = self.can_pin_messages
+        return obj
+
+    @classmethod
+    def de_json(cls, obj_type):
+        obj = cls.check_type(obj_type)
+        is_anonymous = False
+        if 'is_anonymous' in obj:
+            is_anonymous = True
+        can_manage_chat = False
+        if 'can_manage_chat' in obj:
+            can_manage_chat = True
+        can_delete_messages = False
+        if 'can_delete_messages' in obj:
+            can_delete_messages = True
+        can_manage_video_chats = False
+        if 'can_manage_video_chats' in obj:
+            can_manage_video_chats = True
+        can_restrict_members = False
+        if 'can_restrict_members' in obj:
+            can_restrict_members = True
+        can_promote_members = False
+        if 'can_promote_members' in obj:
+            can_promote_members = True
+        can_change_info = False
+        if 'can_change_info' in obj:
+            can_change_info = True
+        can_invite_users = False
+        if 'can_invite_users' in obj:
+            can_invite_users = True
+        can_post_messages = False
+        if 'can_post_messages' in obj:
+            can_post_messages = True
+        can_edit_messages = False
+        if 'can_edit_messages' in obj:
+            can_edit_messages = True
+        can_pin_messages = False
+        if 'can_pin_messages' in obj:
+            can_pin_messages = True
+        return cls(is_anonymous, can_manage_chat, can_delete_messages, can_manage_video_chats, can_restrict_members,
+                   can_promote_members, can_change_info, can_invite_users, can_post_messages, can_edit_messages,
+                   can_pin_messages)
+
+
 class ChatMember(JsonDeserializable):
     """
     This object contains information about one member of a chat.

@@ -416,6 +416,14 @@ class AsyncBot(Bot):
         return Bot.get_chat_menu_button(self, chat_id)
 
     @async_handler()
+    def set_my_default_administrator_rights(self, rights=None, for_channel=False):
+        return Bot.set_my_default_administrator_rights(self, rights, for_channel)
+
+    @async_handler()
+    def get_my_default_administrator_rights(self, for_channel=False):
+        return Bot.get_my_default_administrator_rights(self, for_channel)
+
+    @async_handler()
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           entities=None, disable_web_page_preview=False, reply_markup=None):
         return Bot.edit_message_text(self, chat_id, chat_id, message_id, inline_message_id, parse_mode, entities,

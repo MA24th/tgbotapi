@@ -1711,6 +1711,48 @@ def get_chat_menu_button(based_url, proxies, chat_id):
     return make_request(method, api_url, api_method, files, params, proxies)
 
 
+def set_my_default_administrator_rights(based_url, proxies, rights, for_channel=False):
+    """
+    Use this method to change the default administrator rights requested by the bot when it's added as an administrator
+    to groups or channels. These rights will be suggested to users,
+    but they are free to modify the list before adding the bot. Returns True on success
+    :type based_url: str
+    :type proxies: dict or None
+    :type rights: object or None
+    :type for_channel: bool
+    :rtype: bool
+    """
+    method = r'post'
+    api_method = r'setMyDefaultAdministratorRights'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {}
+    if rights:
+        params['rights'] = rights
+    if for_channel:
+        params['for_channel'] = True
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
+def get_my_default_administrator_rights(based_url, proxies, for_channel=False):
+    """
+    Use this method to get the current default administrator rights of the bot.
+    Returns ChatAdministratorRights on success
+    :type based_url: str
+    :type proxies: dict or None
+    :type for_channel: bool
+    :rtype: dict
+    """
+    method = r'get'
+    api_method = r'getMyDefaultAdministratorRights'
+    api_url = based_url + '/' + api_method
+    files = None
+    params = {}
+    if for_channel:
+        params['for_channel'] = True
+    return make_request(method, api_url, api_method, files, params, proxies)
+
+
 def edit_message_text(based_url, proxies, text, chat_id, message_id, inline_message_id, parse_mode, entities,
                       disable_web_page_preview,
                       reply_markup):

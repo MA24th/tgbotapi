@@ -1383,6 +1383,36 @@ class Bot:
         data = methods.get_chat_menu_button(self.__api_url, self.__proxies, chat_id)
         return types.MenuButton.de_json(data)
 
+    def set_my_default_administrator_rights(self, rights=None, for_channel=False):
+        """
+        Use this method to change the default administrator rights requested by the bot when it's added as an
+        administrator to groups or channels. These rights will be suggested to users,
+        but they  are free to modify the list before adding the bot.
+        Returns True on success
+        :param types.ChatAdministratorRights or None rights: New default administrator rights
+        :param bool for_channel: Pass True to change the default administrator rights of the bot in channels.
+                                 Otherwise, the default administrator rights of the bot for groups and supergroups
+                                 will be changed.
+
+        :return: True on success
+        :rtype: bool
+        """
+        data = methods.set_my_default_administrator_rights(self.__api_url, self.__proxies, rights, for_channel)
+        return data
+
+    def get_my_default_administrator_rights(self, for_channel=False):
+        """
+        Use this method to get the current default administrator rights of the bot.
+        Returns ChatAdministratorRights on success
+        :param bool for_channel: Pass True to change the default administrator rights of the bot in channels.
+                                 Otherwise, the default administrator rights of the bot for groups and supergroups
+                                 will be changed.
+        :return: ChatAdministratorRights on success
+        :rtype: types.ChatAdministratorRights
+        """
+        data = methods.get_my_default_administrator_rights(self.__api_url, self.__proxies, for_channel)
+        return types.ChatAdministratorRights.de_json(data)
+
     def edit_message_text(self, text, chat_id=None, message_id=None, inline_message_id=None, parse_mode=None,
                           entities=None, disable_web_page_preview=False, reply_markup=None):
         """
