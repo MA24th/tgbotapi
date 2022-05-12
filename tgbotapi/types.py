@@ -1784,7 +1784,7 @@ class ChatMember(JsonDeserializable):
 
     class __ChatMemberAdministrator(JsonDeserializable):
         def __init__(self, status, user, can_be_edited, is_anonymous, can_manage_chat, can_delete_messages,
-                     can_manage_voice_chats, can_restrict_members, can_promote_members, can_change_info,
+                     can_manage_video_chats, can_restrict_members, can_promote_members, can_change_info,
                      can_invite_users, can_post_messages, can_edit_messages, can_pin_messages, custom_title):
             """
             Represents a chat member that has some additional privileges
@@ -1795,7 +1795,7 @@ class ChatMember(JsonDeserializable):
             self.is_anonymous = is_anonymous
             self.can_manage_chat = can_manage_chat
             self.can_delete_messages = can_delete_messages
-            self.can_manage_voice_chats = can_manage_voice_chats
+            self.can_manage_video_chats = can_manage_video_chats
             self.can_restrict_members = can_restrict_members
             self.can_promote_members = can_promote_members
             self.can_change_info = can_change_info
@@ -1822,9 +1822,9 @@ class ChatMember(JsonDeserializable):
             can_delete_messages = False
             if 'can_delete_messages' in obj:
                 can_delete_messages = obj['can_delete_messages']
-            can_manage_voice_chats = False
-            if 'can_manage_voice_chats' in obj:
-                can_manage_voice_chats = obj['can_manage_voice_chats']
+            can_manage_video_chats = False
+            if 'can_manage_video_chats' in obj:
+                can_manage_video_chats = obj['can_manage_video_chats']
             can_restrict_members = False
             if 'can_restrict_members' in obj:
                 can_restrict_members = obj['can_restrict_members']
@@ -1850,7 +1850,7 @@ class ChatMember(JsonDeserializable):
             if 'custom_title' in obj:
                 custom_title = obj['custom_title']
             return cls(status, user, can_be_edited, is_anonymous, can_manage_chat, can_delete_messages,
-                       can_manage_voice_chats, can_restrict_members, can_promote_members, can_change_info,
+                       can_manage_video_chats, can_restrict_members, can_promote_members, can_change_info,
                        can_invite_users, can_post_messages, can_edit_messages, can_pin_messages, custom_title)
 
     class __ChatMemberMember(JsonDeserializable):
