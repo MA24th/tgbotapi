@@ -285,11 +285,11 @@ class AsyncBot(Bot):
     @async_handler()
     def promote_chat_member(self, chat_id, user_id, is_anonymous=False, can_manage_chat=False, can_change_info=False,
                             can_post_messages=False, can_edit_messages=False, can_delete_messages=False,
-                            can_manage_voice_chats=False, can_invite_users=False, can_restrict_members=False,
+                            can_manage_video_chats=False, can_invite_users=False, can_restrict_members=False,
                             can_pin_messages=False, can_promote_members=False):
         return Bot.promote_chat_member(self, chat_id, user_id, is_anonymous, can_manage_chat, can_change_info,
                                        can_post_messages, can_edit_messages, can_delete_messages,
-                                       can_manage_voice_chats, can_invite_users, can_restrict_members, can_pin_messages,
+                                       can_manage_video_chats, can_invite_users, can_restrict_members, can_pin_messages,
                                        can_promote_members)
 
     @async_handler()
