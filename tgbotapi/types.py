@@ -90,7 +90,7 @@ class Update(JsonDeserializable):
 
 class WebhookInfo(JsonDeserializable):
     def __init__(self, url, has_custom_certificate, pending_update_count, ip_address, last_error_date,
-                 last_error_message, max_connections, allowed_updates):
+                 last_error_message, last_synchronization_error_date, max_connections, allowed_updates):
         """
         Contains information about the current status of a webhook
         """
@@ -100,6 +100,7 @@ class WebhookInfo(JsonDeserializable):
         self.ip_address = ip_address
         self.last_error_date = last_error_date
         self.last_error_message = last_error_message
+        self.last_synchronization_error_date = last_synchronization_error_date
         self.max_connections = max_connections
         self.allowed_updates = allowed_updates
 
@@ -120,6 +121,9 @@ class WebhookInfo(JsonDeserializable):
         last_error_message = None
         if 'last_error_message' in obj:
             last_error_message = obj['last_error_message']
+        last_synchronization_error_date = None
+        if 'last_synchronization_error_date' in obj:
+            last_synchronization_error_date = obj['last_synchronization_error_date']
         max_connections = None
         if 'max_connections' in obj:
             max_connections = obj['max_connections']
@@ -127,7 +131,7 @@ class WebhookInfo(JsonDeserializable):
         if 'allowed_updates' in obj:
             allowed_updates = obj['allowed_updates']
         return cls(url, has_custom_certificate, pending_update_count, ip_address, last_error_date, last_error_message,
-                   max_connections, allowed_updates)
+                   last_synchronization_error_date, max_connections, allowed_updates)
 
 
 class User(JsonDeserializable):
