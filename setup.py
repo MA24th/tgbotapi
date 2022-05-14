@@ -18,7 +18,6 @@ setup(name='tgbotapi',
       url='https://github.com/MA24th/tgbotapi',
       packages=find_packages(),
       classifiers=[
-          'Framework :: tgbotapi',
           'Topic :: Software Development',
           'Development Status :: 5 - Production/Stable',
           'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
